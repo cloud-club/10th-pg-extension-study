@@ -1,0 +1,21 @@
+# ---------------------------------------------------------------------------
+# greetkor.control - Extension 메타데이터
+# 이 파일이 $SHAREDIR/extension/ 에 있어야만 CREATE EXTENSION 이 가능하다.
+# ---------------------------------------------------------------------------
+
+# pg_available_extensions.comment 에 표시되는 설명
+comment = '한국어 인사 함수 모음 (SQL-only extension 예제)'
+
+# CREATE EXTENSION greetkor; 했을 때 설치되는 버전
+default_version = '1.1'
+
+# SQL-only extension 이므로 module_pathname 이 없다 (.so 파일 없음)
+# module_pathname = '$libdir/greetkor'
+
+# 설치 후 ALTER EXTENSION ... SET SCHEMA 로 이동 가능
+relocatable = true
+
+# superuser 없이 CREATE 권한만으로 설치 가능 (PG 13+)
+trusted = true
+
+encoding = 'UTF8'

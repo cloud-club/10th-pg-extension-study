@@ -1,0 +1,14 @@
+comment = 'C Extension 최소 예제 (add / hello / GUC / SPI)'
+default_version = '1.0'
+
+# 이 줄이 C Extension 의 핵심.
+# SQL 스크립트의 'MODULE_PATHNAME' 이 이 값으로 치환된다.
+# $libdir 은 pg_config --pkglibdir 로 확장된다.
+module_pathname = '$libdir/myext'
+
+relocatable = true
+
+# C 코드는 서버 프로세스 안에서 그대로 실행된다 = 세그폴트면 서버가 죽는다.
+# 그래서 신뢰할 수 없는 C extension 은 superuser 만 설치할 수 있어야 한다.
+trusted = false
+superuser = true
