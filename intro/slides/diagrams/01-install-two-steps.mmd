@@ -1,0 +1,22 @@
+%%{init: {'theme':'neutral','themeVariables':{'fontFamily':'Pretendard, Apple SD Gothic Neo, Noto Sans KR, sans-serif','fontSize':'15px'},'flowchart':{'htmlLabels':true,'wrappingWidth':520}}}%%
+flowchart TB
+  subgraph HOST["🖥️ &nbsp;서버 (호스트)"]
+    direction TB
+    FILES["<b>① 서버에 파일을 놓는다</b><br/><span style='font-size:12.5px;color:#555'>apt install / make install &nbsp;- OS 작업, 서버당 한 번</span><hr/><span style='font-size:12.5px'>$SHAREDIR/extension/vector.control<br/>$SHAREDIR/extension/vector--0.8.0.sql<br/>$LIBDIR/vector.so</span>"]
+
+    subgraph DB1["📦 &nbsp;데이터베이스 app_db"]
+      A1["<b>② CREATE EXTENSION vector;</b><br/><span style='font-size:12.5px;color:#555'>SQL 작업, DB 마다</span><hr/><span style='font-size:12.5px'>pg_extension 에 기록됨<br/><b>✅ vector 타입을 쓸 수 있다</b></span>"]
+    end
+
+    subgraph DB2["📦 &nbsp;데이터베이스 test_db"]
+      A2["<span style='font-size:12.5px'>②를 하지 않았다<br/><b>❌ vector 타입이 없다</b></span>"]
+    end
+
+    FILES -.->|"<span style='font-size:12.5px'>이 서버는 '제공할 수 있다'<br/>pg_available_extensions 에 보인다</span>"| DB1
+    FILES -.-> DB2
+  end
+
+  style FILES fill:#e8f0f7,stroke:#336791,stroke-width:2px
+  style A1 fill:#e6f5e6,stroke:#2d7a2d,stroke-width:2px
+  style A2 fill:#f7e8e8,stroke:#a33,stroke-width:1px
+  style HOST fill:#fafafa,stroke:#999

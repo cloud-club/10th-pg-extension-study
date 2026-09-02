@@ -1,0 +1,11 @@
+%%{init: {'theme':'neutral','themeVariables':{'fontFamily':'Pretendard, Apple SD Gothic Neo, Noto Sans KR, sans-serif','fontSize':'15px'},'flowchart':{'htmlLabels':true,'wrappingWidth':520}}}%%
+flowchart LR
+  G1["<b>카탈로그에 객체를 더한다</b><br/><span style='font-size:12.5px;color:#555'>CREATE EXTENSION 만으로 동작</span><hr/><span style='font-size:12.5px'>(a) 함수 추가 · lab04<br/>(b) 타입 추가 · lab05<br/>(c) 연산자 클래스 · lab06<br/>(h) 내부 노출 · lab11<br/>(i) 인덱스 AM · lab12<br/>(j) 절차적 언어 · lab13</span>"]
+  G2["<b>서버 내부에 끼어든다</b><br/><span style='font-size:12.5px;color:#555'>shared_preload_libraries 필수</span><hr/><span style='font-size:12.5px'>(d) Hook + 공유메모리 · lab07<br/>(e) 모듈 (extension 아님) · lab08<br/>(f) Background Worker · lab09</span>"]
+  G3["<b>바깥을 끌어온다</b><br/><span style='font-size:12.5px;color:#555'>외부 데이터를 테이블로</span><hr/><span style='font-size:12.5px'>(g) FDW · lab10</span>"]
+
+  G1 ~~~ G2 ~~~ G3
+
+  style G1 fill:#e9f5e9,stroke:#2d7a2d,stroke-width:2px
+  style G2 fill:#fff6e5,stroke:#e08600,stroke-width:2px
+  style G3 fill:#f0f4f8,stroke:#336791,stroke-width:2px

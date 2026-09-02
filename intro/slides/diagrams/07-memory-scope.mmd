@@ -1,0 +1,11 @@
+%%{init: {'theme':'neutral','themeVariables':{'fontFamily':'Pretendard, Apple SD Gothic Neo, Noto Sans KR, sans-serif','fontSize':'15px'},'flowchart':{'htmlLabels':true,'wrappingWidth':520}}}%%
+flowchart LR
+  A["<b>① palloc</b><br/><span style='font-size:12.5px;color:#555'>쿼리 · 트랜잭션 수명</span><hr/><span style='font-size:12.5px'>text_to_cstring() · 임시 버퍼<br/><br/><b>범위</b> 이 쿼리<br/><b>해제</b> 자동 (pfree 불필요)</span>"]
+  B["<b>② static 변수</b><br/><span style='font-size:12.5px;color:#555'>세션 수명</span><hr/><span style='font-size:12.5px'>static int cnt; · GUC 저장 변수<br/><br/><b>범위</b> 이 백엔드 프로세스<br/><b>해제</b> 세션 종료 시</span>"]
+  C["<b>③ 공유 메모리</b><br/><span style='font-size:12.5px;color:#555'>서버 수명</span><hr/><span style='font-size:12.5px'>RequestAddinShmemSpace()<br/><br/><b>범위</b> 모든 세션<br/><b>해제</b> 서버 종료 시</span>"]
+
+  A ---|"<span style='font-size:12.5px'>수명이 길어진다 →</span>"| B ---|"<span style='font-size:12.5px'>→</span>"| C
+
+  style A fill:#e9f5e9,stroke:#2d7a2d,stroke-width:2px
+  style B fill:#f0f4f8,stroke:#336791,stroke-width:2px
+  style C fill:#fff6e5,stroke:#e08600,stroke-width:2px

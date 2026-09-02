@@ -1,0 +1,25 @@
+%%{init: {'theme':'neutral','themeVariables':{'fontFamily':'Pretendard, Apple SD Gothic Neo, Noto Sans KR, sans-serif','fontSize':'15px'},'flowchart':{'htmlLabels':true,'wrappingWidth':520}}}%%
+flowchart LR
+  subgraph SQLE["<b>✅ SQL-only Extension</b> &nbsp;(lab00 의 hello)"]
+    direction TB
+    Q1["<span style='font-size:12.5px'>SELECT hello('세계')</span>"]
+    P1["<b>SQL 실행기가 처리</b><br/><span style='font-size:12.5px'>플래너가 본문을 인라인하거나<br/>SQL 실행기가 그대로 실행</span>"]
+    R1["<b>메모리</b><br/><span style='font-size:12.5px'>쿼리용 MemoryContext<br/>트랜잭션 끝에 자동 해제</span><hr/><b>실패해도</b><br/><span style='font-size:12.5px'>ERROR 하나로 끝<br/>프로세스는 멀쩡하다</span>"]
+    Q1 --> P1 --> R1
+  end
+
+  subgraph CE["<b>⚠️ C Extension</b> &nbsp;(lab03 의 myext_add)"]
+    direction TB
+    Q2["<span style='font-size:12.5px'>SELECT myext_add(2,3)</span>"]
+    L2["<b>세션에서 처음이면 로딩</b><br/><span style='font-size:12.5px'>dlopen(myext.so)<br/>→ _PG_init() 실행</span>"]
+    P2["<b>기계어가 직접 실행</b><br/><span style='font-size:12.5px'>백엔드 프로세스 주소 공간에서<br/>PostgreSQL 과 같은 프로세스</span>"]
+    R2["<b>메모리</b><br/><span style='font-size:12.5px'>palloc 은 자동 해제<br/>static 은 세션 끝까지 유지</span><hr/><b>실패하면</b><br/><span style='font-size:12.5px'>세그폴트 → 백엔드 사망<br/>→ 서버 전체 재시작</span>"]
+    Q2 --> L2 --> P2 --> R2
+  end
+
+  SQLE ~~~ CE
+
+  style SQLE fill:#e9f5e9,stroke:#2d7a2d,stroke-width:2px
+  style CE fill:#fff6e5,stroke:#e08600,stroke-width:2px
+  style R1 fill:#f5fbf5,stroke:#2d7a2d
+  style R2 fill:#fdf3e3,stroke:#c0392b

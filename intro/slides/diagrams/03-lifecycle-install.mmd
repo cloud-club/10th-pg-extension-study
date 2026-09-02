@@ -1,0 +1,24 @@
+%%{init: {'theme':'neutral', 'themeVariables': {'fontFamily':'Pretendard, Apple SD Gothic Neo, Noto Sans KR, sans-serif','fontSize':'14px'}}}%%
+sequenceDiagram
+    participant OS as 터미널 (OS)
+    participant FS as 파일 시스템
+    participant PG as PostgreSQL 백엔드
+    participant CAT as 시스템 카탈로그
+
+    rect rgb(240,244,248)
+    Note over OS,FS: ① 설치 - 서버 전체에 한 번
+    OS->>FS: apt install postgresql-contrib
+    FS-->>FS: .control / .sql / .so 배치
+    end
+
+    rect rgb(233,245,233)
+    Note over OS,CAT: ② 활성화 - 데이터베이스마다
+    OS->>PG: CREATE EXTENSION pgcrypto;
+    PG->>FS: ③ pgcrypto.control 읽기
+    FS-->>PG: default_version, module_pathname
+    PG->>CAT: ⑥ pg_extension INSERT → OID 16396
+    PG->>FS: ⑦ pgcrypto--1.3.sql 읽기
+    PG->>CAT: CREATE FUNCTION × 36
+    PG->>CAT: ⑧ pg_depend 소속 기록 (deptype='e')
+    end
+    Note right of PG: 이 세션은 ⑦에서 .so 를 이미 읽었다<br/>(심볼 확인). 다른 세션은 아직이다

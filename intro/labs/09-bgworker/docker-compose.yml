@@ -1,0 +1,28 @@
+name: pg-study-lab09
+
+services:
+  postgres:
+    build: .
+    container_name: pg-study-lab09-bgworker
+    environment:
+      POSTGRES_DB: study
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "15409:5432"
+    volumes:
+      - ./sql:/lab/sql:ro
+    command:
+      - postgres
+      # Background Worker 등록은 서버 시작 시점에만 가능하다
+      - -c
+      - shared_preload_libraries=pg_cron
+      # pg_cron 은 스케줄 테이블을 어느 DB 에 둘지 지정해야 한다
+      - -c
+      - cron.database_name=study
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -p 5432 -U postgres -d study"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+      start_period: 30s

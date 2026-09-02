@@ -1,0 +1,29 @@
+-- PGXS 회귀 테스트: make installcheck 가 이 파일을 실행하고
+-- 결과를 expected/myext_basic.out 과 diff 한다.
+CREATE EXTENSION myext;
+SELECT myext_add(2, 3);
+ myext_add 
+-----------
+         5
+(1 row)
+
+SELECT myext_double_or_zero(21);
+ myext_double_or_zero 
+----------------------
+                   42
+(1 row)
+
+SELECT myext_double_or_zero(NULL);
+ myext_double_or_zero 
+----------------------
+                    0
+(1 row)
+
+SET myext.repeat_count = 2;
+SELECT myext_shout('pg');
+ myext_shout 
+-------------
+ pg! pg!
+(1 row)
+
+DROP EXTENSION myext;

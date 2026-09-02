@@ -1,0 +1,9 @@
+# PGXS 빌드 산출물
+ext/*.o
+ext/*.so
+ext/*.bc
+# 회귀 테스트 실행 결과 (expected/ 는 커밋한다)
+ext/results/
+ext/regression.diffs
+ext/regression.out
+ext/tmp_check/
