@@ -1,0 +1,22 @@
+name: pg-study-lab06
+
+services:
+  postgres:
+    build: .
+    container_name: pg-study-lab06-opclass
+    environment:
+      POSTGRES_DB: study
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "15406:5432"
+    volumes:
+      - ./sql:/lab/sql:ro
+    healthcheck:
+      # 유닉스 소켓 대신 TCP 로 확인한다. 첫 기동 시 initdb 용 임시 서버는
+      # TCP 를 열지 않으므로, 이렇게 해야 "진짜" 서버가 뜬 시점을 잡을 수 있다.
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -p 5432 -U postgres -d study"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+      start_period: 30s
