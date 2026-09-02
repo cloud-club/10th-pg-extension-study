@@ -1,0 +1,11 @@
+# Marp CLI 설정
+#
+# emoji.unicode: false
+#   기본값은 'twemoji' 라서 이모지가 <img> 로 치환된다.
+#   그러면 이모지 앞뒤가 줄바꿈 지점이 되어 "📦" 다음에 개행이 끼는 일이 생긴다.
+#   false 로 두면 폰트의 이모지 글리프를 그대로 쓰므로 줄바꿈이 자연스럽다.
+#   (네트워크 없이도 렌더링된다는 장점도 있다)
+options:
+  emoji:
+    shortcode: true
+    unicode: false

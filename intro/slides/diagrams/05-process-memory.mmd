@@ -1,0 +1,39 @@
+%%{init: {'theme':'neutral','themeVariables':{'fontFamily':'Pretendard, Apple SD Gothic Neo, Noto Sans KR, sans-serif','fontSize':'15px'},'flowchart':{'htmlLabels':true,'wrappingWidth':520}}}%%
+flowchart TB
+  PM["<b>postmaster</b><br/><span style='font-size:12.5px;color:#555'>부모 프로세스</span>"]
+
+  subgraph SHM["<b>공유 메모리</b> &nbsp;- 모든 프로세스가 함께 본다"]
+    direction LR
+    SB["<span style='font-size:12.5px'><b>shared_buffers</b><br/>페이지 캐시</span>"]
+    PGSS["<span style='font-size:12.5px'><b>pg_stat_statements</b><br/>통계 해시테이블</span>"]
+    LOCK["<span style='font-size:12.5px'><b>Lock 테이블</b><br/>WAL 버퍼</span>"]
+  end
+
+  subgraph B1["백엔드 #1 &nbsp;(세션 A)"]
+    direction TB
+    M1["<span style='font-size:12.5px'>MemoryContext<br/>palloc 메모리</span>"]
+    SO1["<span style='font-size:12.5px'>dlopen 된 .so<br/><b>+ static 변수</b></span>"]
+  end
+
+  subgraph B2["백엔드 #2 &nbsp;(세션 B)"]
+    direction TB
+    M2["<span style='font-size:12.5px'>MemoryContext<br/>palloc 메모리</span>"]
+    SO2["<span style='font-size:12.5px'>dlopen 된 .so<br/><b>+ static 변수</b></span>"]
+  end
+
+  subgraph BGW["Background Worker &nbsp;(pg_cron 등)"]
+    M3["<span style='font-size:12.5px'>자체 MemoryContext<br/><b>접속과 무관하게 계속 돎</b></span>"]
+  end
+
+  PM -->|fork| B1
+  PM -->|fork| B2
+  PM -->|fork| BGW
+  B1 --- SHM
+  B2 --- SHM
+  BGW --- SHM
+
+  style SHM fill:#fff6e5,stroke:#e08600,stroke-width:2px
+  style B1 fill:#f0f4f8,stroke:#336791
+  style B2 fill:#f0f4f8,stroke:#336791
+  style BGW fill:#e9f5e9,stroke:#2d7a2d
+  style PM fill:#336791,color:#fff

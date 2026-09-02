@@ -1,0 +1,36 @@
+%%{init: {'theme':'neutral','themeVariables':{'fontFamily':'Pretendard, Apple SD Gothic Neo, Noto Sans KR, sans-serif','fontSize':'15px'},'flowchart':{'htmlLabels':true,'wrappingWidth':520}}}%%
+flowchart LR
+  START(["<b>CREATE<br/>EXTENSION</b><br/>foo;"])
+
+  subgraph P1["<b>【1단계】 준비</b> &nbsp;- 무엇을 설치하라는 건지 알아낸다"]
+    direction TB
+    S1["<b>① SQL 파싱</b><br/><span style='font-size:12.5px'>→ AST 생성</span>"]
+    S2["<b>② 디스패치</b><br/><span style='font-size:12.5px'>CreateExtension() 호출</span>"]
+    S1 --> S2
+  end
+
+  subgraph P2["<b>【2단계】 검증</b> &nbsp;- ⚠ 실패는 대부분 여기"]
+    direction TB
+    S3["<b>③ foo.control 읽기</b><br/><span style='font-size:12.5px;color:#c0392b'>✘ could not open<br/>extension control file</span>"]
+    S4["<b>④ 권한 검사</b><br/><span style='font-size:12.5px'>superuser / trusted</span><br/><span style='font-size:12.5px;color:#c0392b'>✘ permission denied</span>"]
+    S5["<b>⑤ 의존성 확인</b><br/><span style='font-size:12.5px'>requires</span><br/><span style='font-size:12.5px;color:#c0392b'>✘ required extension<br/>is not installed</span>"]
+    S3 --> S4 --> S5
+  end
+
+  subgraph P3["<b>【3단계】 실행</b> &nbsp;- 여기부터 DB 가 바뀐다"]
+    direction TB
+    S6["<b>⑥ 카탈로그 등록</b><br/><span style='font-size:12.5px'>pg_extension INSERT<br/>→ OID 발급</span>"]
+    S7["<b>⑦ 스크립트 실행</b><br/><span style='font-size:12.5px'>foo--1.0.sql<br/>→ 함수 · 타입 생성</span>"]
+    S8["<b>⑧ 소속 표시</b><br/><span style='font-size:12.5px'>만들어진 객체마다<br/>'foo 소속' 꼬리표</span>"]
+    S6 --> S7 --> S8
+  end
+
+  DONE(["<b>설치 완료</b><br/><span style='font-size:12.5px'>다른 세션들은<br/>아직 .so 를<br/>읽지 않았다</span>"])
+
+  START --> P1 --> P2 --> P3 --> DONE
+
+  style P1 fill:#f0f4f8,stroke:#336791,stroke-width:2px
+  style P2 fill:#fff6e5,stroke:#e08600,stroke-width:2px
+  style P3 fill:#e9f5e9,stroke:#2d7a2d,stroke-width:2px
+  style START fill:#336791,color:#fff
+  style DONE fill:#336791,color:#fff

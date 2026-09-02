@@ -1,0 +1,21 @@
+%%{init: {'theme':'neutral', 'themeVariables': {'fontFamily':'Pretendard, Apple SD Gothic Neo, Noto Sans KR, sans-serif','fontSize':'14px'}}}%%
+sequenceDiagram
+    participant OS as 클라이언트
+    participant PG as PostgreSQL 백엔드
+    participant CAT as 시스템 카탈로그
+    participant SO as pgcrypto.so
+    rect rgb(255,246,229)
+    Note over OS,SO: ③ 사용 - 세션마다 "처음 한 번"
+    OS->>PG: SELECT gen_salt('bf');
+    PG->>CAT: pg_proc 조회
+    CAT-->>PG: probin = $libdir/pgcrypto<br/>prosrc = pg_gen_salt
+    PG->>SO: dlopen("pgcrypto.so")
+    SO-->>PG: Pg_magic_func 검사 통과
+    PG->>SO: _PG_init() 호출
+    PG->>SO: dlsym("pg_gen_salt") → 실행
+    SO-->>PG: Datum 반환
+    PG-->>OS: 결과
+    end
+    Note over OS,SO: 같은 세션의 두 번째 호출
+    OS->>PG: SELECT gen_salt('bf');
+    PG->>SO: 이미 로드됨 → 바로 호출
