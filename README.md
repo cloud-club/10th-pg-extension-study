@@ -103,5 +103,5 @@ cd 10th-pg-extension-study
 open intro/slides/slides.html
 
 # 첫 실습 - Docker 만 있으면 됩니다 (약 7초)
-cd intro/labs/lab00-hello-extension && ./run.sh
+cd intro/labs/00-hello-extension && ./run.sh
 ```
