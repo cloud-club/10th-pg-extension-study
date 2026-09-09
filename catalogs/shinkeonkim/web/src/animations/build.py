@@ -71,14 +71,17 @@ def widen(doc, pad):
     return doc
 
 
-def chapter_frames(els, chapters, groups, end, canvas_h, content_x=40, content_w=860, pad_top=30, pad_bottom=24):
+def chapter_frames(els, chapters, groups, end, canvas_h,
+                   content_x=40, content_w=860,
+                   pad_top=30, pad_bottom=24, pad_side=64):
     """장마다 **같은 크기의** 카메라 틀을 만들어 붙인다.
 
     focus 는 대상 상자에 화면을 '맞추므로', 장마다 상자 크기가 다르면 배율이 매번 달라진다 -
     확대·축소가 반복되면 읽기가 어렵다. 그래서 **모든 장에서 크기가 같은 보이지 않는 틀**을 두고
     그 틀만 초점 대상으로 삼는다. 결과적으로 배율은 고정되고 카메라는 위아래로 이동만 한다.
 
-    틀의 가로는 내용 전체 폭으로 고정한다 - 글자가 옆으로 잘릴 여지를 아예 없앤다.
+    틀의 가로는 내용 전체 폭 + 좌우 여백(pad_side)으로 고정한다. 폭을 딱 맞추면 글자가
+    화면 가장자리에 붙어 읽기 불편하고, 잘릴 여지도 생긴다.
     세로는 가장 큰 장에 맞춘 하나의 값이다.
 
     돌려주는 것: (틀 요소 목록, focus 목록)
@@ -108,8 +111,8 @@ def chapter_frames(els, chapters, groups, end, canvas_h, content_x=40, content_w
         y = round(min(max(center - height / 2, 0), canvas_h - height))
         fid = f"cam{n}"
         frames.append({
-            "type": "rect", "id": fid, "x": content_x, "y": y,
-            "width": content_w, "height": round(height),
+            "type": "rect", "id": fid, "x": content_x - pad_side, "y": y,
+            "width": content_w + pad_side * 2, "height": round(height),
             "fill": BG, "stroke": BG, "strokeWidth": 0, "cornerRadius": 0,
             "appearances": [{"start": 0, "end": end, "entryMode": "instant", "entryDuration": 1}],
         })
