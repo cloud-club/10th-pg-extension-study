@@ -1,0 +1,69 @@
+/* 다크 전용 — 카탈로그의 visualizations 와 같은 팔레트를 쓴다 */
+:root {
+  --bg:#0b1120; --panel:#111827; --panel-2:#1e293b; --ink:#e2e8f0; --muted:#94a3b8;
+  --line:#334155; --bigm:#60a5fa; --trgm:#fb7185; --ok:#34d399; --warn:#fbbf24;
+  --code-bg:#020617; color-scheme: dark;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);line-height:1.7;font-size:16px;
+  font-family:-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Pretendard','Noto Sans KR',system-ui,sans-serif}
+.wrap{max-width:1100px;margin:0 auto;padding:0 20px 96px}
+header.top{border-bottom:1px solid var(--line);background:var(--panel);position:sticky;top:0;z-index:20}
+header.top .inner{max-width:1100px;margin:0 auto;padding:12px 20px;display:flex;gap:12px;align-items:baseline;flex-wrap:wrap}
+.brand{font-weight:700}
+.sub{font-size:13px;color:var(--muted)}
+h1{font-size:29px;margin:30px 0 8px;letter-spacing:-.01em}
+h2{font-size:21px;margin:44px 0 12px;padding-top:16px;border-top:1px solid var(--line)}
+.lede{color:var(--muted);font-size:17px}
+a{color:var(--bigm)}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.92em}
+:not(pre)>code{background:var(--panel-2);padding:1px 6px;border-radius:5px}
+pre{background:var(--code-bg);padding:12px 14px;border-radius:10px;overflow-x:auto;font-size:12.5px;line-height:1.55;margin:8px 0 0}
+
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin:18px 0}
+.note{border-left:3px solid var(--line);padding:8px 0 8px 14px;margin:14px 0;color:var(--muted);font-size:14.5px}
+.caption{font-size:13px;color:var(--muted);margin:6px 0 0}
+.muted{color:var(--muted);font-size:13.5px}
+.err{color:var(--trgm);font-size:14px;white-space:pre-wrap}
+
+.grid{display:grid;gap:14px}
+@media(min-width:760px){.grid{grid-template-columns:1fr 1fr 1fr}.grid.three{grid-template-columns:1fr 1fr 1fr}}
+.f{display:flex;flex-direction:column;gap:5px}
+.f>span{font-size:13px;color:var(--muted)}
+.f small{font-size:12px;color:var(--muted)}
+input,select{font:inherit;font-size:15px;padding:8px 10px;border-radius:9px;
+  border:1px solid var(--line);background:var(--bg);color:var(--ink)}
+fieldset{border:1px solid var(--line);border-radius:11px;padding:10px 12px 12px;margin:0}
+legend{font-size:12px;color:var(--muted);padding:0 6px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{display:inline-flex;align-items:center;gap:6px;font-size:13px;padding:5px 11px;
+  border-radius:999px;border:1px solid var(--line);background:var(--bg);color:var(--muted);cursor:pointer;user-select:none}
+.chip.on{background:var(--bigm);border-color:var(--bigm);color:#0b1120;font-weight:600}
+.chip input{display:none}
+.actions{display:flex;gap:14px;align-items:center;margin-top:16px;flex-wrap:wrap}
+button{font:inherit;font-size:15px;font-weight:600;padding:9px 20px;border-radius:10px;
+  border:0;background:var(--ok);color:#04231a;cursor:pointer}
+button:disabled{opacity:.5;cursor:not-allowed}
+button.ghost{background:transparent;border:1px solid var(--line);color:var(--muted);font-weight:400;padding:5px 12px;font-size:13px}
+
+.pill{font-size:12px;padding:2px 10px;border-radius:999px;border:1px solid var(--line);color:var(--muted);vertical-align:middle}
+.pill.running{color:var(--warn);border-color:var(--warn)}
+.pill.done{color:var(--ok);border-color:var(--ok)}
+.pill.failed{color:var(--trgm);border-color:var(--trgm)}
+.pill.pending{color:var(--muted)}
+.pill.canceled{color:var(--muted);text-decoration:line-through}
+
+.bar{height:6px;border-radius:999px;background:var(--panel-2);overflow:hidden;margin:6px 0}
+#barfill{height:100%;width:0;background:var(--bigm);transition:width .3s}
+
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px;margin:14px 0}
+table{border-collapse:collapse;width:100%;font-size:14px;min-width:640px}
+th,td{padding:9px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+thead th{background:var(--panel-2);font-weight:600;white-space:nowrap}
+tbody tr:last-child td{border-bottom:0}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+tr.bad td{background:color-mix(in srgb,var(--trgm) 10%,transparent)}
+tr.good td{background:color-mix(in srgb,var(--ok) 9%,transparent)}
+.chart{position:relative;height:320px}
+footer.bottom{border-top:1px solid var(--line);margin-top:56px;padding:20px 0 0;color:var(--muted);font-size:13.5px}
+.warnmark{color:var(--warn)}

@@ -1,0 +1,50 @@
+# ---------------------------------------------------------------------------
+# 실험용 PostgreSQL - pg_bigm(소스 빌드) + pg_trgm(contrib) 둘 다 설치
+#
+# pg_bigm 은 contrib 도 PGDG 패키지도 아니라 PGXS 로 직접 빌드해야 한다.
+# 그래서 메이저 버전마다 .so 를 따로 만들어야 하고, 그게 이 Dockerfile 이
+# PGVER 을 받는 이유다.
+#
+#   PGVER  경로에 쓰이는 메이저 번호      (16 / 17 / 18)
+#   PGTAG  도커 태그                      (16-trixie ...)
+#
+# 주의: PostgreSQL 19 는 pg_bigm 1.2 가 빌드되지 않는다.
+#   PG19 에서 전역 database_ctype_is_c 가 pg_locale_t 의 필드로 옮겨지고
+#   char2wchar() 가 헤더에서 빠졌다. 그래서 이 서버는 16~18 만 띄운다.
+#   (근거: bigm-vs-trgm/experiments/07-postgres-version-matrix)
+# ---------------------------------------------------------------------------
+ARG PGTAG=16-trixie
+FROM postgres:${PGTAG} AS build
+ARG PGVER=16
+
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends \
+      build-essential git ca-certificates \
+      postgresql-server-dev-${PGVER} libicu-dev postgresql-contrib-${PGVER} \
+ && rm -rf /var/lib/apt/lists/*
+
+RUN git clone --branch v1.2-20250903 --depth 1 \
+      https://github.com/pgbigm/pg_bigm.git /build/pg_bigm
+
+WORKDIR /build/pg_bigm
+RUN make USE_PGXS=1 PG_CONFIG=/usr/lib/postgresql/${PGVER}/bin/pg_config \
+ && make USE_PGXS=1 PG_CONFIG=/usr/lib/postgresql/${PGVER}/bin/pg_config install
+
+FROM postgres:${PGTAG}
+ARG PGVER=16
+
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends postgresql-contrib-${PGVER} \
+ && rm -rf /var/lib/apt/lists/*
+
+COPY --from=build /usr/lib/postgresql/${PGVER}/lib/pg_bigm.so \
+                  /usr/lib/postgresql/${PGVER}/lib/
+COPY --from=build /usr/share/postgresql/${PGVER}/extension/pg_bigm.control \
+                  /usr/share/postgresql/${PGVER}/extension/pg_bigm--1.0--1.1.sql \
+                  /usr/share/postgresql/${PGVER}/extension/pg_bigm--1.1--1.2.sql \
+                  /usr/share/postgresql/${PGVER}/extension/pg_bigm--1.2.sql \
+                  /usr/share/postgresql/${PGVER}/extension/
+
+ENV POSTGRES_DB=lab \
+    POSTGRES_USER=postgres \
+    POSTGRES_PASSWORD=postgres
