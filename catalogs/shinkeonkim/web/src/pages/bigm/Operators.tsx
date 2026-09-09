@@ -71,7 +71,7 @@ export default function Operators() {
         </Callout>
 
         <h3>(a) pg_bigm 은 LIKE 와 =% 두 가지만 한다</h3>
-        <p><K>ILIKE</K>, 정규식, <K>=</K> 모두 <K>Seq Scan</K> 이다. 표면적이 좁다는 것이 숫자로 확인된다.</p>
+        <p><K>ILIKE</K>, 정규식, <K>=</K> 모두 <K>Seq Scan</K> 이다. 지원 범위가 좁다는 것이 숫자로 확인된다.</p>
         <Callout kind="ok" title="공식 문서도 같은 말을 한다 — 실측과 어긋나지 않는다">
           <p>
             <a href="https://github.com/pgbigm/pg_bigm/blob/REL1_2_STABLE/docs/pg_bigm_en.md">pg_bigm 공식 문서</a>의

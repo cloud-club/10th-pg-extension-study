@@ -38,7 +38,7 @@
 
 ### 분석
 
-**(a) `pg_bigm` 은 `LIKE` 와 `=%` 두 가지만 한다.** `ILIKE`, 정규식, `=` 모두 `Seq Scan` 이다. 표면적이 좁다는 것이 숫자로 확인된다.
+**(a) `pg_bigm` 은 `LIKE` 와 `=%` 두 가지만 한다.** `ILIKE`, 정규식, `=` 모두 `Seq Scan` 이다. 지원 범위가 좁다는 것이 숫자로 확인된다.
 
 <sub>**공식 문서도 같은 말을 한다.** [pg_bigm 공식 문서](https://github.com/pgbigm/pg_bigm/blob/REL1_2_STABLE/docs/pg_bigm_en.md)의 비교표는 이용 가능한 텍스트 검색 연산자를 pg_bigm 은 *"LIKE only"*, pg_trgm 은 *"LIKE (~~), ILIKE (~~*), ~, ~*"* 로 적는다. 실측(`gin_bigm_ops` 연산자 클래스에 `~~*` 가 등록되어 있지 않다)과 문서가 일치한다 — 반대로 [pg_trgm 공식 문서](https://www.postgresql.org/docs/16/pgtrgm.html)는 *"additionally support trigram-based index searches for `LIKE`, `ILIKE`, `~`, `~*` and `=` queries"* 라고 적고, `pg_amop` 을 읽어 확인한 8개 전략과 맞는다.</sub>
 

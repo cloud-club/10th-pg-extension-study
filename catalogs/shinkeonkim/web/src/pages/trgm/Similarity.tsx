@@ -39,37 +39,57 @@ export default function Similarity() {
 
       <Section id="anim" title="1. 같은 오타, 다른 점수">
         <Clotho id="similarity-compare" />
+        <p>
+          <K>클라우드클럽</K> 과 <K>클라으드클럽</K> — <strong>6글자 중 가운데 한 글자만 다르다.</strong>{' '}
+          두 확장이 이 한 쌍에 매기는 점수를 끝까지 따라가 본다.
+        </p>
         <Table>
-          <THead><TR><TH></TH><TH>공식</TH><TH>뜻</TH><TH><K>클둥이</K>→<K>클동이</K></TH></TR></THead>
+          <THead>
+            <TR><TH></TH><TH>조각</TH><TH>겹친 것</TH><TH>공식</TH><TH>점수</TH></TR>
+          </THead>
           <TBody>
             <TR>
               <TD><Badge variant="bigm">bigm</Badge></TD>
+              <TD>각각 <strong>7개</strong></TD>
+              <TD className="text-ok"><strong>5개</strong></TD>
               <TD><K>겹친 수 / max(조각 수)</K></TD>
-              <TD>긴 쪽을 기준으로 몇 %를 덮었나</TD>
-              <TD className="text-ok"><strong>2 / 4 = 0.5000</strong></TD>
+              <TD className="text-ok"><strong>5 / 7 = 0.7143</strong></TD>
             </TR>
             <TR>
               <TD><Badge variant="trgm">trgm</Badge></TD>
+              <TD>각각 <strong>7개</strong></TD>
+              <TD className="text-warn"><strong>4개</strong></TD>
               <TD><K>겹친 수 / 합집합 크기</K> (자카드)</TD>
-              <TD>안 겹친 조각까지 분모에 넣는다</TD>
-              <TD className="text-trgm"><strong>1 / 7 = 0.1429</strong></TD>
+              <TD className="text-trgm"><strong>4 / (7+7−4) = 0.4000</strong></TD>
             </TR>
           </TBody>
           <TCaption>
-            두 확장 모두 소스에 <K>DIVUNION</K> 이라는 <strong>같은 이름의 매크로</strong>로 공식을 분기하는데,{' '}
-            <K>pg_trgm</K> 만 그 매크로를 <K>#define</K> 해뒀다.
+            <strong>겹친 조각은 5 대 4 로 한 개 차이인데 점수는 0.71 대 0.40 으로 벌어진다.</strong> 조각 수가
+            아니라 <strong>분모</strong>가 만든 차이다 — 자카드는 안 겹친 6개를 전부 분모에 넣는다.
           </TCaption>
         </Table>
+        <Callout kind="info" title="같은 이름의 매크로, 반대 결과">
+          <p>
+            두 확장 모두 소스에 <K>DIVUNION</K> 이라는 <strong>같은 이름의 매크로</strong>로 공식을 분기하는데,{' '}
+            <K>pg_trgm</K> 만 그 매크로를 <K>#define</K> 해뒀다. 한쪽은 <K>max</K> 로, 한쪽은 합집합으로 나눈다.
+          </p>
+        </Callout>
 
+        <h3>짧은 말에서는 그 차이가 임계값 선을 넘는다</h3>
+        <p>
+          위 6글자 예시는 <strong>0.7143 과 0.4000 — 둘 다 기본 임계값 0.3 을 넘는다.</strong> 그래서 결과가
+          갈리지 않는다. 그런데 같은 성질을 <strong>3글자</strong>에 적용하면 선을 넘어간다.
+        </p>
         <StatGrid className="lg:grid-cols-3">
-          <Stat tone="bigm" value="0.5000 ≥ 0.3" label={<><K>bigm_similarity</K> — <strong>매칭된다</strong></>} />
-          <Stat tone="trgm" value="0.1429 < 0.3" label={<><K>similarity</K> — <strong>탈락한다</strong></>} />
+          <Stat tone="bigm" value="0.5000 ≥ 0.3" label={<><K>클둥이</K>→<K>클동이</K> · <K>bigm_similarity</K> — <strong>매칭된다</strong></>} />
+          <Stat tone="trgm" value="0.1429 < 0.3" label={<>같은 쌍 · <K>similarity</K> — <strong>탈락한다</strong></>} />
           <Stat tone="warn" value="같은 오타" label="같은 임계값, 반대 결과" />
         </StatGrid>
         <Callout kind="warn">
           <p>
             <strong>임계값 0.3 을 한쪽에서 다른 쪽으로 그대로 옮기면 안 된다.</strong> 우연히 값이 같을 뿐{' '}
-            <strong>재는 자가 다르다.</strong>
+            <strong>재는 자가 다르다.</strong> 그리고 <strong>검색어가 짧을수록 그 차이가 결과를 갈라놓는다</strong> —
+            분모에 들어가는 조각이 적어 한 개 차이가 크게 작용하기 때문이다.
           </p>
         </Callout>
 
@@ -87,7 +107,8 @@ export default function Similarity() {
           options={{ indexAxis: 'y' as const, scales: { x: { max: 1, title: { display: true, text: '유사도 (기본 임계값 0.3)' } } } }}
           caption={
             <>
-              <strong><K>클둥이</K>→<K>클동이</K> 한 칸만 임계값 선을 사이에 두고 갈린다.</strong> 마지막{' '}
+              <strong>짧은 쌍일수록 두 막대가 벌어진다.</strong> <K>클둥이</K>→<K>클동이</K> 한 칸만 임계값
+              선(0.3)을 사이에 두고 갈리고, 6글자 <K>클라우드클럽</K> 쌍은 둘 다 선 위에 있다. 마지막{' '}
               <K>CloudClub</K> 칸은 반대다 — 대소문자만 다르면 trgm 은 <K>IGNORECASE</K> 라 1.0 이고, pg_bigm 은
               대소문자를 구분한다.
             </>

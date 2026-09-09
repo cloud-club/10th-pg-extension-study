@@ -629,113 +629,143 @@ def doc_gin_structure():
 # ---------------------------------------------------------------------------
 def doc_similarity():
     els, chapters = [], []
-    END = 34000
+    END = 36000
+
+    # 주 예시는 **6글자** 로 잡는다. 3글자로 보이면 "조각이 원래 몇 개 없어서 그런 것" 처럼
+    # 읽히는데, 실제로 갈리는 것은 조각 수가 아니라 **분모** 다. 길게 잡아야 그게 드러난다.
+    A, B = "클라우드클럽", "클라으드클럽"
+
     els.append(txt("t", 40, 42, "유사도 — 두 확장은 다른 자로 잰다", 22, INK, 0, END, "700"))
-    els.append(box("pair", 40, 74, 380, 48, PANEL, stroke=DIM, start=300, end=END,
-                   label="'클둥이'  vs  '클동이'   (한 글자 오타)", label_color=INK,
+    els.append(box("pair", 40, 74, 460, 48, PANEL, stroke=DIM, start=300, end=END,
+                   label=f"'{A}'  vs  '{B}'", label_color=INK,
                    label_size=17, radius=10))
-    els.append(txt("pn", 436, 104, "사람 눈에는 거의 같은 말이다", 15, MUTED, 900, END))
+    els.append(txt("pn", 40, 148, "6글자 중 가운데 한 글자만 다르다 — 사람 눈에는 거의 같은 말이다",
+                   15, MUTED, 900, END))
     chapters.append({"id": "m0", "time": 0, "label": "1. 같은 입력",
-                     "subtitle": "'클둥이' vs '클동이' — 가운데 한 글자만 다르다"})
+                     "subtitle": "6글자 중 한 글자만 다르다"})
 
     # --- 2장: 조각을 낸다 ---------------------------------------------------
-    els.append(txt("bl", 40, 172, "pg_bigm — 2-gram", 18, BIGM, 3000, END, "700"))
-    a2 = ["␣클", "클둥", "둥이", "이␣"]
-    b2 = ["␣클", "클동", "동이", "이␣"]
-    same2 = {0, 3}
+    PITCH, BW = 106, 98
+    els.append(txt("bl", 40, 208, "pg_bigm — 2-gram", 18, BIGM, 3000, END, "700"))
+    a2 = ["␣클", "클라", "라우", "우드", "드클", "클럽", "럽␣"]
+    b2 = ["␣클", "클라", "라으", "으드", "드클", "클럽", "럽␣"]
+    same2 = {0, 1, 4, 5, 6}
     for i, g in enumerate(a2):
-        els.append(box(f"a2_{i}", 40 + i * 100, 194, 92, 42, BIGM if i in same2 else DIM,
-                       start=3200 + i * 260, end=END, label=g, label_size=16, radius=8,
+        els.append(box(f"a2_{i}", 40 + i * PITCH, 228, BW, 42, BIGM if i in same2 else DIM,
+                       start=3200 + i * 200, end=END, label=g, label_size=16, radius=8,
                        label_color=ON_FILL if i in same2 else INK))
     for i, g in enumerate(b2):
-        els.append(box(f"b2_{i}", 40 + i * 100, 244, 92, 42, BIGM if i in same2 else DIM,
-                       start=4400 + i * 260, end=END, label=g, label_size=16, radius=8,
+        els.append(box(f"b2_{i}", 40 + i * PITCH, 278, BW, 42, BIGM if i in same2 else DIM,
+                       start=4700 + i * 200, end=END, label=g, label_size=16, radius=8,
                        label_color=ON_FILL if i in same2 else INK))
-    els.append(txt("bcount", 452, 226, "겹치는 조각 2개 / 각각 4개", 16, BIGM, 5800, END, "600"))
+    els.append(txt("bcount", 40, 350, "각각 7개 중 5개가 겹친다 (안 겹치는 것은 회색 두 칸)",
+                   16, BIGM, 6300, END, "600"))
 
-    els.append(txt("tl", 40, 316, "pg_trgm — 3-gram", 18, TRGM, 8000, END, "700"))
-    a3 = ["␣␣클", "␣클둥", "클둥이", "둥이␣"]
-    b3 = ["␣␣클", "␣클동", "클동이", "동이␣"]
-    same3 = {0}
+    els.append(txt("tl", 40, 402, "pg_trgm — 3-gram", 18, TRGM, 8500, END, "700"))
+    a3 = ["␣␣클", "␣클라", "클라우", "라우드", "우드클", "드클럽", "클럽␣"]
+    b3 = ["␣␣클", "␣클라", "클라으", "라으드", "으드클", "드클럽", "클럽␣"]
+    same3 = {0, 1, 5, 6}
     for i, g in enumerate(a3):
-        els.append(box(f"a3_{i}", 40 + i * 100, 338, 92, 42, TRGM if i in same3 else DIM,
-                       start=8200 + i * 260, end=END, label=g, label_size=15, radius=8,
+        els.append(box(f"a3_{i}", 40 + i * PITCH, 422, BW, 42, TRGM if i in same3 else DIM,
+                       start=8700 + i * 200, end=END, label=g, label_size=15, radius=8,
                        label_color=ON_FILL if i in same3 else INK))
     for i, g in enumerate(b3):
-        els.append(box(f"b3_{i}", 40 + i * 100, 388, 92, 42, TRGM if i in same3 else DIM,
-                       start=9400 + i * 260, end=END, label=g, label_size=15, radius=8,
+        els.append(box(f"b3_{i}", 40 + i * PITCH, 472, BW, 42, TRGM if i in same3 else DIM,
+                       start=10200 + i * 200, end=END, label=g, label_size=15, radius=8,
                        label_color=ON_FILL if i in same3 else INK))
-    els.append(txt("tcount", 452, 370, "겹치는 조각 1개 / 각각 4개", 16, TRGM, 10800, END, "600"))
-    els.append(txt("why", 40, 452,
-                   "한 글자가 틀어지면 2-gram 은 조각 2개가, 3-gram 은 조각 3개가 깨진다 — n 이 클수록 오타에 약하다.",
-                   15, WARN, 12000, END, "600"))
+    els.append(txt("tcount", 40, 544, "각각 7개 중 4개가 겹친다 — 오타 하나가 조각 3개를 깬다",
+                   16, TRGM, 11800, END, "600"))
+    els.append(txt("why", 40, 574,
+                   "한 글자가 틀어지면 2-gram 은 조각 2개, 3-gram 은 3개가 깨진다 — n 이 클수록 오타에 약하다.",
+                   15, WARN, 12600, END, "600"))
     chapters.append({"id": "m1", "time": 2900, "label": "2. 조각을 낸다",
                      "subtitle": "오타 한 글자가 깨뜨리는 조각 수가 다르다"})
 
     # --- 3장: 공식이 다르다 -------------------------------------------------
-    els.append(txt("c3", 40, 512, "그리고 공식 자체가 다르다", 19, INK, 15000, END, "700"))
-    els.append(box("f1", 40, 536, 400, 52, BIGM, start=15400, end=END,
-                   label="bigm:  겹친 수 / max(조각수)", label_size=16, radius=10))
-    els.append(txt("f1n", 456, 556, "'긴 쪽을 기준으로 몇 % 를 덮었나'", 15, MUTED, 16000, END))
-    els.append(txt("f1v", 456, 580, "2 / 4 = 0.5000", 18, BIGM, 16600, END, "700"))
-    els.append(box("f2", 40, 602, 400, 52, TRGM, start=18000, end=END,
-                   label="trgm:  겹친 수 / (합집합 크기)", label_size=16, radius=10))
-    els.append(txt("f2n", 456, 622, "자카드 유사도 — 합집합으로 나눈다", 15, MUTED, 18600, END))
-    els.append(txt("f2v", 456, 646, "1 / (4+4-1) = 0.1429", 18, TRGM, 19200, END, "700"))
-    els.append(txt("c3b", 40, 690,
-                   "분모가 다르다. trgm 은 안 겹친 조각까지 분모에 넣으므로 같은 상황에서 점수가 더 낮게 나온다.",
+    els.append(txt("c3", 40, 636, "그런데 진짜 차이는 분모다", 19, INK, 15000, END, "700"))
+    els.append(box("f1", 40, 658, 420, 52, BIGM, start=15400, end=END,
+                   label="bigm:  겹친 수 / max(조각 수)", label_size=16, radius=10))
+    els.append(txt("f1n", 480, 678, "긴 쪽을 기준으로 몇 % 를 덮었나", 15, MUTED, 16000, END))
+    els.append(txt("f1v", 480, 702, "5 / 7 = 0.7143", 18, BIGM, 16600, END, "700"))
+    els.append(box("f2", 40, 724, 420, 52, TRGM, start=18000, end=END,
+                   label="trgm:  겹친 수 / 합집합 크기", label_size=16, radius=10))
+    els.append(txt("f2n", 480, 744, "자카드 — 안 겹친 조각까지 분모에", 15, MUTED, 18600, END))
+    els.append(txt("f2v", 480, 768, "4 / (7+7-4) = 0.4000", 18, TRGM, 19200, END, "700"))
+    els.append(txt("c3b", 40, 812,
+                   "겹친 조각은 5 대 4 로 한 개 차이인데, 점수는 0.7143 대 0.4000 으로 벌어진다.",
                    15, INK, 20400, END, "600"))
-    chapters.append({"id": "m2", "time": 14900, "label": "3. 공식이 다르다",
+    els.append(txt("c3c", 40, 838,
+                   "조각 수가 아니라 분모가 만든 차이다 — 자카드는 안 겹친 6개를 전부 분모에 넣는다.",
+                   15, MUTED, 21200, END))
+    chapters.append({"id": "m2", "time": 14900, "label": "3. 분모가 다르다",
                      "subtitle": "max 로 나누느냐, 합집합으로 나누느냐"})
 
-    # --- 4장: 임계값이 같은 게 함정 -----------------------------------------
-    els.append(txt("c4", 40, 742, "그런데 기본 임계값은 둘 다 0.3 이다", 19, WARN, 23000, END, "700"))
-    els.append(box("th1", 40, 766, 400, 44, BIGM, start=23400, end=END,
-                   label="0.5000  ≥  0.3   →  매칭된다", label_size=16, radius=8))
-    els.append(box("th2", 40, 818, 400, 44, TRGM, start=24600, end=END,
-                   label="0.1429  <  0.3   →  탈락한다", label_size=16, radius=8))
-    els.append(txt("c4b", 456, 796,
-                   "같은 오타, 같은 임계값, 반대 결과", 17, WARN, 25600, END, "700"))
-    els.append(txt("c4c", 40, 890,
-                   "임계값 0.3 을 pg_bigm 에서 pg_trgm 으로 그대로 옮기면 안 된다 — 재는 자가 다르다.",
-                   15, WARN, 26600, END, "600"))
-    chapters.append({"id": "m3", "time": 22900, "label": "4. 임계값의 함정",
+    # --- 4장: 짧은 말에서는 그 차이가 선을 넘는다 ---------------------------
+    els.append(txt("c4", 40, 902, "짧은 말에서는 그 차이가 임계값 선을 넘는다", 19, WARN, 24000, END, "700"))
+    els.append(box("sp", 40, 926, 420, 44, PANEL, stroke=DIM, start=24400, end=END,
+                   label="'클둥이'  vs  '클동이'   (3글자, 한 글자 오타)",
+                   label_color=INK, label_size=16, radius=8))
+    els.append(box("th1", 40, 984, 420, 44, BIGM, start=25400, end=END,
+                   label="bigm  0.5000   ≥ 0.3  →  매칭된다", label_size=16, radius=8))
+    els.append(box("th2", 40, 1036, 420, 44, TRGM, start=26400, end=END,
+                   label="trgm  0.1429   < 0.3  →  탈락한다", label_size=16, radius=8))
+    els.append(txt("c4b", 480, 1012, "같은 오타, 같은 임계값,", 17, WARN, 27400, END, "700"))
+    els.append(txt("c4b2", 480, 1036, "반대 결과", 17, WARN, 27600, END, "700"))
+    els.append(txt("c4c", 40, 1108,
+                   "기본 임계값이 둘 다 0.3 인 것은 우연이다 — 재는 자가 다르므로 그대로 옮기면 안 된다.",
+                   15, WARN, 28400, END, "600"))
+    chapters.append({"id": "m3", "time": 23900, "label": "4. 임계값의 함정",
                      "subtitle": "우연히 둘 다 0.3 이지만 뜻이 다르다"})
 
     # --- 5장: 실측 표 -------------------------------------------------------
-    els.append(txt("c5", 40, 940, "실측 (bigm-vs-trgm/experiments/03)", 18, INK, 29000, END, "700"))
+    els.append(txt("c5", 40, 1176, "실측 (bigm-vs-trgm/experiments/03)", 18, INK, 31000, END, "700"))
     table = [
         ("신건 → 신컨",              "0.3333", "0.2000", BIGM),
         ("김신건 → 김신컨",          "0.5000", "0.3333", BIGM),
-        ("클둥이 → 클동이",          "0.5000", "0.1429", TRGM),
+        ("클둥이 → 클동이",          "0.5000", "0.1429", BIGM),
         ("클라우드클럽 → 클라으드클럽", "0.7143", "0.4000", BIGM),
         ("CloudClub → cloudclub",    "0.6667", "1.0000", TRGM),
     ]
-    els.append(txt("h1", 40, 972, "입력", 14, MUTED, 29200, END, "600"))
-    els.append(txt("h2", 360, 972, "bigm_similarity()", 14, BIGM, 29200, END, "600"))
-    els.append(txt("h3", 540, 972, "similarity()", 14, TRGM, 29200, END, "600"))
+    els.append(txt("h1", 40, 1208, "입력", 14, MUTED, 31200, END, "600"))
+    els.append(txt("h2", 420, 1208, "bigm_similarity()", 14, BIGM, 31200, END, "600"))
+    els.append(txt("h3", 620, 1208, "similarity()", 14, TRGM, 31200, END, "600"))
     for i, (a, b, c, hi) in enumerate(table):
-        st = 29500 + i * 500
-        y = 996 + i * 34
+        st = 31500 + i * 500
+        y = 1234 + i * 34
         els.append(txt(f"t{i}a", 40, y, a, 15, INK, st, END))
-        els.append(txt(f"t{i}b", 360, y, b, 15, BIGM, st + 120, END, "700"))
-        els.append(txt(f"t{i}c", 540, y, c, 15, TRGM, st + 200, END, "700"))
-    els.append(txt("c5b", 40, 1188,
-                   "마지막 줄이 중요하다 — 대소문자만 다르면 trgm 은 1.0 이다(IGNORECASE). pg_bigm 은 대소문자를 구분한다.",
-                   15, MUTED, 32400, END))
-    chapters.append({"id": "m4", "time": 28900, "label": "5. 실측",
+        els.append(txt(f"t{i}b", 420, y, b, 15, BIGM, st + 120, END, "700"))
+        els.append(txt(f"t{i}c", 620, y, c, 15, TRGM, st + 200, END, "700"))
+    els.append(txt("c5b", 40, 1428,
+                   "마지막 줄만 반대다 — 대소문자만 다르면 trgm 은 1.0 이다(IGNORECASE).",
+                   15, MUTED, 34400, END))
+    chapters.append({"id": "m4", "time": 30900, "label": "5. 실측",
                      "subtitle": "bigm 이 1.1~3.5배 높은 점수를 준다"})
 
-    return {
+    groups = [
+        ["pair", "pn"],
+        ["bl", "bcount", "tl", "tcount", "why"]
+        + [f"a2_{i}" for i in range(7)] + [f"b2_{i}" for i in range(7)]
+        + [f"a3_{i}" for i in range(7)] + [f"b3_{i}" for i in range(7)],
+        ["c3", "f1", "f1n", "f1v", "f2", "f2n", "f2v", "c3b", "c3c"],
+        ["c4", "sp", "th1", "th2", "c4b", "c4b2", "c4c"],
+        ["c5", "h1", "h2", "h3", "c5b"]
+        + [f"t{i}{s}" for i in range(len(table)) for s in "abc"],
+    ]
+    CANVAS_H = 1480
+    frames, focus = chapter_frames(els, chapters, groups, END, CANVAS_H)
+    els = frames + els
+
+    doc = {
         "clothoVersion": 1, "id": "similarity-compare",
         "title": "유사도 — bigm_similarity() vs similarity()",
-        "description": "같은 오타에 0.5 와 0.1429. 분모가 다르고, 임계값 0.3 은 옮길 수 없다.",
+        "description": "같은 오타에 0.7143 과 0.4000. 겹친 조각은 한 개 차이인데 분모가 달라 점수가 벌어진다.",
         "duration": END,
-        "canvas": {"width": 940, "height": 1220, "background": BG},
+        "canvas": {"width": 940, "height": CANVAS_H, "background": BG},
         "elements": els, "chapters": chapters,
+        "camera": {"focus": focus, "strokeScaling": "fixed"},
         "settings": {"loop": False, "autoplay": True, "showChapterList": True},
     }
-
+    return widen(doc, 170)
 
 DOCS = {
     "ngram-slice": doc_ngram_slice,

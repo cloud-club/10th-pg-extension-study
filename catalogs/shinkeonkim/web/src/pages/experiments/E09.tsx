@@ -159,7 +159,7 @@ export default function E09() {
         />
       </Section>
 
-      <Section id="c" title="C. 대소문자가 없는 한글에서도 ILIKE 값을 치르는가 — 치른다">
+      <Section id="c" title="C. 대소문자가 없는 한글에서도 ILIKE 대가를 치르는가 — 치른다">
         <PlanTable rows={C_KOREAN} />
         <ChartBox
           type="bar"

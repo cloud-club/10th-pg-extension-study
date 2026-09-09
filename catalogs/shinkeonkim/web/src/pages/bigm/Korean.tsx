@@ -179,12 +179,29 @@ export default function Korean() {
           분모가 다르다.
         </p>
         <Table>
-          <THead><TR><TH></TH><TH>공식</TH><TH><K>클둥이</K> → <K>클동이</K></TH></TR></THead>
+          <THead>
+            <TR><TH></TH><TH>공식</TH><TH><K>클라우드클럽</K> → <K>클라으드클럽</K></TH><TH><K>클둥이</K> → <K>클동이</K></TH></TR>
+          </THead>
           <TBody>
-            <TR><TD><K>bigm_similarity()</K></TD><TD>겹친 수 / <strong>max(조각 수)</strong></TD><TD className="text-ok"><strong>0.5000</strong></TD></TR>
-            <TR><TD><K>similarity()</K></TD><TD>겹친 수 / <strong>합집합 크기</strong> (자카드)</TD><TD className="text-trgm"><strong>0.1429</strong></TD></TR>
+            <TR>
+              <TD><K>bigm_similarity()</K></TD>
+              <TD>겹친 수 / <strong>max(조각 수)</strong></TD>
+              <TD className="text-ok"><strong>5 / 7 = 0.7143</strong></TD>
+              <TD className="text-ok"><strong>0.5000</strong></TD>
+            </TR>
+            <TR>
+              <TD><K>similarity()</K></TD>
+              <TD>겹친 수 / <strong>합집합 크기</strong> (자카드)</TD>
+              <TD className="text-warn"><strong>4 / 10 = 0.4000</strong></TD>
+              <TD className="text-trgm"><strong>0.1429</strong></TD>
+            </TR>
           </TBody>
-          <TCaption><strong>둘 다 기본 임계값이 0.3 이라, 같은 오타에 한쪽은 매칭되고 한쪽은 탈락한다.</strong> 임계값을 그대로 옮기면 안 된다.</TCaption>
+          <TCaption>
+            6글자 쌍은 겹친 조각이 <strong>5 대 4 로 한 개 차이</strong>인데 점수가 0.71 대 0.40 으로 벌어진다 —
+            분모가 만든 차이다. <strong>3글자 쌍에서는 그 차이가 기본 임계값 0.3 을 사이에 두고 갈린다</strong>
+            (한쪽은 매칭, 한쪽은 탈락). 임계값을 그대로 옮기면 안 된다 —{' '}
+            <Ref to="/pg-trgm/similarity">유사도와 KNN</Ref>.
+          </TCaption>
         </Table>
         <ChartBox
           type="bar"
@@ -221,7 +238,7 @@ export default function Korean() {
         <Callout kind="warn" title="“pg_bigm 이 무조건 빠르다”는 틀렸다">
           <ul>
             <li><strong>3글자 이상</strong>에서는 실측상 <K>pg_trgm</K> 이 버퍼를 <strong>덜</strong> 읽은 경우가 있다(4 vs 7). 조각이 2.4배 희귀하니 포스팅 리스트가 짧아서다.</li>
-            <li><strong>기능 표면적이 훨씬 넓다</strong> — <K>ILIKE</K>, 정규식(영문), <K>=</K>, KNN(<K>{'<->'}</K>), <K>word_similarity</K>. <K>pg_bigm</K> 은 <K>LIKE</K>/<K>=%</K> 만 되고 나머지는 Seq Scan 이다 — <Link to="/pg-bigm/operators">연산자 커버리지</Link>.</li>
+            <li><strong>지원하는 기능이 훨씬 많다</strong> — <K>ILIKE</K>, 정규식(영문), <K>=</K>, KNN(<K>{'<->'}</K>), <K>word_similarity</K>. <K>pg_bigm</K> 은 <K>LIKE</K>/<K>=%</K> 만 되고 나머지는 Seq Scan 이다 — <Link to="/pg-bigm/operators">연산자 커버리지</Link>.</li>
             <li><strong>설치가 쉽다</strong> — contrib 이고 <K>trusted</K> 라 수퍼유저 없이도 되고, 매니지드 DB 지원이 훨씬 넓다.</li>
           </ul>
           <p>

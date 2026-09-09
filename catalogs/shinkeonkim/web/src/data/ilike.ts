@@ -45,7 +45,7 @@ export const B_TWOCHAR: Row[] = [
   r('trgm', "ILIKE '%zx%'", "doc ILIKE '%zx%'", 201, 'Parallel Seq Scan', null, false, null, 0, 7488, 165.867, 153.046),
 ]
 
-/** C. 대소문자가 없는 한글에서도 ILIKE 값을 치르는가 */
+/** C. 대소문자가 없는 한글에서도 ILIKE 대가를 치르는가 */
 export const C_KOREAN: Row[] = [
   r('none', "LIKE '%클라우드클럽%'", "doc LIKE '%클라우드클럽%'", 200, 'Parallel Seq Scan', null, true, null, 0, 7488, 41.100, 44.923),
   r('bigm', "LIKE '%클라우드클럽%'", "doc LIKE '%클라우드클럽%'", 200, 'Bitmap Index Scan', 'docs_bigm', true, 200, 0, 216, 0.722, 0.862),

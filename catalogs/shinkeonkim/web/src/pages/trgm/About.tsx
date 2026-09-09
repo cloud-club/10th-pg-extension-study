@@ -19,7 +19,7 @@ export default function About() {
         lede={
           <>
             PostgreSQL <strong>contrib</strong> 에 들어 있는 공식 확장이다. 설치가 쉽고(<K>trusted</K> 라 수퍼유저도
-            불필요), 기능 표면적이 넓다 — <K>ILIKE</K>·정규식·유사도·KNN. 약점은 <strong>딱 한 칸</strong>이다.
+            불필요), 지원하는 기능이 많다 — <K>ILIKE</K>·정규식·유사도·KNN. 약점은 <strong>딱 한 칸</strong>이다.
           </>
         }
         tags={[{ label: DATA.env.trgm, variant: 'trgm' }, { label: '3-gram' }, { label: 'GIN · GiST' }]}
