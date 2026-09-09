@@ -24,24 +24,30 @@ export function Clotho({ id, caption, className }: Props) {
   const hostRef = useRef<HTMLDivElement>(null)
   const [ready, setReady] = useState(false)
 
+  // 화면에 들어오면 붙인다. 다만 IntersectionObserver 가 아예 발화하지 않는 환경이 있어서
+  // (자동화 브라우저에서 실제로 겪었다) 짧은 지연 뒤에는 무조건 붙인다 -
+  // 안 붙는 것보다는 일찍 붙는 편이 낫다.
   useEffect(() => {
     const el = hostRef.current
-    if (!el) return
-    if (typeof IntersectionObserver === 'undefined') {
-      setReady(true)
-      return
+    let io: IntersectionObserver | null = null
+    const timer = window.setTimeout(() => setReady(true), 1200)
+    if (el && typeof IntersectionObserver !== 'undefined') {
+      io = new IntersectionObserver(
+        (entries) => {
+          if (entries.some((e) => e.isIntersecting)) {
+            window.clearTimeout(timer)
+            setReady(true)
+            io?.disconnect()
+          }
+        },
+        { rootMargin: '200px', threshold: 0 },
+      )
+      io.observe(el)
     }
-    const io = new IntersectionObserver(
-      (entries) => {
-        if (entries.some((e) => e.isIntersecting)) {
-          setReady(true)
-          io.disconnect()
-        }
-      },
-      { rootMargin: '120px', threshold: 0.05 },
-    )
-    io.observe(el)
-    return () => io.disconnect()
+    return () => {
+      window.clearTimeout(timer)
+      io?.disconnect()
+    }
   }, [])
 
   const ratio = doc.canvas.height / doc.canvas.width
