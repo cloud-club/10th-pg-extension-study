@@ -212,7 +212,7 @@ export default function Korean() {
         <SourceNote path={`${DATA.repo.base}/${DATA.repo.exp.e03}`}>실험 03</SourceNote>
         <p>
           <K>클둥이</K> → <K>클동이</K> 에서 3.5배로 가장 크게 벌어진다. 3글자 단어에서 가운데 한 글자가 틀리면
-          3-gram 은 사실상 전멸한다(0.1429 = 임계값 0.3 미달 → <strong>검색에 안 걸린다</strong>). 짧은 한국어
+          3-gram 은 겹치는 조각이 거의 남지 않는다(0.1429 = 임계값 0.3 미달 → <strong>검색에 안 걸린다</strong>). 짧은 한국어
           이름·별명의 오탈자 검색에서는 <K>pg_bigm</K> 이 아니면 안 된다는 뜻이다.
         </p>
       </Section>

@@ -93,7 +93,7 @@ export default function Gist() {
         <Callout kind="warn" title="문서 길이에 따라 양상이 다르다">
           <p>
             <strong>짧은 문서</strong>는 512 만 무너지고 1024 는 회복되지만(49.6 MB / 573 버퍼),{' '}
-            <strong>긴 문서는 512·1024 둘 다 재앙이다.</strong> 짧은 문서만 봤다면 “512 만 이상하다”고 잘못 읽었을
+            <strong>긴 문서는 512·1024 둘 다 크게 나빠진다.</strong> 짧은 문서만 봤다면 “512 만 이상하다”고 잘못 읽었을
             것이다 — <strong>두 테이블을 나란히 두지 않았으면 놓쳤을 결론이다.</strong>
           </p>
         </Callout>
@@ -116,7 +116,7 @@ export default function Gist() {
         <Callout kind="ok" title="실무 결론은 확실하다">
           <p>
             <strong>두 테이블 모두 256 이 최적</strong>이었다. “더 올리면 더 좋아지겠지”로 512 나 1024 를 골랐다면
-            재앙이었을 것이다. <strong>반드시 자기 데이터로, 그리고 실제 문서 길이로 스윕할 것.</strong>
+            크게 손해였을 것이다. <strong>반드시 자기 데이터로, 그리고 실제 문서 길이로 스윕할 것.</strong>
           </p>
         </Callout>
       </Section>

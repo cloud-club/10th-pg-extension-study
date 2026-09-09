@@ -301,7 +301,7 @@ SELECT count(*) FROM docs WHERE lower(doc) LIKE '%cloudclub%';`}</CodeBlock>
             없기 때문이다. 같은 질의를 <K>pg_bigm</K> 은 {nf(F_INSIDE[1].answer)}행을 {F_INSIDE[1].ms} ms 에 찾는다.
           </p>
           <p>
-            <strong>“빠르다”를 정답 수와 떼어 읽으면 이런 표에 속는다.</strong> 이 카탈로그가 속도표마다 정답
+            <strong>“빠르다”를 정답 수와 떼어 읽으면 이런 표를 거꾸로 읽게 된다.</strong> 이 카탈로그가 속도표마다 정답
             행 수를 같이 싣는 이유다.
           </p>
         </Callout>
