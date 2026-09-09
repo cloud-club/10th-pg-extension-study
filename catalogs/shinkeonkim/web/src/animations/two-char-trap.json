@@ -1,0 +1,465 @@
+{
+ "clothoVersion": 1,
+ "id": "two-char-trap",
+ "title": "2글자 함정 — pg_trgm 이 무너지는 지점",
+ "description": "%클클% 797 ms vs 클클% 1.49 ms. 같은 검색어, 패턴 모양만 다르다.",
+ "duration": 26000,
+ "canvas": {
+  "width": 940,
+  "height": 760,
+  "background": "#0b1120"
+ },
+ "elements": [
+  {
+   "type": "text",
+   "id": "t",
+   "x": 40,
+   "y": 42,
+   "content": "2글자 검색어 '클클' 에서 벌어지는 일",
+   "fontSize": 22,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 0,
+     "end": 26000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ],
+   "fontWeight": "700"
+  },
+  {
+   "type": "rect",
+   "id": "q",
+   "x": 40,
+   "y": 78,
+   "width": 300,
+   "height": 52,
+   "fill": "#1e293b",
+   "cornerRadius": 10,
+   "appearances": [
+    {
+     "start": 200,
+     "end": 26000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "LIKE '%클클%'",
+   "labelColor": "#e2e8f0",
+   "labelSize": 19,
+   "stroke": "#334155",
+   "strokeWidth": 2
+  },
+  {
+   "type": "text",
+   "id": "qn",
+   "x": 360,
+   "y": 110,
+   "content": "양쪽이 % 라서 그 자리에 무슨 글자가 올지 모른다 → 패딩을 붙일 수 없다",
+   "fontSize": 15,
+   "color": "#94a3b8",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 900,
+     "end": 26000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "bl",
+   "x": 40,
+   "y": 180,
+   "content": "pg_bigm (2-gram)",
+   "fontSize": 18,
+   "color": "#60a5fa",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 3000,
+     "end": 26000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ],
+   "fontWeight": "700"
+  },
+  {
+   "type": "rect",
+   "id": "bfrag",
+   "x": 40,
+   "y": 200,
+   "width": 132,
+   "height": 50,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 3200,
+     "end": 26000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "클클",
+   "labelColor": "#0b1120",
+   "labelSize": 19
+  },
+  {
+   "type": "text",
+   "id": "bok",
+   "x": 190,
+   "y": 232,
+   "content": "조각 1개 — 온전히 만들어진다",
+   "fontSize": 15,
+   "color": "#34d399",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 3800,
+     "end": 26000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ],
+   "fontWeight": "600"
+  },
+  {
+   "type": "rect",
+   "id": "bres",
+   "x": 40,
+   "y": 266,
+   "width": 420,
+   "height": 44,
+   "fill": "#34d399",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 4600,
+     "end": 26000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "인덱스가 500행만 돌려준다",
+   "labelColor": "#0b1120",
+   "labelSize": 16
+  },
+  {
+   "type": "text",
+   "id": "bms",
+   "x": 476,
+   "y": 296,
+   "content": "0.52 ms",
+   "fontSize": 20,
+   "color": "#34d399",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 5200,
+     "end": 26000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ],
+   "fontWeight": "700"
+  },
+  {
+   "type": "text",
+   "id": "tl",
+   "x": 40,
+   "y": 356,
+   "content": "pg_trgm (3-gram)",
+   "fontSize": 18,
+   "color": "#fb7185",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 8000,
+     "end": 26000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ],
+   "fontWeight": "700"
+  },
+  {
+   "type": "rect",
+   "id": "tfrag",
+   "x": 40,
+   "y": 376,
+   "width": 132,
+   "height": 50,
+   "fill": "#4c1d24",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 8200,
+     "end": 26000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "( 없음 )",
+   "labelColor": "#fb7185",
+   "labelSize": 17
+  },
+  {
+   "type": "text",
+   "id": "tno",
+   "x": 190,
+   "y": 400,
+   "content": "3글자를 채울 수 없다 → make_trigrams() 가 charlen<3 에서 포기한다",
+   "fontSize": 15,
+   "color": "#fb7185",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 8800,
+     "end": 26000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ],
+   "fontWeight": "600"
+  },
+  {
+   "type": "rect",
+   "id": "all",
+   "x": 40,
+   "y": 442,
+   "width": 560,
+   "height": 46,
+   "fill": "#fb7185",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 13000,
+     "end": 26000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "GIN_SEARCH_MODE_ALL — 인덱스 엔트리를 전부 읽는다",
+   "labelColor": "#0b1120",
+   "labelSize": 16
+  },
+  {
+   "type": "text",
+   "id": "alln",
+   "x": 40,
+   "y": 512,
+   "content": "\"인덱스를 안 쓴다\" 가 아니라 \"인덱스를 통째로 읽고 나서 힙까지 훑는다\"",
+   "fontSize": 15,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 13800,
+     "end": 26000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ],
+   "fontWeight": "600"
+  },
+  {
+   "type": "rect",
+   "id": "tres",
+   "x": 40,
+   "y": 530,
+   "width": 420,
+   "height": 44,
+   "fill": "#fb7185",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 14600,
+     "end": 26000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "인덱스가 1,000,000행을 돌려준다",
+   "labelColor": "#0b1120",
+   "labelSize": 16
+  },
+  {
+   "type": "text",
+   "id": "tms",
+   "x": 476,
+   "y": 560,
+   "content": "797 ms",
+   "fontSize": 20,
+   "color": "#fb7185",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 15200,
+     "end": 26000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ],
+   "fontWeight": "700"
+  },
+  {
+   "type": "text",
+   "id": "ratio",
+   "x": 40,
+   "y": 606,
+   "content": "→ 같은 검색어인데 1,500배 차이",
+   "fontSize": 19,
+   "color": "#fbbf24",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 17000,
+     "end": 26000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ],
+   "fontWeight": "700"
+  },
+  {
+   "type": "text",
+   "id": "fix",
+   "x": 40,
+   "y": 648,
+   "content": "우회: 패딩을 얻어낼 수 있는 패턴으로 바꾼다",
+   "fontSize": 18,
+   "color": "#34d399",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 20000,
+     "end": 26000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ],
+   "fontWeight": "700"
+  },
+  {
+   "type": "rect",
+   "id": "fx0",
+   "x": 40,
+   "y": 668,
+   "width": 150,
+   "height": 42,
+   "fill": "#34d399",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 20400,
+     "end": 26000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "클클%",
+   "labelColor": "#0b1120",
+   "labelSize": 16
+  },
+  {
+   "type": "text",
+   "id": "fxn0",
+   "x": 40,
+   "y": 726,
+   "content": "앞이 문자열 시작 → 패딩 2칸",
+   "fontSize": 13,
+   "color": "#94a3b8",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 20700,
+     "end": 26000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "fx1",
+   "x": 340,
+   "y": 668,
+   "width": 150,
+   "height": 42,
+   "fill": "#34d399",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 21100,
+     "end": 26000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "% 클클 %",
+   "labelColor": "#0b1120",
+   "labelSize": 16
+  },
+  {
+   "type": "text",
+   "id": "fxn1",
+   "x": 340,
+   "y": 726,
+   "content": "공백은 비단어 문자 → 패딩",
+   "fontSize": 13,
+   "color": "#94a3b8",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 21400,
+     "end": 26000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  }
+ ],
+ "chapters": [
+  {
+   "id": "q1",
+   "time": 0,
+   "label": "1. 질의",
+   "subtitle": "%클클% — 양쪽이 와일드카드다"
+  },
+  {
+   "id": "q2",
+   "time": 2900,
+   "label": "2. pg_bigm 은 만든다",
+   "subtitle": "2글자로도 온전한 bigram 하나"
+  },
+  {
+   "id": "q3",
+   "time": 7900,
+   "label": "3. pg_trgm 은 못 만든다",
+   "subtitle": "조각 0개 → 조건이 하나도 없다"
+  },
+  {
+   "id": "q4",
+   "time": 12900,
+   "label": "4. 전체 인덱스 스캔",
+   "subtitle": "인덱스가 없느니만 못한 상태"
+  },
+  {
+   "id": "q5",
+   "time": 19900,
+   "label": "5. 우회",
+   "subtitle": "패턴을 바꾸면 2글자도 산다"
+  }
+ ],
+ "settings": {
+  "loop": false,
+  "autoplay": false,
+  "showChapterList": true
+ }
+}

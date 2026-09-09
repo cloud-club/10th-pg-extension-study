@@ -1,0 +1,659 @@
+{
+ "clothoVersion": 1,
+ "id": "ngram-slice",
+ "title": "n-gram 분해 — 2-gram 과 3-gram",
+ "description": "패딩을 붙여 자르면 조각 개수는 같다. 차이는 조각 하나의 길이다.",
+ "duration": 25000,
+ "canvas": {
+  "width": 940,
+  "height": 520,
+  "background": "#0b1120"
+ },
+ "elements": [
+  {
+   "type": "text",
+   "id": "title",
+   "x": 40,
+   "y": 42,
+   "content": "n-gram 은 문자열을 길이 n 짜리 조각으로 자른다",
+   "fontSize": 22,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 0,
+     "end": 25000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ],
+   "fontWeight": "700"
+  },
+  {
+   "type": "rect",
+   "id": "c0",
+   "x": 160,
+   "y": 100,
+   "width": 56,
+   "height": 56,
+   "fill": "#1e293b",
+   "cornerRadius": 10,
+   "appearances": [
+    {
+     "start": 200,
+     "end": 25000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "클",
+   "labelColor": "#e2e8f0",
+   "labelSize": 18
+  },
+  {
+   "type": "rect",
+   "id": "c1",
+   "x": 222,
+   "y": 100,
+   "width": 56,
+   "height": 56,
+   "fill": "#1e293b",
+   "cornerRadius": 10,
+   "appearances": [
+    {
+     "start": 290,
+     "end": 25000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "라",
+   "labelColor": "#e2e8f0",
+   "labelSize": 18
+  },
+  {
+   "type": "rect",
+   "id": "c2",
+   "x": 284,
+   "y": 100,
+   "width": 56,
+   "height": 56,
+   "fill": "#1e293b",
+   "cornerRadius": 10,
+   "appearances": [
+    {
+     "start": 380,
+     "end": 25000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "우",
+   "labelColor": "#e2e8f0",
+   "labelSize": 18
+  },
+  {
+   "type": "rect",
+   "id": "c3",
+   "x": 346,
+   "y": 100,
+   "width": 56,
+   "height": 56,
+   "fill": "#1e293b",
+   "cornerRadius": 10,
+   "appearances": [
+    {
+     "start": 470,
+     "end": 25000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "드",
+   "labelColor": "#e2e8f0",
+   "labelSize": 18
+  },
+  {
+   "type": "rect",
+   "id": "c4",
+   "x": 408,
+   "y": 100,
+   "width": 56,
+   "height": 56,
+   "fill": "#1e293b",
+   "cornerRadius": 10,
+   "appearances": [
+    {
+     "start": 560,
+     "end": 25000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "클",
+   "labelColor": "#e2e8f0",
+   "labelSize": 18
+  },
+  {
+   "type": "rect",
+   "id": "c5",
+   "x": 470,
+   "y": 100,
+   "width": 56,
+   "height": 56,
+   "fill": "#1e293b",
+   "cornerRadius": 10,
+   "appearances": [
+    {
+     "start": 650,
+     "end": 25000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "럽",
+   "labelColor": "#e2e8f0",
+   "labelSize": 18
+  },
+  {
+   "type": "text",
+   "id": "cap1",
+   "x": 160,
+   "y": 196,
+   "content": "원본 6글자",
+   "fontSize": 15,
+   "color": "#94a3b8",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 900,
+     "end": 3400,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "cap2",
+   "x": 40,
+   "y": 196,
+   "content": "패딩: 단어의 시작·끝을 조각 안에 표현하려고 앞뒤에 공백을 붙인다",
+   "fontSize": 15,
+   "color": "#94a3b8",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 3600,
+     "end": 8600,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "padl1",
+   "x": 98,
+   "y": 100,
+   "width": 56,
+   "height": 56,
+   "fill": "#64748b",
+   "cornerRadius": 10,
+   "appearances": [
+    {
+     "start": 3600,
+     "end": 8600,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "␣",
+   "labelColor": "#0b1120",
+   "labelSize": 18
+  },
+  {
+   "type": "rect",
+   "id": "padr1",
+   "x": 532,
+   "y": 100,
+   "width": 56,
+   "height": 56,
+   "fill": "#64748b",
+   "cornerRadius": 10,
+   "appearances": [
+    {
+     "start": 3600,
+     "end": 8600,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "␣",
+   "labelColor": "#0b1120",
+   "labelSize": 18
+  },
+  {
+   "type": "text",
+   "id": "padnote",
+   "x": 40,
+   "y": 232,
+   "content": "pg_bigm: 앞 1 + 뒤 1",
+   "fontSize": 14,
+   "color": "#60a5fa",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 4200,
+     "end": 8600,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ],
+   "fontWeight": "600"
+  },
+  {
+   "type": "rect",
+   "id": "padl2",
+   "x": 36,
+   "y": 100,
+   "width": 56,
+   "height": 56,
+   "fill": "#64748b",
+   "cornerRadius": 10,
+   "appearances": [
+    {
+     "start": 5400,
+     "end": 8600,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "␣",
+   "labelColor": "#0b1120",
+   "labelSize": 18
+  },
+  {
+   "type": "text",
+   "id": "padnote2",
+   "x": 260,
+   "y": 232,
+   "content": "pg_trgm: 앞 2 + 뒤 1  ← 3글자 조각에 첫 글자를 담으려면 2칸이 필요하다",
+   "fontSize": 14,
+   "color": "#fb7185",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 5400,
+     "end": 8600,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ],
+   "fontWeight": "600"
+  },
+  {
+   "type": "text",
+   "id": "cap3",
+   "x": 40,
+   "y": 300,
+   "content": "2-gram (pg_bigm) — 7개",
+   "fontSize": 17,
+   "color": "#60a5fa",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 8800,
+     "end": 15600,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ],
+   "fontWeight": "700"
+  },
+  {
+   "type": "rect",
+   "id": "bg0",
+   "x": 40,
+   "y": 322,
+   "width": 112,
+   "height": 46,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 9000,
+     "end": 15600,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "␣클",
+   "labelColor": "#0b1120",
+   "labelSize": 17
+  },
+  {
+   "type": "rect",
+   "id": "bg1",
+   "x": 164,
+   "y": 322,
+   "width": 112,
+   "height": 46,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 9320,
+     "end": 15600,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "클라",
+   "labelColor": "#0b1120",
+   "labelSize": 17
+  },
+  {
+   "type": "rect",
+   "id": "bg2",
+   "x": 288,
+   "y": 322,
+   "width": 112,
+   "height": 46,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 9640,
+     "end": 15600,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "라우",
+   "labelColor": "#0b1120",
+   "labelSize": 17
+  },
+  {
+   "type": "rect",
+   "id": "bg3",
+   "x": 412,
+   "y": 322,
+   "width": 112,
+   "height": 46,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 9960,
+     "end": 15600,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "우드",
+   "labelColor": "#0b1120",
+   "labelSize": 17
+  },
+  {
+   "type": "rect",
+   "id": "bg4",
+   "x": 536,
+   "y": 322,
+   "width": 112,
+   "height": 46,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 10280,
+     "end": 15600,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "드클",
+   "labelColor": "#0b1120",
+   "labelSize": 17
+  },
+  {
+   "type": "rect",
+   "id": "bg5",
+   "x": 660,
+   "y": 322,
+   "width": 112,
+   "height": 46,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 10600,
+     "end": 15600,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "클럽",
+   "labelColor": "#0b1120",
+   "labelSize": 17
+  },
+  {
+   "type": "rect",
+   "id": "bg6",
+   "x": 784,
+   "y": 322,
+   "width": 112,
+   "height": 46,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 10920,
+     "end": 15600,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "럽␣",
+   "labelColor": "#0b1120",
+   "labelSize": 17
+  },
+  {
+   "type": "text",
+   "id": "cap4",
+   "x": 40,
+   "y": 392,
+   "content": "3-gram (pg_trgm) — 7개, 개수는 같다",
+   "fontSize": 17,
+   "color": "#fb7185",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 15800,
+     "end": 25000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ],
+   "fontWeight": "700"
+  },
+  {
+   "type": "rect",
+   "id": "tg0",
+   "x": 40,
+   "y": 414,
+   "width": 112,
+   "height": 46,
+   "fill": "#fb7185",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 16000,
+     "end": 25000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "␣␣클",
+   "labelColor": "#0b1120",
+   "labelSize": 17
+  },
+  {
+   "type": "rect",
+   "id": "tg1",
+   "x": 164,
+   "y": 414,
+   "width": 112,
+   "height": 46,
+   "fill": "#fb7185",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 16320,
+     "end": 25000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "␣클라",
+   "labelColor": "#0b1120",
+   "labelSize": 17
+  },
+  {
+   "type": "rect",
+   "id": "tg2",
+   "x": 288,
+   "y": 414,
+   "width": 112,
+   "height": 46,
+   "fill": "#fb7185",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 16640,
+     "end": 25000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "클라우",
+   "labelColor": "#0b1120",
+   "labelSize": 17
+  },
+  {
+   "type": "rect",
+   "id": "tg3",
+   "x": 412,
+   "y": 414,
+   "width": 112,
+   "height": 46,
+   "fill": "#fb7185",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 16960,
+     "end": 25000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "라우드",
+   "labelColor": "#0b1120",
+   "labelSize": 17
+  },
+  {
+   "type": "rect",
+   "id": "tg4",
+   "x": 536,
+   "y": 414,
+   "width": 112,
+   "height": 46,
+   "fill": "#fb7185",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 17280,
+     "end": 25000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "우드클",
+   "labelColor": "#0b1120",
+   "labelSize": 17
+  },
+  {
+   "type": "rect",
+   "id": "tg5",
+   "x": 660,
+   "y": 414,
+   "width": 112,
+   "height": 46,
+   "fill": "#fb7185",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 17600,
+     "end": 25000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "드클럽",
+   "labelColor": "#0b1120",
+   "labelSize": 17
+  },
+  {
+   "type": "rect",
+   "id": "tg6",
+   "x": 784,
+   "y": 414,
+   "width": 112,
+   "height": 46,
+   "fill": "#fb7185",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 17920,
+     "end": 25000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "클럽␣",
+   "labelColor": "#0b1120",
+   "labelSize": 17
+  }
+ ],
+ "chapters": [
+  {
+   "id": "ch1",
+   "time": 0,
+   "label": "1. 원본 문자열",
+   "subtitle": "클라우드클럽 — 6글자"
+  },
+  {
+   "id": "ch2",
+   "time": 3500,
+   "label": "2. 패딩을 붙인다",
+   "subtitle": "pg_bigm 은 1+1, pg_trgm 은 2+1"
+  },
+  {
+   "id": "ch3",
+   "time": 8700,
+   "label": "3. 2-gram 으로 자른다",
+   "subtitle": "겹쳐가며 두 글자씩 — 7개"
+  },
+  {
+   "id": "ch4",
+   "time": 15700,
+   "label": "4. 3-gram 으로 자른다",
+   "subtitle": "패딩까지 세면 조각 개수는 L+1 로 같다"
+  }
+ ],
+ "settings": {
+  "loop": false,
+  "autoplay": false,
+  "showChapterList": true
+ }
+}
