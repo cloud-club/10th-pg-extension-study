@@ -44,7 +44,7 @@
 | 회차 | 주제 | 추천 카테고리 |
 | --- | --- | --- |
 | 1 | **킥오프 + 익스텐션 시스템 이해** | `CREATE EXTENSION` 내부 동작 · contrib vs 서드파티 · Docker 실습 환경 → [`intro/`](intro/) |
-| 2 | 운영·성능 진단 | pg_stat_statements, auto_explain, pg_hint_plan, HypoPG |
+| 2 | 운영·성능 진단 | [신웅비의 PostgreSQL 역사·설계 조사](kungbi/2주차/) · pg_stat_statements, auto_explain, pg_hint_plan, HypoPG |
 | 3 | 자동화·파티셔닝 | pg_cron, pg_partman, pg_repack |
 | 4 | 검색·텍스트 | pg_trgm, unaccent, ParadeDB pg_search |
 | 5 | AI·벡터 검색 | pgvector, pgvectorscale |
@@ -90,6 +90,7 @@
 
 | 경로 | 내용 |
 | --- | --- |
+| [`kungbi/`](kungbi/) | **신웅비 주차별 자료.** 2주차 PostgreSQL의 기원·확장 철학과 MySQL 기술 계보 |
 | [`catalogs/`](catalogs/) | **핵심 산출물.** 익스텐션 한 개 = 문서 한 장 |
 | [`issues/`](issues/) | 트러블슈팅 기록 - 한 명의 에러가 모두의 학습 자료 |
 

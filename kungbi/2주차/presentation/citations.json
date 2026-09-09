@@ -1,0 +1,149 @@
+{
+  "version": 1,
+  "sources": [
+    {
+      "id": 1,
+      "url": "https://www.ibm.com/history/relational-database",
+      "title": "",
+      "accessed": "2026-09-08"
+    },
+    {
+      "id": 2,
+      "url": "https://dl.acm.org/doi/10.1145/320473.320476",
+      "title": "",
+      "accessed": "2026-09-08"
+    },
+    {
+      "id": 3,
+      "url": "https://dsf.berkeley.edu/papers/ERL-M85-95.pdf",
+      "title": "",
+      "accessed": "2026-09-08"
+    },
+    {
+      "id": 4,
+      "url": "https://arxiv.org/pdf/1901.01973",
+      "title": "",
+      "accessed": "2026-09-08"
+    },
+    {
+      "id": 5,
+      "url": "https://www.postgresql.org/docs/current/history.html",
+      "title": "",
+      "accessed": "2026-09-08"
+    },
+    {
+      "id": 6,
+      "url": "https://www.postgresql.org/docs/current/extend.html",
+      "title": "",
+      "accessed": "2026-09-08"
+    },
+    {
+      "id": 7,
+      "url": "https://www.postgresql.org/docs/current/sql-createtype.html",
+      "title": "",
+      "accessed": "2026-09-08"
+    },
+    {
+      "id": 8,
+      "url": "https://www.postgresql.org/docs/current/sql-createoperator.html",
+      "title": "",
+      "accessed": "2026-09-08"
+    },
+    {
+      "id": 9,
+      "url": "https://www.postgresql.org/docs/current/sql-createopclass.html",
+      "title": "",
+      "accessed": "2026-09-08"
+    },
+    {
+      "id": 10,
+      "url": "https://www.postgresql.org/docs/current/sql-createextension.html",
+      "title": "",
+      "accessed": "2026-09-08"
+    },
+    {
+      "id": 11,
+      "url": "https://www.postgresql.org/message-id/20041203184254.F6767@cookie.varlena.com",
+      "title": "",
+      "accessed": "2026-09-08"
+    },
+    {
+      "id": 12,
+      "url": "https://dsf.berkeley.edu/postgres-v4r2/postgres.faq",
+      "title": "",
+      "accessed": "2026-09-08"
+    },
+    {
+      "id": 13,
+      "url": "https://opensource.org/about/history-of-the-open-source-initiative",
+      "title": "",
+      "accessed": "2026-09-08"
+    },
+    {
+      "id": 14,
+      "url": "https://www.gnu.org/press/2001-05-04-GPL.html",
+      "title": "",
+      "accessed": "2026-09-08"
+    },
+    {
+      "id": 15,
+      "url": "https://www.computerhistory.org/timeline/software-languages",
+      "title": "",
+      "accessed": "2026-09-08"
+    },
+    {
+      "id": 16,
+      "url": "https://dev.mysql.com/doc/refman/8.0/en/history.html",
+      "title": "",
+      "accessed": "2026-09-08"
+    },
+    {
+      "id": 17,
+      "url": "https://www.postgresql.org/about/press/faq",
+      "title": "",
+      "accessed": "2026-09-08"
+    },
+    {
+      "id": 18,
+      "url": "https://docs.oracle.com/cd/E17952_01/mysql-8.4-en/mysql-8.4-en.pdf",
+      "title": "",
+      "accessed": "2026-09-08"
+    },
+    {
+      "id": 19,
+      "url": "https://mariadb.org/wp-content/uploads/2019/11/MySQL-MariaDB-story.pdf",
+      "title": "",
+      "accessed": "2026-09-08"
+    },
+    {
+      "id": 20,
+      "url": "https://www.oracle.com/corporate/pressrelease/oracle-buys-sun-042009.html",
+      "title": "",
+      "accessed": "2026-09-08"
+    },
+    {
+      "id": 21,
+      "url": "https://investor.oracle.com/investor-news/news-details/2010/Oracle-Reports-GAAP-EPS-Of-023-Non-GAAP-EPS-Of-038/default.aspx",
+      "title": "",
+      "accessed": "2026-09-08"
+    },
+    {
+      "id": 22,
+      "url": "https://docs.oracle.com/cd/E11882_01/server.112/e40540/intro.htm",
+      "title": "Introduction to Oracle Database",
+      "accessed": "2026-09-08"
+    },
+    {
+      "id": 23,
+      "url": "https://www.postgresql.org/docs/6.3/c0102.htm",
+      "title": "Postgres95 and PostgreSQL history",
+      "accessed": "2026-09-08"
+    },
+    {
+      "id": 24,
+      "url": "https://dev.mysql.com/doc/refman/9.2/en/myisam-storage-engine.html",
+      "title": "The MyISAM Storage Engine",
+      "accessed": "2026-09-08"
+    }
+  ]
+}
