@@ -21,4 +21,4 @@
 
 **둘 다 말뭉치 + `generate_series` 나머지 주입으로 다시 만들었고, 각 README 에 1차/2차 대조를 남겨 두었다.** 이 경험에서 이 카탈로그의 [측정 원칙](../../bigm-vs-trgm/experiments/README.md#측정-원칙)이 나왔다.
 
-`pg_trgm` 과의 정면 비교는 [`../../bigm-vs-trgm/experiments/`](../../bigm-vs-trgm/experiments) 에 따로 있다.
+`pg_trgm` 과의 비교는 [`../../bigm-vs-trgm/experiments/`](../../bigm-vs-trgm/experiments) 에 따로 있다.

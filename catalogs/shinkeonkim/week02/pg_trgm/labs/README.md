@@ -67,5 +67,5 @@ cd 01-install-and-trigram-anatomy
 
 ## 더 읽기
 
-- [`../../bigm-vs-trgm/`](../../bigm-vs-trgm) — 두 확장의 정면 비교와 정량 실험
+- [`../../bigm-vs-trgm/`](../../bigm-vs-trgm) — 두 확장의 비교와 정량 실험
 - [`web/#/foundations/ngram`](../../../web/README.md) — 2-gram 과 3-gram 기초

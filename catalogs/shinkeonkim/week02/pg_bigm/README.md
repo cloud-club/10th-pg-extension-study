@@ -21,7 +21,7 @@
 
 **`pg_trgm` 과의 비교는 별도 디렉터리로 분리했다** - 이 문서를 쓴 뒤 직접 재보니 여기 적힌 비교 서술 중 일부가 사실이 아니었고, 그 정정 내용이 그쪽에 있다.
 
-- [`../bigm-vs-trgm/`](../bigm-vs-trgm) - **정면 비교** (인덱싱 원리 · 소스 대조 · 정량 실험 3건)
+- [`../bigm-vs-trgm/`](../bigm-vs-trgm) - **두 확장 비교** (인덱싱 원리 · 소스 대조 · 정량 실험 3건)
 - [`../pg_trgm/README.md`](../pg_trgm/README.md) - pg_trgm 카탈로그
 - [`web/`](../../web/README.md) - [2-gram vs 3-gram 기초](../../web/README.md) · [tsvector/tsquery](../../web/README.md)
 

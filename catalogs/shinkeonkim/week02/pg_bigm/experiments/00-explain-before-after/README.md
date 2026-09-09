@@ -143,4 +143,4 @@ SELECT * FROM docs WHERE doc LIKE '%클둥이%';
 
 - [`../01-index-build-time-and-size-vs-pg_trgm/`](../01-index-build-time-and-size-vs-pg_trgm) — 인덱스 빌드 시간·크기
 - [`../02-query-latency-at-scale/`](../02-query-latency-at-scale) — 실행 시간 (그리고 재현 실패에서 배운 것)
-- [`../../../bigm-vs-trgm/experiments/`](../../../bigm-vs-trgm/experiments) — pg_trgm 과의 정면 비교
+- [`../../../bigm-vs-trgm/experiments/`](../../../bigm-vs-trgm/experiments) — pg_trgm 과의 비교

@@ -81,7 +81,7 @@ SELECT show_trgm('가나다라');
 - [버전별 변천사](03-version-history.md) - 1.0 부터 1.6 까지, 업그레이드 스크립트 원문 기준
 - [실무 활용 가이드](04-production-playbook.md) - 매니지드 DB, 운영 함정
 - 실습: [`../labs/`](../labs) (5개 lab)
-- **pg_bigm 과의 정면 비교**: [`../../bigm-vs-trgm/`](../../bigm-vs-trgm)
+- **pg_bigm 과의 비교**: [`../../bigm-vs-trgm/`](../../bigm-vs-trgm)
 
 ## 참고 링크
 

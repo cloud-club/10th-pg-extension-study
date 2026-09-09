@@ -7,7 +7,7 @@
 | [01-gin-vs-gist-build-and-probe](01-gin-vs-gist-build-and-probe) | GiST 의 `siglen` 은 실제로 얼마나 중요한가 | **`siglen` 을 키우면 인덱스가 오히려 작아진다** (긴 문서 249 → 144 MB). 버퍼는 12 → 256 에서 31,7xx → 2,7xx 로 떨어지는데, **128 까지는 완만하고 256 에서 급락한다** — "조금 올려보고 효과 없으면 포기"하면 안 된다. 그래도 GIN 의 212~218배다. **2회 실행에서 GIN 은 완전히 동일했고 GiST 는 ±5% 흔들렸다** |
 | [02-threshold-and-knn-latency](02-threshold-and-knn-latency) | 임계값과 KNN 의 실제 비용 | **임계값을 0.3 → 0.05 로 낮추면 인덱스가 돌려주는 후보가 9행 → 12,130행** 으로 늘어나는데 **인덱스 버퍼는 38 그대로다** (비용은 힙 재확인에서 난다). `similarity()` 는 검색어가 그대로 들어있는 45글자 문서를 **길다는 이유만으로 놓친다**(0.25 < 0.3). **4회 실행에서 임계값 스윕·재현율은 완전히 동일**했고, KNN `LIMIT 1` 만 재현되지 않았다 |
 
-`pg_bigm` 과의 정면 비교 실험은 [`../../bigm-vs-trgm/experiments/`](../../bigm-vs-trgm/experiments) 에 따로 있다.
+`pg_bigm` 과의 비교 실험은 [`../../bigm-vs-trgm/experiments/`](../../bigm-vs-trgm/experiments) 에 따로 있다.
 
 ## 데이터
 

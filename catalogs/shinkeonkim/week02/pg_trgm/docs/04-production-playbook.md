@@ -98,7 +98,7 @@ CREATE EXTENSION pg_bigm;   -- ERROR: permission denied to create extension "pg_
 | 자연어 랭킹·형태소 분석 | `tsvector`/`tsquery` (한국어는 별도 파서 필요) |
 | BM25 랭킹, 검색 엔진급 경험 | ParadeDB `pg_search` 등 |
 
-정면 비교와 실측은 [`../../bigm-vs-trgm/`](../../bigm-vs-trgm) 에 모아뒀다.
+비교와 실측은 [`../../bigm-vs-trgm/`](../../bigm-vs-trgm) 에 모아뒀다.
 
 ## 더 읽기
 

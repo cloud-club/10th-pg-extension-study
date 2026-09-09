@@ -66,7 +66,7 @@ src/
     ui/              shadcn 스타일 프리미티브 (button/card/table/tabs/badge/…)
     layout/          AppShell · Sidebar · PageHeader/Section · Callout · PageNav
     charts/          ChartBox(Chart.js 래퍼) · VersionSwitch
-    viz/             Clotho 플레이어 · FragmentStrip
+    viz/             Clotho 플레이어 · Diagram(mermaid) · FragmentStrip
     common/          Stat · CodeBlock · SourceNote · SupportCell
   content/           registry.ts (사이드바·라우트의 단일 출처) · glossary.ts
   data/              측정값만 모아 둔 곳 — 아래 규칙 참조
@@ -112,16 +112,37 @@ bun run check                              # typecheck + 위 검사
 `build.py` 가 문서를 만들고 스키마로 검증한 뒤 `index.ts` 를 갱신한다. 페이지에서는 `<Clotho id="gin-structure" />`
 한 줄로 쓴다. 새 문서를 넣으면 `DOCS` 에 등록만 하면 `index.ts` 에 자동으로 실린다.
 
-### 카메라 (장마다 강조)
+### 카메라 (장마다 이동)
 
-`camera.focus` 로 장이 바뀔 때마다 그 장의 요소로 카메라를 옮긴다. 두 가지에 걸린 적이 있어 적어 둔다.
+**배율은 고정하고 이동만 한다.** 확대·축소가 반복되면 읽기 어렵기 때문이다.
+
+`chapter_frames()` 가 **모든 장에서 크기가 같은 보이지 않는 틀**(`cam0`, `cam1`, …)을 만들고
+그 틀만 `camera.focus` 대상으로 삼는다. 상자 크기가 같으니 배율이 같아지고, 카메라는 위아래로 움직이기만 한다.
+틀의 가로는 내용 전체 폭으로 고정해 **글자가 옆으로 잘릴 여지를 없앤다.**
+
+걸렸던 것들 — 다시 밟지 않게 적어 둔다.
 
 - **내용이 캔버스 폭을 거의 다 쓰면 배율이 1 에 붙는다.** focus 는 대상 상자를 화면에 *맞추는* 것이라
   가로가 병목이면 확대할 여지가 없다 → `widen(doc, pad)` 로 좌우 여백을 만든다.
-- **아직 등장하지 않은 요소로는 초점을 못 잡는다** (`camera-focus` 진단, 화면이 안 움직인다) →
-  `chapter_focus()` 가 그 장의 첫 요소가 나타난 뒤로 시각을 민다.
+- **틀 rect 의 기본 stroke 가 `#6366f1` 이다** — 명시적으로 지우지 않으면 파란 테두리가 그대로 보인다.
+- 장에 요소를 하나라도 빠뜨리면 그 요소가 초점 밖으로 나가 **옆이 잘린다.**
 
-`bun run check:animations` 가 장마다 배율이 붙는지, 장면 진단이 없는지까지 확인한다.
+`bun run check:animations` 가 이걸 전부 확인한다 — 렌더 가능 여부, 빈 프레임, 참조하는 id,
+**장마다 배율이 같은지**, **초점 밖으로 잘리는 요소**, **글자끼리 겹침**, 장면 진단.
+
+## 그림을 어떻게 그리나
+
+| | 언제 | 무엇으로 |
+| --- | --- | --- |
+| **Diagram** | 구조·흐름을 보여주는 정지된 그림 | mermaid. 아스키 아트로 그리지 않는다 — 줄맞춤이 폰트에 의존하고 화면이 좁아지면 무너진다 |
+| **Clotho** | 단계를 따라가야 이해되는 설명 | `src/animations/` 의 JSON. 화면에 들어오면 자동 재생 |
+| **ChartBox** | 측정한 수치 | Chart.js |
+
+```tsx
+<Diagram chart={`flowchart LR\n  a["조각"] --> b["행 목록"]`} caption="한 줄 해설" />
+```
+
+`Diagram` 은 렌더에 실패하면 원본 텍스트를 그대로 보여준다 — 아무것도 안 보이는 것보다 낫다.
 
 ## 다크 전용
 

@@ -19,7 +19,7 @@
 - [`docs/04-production-playbook.md`](docs/04-production-playbook.md) - 실무 활용, 매니지드 DB 지원
 - [`labs/`](labs) - Docker 기반 실습 5개 (`./run.sh` 또는 각 lab 의 `HANDS-ON.md`)
 - [`experiments/`](experiments) - 정량 벤치마크 2건 (`./bench.sh` 로 재현)
-- **[`../bigm-vs-trgm/`](../bigm-vs-trgm)** - `pg_bigm` 과의 정면 비교 (원리 + 실험 3건)
+- **[`../bigm-vs-trgm/`](../bigm-vs-trgm)** - `pg_bigm` 과의 비교 (원리 + 실험 3건)
 
 ---
 
