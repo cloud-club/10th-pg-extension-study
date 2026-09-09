@@ -17,7 +17,7 @@
 ```
 
 - **한국어**: [NSMC](https://github.com/e9t/nsmc)(CC0) 말뭉치 200,000행.
-- **영문 대조군**: [Project Gutenberg](https://www.gutenberg.org) 3권(*Pride and Prejudice* · *Moby Dick* · *Frankenstein*, 퍼블릭 도메인)을 문장 단위로 자른 12,848문장을 순환 참조해 200,000행. **이전 판은 어휘 12개 조합의 합성 데이터였는데, 유니크 조각 수를 6.6배나 적게(294 vs 1,937) 만들고 있었다** — 아래 §한계 참고.
+- **영문 대조군**: [Project Gutenberg](https://www.gutenberg.org) 3권(*Pride and Prejudice* · *Moby Dick* · *Frankenstein*, 퍼블릭 도메인)을 문장 단위로 자른 12,848문장을 순환 참조해 200,000행. **이전 판은 어휘 12개 조합의 합성 데이터였는데, 유니크 조각 수를 6.6배나 적게(294 vs 1,937) 만들고 있었다** — 아래 아래 "한계" 참고.
 - 빌드는 **2회 반복**해 재현성을 확인했다.
 - `INSERT` 는 인덱스를 먼저 만든 뒤 10,000행을 넣는 방식으로 잰다(운영에서 벌어지는 순서 그대로).
 

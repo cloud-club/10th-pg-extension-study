@@ -11,6 +11,7 @@
 #   (C) 한글처럼 대소문자가 없는 문자에서도 ILIKE 값을 치르는가
 #   (D) pg_bigm 은 ILIKE 가 없다 - lower() 함수 인덱스가 대안이 되는가
 #   (E) 정규식 ~* 는
+#   (F) 코어 전문검색(to_tsvector + GIN)과 견주면 어떤가
 #
 # 측정 원칙
 #   · 인덱스는 한 번에 하나만 둔다. 상대 인덱스를 **트랜잭션 안에서 치우고**
@@ -107,28 +108,37 @@ echo "회차,엔진,라벨,조건,정답행수,플랜,쓴인덱스,검증,인덱
 # ---------------------------------------------------------------------------
 # 인덱스는 한 번에 하나. 상대는 트랜잭션 안에서만 치운다(롤백하면 되살아난다).
 # ---------------------------------------------------------------------------
+cyan "== tsvector 생성 컬럼 추가 (F 절 대조군) =="
+psqlc >/dev/null <<'SQL'
+ALTER TABLE docs ADD COLUMN tsv tsvector
+  GENERATED ALWAYS AS (to_tsvector('simple', doc)) STORED;
+SQL
+psqlc -tAc "SELECT '  tsv 컬럼 자체가 ' || pg_size_pretty(pg_column_size(tsv)::bigint * count(*)) FROM docs;" || true
+
 cyan "== 인덱스 생성 =="
 psqlc >/dev/null <<'SQL'
 DROP INDEX IF EXISTS docs_bigm; DROP INDEX IF EXISTS docs_trgm;
 DROP INDEX IF EXISTS docs_lbigm; DROP INDEX IF EXISTS docs_ltrgm;
+DROP INDEX IF EXISTS docs_tsv;
 CREATE INDEX docs_bigm  ON docs USING gin (doc gin_bigm_ops);
 CREATE INDEX docs_trgm  ON docs USING gin (doc gin_trgm_ops);
 -- (D) pg_bigm 에는 ILIKE 가 없다. 대소문자 무시 검색의 정석 대안이 함수 인덱스다.
 CREATE INDEX docs_lbigm ON docs USING gin (lower(doc) gin_bigm_ops);
 CREATE INDEX docs_ltrgm ON docs USING gin (lower(doc) gin_trgm_ops);
+-- 코어 전문검색. 같은 GIN 이지만 넣는 것이 조각이 아니라 어휘소다.
+CREATE INDEX docs_tsv   ON docs USING gin (tsv);
 SQL
 psqlc -c "VACUUM ANALYZE docs;" >/dev/null
 psqlc -tAc "SELECT indexrelname || ' ' || pg_size_pretty(pg_relation_size(indexrelid))
             FROM pg_stat_user_indexes WHERE relname='docs' ORDER BY 1;" | sed 's/^/    /'
 
+ALL_IDX="docs_bigm docs_trgm docs_lbigm docs_ltrgm docs_tsv"
 drop_others() {  # 재는 인덱스 하나만 남긴다
-  case "$1" in
-    bigm)  echo "DROP INDEX docs_trgm; DROP INDEX docs_lbigm; DROP INDEX docs_ltrgm;" ;;
-    trgm)  echo "DROP INDEX docs_bigm; DROP INDEX docs_lbigm; DROP INDEX docs_ltrgm;" ;;
-    lbigm) echo "DROP INDEX docs_bigm; DROP INDEX docs_trgm;  DROP INDEX docs_ltrgm;" ;;
-    ltrgm) echo "DROP INDEX docs_bigm; DROP INDEX docs_trgm;  DROP INDEX docs_lbigm;" ;;
-    none)  echo "DROP INDEX docs_bigm; DROP INDEX docs_trgm;  DROP INDEX docs_lbigm; DROP INDEX docs_ltrgm;" ;;
-  esac
+  local keep="$1" out=""
+  for i in $ALL_IDX; do
+    [ "$i" = "docs_$keep" ] || out="$out DROP INDEX $i;"
+  done
+  echo "$out"
 }
 
 measure() {  # $1=회차 $2=엔진 $3=라벨 $4=WHERE 조건
@@ -149,6 +159,7 @@ SQL
   ms=$(echo "$out"      | grep -oE 'Execution Time: [0-9.]+' | grep -oE '[0-9.]+' || true)
   if [ "$eng" = none ]; then ok=$([ -z "$used" ] && echo ✔ || echo ✘)
   else ok=$([ "$used" = "docs_$eng" ] && echo ✔ || echo ✘); fi
+  # tsvector 는 Bitmap Index Scan 이름이 docs_tsv 로 나온다 - 같은 규칙으로 검증된다
 
   printf '    %-6s %-26s 정답 %-6s %-18s %-12s %s  후보 %-9s recheck %-9s 버퍼 %-7s %s ms\n' \
          "$eng" "$label" "$hits" "${plan:--}" "${used:--}" "$ok" "${idxrows:--}" "${recheck:-0}" "${bufs:--}" "${ms:--}"
@@ -179,6 +190,21 @@ run_all() {
 
   cyan "== [${run}회차] E. 정규식 ~* =="
   for eng in none bigm trgm; do measure "$run" "$eng" "~* 'cloudclub'" "doc ~* 'cloudclub'"; done
+
+  cyan "== [${run}회차] F. 코어 전문검색(tsvector + GIN)과 견주면 =="
+  dim "  주의: tsquery 는 '낱말' 을 찾고 LIKE 는 '부분 문자열' 을 찾는다. 정답 행 수를 반드시 같이 볼 것."
+  dim "  F1·F2 는 마커를 낱말로 심어서 정답이 우연히 같아지는 구간이다 - 속도만 나란히 보려고 만든 조건이다."
+  measure "$run" "tsv"  "tsquery cloudclub"  "tsv @@ to_tsquery('simple','cloudclub')"
+  measure "$run" "trgm" "ILIKE cloudclub(재)" "doc ILIKE '%cloudclub%'"
+  measure "$run" "lbigm" "lower+bigm cloudclub" "lower(doc) LIKE '%cloudclub%'"
+  echo
+  measure "$run" "tsv"  "tsquery 클라우드클럽"  "tsv @@ to_tsquery('simple','클라우드클럽')"
+  measure "$run" "bigm" "LIKE 클라우드클럽(재)" "doc LIKE '%클라우드클럽%'"
+  echo
+  dim "  F3: 낱말 '가운데' 를 찾으면 어떻게 되나 - 여기서 정답이 갈린다."
+  measure "$run" "tsv"  "tsquery 우드클럽"   "tsv @@ to_tsquery('simple','우드클럽')"
+  measure "$run" "bigm" "LIKE %우드클럽%"   "doc LIKE '%우드클럽%'"
+  measure "$run" "none" "LIKE %우드클럽%"   "doc LIKE '%우드클럽%'"
 }
 
 for r in $(seq 1 "$REPEAT"); do run_all "$r"; echo; done

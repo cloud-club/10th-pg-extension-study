@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { CodeBlock, K } from '@/components/common/Code'
+import { Diagram } from '@/components/viz/Diagram'
 import { Callout, EasyFirst } from '@/components/layout/Callout'
 import { PageHeader, Section } from '@/components/layout/PageHeader'
 import { Clotho } from '@/components/viz/Clotho'
@@ -34,15 +35,24 @@ export default function Btree() {
 
       <Section id="stores" title="1. B-tree 가 저장하는 것">
         <p>B-tree 인덱스는 <strong>컬럼 값 전체를 키로 삼아 정렬해서</strong> 담는다.</p>
-        <CodeBlock>{`          ┌──────────────┐
-          │   "클라..."   │            내부 노드는 '구분자'만 갖는다
-          └──────┬───────┘
-     ┌───────────┴───────────┐
-┌────▼─────┐           ┌─────▼────┐
-│ 강남클럽  │           │ 클럽하우스 │   리프에 (키, TID) 가 사전순으로 늘어선다
-│ 개발자모임│           │ 한국클럽   │
-│ 클라우드..│           │           │
-└──────────┘           └──────────┘`}</CodeBlock>
+        <Diagram
+          maxWidth={620}
+          chart={`
+flowchart TD
+  root["내부 노드<br/>구분자 '클라…' 만 갖는다"]
+  L["리프 (사전순)<br/>강남클럽<br/>개발자모임<br/>클라우드클럽"]
+  R["리프 (사전순)<br/>클럽하우스<br/>한국클럽"]
+  root --> L
+  root --> R
+  L -.->|"(키, TID)"| tid1["힙의 행"]
+  R -.->|"(키, TID)"| tid2["힙의 행"]
+  classDef leaf fill:#1e293b,stroke:#60a5fa,color:#e2e8f0
+  classDef heap fill:#0f172a,stroke:#334155,color:#94a3b8
+  class L,R leaf
+  class tid1,tid2 heap
+`}
+          caption="내부 노드는 길을 가르는 구분자만 갖고, 실제 (키, TID) 쌍은 리프에 사전순으로 늘어선다."
+        />
         <p>여기서 <strong>두 가지 성질</strong>이 나온다.</p>
         <ol>
           <li><strong>키가 정렬돼 있다</strong> → 어떤 키보다 크거나 같은 첫 위치를 <K>O(log n)</K> 에 찾는다.</li>
@@ -71,14 +81,23 @@ export default function Btree() {
           <strong>접두어가 되는 이유</strong>는, 사전순 정렬에서 “<K>클럽</K> 으로 시작하는 문자열”이 정확히
           한 덩어리이기 때문이다.
         </p>
-        <CodeBlock>{`...
-클라우드클럽      ← '클라' < '클럽'
-클럽              ┐
-클럽하우스         │ '클럽' 으로 시작하는 것들이
-클럽활동           ┘ 여기 몰려 있다
-클렄              ← 경계 (마지막 글자 +1)
-클릭
-...`}</CodeBlock>
+        <Diagram
+          maxWidth={520}
+          chart={`
+flowchart TD
+  subgraph SORT["엔트리 (사전순)"]
+    direction TB
+    a["…"] --> b["클라우드클럽"] --> c["클럽"] --> d["클럽하우스"] --> e["클럽활동"] --> f["클렄"] --> g["클릭"] --> h["…"]
+  end
+  s(["시작점: '클럽'"]) -.-> c
+  t(["끝점: '클렄' — 마지막 글자 +1"]) -.-> f
+  classDef hit fill:#134e4a,stroke:#34d399,color:#d1fae5
+  classDef edge fill:#1e293b,stroke:#64748b,color:#cbd5e1
+  class c,d,e hit
+  class b,f,g,a,h edge
+`}
+          caption="초록 세 칸이 '클럽' 으로 시작하는 연속 구간이다. 시작점과 끝점을 정할 수 있으니 범위 스캔 한 번으로 끝난다."
+        />
         <p>그래서 플래너는 <K>LIKE '클럽%'</K> 을 내부적으로 <K>doc {'>='} '클럽' AND doc {'<'} '클렄'</K> 로 바꾼다.</p>
 
         <Callout kind="warn" title="콜레이션이 C 가 아니면 이 변환이 성립하지 않는다">
@@ -90,12 +109,25 @@ export default function Btree() {
         </Callout>
 
         <p><strong>부분 문자열이 안 되는 이유</strong>는 그 반대다. <K>클럽</K> 을 <strong>포함</strong>하는 문자열은 정렬 순서 어디에나 있다.</p>
-        <CodeBlock>{`강남클럽          ← 'ㄱ' 구간
-...
-클라우드클럽      ← 'ㅋ' 구간
-클럽하우스
-...
-한국클럽          ← 'ㅎ' 구간`}</CodeBlock>
+        <Diagram
+          maxWidth={560}
+          chart={`
+flowchart TD
+  subgraph SORT["엔트리 (사전순)"]
+    direction TB
+    g1["ㄱ 구간"] --> h1["강남클럽"] --> dots1["…"] --> k1["ㅋ 구간"] --> h2["클라우드클럽"] --> h3["클럽하우스"] --> dots2["…"] --> hh["ㅎ 구간"] --> h4["한국클럽"]
+  end
+  q(["'클럽' 을 포함하는 값"]) -.-> h1
+  q -.-> h2
+  q -.-> h3
+  q -.-> h4
+  classDef hit fill:#4c0519,stroke:#fb7185,color:#ffe4e6
+  classDef band fill:#0f172a,stroke:#334155,color:#94a3b8
+  class h1,h2,h3,h4 hit
+  class g1,k1,hh,dots1,dots2 band
+`}
+          caption="붉은 칸이 답이다. 정렬 순서 전체에 흩어져 있어서 시작점도 끝점도 정할 수 없다."
+        />
         <p>
           <strong>시작점도 끝점도 정할 수 없다.</strong> 정렬은 문자열의 <em>앞</em> 을 기준으로만 이루어지는데,
           조건은 문자열의 <em>가운데</em> 를 말하고 있다. 인덱스가 있어도 전부 훑어야 하므로 플래너는 아예
@@ -114,15 +146,51 @@ export default function Btree() {
             <TR><TD className="text-muted-foreground">값</TD><TD>그 행의 TID 하나</TD><TD>그 조각을 가진 행들의 <strong>TID 목록</strong></TD></TR>
           </TBody>
         </Table>
-        <CodeBlock>{`B-tree                          역인덱스
-"클라우드클럽" → 행 3           "␣클" → 행 1, 3, 4, 5
-"클럽하우스"   → 행 4           "클럽" → 행 1, 3, 4, 5
-"한국클럽"     → 행 5           "럽하" → 행 4
-                                "클라" → 행 3`}</CodeBlock>
+        <Diagram
+          chart={`
+flowchart LR
+  subgraph BT["B-tree — 값 하나가 키 하나"]
+    direction TB
+    v1["'클라우드클럽'"] --> r1["행 3"]
+    v2["'클럽하우스'"] --> r2["행 4"]
+    v3["'한국클럽'"] --> r3["행 5"]
+  end
+  subgraph INV["역인덱스 — 조각 하나가 행 여럿"]
+    direction TB
+    f1["'␣클'"] --> p1["행 1, 3, 4, 5"]
+    f2["'클럽'"] --> p2["행 1, 3, 4, 5"]
+    f3["'럽하'"] --> p3["행 4"]
+    f4["'클라'"] --> p4["행 3"]
+  end
+  classDef key fill:#1e293b,stroke:#60a5fa,color:#e2e8f0
+  classDef post fill:#0f172a,stroke:#334155,color:#94a3b8
+  class v1,v2,v3,f1,f2,f3,f4 key
+  class r1,r2,r3,p1,p2,p3,p4 post
+`}
+          caption="왼쪽은 행 하나가 키 하나, 오른쪽은 행 하나가 키 여러 개를 만든다. 그 뒤집힘이 GIN 이 존재하는 이유다."
+        />
         <p>이렇게 두면 <K>LIKE '%클럽%'</K> 이 <strong>집합 연산</strong>이 된다.</p>
-        <CodeBlock>{`'클럽' 을 조각으로 분해  →  ␣클, 클럽, 럽␣
-각 조각의 행 목록을 꺼내  →  {1,3,4,5}, {1,3,4,5}, {1,4,5}
-교집합                    →  {1,4,5}   ← 후보`}</CodeBlock>
+        <Diagram
+          chart={`
+flowchart LR
+  q(["LIKE '%클럽%'"]) --> s["조각으로 분해<br/>␣클 · 클럽 · 럽␣"]
+  s --> l1["␣클 → {1,3,4,5}"]
+  s --> l2["클럽 → {1,3,4,5}"]
+  s --> l3["럽␣ → {1,4,5}"]
+  l1 --> and{{"교집합"}}
+  l2 --> and
+  l3 --> and
+  and --> cand["{1,4,5} — 후보"]
+  cand --> rc["힙에서 원문 확인 (Recheck)"]
+  classDef post fill:#1e293b,stroke:#60a5fa,color:#e2e8f0
+  classDef out fill:#134e4a,stroke:#34d399,color:#d1fae5
+  classDef warn fill:#422006,stroke:#fbbf24,color:#fef3c7
+  class l1,l2,l3 post
+  class cand out
+  class rc warn
+`}
+          caption="포스팅 리스트의 교집합이 후보를 만든다. 이 교집합은 정답이 아니라 후보라서 마지막에 원문을 다시 본다."
+        />
         <Callout kind="tip" title="역인덱스 안쪽도 B-tree 다">
           <p>
             GIN 의 <strong>엔트리 트리</strong>가 바로 조각을 정렬해 담는 B-tree 다. B-tree 를 버린 게 아니라,

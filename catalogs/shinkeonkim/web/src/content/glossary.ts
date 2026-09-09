@@ -1,4 +1,4 @@
-/** 용어 사전. references/00-start-here.md §8 을 옮겨오면서 갈래(group)를 붙였다. */
+/** 용어 사전. 예전 references/00-start-here.md 의 용어표를 옮기면서 갈래(group)를 붙였다. */
 export type Term = {
   term: string
   meaning: string
@@ -24,7 +24,7 @@ export const GLOSSARY: Term[] = [
   { group: '확장', term: '어휘소(lexeme)', meaning: '전문검색이 쓰는 단위. 글자가 아니라 낱말을 정규화한 것', analogy: '사전의 표제어', to: '/fulltext/tsvector' },
   { group: '확장', term: 'tsvector', meaning: 'PostgreSQL 에 원래 있는 낱말 단위 검색 기능(확장이 아님)', analogy: '낱말 찾아보기', to: '/fulltext/tsvector' },
   { group: '확장', term: 'contrib', meaning: 'PostgreSQL 에 딸려 오는 공식 확장 묶음. pg_trgm 이 여기 속함', analogy: '기본 부속품' },
-  { group: '확장', term: 'PGXS', meaning: '확장을 소스에서 직접 빌드하는 방식. pg_bigm 은 이게 필요함', analogy: '부품을 직접 깎기', to: '/meta/environment' },
+  { group: '확장', term: 'PGXS', meaning: '확장을 소스에서 직접 빌드하는 방식. pg_bigm 은 이게 필요함', analogy: '부품을 직접 깎기', to: '/pg-bigm/about' },
 
   { group: 'GIN 내부', term: 'GIN', meaning: 'PostgreSQL 의 역인덱스 구현체. pg_bigm·pg_trgm·전문검색이 전부 이걸 씀', analogy: '찾아보기의 실제 종이·제본', to: '/foundations/gin' },
   { group: 'GIN 내부', term: '엔트리 트리', meaning: 'GIN 안에서 조각들을 정렬해 담는 부분', analogy: '찾아보기의 표제어 목록', to: '/foundations/gin' },

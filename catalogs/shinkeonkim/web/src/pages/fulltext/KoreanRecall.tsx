@@ -5,6 +5,7 @@ import { SourceNote } from '@/components/common/SourceNote'
 import { Stat, StatGrid } from '@/components/common/Stat'
 import { Callout, EasyFirst } from '@/components/layout/Callout'
 import { PageHeader, Section } from '@/components/layout/PageHeader'
+import { Ref } from '@/components/common/Ref'
 import { VersionSwitch } from '@/components/charts/VersionSwitch'
 import { Table, TBody, TD, TH, THead, TR } from '@/components/ui/table'
 import { C, alpha } from '@/lib/chart'
@@ -153,14 +154,19 @@ SELECT count(*) FROM docs WHERE doc LIKE '%영화%';                       -- 31
         <Callout kind="ok">
           <ul>
             <li><strong>부분 문자열 검색이 요구사항이면</strong> n-gram 을 쓴다 — 전문검색은 이 자리에 맞지 않는다.</li>
-            <li><strong>단어 검색을 제대로 하고 싶으면</strong> 형태소 분석기를 붙인다(은전한닢/mecab 등). <K>simple</K> 설정으로는 조사를 못 뗀다.</li>
+            <li>
+              <strong>단어 검색을 제대로 하고 싶으면</strong> 형태소 분석기를 붙인다.{' '}
+              <K>simple</K> 설정으로는 조사를 못 뗀다 —{' '}
+              <Ref to="/fulltext/korean-analyzer">어떤 것들이 있는지 정리했다</Ref>.
+            </li>
             <li><strong>둘 다 필요하면</strong> 둘 다 둔다. 랭킹·구절은 <K>tsvector</K>, 빠짐없이 찾기는 n-gram — <Link to="/fulltext/tsvector#choose">선택 표</Link>.</li>
           </ul>
         </Callout>
         <Callout kind="warn" title="한계">
           <p>
-            키워드 6개, 말뭉치 하나(NSMC), <K>simple</K> 설정 하나로만 쟀다. 형태소 분석기를 붙인 구성은
-            재보지 않았다 — <strong>“사전을 붙이면 얼마나 회복되는가”는 이 카탈로그가 답하지 못한다.</strong>
+            키워드 6개, 말뭉치 하나(NSMC), <K>simple</K> 설정 하나로만 쟀다.{' '}
+            <Ref to="/fulltext/korean-analyzer">형태소 분석기를 붙인 구성</Ref>은 재보지 않았다 —{' '}
+            <strong>“사전을 붙이면 얼마나 회복되는가”는 이 카탈로그가 답하지 못한다.</strong>
           </p>
         </Callout>
       </Section>

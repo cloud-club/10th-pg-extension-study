@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { Ref } from '@/components/common/Ref'
 import { ChartBox } from '@/components/charts/ChartBox'
 import { CodeBlock, K } from '@/components/common/Code'
 import { SourceNote } from '@/components/common/SourceNote'
@@ -70,7 +71,7 @@ export default function Korean() {
             <TR>
               <TD><Badge variant="bigm">구현</Badge></TD>
               <TD><strong>오탈자에 더 관대하다</strong></TD>
-              <TD>같은 오타에 0.5000 vs 0.1429 — 아래 §5</TD>
+              <TD>같은 오타에 0.5000 vs 0.1429 — <Ref to="#a5">오탈자에 더 관대하다</Ref></TD>
             </TR>
           </TBody>
         </Table>

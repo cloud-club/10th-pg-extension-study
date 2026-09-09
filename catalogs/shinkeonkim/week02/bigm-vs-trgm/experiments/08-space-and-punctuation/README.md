@@ -84,5 +84,5 @@ ROWS=50000 ./bench.sh
 
 - [실험 05 — 패턴 × 길이](../05-pattern-and-length) — 2글자 함정을 100만 행에서
 - [실험 03 — 연산자 커버리지](../03-operator-coverage-and-correctness) — `ILIKE` 를 왜 못 쓰나
-- [`web/#/foundations/ngram`](../../../../web/README.md) §2 — 패딩 규칙
+- [`web/#/foundations/ngram`](../../../../web/README.md)  — 패딩 규칙
 - [pg_trgm 공식 문서](https://www.postgresql.org/docs/16/pgtrgm.html) · [pg_bigm 공식 문서](https://github.com/pgbigm/pg_bigm/blob/REL1_2_STABLE/docs/pg_bigm_en.md)

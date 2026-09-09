@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { Ref } from '@/components/common/Ref'
 import { ChartBox } from '@/components/charts/ChartBox'
 import { K } from '@/components/common/Code'
 import { SourceNote } from '@/components/common/SourceNote'
@@ -65,7 +65,7 @@ export default function E02() {
         </div>
         <SourceNote path={`${DATA.repo.base}/${DATA.repo.exp.e02}`}>실험 02</SourceNote>
         <p>
-          자세한 해석 네 가지는 <Link to="/foundations/ngram#corpus">n-gram §4</Link> 에 있다. 요약하면{' '}
+          자세한 해석 네 가지는 <Ref to="/foundations/ngram#corpus">n-gram — 실제 말뭉치로 재본 것</Ref> 에 있다. 요약하면{' '}
           <strong>“2-gram 이라 조각이 많다”는 틀렸고, 크기 차이는 유니크 조각 가짓수에서 온다.</strong>
         </p>
       </Section>
@@ -99,7 +99,7 @@ export default function E02() {
           <TCaption>
             <K>FASTUPDATE=on</K>(기본)은 쓰기가 빠른 대신 <strong>가끔 한 건이 아주 느리다</strong> — 병합을
             뒤집어쓴 세션이다. 지연의 평균이 아니라 꼬리가 중요하면 <K>off</K> 가 답일 수 있다 —{' '}
-            <Link to="/foundations/gin">GIN §1-③</Link>.
+            <Ref to="/foundations/gin#structure">GIN — 펜딩 리스트</Ref>.
           </TCaption>
         </Table>
         <SourceNote path={`${DATA.repo.base}/${DATA.repo.exp.e02}`}>실험 02</SourceNote>

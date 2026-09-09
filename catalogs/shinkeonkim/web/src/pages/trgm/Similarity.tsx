@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { Ref } from '@/components/common/Ref'
 import { ChartBox } from '@/components/charts/ChartBox'
 import { K } from '@/components/common/Code'
 import { SourceNote } from '@/components/common/SourceNote'
@@ -294,7 +295,7 @@ export default function Similarity() {
         <p>
           인덱스를 타려면 인덱스 컬럼이 왼쪽이어야 한다 — <K>doc %{'>'} '검색어'</K>(= <K>'검색어' {'<%'} doc</K>).{' '}
           <K>doc {'<%'} '검색어'</K> 는 <strong>의미도 다르고 <K>Seq Scan</K> 이 된다.</strong> 자세한 것은{' '}
-          <Link to="/pg-bigm/operators#direction">연산자 커버리지 §2</Link>.
+          <Ref to="/pg-bigm/operators#direction">피연산자 순서가 인덱스 사용을 바꾼다</Ref>.
         </p>
       </Section>
     </>

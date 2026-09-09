@@ -1,10 +1,12 @@
 import { Link } from 'react-router-dom'
+import { Ref } from '@/components/common/Ref'
 import { ChartBox } from '@/components/charts/ChartBox'
 import { CodeBlock, K } from '@/components/common/Code'
 import { SourceNote } from '@/components/common/SourceNote'
 import { Callout, EasyFirst } from '@/components/layout/Callout'
 import { PageHeader, Section } from '@/components/layout/PageHeader'
 import { Clotho } from '@/components/viz/Clotho'
+import { Diagram } from '@/components/viz/Diagram'
 import { Badge } from '@/components/ui/badge'
 import { Table, TBody, TCaption, TD, TH, THead, TR } from '@/components/ui/table'
 import { C, alpha } from '@/lib/chart'
@@ -128,7 +130,7 @@ pg_bigm :  패딩한 길이 = L + 1 + 1 = L+2   →  조각 = (L+2) - 2 + 1 = L+
           <p>
             “2-gram 이라 조각이 더 많아서 인덱스가 크다”는 <strong>틀렸다.</strong> 실측에서도 생 조각 수가 한국어{' '}
             {nf(F[0].raw)} vs {nf(F[1].raw)} 로 비슷하다. 실제 크기 차이를 만드는 것은 조각 <em>개수</em> 가 아니라{' '}
-            <strong>서로 다른 조각의 가짓수</strong>다 — §4.
+            <strong>서로 다른 조각의 가짓수</strong>다 — <Ref to="#corpus">실제 말뭉치로 재본 것</Ref>.
           </p>
         </Callout>
 
@@ -165,10 +167,20 @@ pg_bigm :  패딩한 길이 = L + 1 + 1 = L+2   →  조각 = (L+2) - 2 + 1 = L+
         </Table>
 
         <h3>“가짓수가 많으면 검색이 나빠지지 않나?” — 추론을 따라가 본다</h3>
-        <CodeBlock>{`(1) 한국어는 문자 조합 자체가 많다        →  A 가 크다
-(2) 그러면 Aⁿ 이 커진다                   →  조각 가짓수가 많다
-(3) 그러면 "선택할 가짓수"가 많아진다     →  검색 효율이 떨어진다?
-(4) 그러면 결과가 더 많이 나온다          →  유사하지 않은 결과가 섞인다?`}</CodeBlock>
+        <Diagram
+          maxWidth={720}
+          chart={`
+flowchart LR
+  s1["① 한국어는 문자 조합이 많다"] --> s2["② Aⁿ 이 커진다<br/>조각 가짓수가 많다"]
+  s2 --> s3["③ '선택할 가짓수' 가 많아진다<br/>검색 효율이 떨어진다?"]
+  s3 --> s4["④ 결과가 더 많이 나온다<br/>유사하지 않은 결과가 섞인다?"]
+  classDef ok fill:#134e4a,stroke:#34d399,color:#d1fae5
+  classDef doubt fill:#422006,stroke:#fbbf24,color:#fef3c7
+  class s1,s2 ok
+  class s3,s4 doubt
+`}
+          caption="초록 두 칸은 맞다. 주황 두 칸은 방향이 반대다 — 아래에서 하나씩 본다."
+        />
         <p><strong>(1)과 (2)는 맞다. (3)과 (4)는 방향이 반대다.</strong></p>
 
         <h4>(1)(2) 맞다 — 다만 <K>A<sup>n</sup></K> 은 상한이지 실제 값이 아니다</h4>
@@ -182,12 +194,15 @@ pg_bigm :  패딩한 길이 = L + 1 + 1 = L+2   →  조각 = (L+2) - 2 + 1 = L+
         </Table>
 
         <h4>(3) 반대다 — 가짓수가 많으면 검색은 <em>빨라진다</em></h4>
-        <CodeBlock>{`조각이 희귀하다
-  → 포스팅 리스트가 짧다
-  → 읽을 페이지가 적다
-  → 후보 행이 적다
-  → 힙에서 읽을 행이 적다
-  → 검색이 빠르다`}</CodeBlock>
+        <Diagram
+          maxWidth={760}
+          chart={`
+flowchart LR
+  a["조각이 희귀하다"] --> b["포스팅 리스트가 짧다"] --> c["읽을 페이지가 적다"] --> d["후보 행이 적다"] --> e["힙에서 읽을 행이 적다"] --> f["검색이 빠르다"]
+  classDef ok fill:#134e4a,stroke:#34d399,color:#d1fae5
+  class f ok
+`}
+        />
         <ChartBox
           type="bar"
           height={280}
@@ -294,7 +309,8 @@ Rows Removed by Index Recheck: 999,500
         <p><strong>읽을 것 네 가지.</strong></p>
         <ol>
           <li>
-            <strong>생 조각 수는 비슷하다</strong> (한국어 {nf(F[0].raw)} vs {nf(F[1].raw)}). §2 에서 계산한{' '}
+            <strong>생 조각 수는 비슷하다</strong> (한국어 {nf(F[0].raw)} vs {nf(F[1].raw)}).{' '}
+            <Ref to="#padding">패딩</Ref> 에서 계산한{' '}
             <K>L + 1</K> 이 대체로 맞다.
           </li>
           <li>
@@ -350,9 +366,20 @@ Rows Removed by Index Recheck: 999,500
         />
         <SourceNote path={`${DATA.repo.base}/${DATA.repo.exp.e04}`}>실험 04</SourceNote>
 
-        <CodeBlock caption="트레이드오프를 한 덩어리로">{`n 을 키우면  →  유니크 조각이 늘고  →  조각 하나가 희귀해지고  →  선택도가 좋아진다
-                                                              →  대신 인덱스가 커진다
-                                                              →  그리고 최소 검색어 길이가 n 이 된다`}</CodeBlock>
+        <Diagram
+          chart={`
+flowchart LR
+  n["n 을 키우면"] --> u["유니크 조각이 는다"] --> r["조각 하나가 희귀해진다"]
+  r --> good["선택도가 좋아진다"]
+  r --> big["대신 인덱스가 커진다"]
+  n --> minlen["최소 검색어 길이가 n 이 된다"]
+  classDef ok fill:#134e4a,stroke:#34d399,color:#d1fae5
+  classDef cost fill:#422006,stroke:#fbbf24,color:#fef3c7
+  class good ok
+  class big,minlen cost
+`}
+          caption="트레이드오프를 한 덩어리로. 한국어에서 2-gram 을 고르는 것은 초록 하나를 조금 포기하고 주황 하나를 지우는 거래다."
+        />
         <p>
           한국어에서 2-gram 을 고르는 것은 <strong>“선택도를 조금 포기하고 최소 검색어 길이를 1 줄이는” 거래</strong>다.
           한글은 알파벳이 커서 선택도 손해가 영문만큼 크지 않고, 반대로 2글자 검색어는 매우 흔하므로 이 거래가 남는

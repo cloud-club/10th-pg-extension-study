@@ -518,7 +518,7 @@ export const DATA = {
       claim: '베이스 이미지를 최신 Debian(trixie)으로 올리면 취약점 경고가 줄어든다 (이 카탈로그의 예상)',
       found: '틀렸다. critical 16 → 14, high 93 → 98 로 사실상 같다. 줄어드는 것은 alpine 뿐이다 (1 / 30)',
       why: 'Debian 쪽 109건 중 패치가 나와 있는 것은 22건뿐이고 그 22건이 전부 gosu(Go stdlib) 다 — 나머지 87건은 Debian 이 "minor issue" 로 분류해 업데이트를 내지 않은 것들이라 베이스를 한 세대 올려도 그대로 남는다. gosu 는 모든 변종에 똑같이 들어 있다. 먼저 옮겨 놓고 나중에 잰 자리다',
-      where: 'trivy 0.74.0 로 직접 스캔 (web/#/meta/environment)',
+      where: 'trivy 0.74.0 로 직접 스캔 — TODO.md L-1 에 기록',
       tag: '검증',
     },
     {

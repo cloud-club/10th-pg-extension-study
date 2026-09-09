@@ -11,7 +11,7 @@
     "check": "bun run typecheck && bun run check:animations"
   },
   "dependencies": {
-    "@kokoa/clotho": "0.2.0",
+    "@kokoa/clotho": "0.4.0",
     "@radix-ui/react-accordion": "^1.2.2",
     "@radix-ui/react-separator": "^1.1.1",
     "@radix-ui/react-slot": "^1.1.1",
@@ -21,6 +21,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^0.468.0",
+    "mermaid": "^11.17.2",
     "react": "^18.3.1",
     "react-chartjs-2": "^5.2.0",
     "react-dom": "^18.3.1",

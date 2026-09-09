@@ -52,7 +52,7 @@ const NEIGHBOURS: { concept: React.ReactNode; why: React.ReactNode; where: React
   {
     concept: <strong>PGXS 빌드</strong>,
     why: <><K>pg_bigm</K> 은 contrib 이 아니라 소스를 직접 빌드해야 한다</>,
-    where: <Link to="/meta/environment">환경과 이미지</Link>,
+    where: <Link to="/pg-bigm/about">pg_bigm 구조와 규칙</Link>,
   },
   {
     concept: <>콜레이션과 <K>C</K> 로케일</>,

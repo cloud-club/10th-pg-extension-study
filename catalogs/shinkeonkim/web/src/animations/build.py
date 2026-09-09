@@ -11,7 +11,7 @@ from __future__ import annotations
 import json, sys, os, re, urllib.request
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-SCHEMA_URL = "https://cdn.jsdelivr.net/npm/@kokoa/clotho@0.2.0/schema/clotho-1.schema.json"
+SCHEMA_URL = "https://cdn.jsdelivr.net/npm/@kokoa/clotho@0.4.0/schema/clotho-1.schema.json"
 SCHEMA_CACHE = os.path.join(HERE, ".clotho-schema.json")
 
 # 색 (assets/style.css 의 토큰과 맞춘다). **다크 전용**이다 — 라이트 팔레트는 없다.
@@ -57,6 +57,73 @@ def box(id, x, y, w, h, fill, start=0, end=None, label=None, radius=8,
 # ---------------------------------------------------------------------------
 # 1) n-gram 분해: 패딩 -> 2-gram -> 3-gram -> 2글자 검색어의 함정
 # ---------------------------------------------------------------------------
+def widen(doc, pad):
+    """캔버스 좌우에 여백을 만들고 내용을 그만큼 오른쪽으로 민다.
+
+    카메라 focus 는 대상의 경계 상자를 화면에 '맞춰서' 확대하는데, 내용이 캔버스 폭을
+    거의 다 쓰면 가로가 병목이라 배율이 1 에 가까워진다 — 즉 아무 일도 안 일어난다.
+    좌우에 여백을 주면 세로로 좁은 띠 하나를 확대할 여지가 생긴다.
+    """
+    for el in doc["elements"]:
+        if "x" in el:
+            el["x"] += pad
+    doc["canvas"]["width"] += pad * 2
+    return doc
+
+
+def chapter_frames(els, chapters, groups, end, canvas_h, content_x=40, content_w=860, pad_top=30, pad_bottom=24):
+    """장마다 **같은 크기의** 카메라 틀을 만들어 붙인다.
+
+    focus 는 대상 상자에 화면을 '맞추므로', 장마다 상자 크기가 다르면 배율이 매번 달라진다 -
+    확대·축소가 반복되면 읽기가 어렵다. 그래서 **모든 장에서 크기가 같은 보이지 않는 틀**을 두고
+    그 틀만 초점 대상으로 삼는다. 결과적으로 배율은 고정되고 카메라는 위아래로 이동만 한다.
+
+    틀의 가로는 내용 전체 폭으로 고정한다 - 글자가 옆으로 잘릴 여지를 아예 없앤다.
+    세로는 가장 큰 장에 맞춘 하나의 값이다.
+
+    돌려주는 것: (틀 요소 목록, focus 목록)
+    """
+    def extent(el):
+        y = el.get("y", 0)
+        if el["type"] == "rect":
+            return y, y + el.get("height", 0)
+        # 텍스트는 y 가 기준선이다. 위로 폰트 크기만큼, 아래로 조금 잡는다.
+        size = el.get("fontSize", 16)
+        return y - size, y + size * 0.35
+
+    by_id = {el["id"]: el for el in els}
+    bands = []
+    for ids in groups:
+        missing = [i for i in ids if i not in by_id]
+        if missing:
+            raise SystemExit(f"chapter_frames: 없는 요소 id {missing}")
+        tops, bottoms = zip(*(extent(by_id[i]) for i in ids))
+        bands.append((min(tops) - pad_top, max(bottoms) + pad_bottom))
+
+    height = max(b - a for a, b in bands)
+    frames, focus = [], []
+    for n, ((top, bottom), ch, ids) in enumerate(zip(bands, chapters, groups)):
+        center = (top + bottom) / 2
+        # 캔버스 밖으로 나가지 않게 붙인다 - 틀이 띠보다 크므로 내용은 그대로 다 들어온다
+        y = round(min(max(center - height / 2, 0), canvas_h - height))
+        fid = f"cam{n}"
+        frames.append({
+            "type": "rect", "id": fid, "x": content_x, "y": y,
+            "width": content_w, "height": round(height),
+            "fill": BG, "stroke": BG, "strokeWidth": 0, "cornerRadius": 0,
+            "appearances": [{"start": 0, "end": end, "entryMode": "instant", "entryDuration": 1}],
+        })
+        # 그 장의 첫 요소가 나타난 뒤에 옮긴다 (틀은 처음부터 있으므로 진단은 안 뜬다)
+        first = min(min((a["start"] for a in by_id[i].get("appearances", [])), default=0) for i in ids)
+        focus.append({
+            "time": max(ch["time"] + 250, first),
+            "duration": 800, "elementIds": [fid],
+            "padding": 0, "maxZoom": 8.0, "ease": "easeInOut",
+        })
+    return frames, focus
+
+
+
 def doc_ngram_slice():
     W, H = 940, 460
     word = "클라우드클럽"
@@ -117,7 +184,7 @@ def doc_ngram_slice():
         "duration": END,
         "canvas": {"width": W, "height": H + 60, "background": BG},
         "elements": els, "chapters": chapters,
-        "settings": {"loop": False, "autoplay": False, "showChapterList": True},
+        "settings": {"loop": False, "autoplay": True, "showChapterList": True},
     }
 
 
@@ -191,7 +258,7 @@ def doc_two_char_trap():
         "duration": END,
         "canvas": {"width": 940, "height": 760, "background": BG},
         "elements": els, "chapters": chapters,
-        "settings": {"loop": False, "autoplay": False, "showChapterList": True},
+        "settings": {"loop": False, "autoplay": True, "showChapterList": True},
     }
 
 
@@ -233,7 +300,7 @@ def doc_gin_pipeline():
         "duration": END,
         "canvas": {"width": 940, "height": y + len(stages) * 82 + 80, "background": BG},
         "elements": els, "chapters": chapters,
-        "settings": {"loop": False, "autoplay": False, "showChapterList": True},
+        "settings": {"loop": False, "autoplay": True, "showChapterList": True},
     }
 
 
@@ -297,7 +364,7 @@ def doc_lexeme_vs_ngram():
         "duration": END,
         "canvas": {"width": 940, "height": 740, "background": BG},
         "elements": els, "chapters": chapters,
-        "settings": {"loop": False, "autoplay": False, "showChapterList": True},
+        "settings": {"loop": False, "autoplay": True, "showChapterList": True},
     }
 
 
@@ -307,7 +374,7 @@ def doc_lexeme_vs_ngram():
 # ---------------------------------------------------------------------------
 def doc_btree_vs_inverted():
     els, chapters = [], []
-    END = 30000
+    END = 36000
     els.append(txt("t", 40, 42, "B-tree 는 왜 LIKE '%클럽%' 를 못 푸나", 22, INK, 0, END, "700"))
 
     # --- 1장: B-tree 가 저장하는 것 = 정렬된 '문자열 전체' ------------------
@@ -329,69 +396,122 @@ def doc_btree_vs_inverted():
     els.append(box("hit1", 40, 250, 260, 38, OK, start=5000, end=END,
                    label="클럽하우스", label_size=16, radius=6))
     els.append(txt("c2c", 380, 200, "찾는 값이 트리의 '한 곳'에 모여 있다", 15, OK, 5400, END, "600"))
+    els.append(txt("c2d", 380, 224,
+                   "플래너가 패턴을 범위로 다시 쓴다 —", 14, MUTED, 6000, END))
+    els.append(txt("c2d2", 380, 244,
+                   "'클럽' 의 마지막 글자를 하나 올려 끝점을 만든다", 14, MUTED, 6200, END))
+    els.append(txt("c2e", 380, 268,
+                   "단, 콜레이션이 C 가 아니면 이 변환이 성립하지 않는다", 14, WARN, 6800, END))
+    els.append(txt("c2e2", 380, 288,
+                   "→ text_pattern_ops 연산자 클래스가 필요하다", 14, WARN, 7000, END))
     chapters.append({"id": "b2", "time": 3900, "label": "2. 접두어는 풀린다",
                      "subtitle": "'클럽%' 는 정렬 순서상 연속 구간"})
 
     # --- 3장: 부분 문자열은 흩어져 있다 -------------------------------------
-    els.append(txt("c3", 380, 262, "LIKE '%클럽%'  →  범위로 표현할 수 없다", 17, TRGM, 9000, END, "700"))
+    els.append(txt("c3", 380, 330, "LIKE '%클럽%'  →  범위로 표현할 수 없다", 17, TRGM, 9000, END, "700"))
     for i, y in enumerate([112, 204, 250, 296]):
         els.append(box(f"sc{i}", 40, y, 260, 38, TRGM, start=9400 + i * 400, end=END,
                        label=rows[[0, 2, 3, 4][i]], label_size=16, radius=6))
-    els.append(txt("c3b", 380, 292,
-                   "'클럽' 을 포함하는 값이 정렬 순서 전체에 흩어진다", 15, TRGM, 11200, END))
-    els.append(txt("c3c", 380, 320,
+    for i, (lab, y) in enumerate(zip(["ㄱ 구간", "ㅋ 구간", "ㅋ 구간", "ㅎ 구간"], [112, 204, 250, 296])):
+        els.append(txt(f"scl{i}", 316, y + 25, lab, 13, TRGM, 9600 + i * 400, END))
+    els.append(txt("c3b", 380, 360,
+                   "'클럽' 을 포함하는 값이 정렬 순서 전체에 흩어진다",
+                   15, TRGM, 11200, END))
+    els.append(txt("c3b2", 380, 382, "첫 글자가 제각각이라서다", 15, TRGM, 11500, END))
+    els.append(txt("c3c", 380, 408,
                    "→ 시작점도 끝점도 정할 수 없다 → 전부 훑는 수밖에 없다", 15, TRGM, 11800, END, "600"))
-    els.append(box("seq", 380, 340, 400, 44, TRGM, start=12600, end=END,
+    els.append(box("seq", 380, 428, 400, 44, TRGM, start=12600, end=END,
                    label="Seq Scan — 100만 행이면 100만 번 비교", label_size=15, radius=8))
     chapters.append({"id": "b3", "time": 8900, "label": "3. 부분 문자열은 못 푼다",
                      "subtitle": "정렬 순서에 흩어져 있어서 구간이 안 된다"})
 
     # --- 4장: 문제를 뒤집는다 -----------------------------------------------
-    els.append(txt("c4", 40, 430, "그래서 저장하는 '단위'를 바꾼다", 19, INK, 16000, END, "700"))
-    els.append(txt("c4b", 40, 458,
+    els.append(txt("c4", 40, 508, "그래서 저장하는 '단위'를 바꾼다", 19, INK, 16000, END, "700"))
+    els.append(txt("c4b", 40, 536,
                    "값 전체가 아니라, 값을 쪼갠 조각을 키로 쓰고 값에는 '그 조각을 가진 행 목록'을 둔다",
                    15, MUTED, 16400, END))
     inv = [("␣클", "1, 3, 4, 5"), ("클럽", "1, 3, 4, 5"), ("럽하", "4"), ("클라", "3")]
     for i, (k, v) in enumerate(inv):
         st = 17200 + i * 900
-        els.append(box(f"iv{i}", 40, 486 + i * 52, 120, 42, BIGM, start=st, end=END,
+        els.append(box(f"iv{i}", 40, 564 + i * 52, 120, 42, BIGM, start=st, end=END,
                        label=k, label_size=17, radius=8))
-        els.append(box(f"ivp{i}", 168, 486 + i * 52, 240, 42, PANEL, stroke=DIM, start=st + 300,
+        els.append(box(f"ivp{i}", 168, 564 + i * 52, 240, 42, PANEL, stroke=DIM, start=st + 300,
                        end=END, label=v, label_color=INK, label_size=15, radius=8))
-    els.append(txt("c4c", 430, 512, "키 = 조각", 15, BIGM, 18000, END, "600"))
-    els.append(txt("c4d", 430, 540, "값 = 그 조각을 가진 행들의 TID 목록 (포스팅 리스트)",
+    els.append(txt("c4c", 430, 590, "키 = 조각", 15, BIGM, 18000, END, "600"))
+    els.append(txt("c4d", 430, 618, "값 = 그 조각을 가진 행들의 TID 목록 (포스팅 리스트)",
                    15, MUTED, 18400, END))
+    els.append(txt("c4e", 430, 644,
+                   "대가: 행 하나가 키 '글자 수 + 1' 개를 만든다", 14, WARN, 19200, END))
+    els.append(txt("c4e2", 430, 664,
+                   "→ 인덱스가 커지고 쓰기가 느려진다", 14, WARN, 19500, END))
+    els.append(txt("c4f", 430, 688,
+                   "실측: 테이블 대비 0.79~1.42배 (bigm)", 14, MUTED, 20000, END))
+    els.append(txt("c4f2", 430, 708,
+                   "btree 는 0.98배로 평평하다", 14, MUTED, 20300, END))
     chapters.append({"id": "b4", "time": 15900, "label": "4. 문제를 뒤집는다",
                      "subtitle": "값→행 이 아니라 조각→행 목록"})
 
     # --- 5장: 그러면 부분 문자열이 집합 연산이 된다 --------------------------
-    els.append(txt("c5", 40, 700, "이제 '%클럽%' 은 집합 연산이다", 19, OK, 24000, END, "700"))
-    els.append(box("q1", 40, 722, 130, 42, BIGM, start=24400, end=END,
+    els.append(txt("c5", 40, 790, "이제 '%클럽%' 은 집합 연산이다", 19, OK, 24000, END, "700"))
+    els.append(box("q1", 40, 812, 130, 42, BIGM, start=24400, end=END,
                    label="␣클 → 1,3,4,5", label_size=14, radius=8))
-    els.append(txt("amp", 182, 750, "∩", 22, INK, 25000, END, "700"))
-    els.append(box("q2", 210, 722, 130, 42, BIGM, start=25000, end=END,
+    els.append(txt("amp", 182, 840, "∩", 22, INK, 25000, END, "700"))
+    els.append(box("q2", 210, 812, 130, 42, BIGM, start=25000, end=END,
                    label="클럽 → 1,3,4,5", label_size=14, radius=8))
-    els.append(txt("eq", 352, 750, "=", 22, INK, 25600, END, "700"))
-    els.append(box("q3", 378, 722, 130, 42, OK, start=25600, end=END,
+    els.append(txt("eq", 352, 840, "=", 22, INK, 25600, END, "700"))
+    els.append(box("q3", 378, 812, 130, 42, OK, start=25600, end=END,
                    label="1, 3, 4, 5", label_size=15, radius=8))
-    els.append(txt("c5b", 40, 794,
+    els.append(txt("c5b", 40, 884,
                    "B-tree 가 '못' 하는 게 아니라, B-tree 가 답할 수 있는 질문의 모양이 다른 것이다.",
                    15, INK, 27000, END, "600"))
-    els.append(txt("c5c", 40, 820,
+    els.append(txt("c5c", 40, 910,
                    "n-gram 인덱스도 안쪽은 B-tree 다 — GIN 의 엔트리 트리가 바로 그것이다.",
                    15, MUTED, 28000, END))
     chapters.append({"id": "b5", "time": 23900, "label": "5. 집합 연산이 된다",
                      "subtitle": "포스팅 리스트의 교집합"})
 
-    return {
+    # --- 6장: 그런데 교집합은 '후보' 다 -------------------------------------
+    els.append(txt("c6", 40, 962, "그런데 이 교집합은 '정답' 이 아니라 '후보' 다", 19, WARN, 30200, END, "700"))
+    els.append(txt("c6b", 40, 990,
+                   "조각을 다 가졌다고 원래 문자열이 있는 건 아니다 - 조각 집합은 순서를 잃는다",
+                   15, MUTED, 30600, END))
+    els.append(box("fp1", 40, 1012, 330, 40, PANEL, stroke=TRGM, start=31200, end=END,
+                   label="'arterial triage' 의 조각", label_color=INK, label_size=14, radius=8))
+    els.append(txt("fp2", 384, 1036, "tri · ria · ial 을 전부 갖고 있다", 14, MUTED, 31800, END))
+    els.append(txt("fp3", 384, 1058, "그런데 'trial' 이라는 연속된 문자열은 없다", 14, TRGM, 32400, END, "600"))
+    els.append(box("rc", 40, 1066, 330, 40, WARN, start=33200, end=END,
+                   label="Recheck - 힙에서 원문을 다시 대본다", label_size=14, radius=8))
+    els.append(txt("rc2", 384, 1090,
+                   "후보만 읽으므로 테이블 전체를 훑는 것과 비용이 다르다", 14, MUTED, 33800, END))
+    els.append(txt("rc3", 40, 1130,
+                   "그래서 인덱스가 나쁠 때 나타나는 증상은 '틀린 결과' 가 아니라 '느림' 이다.",
+                   15, INK, 34600, END, "600"))
+    chapters.append({"id": "b6", "time": 29900, "label": "6. 교집합은 후보다",
+                     "subtitle": "정확한 판정은 힙에서 — Recheck"})
+
+    # 각 장의 요소를 **하나도 빠뜨리지 않아야** 한다 - 빠진 요소는 초점 밖으로 나가 잘린다.
+    groups = [
+        ["c1"] + [f"bt{i}" for i in range(5)] + ["btord"],
+        ["c2", "c2b", "c2c", "c2d", "c2d2", "c2e", "c2e2", "hit1"] + [f"bt{i}" for i in range(5)],
+        ["c3", "c3b", "c3b2", "c3c", "seq"] + [f"sc{i}" for i in range(4)] + [f"scl{i}" for i in range(4)],
+        ["c4", "c4b", "c4c", "c4d", "c4e", "c4e2", "c4f", "c4f2"] + [f"iv{i}" for i in range(4)] + [f"ivp{i}" for i in range(4)],
+        ["c5", "q1", "q2", "q3", "c5b", "c5c"],
+        ["c6", "c6b", "fp1", "fp2", "fp3", "rc", "rc2", "rc3"],
+    ]
+    frames, focus = chapter_frames(els, chapters, groups, END, 1170)
+    els = frames + els          # 틀을 맨 뒤(배경)에 깔아 둔다
+
+    doc = {
         "clothoVersion": 1, "id": "btree-vs-inverted",
         "title": "B-tree 가 못 하는 일, 역인덱스가 하는 일",
         "description": "접두어는 정렬 순서의 연속 구간이라 풀리고, 부분 문자열은 아니다.",
         "duration": END,
-        "canvas": {"width": 940, "height": 850, "background": BG},
+        "canvas": {"width": 940, "height": 1170, "background": BG},
         "elements": els, "chapters": chapters,
-        "settings": {"loop": False, "autoplay": False, "showChapterList": True},
+        "camera": {"focus": focus, "strokeScaling": "fixed"},
+        "settings": {"loop": False, "autoplay": True, "showChapterList": True},
     }
+    return widen(doc, 170)
 
 
 # ---------------------------------------------------------------------------
@@ -476,15 +596,29 @@ def doc_gin_structure():
     chapters.append({"id": "s5", "time": 23900, "label": "5. 검색 경로",
                      "subtitle": "GIN 은 후보까지, 판정은 힙에서"})
 
-    return {
+    # 장마다 그 장의 요소로 카메라를 옮긴다 - 세로로 긴 그림이라 한 화면에 다 두면
+    # 어느 부분을 보라는 건지 알 수 없다.
+    groups = [
+        ["row"] + [f"k{i}" for i in range(6)] + ["n1", "n1b"],
+        ["c2", "root"] + [f"e{i}" for i in range(5)] + ["c2b"],
+        ["c3", "pl", "pln", "pln2", "pt", "ptn", "ptn2", "c3b"],
+        ["c4", "ins", "pend", "flush", "c4b", "c4c"],
+        ["c5"] + [f"p{i}" for i in range(5)] + ["c5b"],
+    ]
+    frames, focus = chapter_frames(els, chapters, groups, END, 940)
+    els = frames + els          # 틀을 맨 뒤(배경)에 깔아 둔다
+
+    doc = {
         "clothoVersion": 1, "id": "gin-structure",
         "title": "GIN 인덱스의 내부 구조",
         "description": "엔트리 트리 · 포스팅 리스트/트리 · 펜딩 리스트, 그리고 검색 경로.",
         "duration": END,
         "canvas": {"width": 940, "height": 940, "background": BG},
         "elements": els, "chapters": chapters,
-        "settings": {"loop": False, "autoplay": False, "showChapterList": True},
+        "camera": {"focus": focus, "strokeScaling": "fixed"},
+        "settings": {"loop": False, "autoplay": True, "showChapterList": True},
     }
+    return widen(doc, 170)
 
 
 # ---------------------------------------------------------------------------
@@ -596,7 +730,7 @@ def doc_similarity():
         "duration": END,
         "canvas": {"width": 940, "height": 1220, "background": BG},
         "elements": els, "chapters": chapters,
-        "settings": {"loop": False, "autoplay": False, "showChapterList": True},
+        "settings": {"loop": False, "autoplay": True, "showChapterList": True},
     }
 
 

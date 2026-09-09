@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { Ref } from '@/components/common/Ref'
 import { ChartBox } from '@/components/charts/ChartBox'
 import { K } from '@/components/common/Code'
 import { SourceNote } from '@/components/common/SourceNote'
@@ -76,7 +77,8 @@ export default function E04() {
         <Callout kind="warn" title="이 감소폭은 과장돼 있다">
           <p>
             말뭉치를 순환 참조해 만든 데이터라 <strong>유니크 조각이 아예 안 늘었다.</strong> 실제 서비스에서는
-            배수 감소가 이만큼 크지 않다. 그래서 <strong>어휘가 늘어나는 대조군</strong>을 따로 만들어 확인했다 — §3.
+            배수 감소가 이만큼 크지 않다. 그래서 <strong>어휘가 늘어나는 대조군</strong>을 따로 만들어 확인했다 —{' '}
+            <Ref to="#grow">어휘가 늘어나면 어떻게 되나</Ref>.
           </p>
         </Callout>
       </Section>
@@ -103,7 +105,7 @@ export default function E04() {
             <TR><TD><K>gin_trgm_ops</K></TD><TD>{nf(E4.uniqEntries.trgm)}</TD></TR>
             <TR><TD><K>gin (tsvector)</K></TD><TD>{nf(E4.uniqEntries.tsv)}</TD></TR>
           </TBody>
-          <TCaption>이 값이 고정비를 정한다 — <Link to="/foundations/gin">GIN §1-②</Link>.</TCaption>
+          <TCaption>이 값이 고정비를 정한다 — <Ref to="/foundations/gin#structure">GIN 의 엔트리 트리와 포스팅 리스트</Ref>.</TCaption>
         </Table>
       </Section>
 

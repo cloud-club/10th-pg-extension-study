@@ -566,7 +566,7 @@
  ],
  "settings": {
   "loop": false,
-  "autoplay": false,
+  "autoplay": true,
   "showChapterList": true
  }
 }

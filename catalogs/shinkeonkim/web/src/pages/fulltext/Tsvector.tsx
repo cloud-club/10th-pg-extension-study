@@ -4,6 +4,7 @@ import { CodeBlock, K } from '@/components/common/Code'
 import { SourceNote } from '@/components/common/SourceNote'
 import { Callout, EasyFirst } from '@/components/layout/Callout'
 import { PageHeader, Section } from '@/components/layout/PageHeader'
+import { Ref } from '@/components/common/Ref'
 import { Clotho } from '@/components/viz/Clotho'
 import { Badge } from '@/components/ui/badge'
 import { Table, TBody, TCaption, TD, TH, THead, TR } from '@/components/ui/table'
@@ -85,7 +86,8 @@ CREATE EXTENSION pg_trgm;
           <p>
             실험은 <K>'simple'</K> 설정을 쓰는데, 이것은 공백으로 자르고 소문자화만 한다. 그래서 <K>영화</K>·
             <K>영화는</K>·<K>영화지만</K> 이 <strong>전부 다른 어휘소</strong>가 된다.{' '}
-            <Link to="/fulltext/korean-recall">재현율 숫자</Link>는 그 결과다.
+            <Link to="/fulltext/korean-recall">재현율 숫자</Link>는 그 결과다. 사전을 바꿔 끼우는 방법은{' '}
+            <Ref to="/fulltext/korean-analyzer">한국어 형태소 분석기는 없나</Ref> 에 정리했다.
           </p>
         </Callout>
       </Section>
@@ -295,7 +297,11 @@ LIMIT 10;`}</CodeBlock>
             </TR>
             <TR><TD>영문/서구어 문서의 <strong>단어</strong> 검색 + 관련도 정렬</TD><TD><Badge variant="tsv">tsvector</Badge></TD><TD>사전이 제대로 붙고, 인덱스가 작고, <K>ts_rank</K> 가 있다</TD></TR>
             <TR><TD>“A 다음에 바로 B” <strong>구절</strong> 검색</TD><TD><Badge variant="tsv">tsvector</Badge></TD><TD>위치를 저장하는 유일한 쪽</TD></TR>
-            <TR><TD>한국어 <strong>단어</strong> 검색을 제대로</TD><TD><Badge variant="warn">형태소 분석기</Badge></TD><TD>코어의 <K>simple</K> 설정으로는 조사를 못 떼어낸다 (은전한닢/mecab 등)</TD></TR>
+            <TR>
+              <TD>한국어 <strong>단어</strong> 검색을 제대로</TD>
+              <TD><Badge variant="warn">형태소 분석기</Badge></TD>
+              <TD>코어의 <K>simple</K> 설정으로는 조사를 못 떼어낸다 — <Ref to="/fulltext/korean-analyzer">textsearch_ko · PGroonga</Ref></TD>
+            </TR>
             <TR><TD>오탈자 허용 검색</TD><TD><Badge variant="trgm">pg_trgm</Badge></TD><TD>tsvector 에는 유사도 개념이 없다</TD></TR>
             <TR><TD>영문 <K>running</K> / <K>runs</K> 를 같이 찾아야 한다</TD><TD><Badge variant="tsv">tsvector</Badge></TD><TD>어간 추출은 문자만 보는 n-gram 이 못 하는 일이다</TD></TR>
             <TR><TD>구두점·IP·버전을 <strong>통째로</strong> 다뤄야 한다</TD><TD><Badge variant="tsv">tsvector</Badge></TD><TD>파서가 토큰 종류로 인식한다 — 단, 부분 일치는 안 된다</TD></TR>

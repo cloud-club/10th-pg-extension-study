@@ -43,6 +43,20 @@ bun run typecheck
 무시하는 것은 전부 명령 한 줄로 다시 만들어진다 — `bun install` · `bun run build` ·
 `python3 src/animations/build.py`.
 
+## 절을 가리키는 방법
+
+`§4` 같은 기호를 쓰지 않는다 — 읽는 사람이 그게 어디인지 직접 찾아야 하기 때문이다.
+대신 `<Ref>` 로 **절 이름을 쓰고 실제로 그 자리로 데려간다.**
+
+```tsx
+<Ref to="/foundations/gin#structure">GIN 의 엔트리 트리</Ref>   {/* 다른 페이지 */}
+<Ref to="#corpus">실제 말뭉치로 재본 것</Ref>                    {/* 같은 페이지 */}
+```
+
+절에는 `<Section id="...">` 로 id 를 단다. HashRouter 라 브라우저 기본 앵커 이동은 라우팅을 깨뜨리므로,
+같은 페이지는 `Ref` 가 직접 스크롤하고 다른 페이지는 `AppShell` 이 마운트 후 앵커를 찾아간다.
+`behavior: 'smooth'` 는 쓰지 않는다 — 자동화 환경이나 "동작 줄이기" 설정에서 조용히 무시된다.
+
 ## 구조
 
 ```
@@ -97,6 +111,17 @@ bun run check                              # typecheck + 위 검사
 
 `build.py` 가 문서를 만들고 스키마로 검증한 뒤 `index.ts` 를 갱신한다. 페이지에서는 `<Clotho id="gin-structure" />`
 한 줄로 쓴다. 새 문서를 넣으면 `DOCS` 에 등록만 하면 `index.ts` 에 자동으로 실린다.
+
+### 카메라 (장마다 강조)
+
+`camera.focus` 로 장이 바뀔 때마다 그 장의 요소로 카메라를 옮긴다. 두 가지에 걸린 적이 있어 적어 둔다.
+
+- **내용이 캔버스 폭을 거의 다 쓰면 배율이 1 에 붙는다.** focus 는 대상 상자를 화면에 *맞추는* 것이라
+  가로가 병목이면 확대할 여지가 없다 → `widen(doc, pad)` 로 좌우 여백을 만든다.
+- **아직 등장하지 않은 요소로는 초점을 못 잡는다** (`camera-focus` 진단, 화면이 안 움직인다) →
+  `chapter_focus()` 가 그 장의 첫 요소가 나타난 뒤로 시각을 민다.
+
+`bun run check:animations` 가 장마다 배율이 붙는지, 장면 진단이 없는지까지 확인한다.
 
 ## 다크 전용
 

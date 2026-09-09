@@ -5,15 +5,115 @@
  "description": "엔트리 트리 · 포스팅 리스트/트리 · 펜딩 리스트, 그리고 검색 경로.",
  "duration": 30000,
  "canvas": {
-  "width": 940,
+  "width": 1280,
   "height": 940,
   "background": "#0b1120"
  },
  "elements": [
   {
+   "type": "rect",
+   "id": "cam0",
+   "x": 210,
+   "y": 30,
+   "width": 860,
+   "height": 233,
+   "fill": "#0b1120",
+   "stroke": "#0b1120",
+   "strokeWidth": 0,
+   "cornerRadius": 0,
+   "appearances": [
+    {
+     "start": 0,
+     "end": 30000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "cam1",
+   "x": 210,
+   "y": 192,
+   "width": 860,
+   "height": 233,
+   "fill": "#0b1120",
+   "stroke": "#0b1120",
+   "strokeWidth": 0,
+   "cornerRadius": 0,
+   "appearances": [
+    {
+     "start": 0,
+     "end": 30000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "cam2",
+   "x": 210,
+   "y": 392,
+   "width": 860,
+   "height": 233,
+   "fill": "#0b1120",
+   "stroke": "#0b1120",
+   "strokeWidth": 0,
+   "cornerRadius": 0,
+   "appearances": [
+    {
+     "start": 0,
+     "end": 30000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "cam3",
+   "x": 210,
+   "y": 577,
+   "width": 860,
+   "height": 233,
+   "fill": "#0b1120",
+   "stroke": "#0b1120",
+   "strokeWidth": 0,
+   "cornerRadius": 0,
+   "appearances": [
+    {
+     "start": 0,
+     "end": 30000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "cam4",
+   "x": 210,
+   "y": 707,
+   "width": 860,
+   "height": 233,
+   "fill": "#0b1120",
+   "stroke": "#0b1120",
+   "strokeWidth": 0,
+   "cornerRadius": 0,
+   "appearances": [
+    {
+     "start": 0,
+     "end": 30000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ]
+  },
+  {
    "type": "text",
    "id": "t",
-   "x": 40,
+   "x": 210,
    "y": 42,
    "content": "GIN 인덱스의 내부 구조",
    "fontSize": 22,
@@ -32,7 +132,7 @@
   {
    "type": "text",
    "id": "t2",
-   "x": 40,
+   "x": 210,
    "y": 70,
    "content": "GIN = Generalized Inverted iNdex — '하나의 값이 여러 키를 만든다'는 상황을 위한 인덱스",
    "fontSize": 15,
@@ -50,7 +150,7 @@
   {
    "type": "rect",
    "id": "row",
-   "x": 40,
+   "x": 210,
    "y": 100,
    "width": 400,
    "height": 46,
@@ -73,7 +173,7 @@
   {
    "type": "rect",
    "id": "k0",
-   "x": 40,
+   "x": 210,
    "y": 162,
    "width": 84,
    "height": 38,
@@ -94,7 +194,7 @@
   {
    "type": "rect",
    "id": "k1",
-   "x": 132,
+   "x": 302,
    "y": 162,
    "width": 84,
    "height": 38,
@@ -115,7 +215,7 @@
   {
    "type": "rect",
    "id": "k2",
-   "x": 224,
+   "x": 394,
    "y": 162,
    "width": 84,
    "height": 38,
@@ -136,7 +236,7 @@
   {
    "type": "rect",
    "id": "k3",
-   "x": 316,
+   "x": 486,
    "y": 162,
    "width": 84,
    "height": 38,
@@ -157,7 +257,7 @@
   {
    "type": "rect",
    "id": "k4",
-   "x": 408,
+   "x": 578,
    "y": 162,
    "width": 84,
    "height": 38,
@@ -178,7 +278,7 @@
   {
    "type": "rect",
    "id": "k5",
-   "x": 500,
+   "x": 670,
    "y": 162,
    "width": 84,
    "height": 38,
@@ -199,7 +299,7 @@
   {
    "type": "text",
    "id": "n1",
-   "x": 580,
+   "x": 750,
    "y": 130,
    "content": "B-tree 는 행 하나 → 키 하나",
    "fontSize": 15,
@@ -217,7 +317,7 @@
   {
    "type": "text",
    "id": "n1b",
-   "x": 580,
+   "x": 750,
    "y": 156,
    "content": "GIN 은 행 하나 → 키 여러 개",
    "fontSize": 15,
@@ -236,7 +336,7 @@
   {
    "type": "text",
    "id": "c2",
-   "x": 40,
+   "x": 210,
    "y": 244,
    "content": "① 엔트리 트리 — 키를 정렬해 담는 B-tree",
    "fontSize": 18,
@@ -255,7 +355,7 @@
   {
    "type": "rect",
    "id": "root",
-   "x": 330,
+   "x": 500,
    "y": 266,
    "width": 200,
    "height": 40,
@@ -278,7 +378,7 @@
   {
    "type": "rect",
    "id": "e0",
-   "x": 40,
+   "x": 210,
    "y": 330,
    "width": 160,
    "height": 40,
@@ -299,7 +399,7 @@
   {
    "type": "rect",
    "id": "e1",
-   "x": 212,
+   "x": 382,
    "y": 330,
    "width": 160,
    "height": 40,
@@ -320,7 +420,7 @@
   {
    "type": "rect",
    "id": "e2",
-   "x": 384,
+   "x": 554,
    "y": 330,
    "width": 160,
    "height": 40,
@@ -341,7 +441,7 @@
   {
    "type": "rect",
    "id": "e3",
-   "x": 556,
+   "x": 726,
    "y": 330,
    "width": 160,
    "height": 40,
@@ -362,7 +462,7 @@
   {
    "type": "rect",
    "id": "e4",
-   "x": 728,
+   "x": 898,
    "y": 330,
    "width": 160,
    "height": 40,
@@ -383,7 +483,7 @@
   {
    "type": "text",
    "id": "c2b",
-   "x": 40,
+   "x": 210,
    "y": 392,
    "content": "키가 정렬돼 있다 = 접두어 구간 탐색이 가능하다. pg_bigm 이 1글자 검색을 하는 근거가 여기다.",
    "fontSize": 15,
@@ -401,7 +501,7 @@
   {
    "type": "text",
    "id": "c3",
-   "x": 40,
+   "x": 210,
    "y": 440,
    "content": "② 각 키가 가리키는 것 — 그 키를 가진 행들의 TID",
    "fontSize": 18,
@@ -420,7 +520,7 @@
   {
    "type": "rect",
    "id": "pl",
-   "x": 40,
+   "x": 210,
    "y": 462,
    "width": 300,
    "height": 44,
@@ -441,7 +541,7 @@
   {
    "type": "text",
    "id": "pln",
-   "x": 356,
+   "x": 526,
    "y": 478,
    "content": "행이 적을 때 — 엔트리 옆에 바로 붙여 둔다",
    "fontSize": 14,
@@ -459,7 +559,7 @@
   {
    "type": "text",
    "id": "pln2",
-   "x": 356,
+   "x": 526,
    "y": 500,
    "content": "TID 를 varbyte 로 델타 압축한다 (PG 9.4+)",
    "fontSize": 14,
@@ -477,7 +577,7 @@
   {
    "type": "rect",
    "id": "pt",
-   "x": 40,
+   "x": 210,
    "y": 520,
    "width": 300,
    "height": 44,
@@ -498,7 +598,7 @@
   {
    "type": "text",
    "id": "ptn",
-   "x": 356,
+   "x": 526,
    "y": 536,
    "content": "키가 너무 흔해 한 페이지에 안 들어갈 때 승격된다",
    "fontSize": 14,
@@ -516,7 +616,7 @@
   {
    "type": "text",
    "id": "ptn2",
-   "x": 356,
+   "x": 526,
    "y": 558,
    "content": "'영화' 같은 흔한 조각이 여기로 간다",
    "fontSize": 14,
@@ -534,7 +634,7 @@
   {
    "type": "text",
    "id": "c3b",
-   "x": 40,
+   "x": 210,
    "y": 596,
    "content": "인덱스 용량이 두 부분으로 나뉜다: 엔트리 트리 = 유니크 조각 수(고정비), 포스팅 = 총 조각 수(압축된 변동비)",
    "fontSize": 15,
@@ -553,7 +653,7 @@
   {
    "type": "text",
    "id": "c4",
-   "x": 40,
+   "x": 210,
    "y": 644,
    "content": "③ 펜딩 리스트 — GIN 의 쓰기가 느린 문제에 대한 답",
    "fontSize": 18,
@@ -572,7 +672,7 @@
   {
    "type": "rect",
    "id": "ins",
-   "x": 40,
+   "x": 210,
    "y": 666,
    "width": 200,
    "height": 42,
@@ -595,7 +695,7 @@
   {
    "type": "text",
    "id": "ar1",
-   "x": 254,
+   "x": 424,
    "y": 692,
    "content": "→",
    "fontSize": 20,
@@ -613,7 +713,7 @@
   {
    "type": "rect",
    "id": "pend",
-   "x": 286,
+   "x": 456,
    "y": 666,
    "width": 240,
    "height": 42,
@@ -634,7 +734,7 @@
   {
    "type": "text",
    "id": "ar2",
-   "x": 540,
+   "x": 710,
    "y": 692,
    "content": "→",
    "fontSize": 20,
@@ -652,7 +752,7 @@
   {
    "type": "rect",
    "id": "flush",
-   "x": 572,
+   "x": 742,
    "y": 666,
    "width": 300,
    "height": 42,
@@ -673,7 +773,7 @@
   {
    "type": "text",
    "id": "c4b",
-   "x": 40,
+   "x": 210,
    "y": 736,
    "content": "행 하나가 키 수십 개를 만드니, 곧이곧대로 넣으면 트리를 수십 번 건드려야 한다 — 그래서 미뤄 모은다.",
    "fontSize": 15,
@@ -691,7 +791,7 @@
   {
    "type": "text",
    "id": "c4c",
-   "x": 40,
+   "x": 210,
    "y": 762,
    "content": "대가: 검색할 때 펜딩 리스트는 순차 스캔된다. 실측 — FASTUPDATE 를 끄면 쓰기가 3~4배 느려진다.",
    "fontSize": 15,
@@ -710,7 +810,7 @@
   {
    "type": "text",
    "id": "c5",
-   "x": 40,
+   "x": 210,
    "y": 810,
    "content": "④ 그래서 검색은 이렇게 흐른다",
    "fontSize": 18,
@@ -729,7 +829,7 @@
   {
    "type": "rect",
    "id": "p0",
-   "x": 40,
+   "x": 210,
    "y": 834,
    "width": 168,
    "height": 44,
@@ -750,7 +850,7 @@
   {
    "type": "rect",
    "id": "p1",
-   "x": 220,
+   "x": 390,
    "y": 834,
    "width": 168,
    "height": 44,
@@ -771,7 +871,7 @@
   {
    "type": "rect",
    "id": "p2",
-   "x": 400,
+   "x": 570,
    "y": 834,
    "width": 168,
    "height": 44,
@@ -792,7 +892,7 @@
   {
    "type": "rect",
    "id": "p3",
-   "x": 580,
+   "x": 750,
    "y": 834,
    "width": 168,
    "height": 44,
@@ -813,7 +913,7 @@
   {
    "type": "rect",
    "id": "p4",
-   "x": 760,
+   "x": 930,
    "y": 834,
    "width": 168,
    "height": 44,
@@ -834,7 +934,7 @@
   {
    "type": "text",
    "id": "c5b",
-   "x": 40,
+   "x": 210,
    "y": 906,
    "content": "GIN 은 '어느 행이 후보인지'까지만 답한다. 정확한 판정은 힙에서 다시 한다 — 그게 Recheck 이다.",
    "fontSize": 15,
@@ -883,9 +983,64 @@
    "subtitle": "GIN 은 후보까지, 판정은 힙에서"
   }
  ],
+ "camera": {
+  "focus": [
+   {
+    "time": 600,
+    "duration": 800,
+    "elementIds": [
+     "cam0"
+    ],
+    "padding": 0,
+    "maxZoom": 8.0,
+    "ease": "easeInOut"
+   },
+   {
+    "time": 5150,
+    "duration": 800,
+    "elementIds": [
+     "cam1"
+    ],
+    "padding": 0,
+    "maxZoom": 8.0,
+    "ease": "easeInOut"
+   },
+   {
+    "time": 11150,
+    "duration": 800,
+    "elementIds": [
+     "cam2"
+    ],
+    "padding": 0,
+    "maxZoom": 8.0,
+    "ease": "easeInOut"
+   },
+   {
+    "time": 18150,
+    "duration": 800,
+    "elementIds": [
+     "cam3"
+    ],
+    "padding": 0,
+    "maxZoom": 8.0,
+    "ease": "easeInOut"
+   },
+   {
+    "time": 24150,
+    "duration": 800,
+    "elementIds": [
+     "cam4"
+    ],
+    "padding": 0,
+    "maxZoom": 8.0,
+    "ease": "easeInOut"
+   }
+  ],
+  "strokeScaling": "fixed"
+ },
  "settings": {
   "loop": false,
-  "autoplay": false,
+  "autoplay": true,
   "showChapterList": true
  }
 }

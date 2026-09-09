@@ -9,6 +9,7 @@ const ENG_LABEL: Record<Row['eng'], { text: string; variant: React.ComponentProp
   trgm: { text: 'trgm', variant: 'trgm' },
   lbigm: { text: 'lower+bigm', variant: 'bigm' },
   ltrgm: { text: 'lower+trgm', variant: 'trgm' },
+  tsv: { text: 'tsvector', variant: 'tsv' },
 }
 
 /**

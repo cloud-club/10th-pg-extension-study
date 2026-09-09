@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { Ref } from '@/components/common/Ref'
 import { ChartBox } from '@/components/charts/ChartBox'
 import { K } from '@/components/common/Code'
 import { SourceNote } from '@/components/common/SourceNote'
@@ -146,7 +147,7 @@ export default function E05() {
               ? <><strong>2글자 trgm 한 칸만 튄다.</strong> 나머지는 세 엔진이 나란하다.</>
               : shape === 'prefix'
                 ? <>접두어는 <strong>인덱스가 없어도 3~4배 빠르다</strong> — LIKE 매처가 첫 글자에서 대부분 탈락시킨다.</>
-                : <>접미어가 부분 일치보다 느린 것은 <strong>패턴 모양이 아니라 매치가 문자열의 어디에 있느냐</strong>의 문제였다 — §4.</>
+                : <>접미어가 부분 일치보다 느린 것은 <strong>패턴 모양이 아니라 매치가 문자열의 어디에 있느냐</strong>의 문제였다 — <Ref to="#corrections">이 실험에서 철회한 것 둘</Ref>.</>
           }
         />
       </Section>

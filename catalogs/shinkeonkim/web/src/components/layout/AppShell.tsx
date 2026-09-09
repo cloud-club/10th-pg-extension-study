@@ -8,13 +8,28 @@ import { cn } from '@/lib/utils'
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = useState(false)
-  const { pathname } = useLocation()
+  const { pathname, hash } = useLocation()
 
-  // 라우트가 바뀌면 모바일 서랍을 닫고 맨 위로 올린다
+  // 라우트가 바뀌면 모바일 서랍을 닫고, 절 앵커가 있으면 그 절로 간다.
+  // 페이지가 lazy 라 마운트가 한 틱 늦으므로 잠깐 재시도한다.
   useEffect(() => {
     setOpen(false)
-    window.scrollTo({ top: 0 })
-  }, [pathname])
+    if (!hash) {
+      window.scrollTo({ top: 0 })
+      return
+    }
+    const id = decodeURIComponent(hash.slice(1))
+    let tries = 0
+    const tick = () => {
+      const el = document.getElementById(id)
+      if (el) {
+        el.scrollIntoView({ block: 'start' })
+        return
+      }
+      if (tries++ < 20) window.setTimeout(tick, 50)
+    }
+    tick()
+  }, [pathname, hash])
 
   return (
     <div className="min-h-screen">

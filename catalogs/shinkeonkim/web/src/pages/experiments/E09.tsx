@@ -6,10 +6,11 @@ import { SourceNote } from '@/components/common/SourceNote'
 import { Stat, StatGrid } from '@/components/common/Stat'
 import { Callout, EasyFirst } from '@/components/layout/Callout'
 import { PageHeader, Section } from '@/components/layout/PageHeader'
+import { Ref } from '@/components/common/Ref'
 import { Badge } from '@/components/ui/badge'
 import { Table, TBody, TCaption, TD, TH, THead, TR } from '@/components/ui/table'
 import { C, alpha } from '@/lib/chart'
-import { A_CASE, B_TWOCHAR, C_KOREAN, D_LOWER, E_REGEX, IDX_SIZE_MB, ILIKE_ENV, SEED } from '@/data/ilike'
+import { A_CASE, B_TWOCHAR, C_KOREAN, D_LOWER, E_REGEX, F_ASCII, F_INSIDE, F_KOREAN, IDX_SIZE_MB, ILIKE_ENV, SEED } from '@/data/ilike'
 import { nf } from '@/lib/utils'
 
 const pick = (rows: typeof A_CASE, eng: string, label: string) =>
@@ -242,6 +243,105 @@ SELECT count(*) FROM docs WHERE lower(doc) LIKE '%cloudclub%';`}</CodeBlock>
             </>
           }
         />
+      </Section>
+
+      <Section id="f" title="F. 코어 전문검색(tsvector + GIN)과 견주면">
+        <p>
+          같은 GIN 인덱스인데 넣는 것이 <strong>조각이 아니라 어휘소</strong>인 쪽이다. 같은 표에 놓고 재봤다 —
+          다만 <strong>tsquery 는 “낱말”을 찾고 <K>LIKE</K> 는 “부분 문자열”을 찾는다.</strong> 속도만 떼어 보면
+          잘못 읽게 되므로 <strong>정답 행 수를 반드시 같이 본다.</strong>
+        </p>
+
+        <h3>F1. ASCII — 정답이 같아지도록 만든 구간</h3>
+        <p>
+          마커를 <strong>낱말로</strong> 심어서(<K>'CloudClub 모임 ' || 본문</K>) 세 방식의 정답이 우연히
+          600행으로 같아진다. 속도만 나란히 보려고 만든 조건이다.
+        </p>
+        <PlanTable rows={F_ASCII} />
+        <ChartBox
+          type="bar"
+          height={280}
+          title="정답 600행이 같을 때 — 버퍼와 시간"
+          data={{
+            labels: F_ASCII.map((r) => (r.eng === 'tsv' ? 'tsvector @@' : r.eng === 'trgm' ? 'pg_trgm ILIKE' : 'lower + pg_bigm')),
+            datasets: [
+              { label: '버퍼', data: F_ASCII.map((r) => r.buf), backgroundColor: alpha(C.none, 0.6), yAxisID: 'y' },
+              { label: 'ms', data: F_ASCII.map((r) => r.ms), backgroundColor: alpha(C.tsv, 0.85), yAxisID: 'y1' },
+            ],
+          }}
+          options={{
+            scales: {
+              y: { title: { display: true, text: '버퍼' }, beginAtZero: true },
+              y1: { position: 'right' as const, title: { display: true, text: 'ms' }, beginAtZero: true, grid: { drawOnChartArea: false } },
+            },
+          }}
+          caption={
+            <>
+              <strong>버퍼는 거의 같은데(604 vs 622) tsvector 가 2~3배 빠르다.</strong> 읽는 페이지 수가 같으니
+              차이는 그 앞단에 있다 — 어휘소 하나를 찾는 것과 조각 여러 개의 포스팅을 AND 하는 것의 차이다.
+            </>
+          }
+        />
+
+        <h3>F2. 한글 — 여기서는 사실상 같다</h3>
+        <PlanTable
+          rows={F_KOREAN}
+          caption={<>{F_KOREAN[0].ms} ms vs {F_KOREAN[1].ms} ms. <strong>정답 200행으로 같고 속도도 갈리지 않는다.</strong></>}
+        />
+
+        <h3>F3. 낱말 “가운데”를 찾으면 — 여기서 갈린다</h3>
+        <p>
+          <K>클라우드클럽</K> 안의 <K>우드클럽</K> 을 찾아본다. 이게 <strong>부분 문자열 검색의 본래 질문</strong>이다.
+        </p>
+        <PlanTable rows={F_INSIDE} />
+        <Callout kind="warn" title="tsvector 가 제일 빠른데 답이 0행이다">
+          <p>
+            버퍼 <strong>{nf(F_INSIDE[0].buf)}장에 {F_INSIDE[0].ms} ms</strong> — 이 표에서 압도적으로 빠르다.
+            그런데 <strong>찾은 행이 0개</strong>다. 어휘소는 <K>클라우드클럽</K> 하나뿐이고 그 <em>안</em> 은 볼 수
+            없기 때문이다. 같은 질의를 <K>pg_bigm</K> 은 {nf(F_INSIDE[1].answer)}행을 {F_INSIDE[1].ms} ms 에 찾는다.
+          </p>
+          <p>
+            <strong>“빠르다”를 정답 수와 떼어 읽으면 이런 표에 속는다.</strong> 이 카탈로그가 속도표마다 정답
+            행 수를 같이 싣는 이유다.
+          </p>
+        </Callout>
+
+        <h3>인덱스 크기</h3>
+        <ChartBox
+          type="bar"
+          height={260}
+          title="같은 테이블에 건 다섯 인덱스"
+          data={{
+            labels: IDX_SIZE_MB.map((x) => x.name),
+            datasets: [{
+              label: 'MB',
+              data: IDX_SIZE_MB.map((x) => x.mb),
+              backgroundColor: IDX_SIZE_MB.map((x) =>
+                x.name.includes('tsv') ? alpha(C.tsv, 0.85) : x.name.includes('bigm') ? alpha(C.bigm, 0.85) : alpha(C.trgm, 0.85)),
+            }],
+          }}
+          options={{ indexAxis: 'y' as const, plugins: { legend: { display: false } } }}
+          caption={
+            <>
+              <K>gin (tsvector)</K> 44 MB 는 <K>gin_bigm_ops</K> 35 MB 보다 크다 —{' '}
+              <strong>게다가 <K>tsv</K> 생성 컬럼의 저장 비용은 여기 포함되지 않았다.</strong> 전문검색 쪽이
+              항상 작다는 통념이 이 데이터에서는 성립하지 않는다.
+            </>
+          }
+        />
+        <SourceNote path={ILIKE_ENV.repo}>실험 09 · F절 · 결정적 지표 2회 실행 동일</SourceNote>
+
+        <Callout kind="info" title="그래서 전문검색과 견주면">
+          <ul>
+            <li><strong>찾는 것이 “낱말”이면 tsvector 가 빠르다</strong> — 같은 정답에서 2~3배, 버퍼는 비슷하다.</li>
+            <li><strong>찾는 것이 “부분 문자열”이면 비교가 성립하지 않는다</strong> — tsvector 는 답을 못 찾는다(0행).</li>
+            <li><strong>인덱스는 오히려 더 크다</strong>(44 MB vs bigm 35 MB) — 생성 컬럼 비용까지 더하면 격차가 벌어진다.</li>
+            <li>
+              한국어에서는 <Ref to="/fulltext/korean-recall">재현율이 7~38%</Ref> 라, 이 표의 “같은 정답” 조건이
+              실제 데이터에서는 거의 성립하지 않는다.
+            </li>
+          </ul>
+        </Callout>
       </Section>
 
       <Section id="choose" title="정리 — 고르는 표">

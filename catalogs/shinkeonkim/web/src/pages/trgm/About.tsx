@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { Ref } from '@/components/common/Ref'
 import { CodeBlock, K } from '@/components/common/Code'
 import { SourceNote } from '@/components/common/SourceNote'
 import { Callout, EasyFirst } from '@/components/layout/Callout'
@@ -44,7 +45,7 @@ CREATE INDEX docs_gist ON docs USING gist (doc gist_trgm_ops(siglen=256));`}</Co
       <Section id="shape" title="2. 조각의 생김새">
         <p>
           <strong>앞에 공백 2개, 뒤에 1개</strong>를 붙인 뒤 세 글자씩 자른다. 비대칭인 이유는{' '}
-          <Link to="/foundations/ngram#rpadding">n-gram 페이지 §2</Link> 에 있다. 조각은 <strong>CRC32 로 해싱</strong>해{' '}
+          <Ref to="/foundations/ngram#rpadding">왜 뒤에는 공백을 하나만 붙이나</Ref> 에 있다. 조각은 <strong>CRC32 로 해싱</strong>해{' '}
           <K>int32</K> 로 저장하므로, <K>show_trgm()</K> 이 한글에서 해시값을 돌려준다.
         </p>
         <div className="not-prose my-5 space-y-3">

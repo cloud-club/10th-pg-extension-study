@@ -1,14 +1,17 @@
 import { Link } from 'react-router-dom'
 import { ChartBox } from '@/components/charts/ChartBox'
 import { CodeBlock, K } from '@/components/common/Code'
+import { Ref } from '@/components/common/Ref'
 import { SourceNote } from '@/components/common/SourceNote'
 import { Stat, StatGrid } from '@/components/common/Stat'
 import { Callout, EasyFirst } from '@/components/layout/Callout'
 import { PageHeader, Section } from '@/components/layout/PageHeader'
 import { Clotho } from '@/components/viz/Clotho'
+import { Diagram } from '@/components/viz/Diagram'
 import { Badge } from '@/components/ui/badge'
 import { Table, TBody, TCaption, TD, TH, THead, TR } from '@/components/ui/table'
 import { C, alpha } from '@/lib/chart'
+import { BY_LENGTH, CHAIN, EXTRACT_VALUE, ONE_CHAR, ONECHAR_ENV, OPCLASS } from '@/data/onechar'
 import { DATA } from '@/data/measurements'
 import { nf } from '@/lib/utils'
 
@@ -73,20 +76,36 @@ comparePartial()   -- 접두어 매칭 (선택)            ← pg_bigm 에만 �
       </Section>
 
       <Section id="structure" title="1. 구조 — 세 층">
-        <Clotho id="gin-structure" />
-        <CodeBlock>{`┌─ 엔트리 트리 (B-tree) ────────────────────────────────────┐
-│   "␣클"  │  "드클"  │  "라우"  │  "클라"  │  "클럽"  │ ... │  ← 키를 정렬해 담는다
-└─────┬─────────┬─────────────────────────────────────────┘
-      │         │
-      │         └──▶ 포스팅 트리 (별도 B-tree)
-      │                흔한 키 — TID 가 한 페이지에 안 들어갈 때
-      │
-      └──▶ 포스팅 리스트 (엔트리 옆에 인라인, varbyte 델타 압축)
-             드문 키
-
-┌─ 펜딩 리스트 ─────────────────────────────────────────────┐
-│  아직 본체에 병합되지 않은 최근 INSERT 들 (FASTUPDATE)     │
-└───────────────────────────────────────────────────────────┘`}</CodeBlock>
+        <Clotho
+          id="gin-structure"
+          caption={
+            <>
+              장이 바뀔 때마다 카메라가 그 층으로 옮겨간다. 2장의 “키가 정렬돼 있다 = 접두어 구간 탐색이
+              가능하다”가 왜 그런지는 아래{' '}
+              <Ref to="#sorted">정렬돼 있으면 왜 1글자 검색이 되나</Ref> 에서 카탈로그를 직접 읽어 확인한다.
+            </>
+          }
+        />
+        <Diagram
+          chart={`
+flowchart TB
+  subgraph ENTRY["① 엔트리 트리 (B-tree) — 키를 정렬해 담는다"]
+    direction LR
+    e1["'␣클'"] --- e2["'드클'"] --- e3["'라우'"] --- e4["'클라'"] --- e5["'클럽'"] --- e6["…"]
+  end
+  ENTRY --> rare["② 포스팅 리스트<br/>엔트리 옆에 인라인<br/>varbyte 델타 압축<br/><br/>드문 키"]
+  ENTRY --> common["② 포스팅 트리<br/>별도 B-tree<br/><br/>흔한 키 — TID 가<br/>한 페이지에 안 들어갈 때"]
+  PEND["③ 펜딩 리스트<br/>아직 본체에 병합되지 않은 최근 INSERT (FASTUPDATE)"]
+  PEND -. "VACUUM · 한도 초과 · gin_clean_pending_list()" .-> ENTRY
+  classDef key fill:#1e293b,stroke:#60a5fa,color:#e2e8f0
+  classDef post fill:#134e4a,stroke:#34d399,color:#d1fae5
+  classDef big fill:#422006,stroke:#fbbf24,color:#fef3c7
+  class e1,e2,e3,e4,e5,e6 key
+  class rare post
+  class common,PEND big
+`}
+          caption="세 층이 한 인덱스 안에 있다. 용량은 ①(유니크 조각 수 — 고정비)과 ②(총 조각 수 — 압축된 변동비)로 나뉘고, ③ 은 쓰기를 미뤄 모으는 완충 장치다."
+        />
 
         <h3>① 엔트리 트리 — 그냥 B-tree 다</h3>
         <p>키(= 조각)를 <strong>정렬해서</strong> 담는 B-tree다. 여기서 이 카탈로그의 핵심 차이 하나가 나온다.</p>
@@ -99,6 +118,177 @@ comparePartial()   -- 접두어 매칭 (선택)            ← pg_bigm 에만 �
             없다) 해시값 순서가 원문 순서와 무관해 접두어 구간이 성립하지 않는다.
           </p>
         </Callout>
+
+        <h3 id="sorted">정렬돼 있으면 왜 1글자 검색이 되나</h3>
+        <p>
+          <K>pg_bigm</K> 은 두 글자씩 자르니 <strong>한 글자짜리 검색어로는 조각을 만들 수 없다.</strong> 그런데도
+          인덱스를 탄다. 조각을 하나 넘기는 대신 <strong>“<K>클</K> 로 시작하는 조각을 전부 가져와라”</strong> 라고
+          넘기기 때문이다. 그게 가능한 사슬을 한 칸씩 따라가면 이렇다.
+        </p>
+        <ol className="not-prose my-5 space-y-2">
+          {CHAIN.map((c, i) => (
+            <li key={i} className="flex gap-3.5 rounded-xl border border-border bg-card px-4 py-3">
+              <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-primary/15 text-[11.5px] font-bold text-primary">
+                {i + 1}
+              </span>
+              <div className="min-w-0 flex-1">
+                <p className="text-[13.5px] font-medium">{c.step}</p>
+                <p className="mt-0.5 text-[12.5px] text-muted-foreground">{c.evidence}</p>
+              </div>
+            </li>
+          ))}
+        </ol>
+
+        <h4>먼저 흔한 오해 하나를 걷어낸다</h4>
+        <p>
+          <K>show_bigm('클')</K> 과 <K>show_trgm('클')</K> 은 <strong>둘 다 조각을 돌려준다.</strong> 1글자짜리{' '}
+          <em>낱말</em> 이면 앞뒤에 패딩을 붙일 수 있어서다.
+        </p>
+        <Table>
+          <THead><TR><TH>입력</TH><TH>show_bigm</TH><TH>show_trgm</TH></TR></THead>
+          <TBody>
+            {EXTRACT_VALUE.map((e) => (
+              <TR key={e.src}>
+                <TD><K>{e.src}</K></TD>
+                <TD className="font-mono text-[12.5px]">{e.bigm.map((f) => f.replace(/ /g, '␣')).join(' · ')}</TD>
+                <TD className="text-muted-foreground">해시 {e.trgmCount}개 (CRC32 라 눈으로 못 읽는다)</TD>
+              </TR>
+            ))}
+          </TBody>
+          <TCaption>
+            이 함수들은 <strong>색인하는 쪽</strong>(<K>extractValue</K>)이다. 갈리는 것은{' '}
+            <strong>질의하는 쪽</strong>(<K>extractQuery</K>) 이다.
+          </TCaption>
+        </Table>
+        <Table>
+          <THead><TR><TH></TH><TH><K>LIKE '%클%'</K> 이 질의로 만드는 것</TH></TR></THead>
+          <TBody>
+            <TR>
+              <TD><Badge variant="trgm">pg_trgm</Badge></TD>
+              <TD><strong>없다.</strong> 양옆이 <K>%</K> 라 패딩을 못 붙이고 3글자를 못 채운다 → <Ref to="#search-mode-all"><K>GIN_SEARCH_MODE_ALL</K></Ref></TD>
+            </TR>
+            <TR>
+              <TD><Badge variant="bigm">pg_bigm</Badge></TD>
+              <TD>조각 대신 <strong><K>클</K> 을 부분 일치(partial match) 키로</strong> 넘긴다</TD>
+            </TR>
+          </TBody>
+        </Table>
+
+        <h4>그 부분 일치가 가능한 이유 — 카탈로그를 직접 읽었다</h4>
+        <CodeBlock>{`SELECT o.opcname,
+       coalesce(kt.typname, it.typname || ' (opckeytype=0)') AS 엔트리_타입,
+       (SELECT string_agg(ap.amproc::text, ', ')
+        FROM pg_amproc ap
+        WHERE ap.amprocfamily = o.opcfamily AND ap.amprocnum = 5) AS compare_partial
+FROM pg_opclass o
+JOIN pg_type it ON it.oid = o.opcintype
+LEFT JOIN pg_type kt ON kt.oid = o.opckeytype
+WHERE o.opcname IN ('gin_bigm_ops','gin_trgm_ops');`}</CodeBlock>
+        <Table>
+          <THead><TR><TH>연산자 클래스</TH><TH>엔트리 타입</TH><TH>엔트리 트리의 정렬</TH><TH><K>comparePartial</K> (지원 함수 5번)</TH></TR></THead>
+          <TBody>
+            {OPCLASS.map((o) => (
+              <TR key={o.name}>
+                <TD><K>{o.name}</K></TD>
+                <TD className={o.entryType === 'text' ? 'text-ok' : ''}>
+                  <strong>{o.entryType}</strong>
+                  <span className="ml-1.5 text-[12px] text-muted-foreground">{o.entryNote}</span>
+                </TD>
+                <TD>{o.sorted}</TD>
+                <TD className={o.comparePartial ? 'text-ok' : 'text-trgm'}>
+                  {o.comparePartial ? <code className="text-[12px]">{o.comparePartial}</code> : '없음'}
+                </TD>
+              </TR>
+            ))}
+          </TBody>
+          <TCaption>두 칸이 사슬의 양 끝이다 — 엔트리 타입이 정렬 순서를 정하고, 정렬 순서가 구간 탐색의 가능 여부를 정한다.</TCaption>
+        </Table>
+        <Diagram
+          maxWidth={540}
+          chart={`
+flowchart TD
+  subgraph T["엔트리 트리 (사전순)"]
+    direction TB
+    a["…"] --> b["'클␣'"] --> c["'클가'"] --> d["'클나'"] --> e["…"] --> f["'클힣'"] --> g["'킁…'"] --> h["…"]
+  end
+  q(["질의 '클' — 부분 일치 키"]) -.-> b
+  cp(["comparePartial 이<br/>'여기까지' 를 판정한다"]) -.-> f
+  classDef hit fill:#1e3a8a,stroke:#60a5fa,color:#dbeafe
+  classDef out fill:#0f172a,stroke:#334155,color:#94a3b8
+  class b,c,d,e,f hit
+  class a,g,h out
+`}
+          caption="엔트리가 text 라 '클' 로 시작하는 bigram 이 한 덩어리로 모인다. pg_trgm 은 이 자리에 CRC32 해시가 들어가므로 이런 덩어리가 생기지 않는다."
+        />
+        <Callout kind="warn" title="pg_trgm 이 등록하지 않은 것은 게을러서가 아니다">
+          <p>
+            <strong>등록할 수가 없다.</strong> 엔트리가 CRC32 해시(<K>int4</K>)라 정렬 순서가 원문 순서와 무관하다 —
+            <K>클</K> 로 시작하는 트라이그램들의 해시값은 정수 축 위에 흩어진다. <strong>연속 구간이 아예 존재하지
+            않으므로 “어디까지 훑을지”를 판정할 방법이 없다.</strong>
+          </p>
+          <p>
+            이것이 <K>pg_bigm</K> 이 <strong>조각을 해싱하지 않는 대가로 얻는 것</strong>이다. 해싱하지 않으니
+            엔트리가 커지고(9바이트 한글 조각 그대로) 인덱스도 커지지만, 순서가 살아남는다 —{' '}
+            <Ref to="/experiments/storage">저장 비용</Ref> 에서 그 대가를 잰다.
+          </p>
+        </Callout>
+
+        <h4>그래서 1글자 검색이 실제로 인덱스를 타는가 — 탄다</h4>
+        <Table>
+          <THead><TR><TH>엔진</TH><TH>패턴</TH><TH>정답</TH><TH>플랜</TH><TH>후보</TH><TH>recheck 제거</TH><TH>버퍼</TH><TH>ms</TH></TR></THead>
+          <TBody>
+            {ONE_CHAR.map((r, i) => (
+              <TR key={i}>
+                <TD><Badge variant={r.eng === 'bigm' ? 'bigm' : r.eng === 'trgm' ? 'trgm' : 'outline'}>{r.eng}</Badge></TD>
+                <TD><K>{r.pattern}</K></TD>
+                <TD>{nf(r.answer)}</TD>
+                <TD className={r.plan.includes('Seq') ? 'text-warn' : 'text-ok'}>{r.plan}</TD>
+                <TD>{nf(r.idxRows)}</TD>
+                <TD>{nf(r.recheck)}</TD>
+                <TD className={r.buf > 3000 ? 'text-warn' : 'text-ok'}>{nf(r.buf)}</TD>
+                <TD className={r.ms > 10 ? 'text-warn' : 'text-ok'}>{r.ms}</TD>
+              </TR>
+            ))}
+          </TBody>
+          <TCaption>
+            버퍼 <strong>8배</strong>, 시간 <strong>19배</strong>. 그리고 <strong>후보 400 = 정답 400, recheck 0</strong> —
+            부분 일치가 후보를 정답까지 정확히 좁혔다. 주입 문자는 말뭉치에 없는 <K>{ONECHAR_ENV.marker}</K> 를 써서
+            정답 행 수를 통제했다.
+          </TCaption>
+        </Table>
+        <SourceNote path={ONECHAR_ENV.repo}>실험 10 · 결정적 지표 2회 실행 동일</SourceNote>
+        <h4>길이를 늘려가며 — 3글자에서 두 확장이 만난다</h4>
+        <Table>
+          <THead><TR><TH>길이</TH><TH>패턴</TH><TH>정답</TH><TH>인덱스 없음</TH><TH>pg_bigm</TH><TH>pg_trgm</TH></TR></THead>
+          <TBody>
+            {['1글자', '2글자', '3글자'].map((len) => {
+              const row = (e: string) => BY_LENGTH.find((r) => r.len === len && r.eng === e)!
+              const cell = (e: 'none' | 'bigm' | 'trgm') => {
+                const r = row(e)
+                const seq = r.plan.includes('Seq')
+                return (
+                  <span className={seq ? 'text-warn' : 'text-ok'}>
+                    {seq ? 'Seq ' : ''}{nf(r.buf)}버퍼 · {r.ms} ms
+                  </span>
+                )
+              }
+              return (
+                <TR key={len}>
+                  <TD>{len}</TD>
+                  <TD><K>{row('bigm').pattern}</K></TD>
+                  <TD>{nf(row('bigm').answer)}</TD>
+                  <TD className="text-muted-foreground">{cell('none')}</TD>
+                  <TD>{cell('bigm')}</TD>
+                  <TD>{cell('trgm')}</TD>
+                </TR>
+              )
+            })}
+          </TBody>
+          <TCaption>
+            <strong>1·2글자 구간이 <K>pg_bigm</K> 을 쓸 이유의 전부다.</strong> 그 구간에서 <K>pg_trgm</K> 은
+            인덱스를 아예 쓰지 않는다 — 본편은 <Ref to="/pg-trgm/two-char">2글자 함정</Ref> 에 있다.
+          </TCaption>
+        </Table>
 
         <h3>② 포스팅 리스트 / 포스팅 트리 — 용량이 여기서 갈린다</h3>
         <p>
@@ -177,18 +367,27 @@ comparePartial()   -- 접두어 매칭 (선택)            ← pg_bigm 에만 �
       </Section>
 
       <Section id="search" title="2. 검색은 이렇게 흐른다">
-        <CodeBlock>{`LIKE '%클둥이%'
-   │
-   ├─ extractQuery()  질의를 조각으로 분해            "␣클","클둥","둥이","이␣"
-   │                  ※ 조각이 0개면 GIN_SEARCH_MODE_ALL — 엔트리 전체를 읽는다
-   │
-   ├─ 엔트리 트리에서 각 조각을 찾는다                → 각각의 포스팅
-   │
-   ├─ consistent() / triConsistent() 로 비트맵 결합   → 후보 TID 비트맵
-   │
-   ├─ Bitmap Heap Scan — 후보 행의 원문을 힙에서 읽는다
-   │
-   └─ Recheck — 원문에 실제로 '클둥이' 가 있는지 다시 본다`}</CodeBlock>
+        <Diagram
+          chart={`
+flowchart TD
+  q(["LIKE '%클둥이%'"]) --> ex["extractQuery()<br/>질의를 조각으로 분해<br/>'␣클' '클둥' '둥이' '이␣'"]
+  ex -->|"조각이 0개면"| all["GIN_SEARCH_MODE_ALL<br/>엔트리를 전부 읽는다"]
+  ex --> find["엔트리 트리에서 각 조각을 찾는다<br/>→ 각각의 포스팅"]
+  all --> find
+  find --> cons["consistent() / triConsistent()<br/>비트맵으로 결합"]
+  cons --> bm["후보 TID 비트맵"]
+  bm --> heap["Bitmap Heap Scan<br/>후보 행의 원문을 힙에서 읽는다"]
+  heap --> rc["Recheck<br/>원문에 실제로 '클둥이' 가 있는지 다시 본다"]
+  rc --> out(["결과 — 항상 정확하다"])
+  classDef bad fill:#4c0519,stroke:#fb7185,color:#ffe4e6
+  classDef warn fill:#422006,stroke:#fbbf24,color:#fef3c7
+  classDef ok fill:#134e4a,stroke:#34d399,color:#d1fae5
+  class all bad
+  class heap,rc warn
+  class out ok
+`}
+          caption="조각이 0개인 갈래(붉은 칸)가 2글자 함정이다 — 인덱스를 건너뛰는 게 아니라 엔트리를 전부 읽고 힙까지 훑는다."
+        />
         <Clotho id="gin-pipeline" />
         <Callout kind="warn">
           <p>
