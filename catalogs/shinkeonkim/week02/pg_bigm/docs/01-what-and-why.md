@@ -12,7 +12,7 @@
 - **`LIKE` 부분 문자열 검색 가속**
     - `CREATE INDEX ... USING gin (col gin_bigm_ops)` 하나로 끝난다. 
     - 쿼리 문법을 바꿀 필요가 없다. (**`ILIKE` 는 인덱스를 타지 않는다**)
-- **유사도 검색 — `LIKE` 와는 별개의 진짜 오탈자 허용 검색이다**: `=%` 연산자와 `bigm_similarity()` 로 "정확히 일치하지 않아도 비슷한 것"을 찾는다. `클라우드클럽` 으로 검색하면 `클라우드 클럽`(띄어쓰기 변형)과 `클라으드클럽`(오타)이 함께 잡히고, **`=%` 도 GIN 인덱스를 탄다.** 임계값은 `pg_bigm.similarity_limit`(기본 0.3). 실측과 원리: [02](02-internals-and-source.md) 의 "similarity measurement 는 정말 유사도 검색인가".
+- **유사도 검색 — `LIKE` 와는 별개의 오탈자 허용 검색이다**: `=%` 연산자와 `bigm_similarity()` 로 "정확히 일치하지 않아도 비슷한 것"을 찾는다. `클라우드클럽` 으로 검색하면 `클라우드 클럽`(띄어쓰기 변형)과 `클라으드클럽`(오타)이 함께 잡히고, **`=%` 도 GIN 인덱스를 탄다.** 임계값은 `pg_bigm.similarity_limit`(기본 0.3). 실측과 원리: [02](02-internals-and-source.md) 의 "similarity measurement 는 정말 유사도 검색인가".
 - **1~2글자 짧은 검색어에 강하다**: 최소 단위가 2글자이고, 1글자일 때는 GIN 부분 일치로 전환한다. 3글자가 필요한 `pg_trgm` 이 아예 조각을 못 만드는 구간을 그대로 커버한다 — 한글/일본어/중국어처럼 **2글자 단어가 흔한 언어에서 결정적인 차이**가 된다.
 - **보조 함수**: `show_bigm()`(2-gram 분해 확인), `likequery()`(검색어 → LIKE 패턴 이스케이프), `pg_gin_pending_stats()`(GIN pending list 크기 확인).
 

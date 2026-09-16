@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+
+# 로컬 전체 점검 도구와 재생성 가능한 검증 로그
+/scripts/
+/verification/

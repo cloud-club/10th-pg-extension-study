@@ -22,7 +22,7 @@ CREATE EXTENSION pg_bigm;        -- preload 없이도 성공한다
 SELECT name, vartype, source, setting FROM pg_settings WHERE name = 'pg_bigm.similarity_limit';
 ```
 
-`vartype = real`, `source = default` - placeholder 가 아니라 진짜 GUC 다.
+`vartype = real`, `source = default` - placeholder 가 아니라 등록된 GUC 다.
 
 **다른 세션은 사정이 다르다.** 새 터미널(또는 `\!` 로 컨테이너 안에서 새 psql)을 열어보자.
 
@@ -57,7 +57,7 @@ SELECT pg_reload_conf();
 |---|---|
 | preload 가 필요한 이유 | 훅/공유메모리/워커가 아니라 **커스텀 GUC 를 모든 세션에서 일관되게 인식**시키기 위함 |
 | 없어도 되는 것 | `CREATE EXTENSION`, 세션 로컬 `SET` |
-| preload 가 진짜 필요한 것 | `ALTER SYSTEM SET`/`postgresql.conf` 레벨 설정을 모든 세션에서 즉시 신뢰하기 |
+| preload를 설정하는 목적 | `ALTER SYSTEM SET`/`postgresql.conf` 레벨 설정을 모든 세션에서 즉시 신뢰하기 |
 
 ## 다음 단계
 

@@ -34,7 +34,7 @@
 - **그런데 `siglen=64` 로 올리면 이 데이터에서는 GIN 과 같아졌다.** 기본 96비트 시그니처가 이미 포화(`ALLISTRUE`)되어 필터 역할을 못 하고 있었다는 뜻이다. **인덱스 크기는 그대로인데 버퍼만 400배 줄었다** - "GiST 가 느리다"가 아니라 "기본 siglen 이 이 데이터에 안 맞았다"가 정확한 진단이었다.
 
   > **⚠️ 이 lab 의 데이터는 문장 8개를 5만 번 반복한 것이라 어휘가 극단적으로 좁다.** 실제 한국어 말뭉치(NSMC 20만 행)로 다시 재면 `siglen=64` 로는 **한참 부족하다** — 버퍼가 GIN 13 vs GiST 3,003~3,012 로 여전히 **약 231배**다. 256까지 올려야 412~432(약 32배)까지 좁혀진다. **"64면 충분하다"고 일반화하면 안 된다**: [`../../experiments/01-gin-vs-gist-build-and-probe/`](../../experiments/01-gin-vs-gist-build-and-probe) 참고.
-- **GiST 를 쓰는 진짜 이유는 KNN 하나다.** `ORDER BY body <-> '검색어' LIMIT 3` 이 GIN 에서는 `Sort` 로, GiST 에서는 `Index Scan ... Order By` 로 나온다.
+- **GiST의 주요 활용 중 하나는 KNN이다.** `ORDER BY body <-> '검색어' LIMIT 3` 이 GIN 에서는 `Sort` 로, GiST 에서는 `Index Scan ... Order By` 로 나온다.
 
 ## 다음 단계
 

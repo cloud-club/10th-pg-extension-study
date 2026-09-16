@@ -28,7 +28,7 @@
 ## 직접 겪은 함정
 
 - **`pg_bigm.enable_recheck` 를 끄면 오답이 그대로 결과에 남는다** - "It was a trivial mistake" 가 "trial" 검색 결과에 섞여 나오는 걸 직접 확인한다. 기본값(on)을 유지해야 하는 이유.
-- **한글은 기본 설정 그대로 잘 된다.** 다만 "`pg_trgm` 은 `KEEPONLYALNUM` 때문에 한글을 걸러낸다"는 흔한 설명은 **틀렸다** - `show_trgm('가나다라')` 는 조각 5개를 정상 생성한다(직접 확인). `pg_trgm` 이 한글에서 약한 진짜 이유는 **2글자 검색어에서 트라이그램을 못 만든다**는 것이고, 구두점(`192.168.0.1`)이 쪼개지는 것은 한글과 무관한 별개 문제다. 정리: [`../../../bigm-vs-trgm/docs/01-ngram-index-internals.md`](../../../bigm-vs-trgm/docs/01-ngram-index-internals.md)
+- **한글은 기본 설정 그대로 잘 된다.** 다만 "`pg_trgm` 은 `KEEPONLYALNUM` 때문에 한글을 걸러낸다"는 흔한 설명은 **틀렸다** - `show_trgm('가나다라')` 는 조각 5개를 정상 생성한다(직접 확인). 단어 경계 없는 짧은 패턴에서 pg_trgm의 후보 축소가 어려운 이유는 **2글자 검색어에서 트라이그램을 못 만든다**는 것이고, 구두점(`192.168.0.1`)이 쪼개지는 것은 한글과 무관한 별개 문제다. 정리: [`../../../bigm-vs-trgm/docs/01-ngram-index-internals.md`](../../../bigm-vs-trgm/docs/01-ngram-index-internals.md)
 
 ## 다음 lab
 

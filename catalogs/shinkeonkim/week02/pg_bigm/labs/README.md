@@ -25,7 +25,7 @@ cd 01-preload-and-guc-registration
 
 ### ② 직접 - psql 에 접속해 한 줄씩 쳐보기
 
-**이쪽이 실제로 손에 남습니다.** 각 lab 의 `HANDS-ON.md` 를 따라갑니다.
+각 lab의 `HANDS-ON.md`를 따라 SQL을 직접 실행하고 결과를 확인합니다.
 
 ```bash
 cd 01-preload-and-guc-registration

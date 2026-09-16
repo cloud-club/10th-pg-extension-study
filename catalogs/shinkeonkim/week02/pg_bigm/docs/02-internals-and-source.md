@@ -37,7 +37,7 @@ _PG_init(void)
 
 공식 문서는 "`shared_preload_libraries` 또는 `session_preload_libraries` 를 설정해야 한다"고 말한다. [`labs/01-preload-and-guc-registration/`](../labs/01-preload-and-guc-registration) 은 일부러 그걸 끈 채로 시작해서 정확히 무엇이 되고 안 되는지 확인했다.
 
-1. **`CREATE EXTENSION pg_bigm` 은 preload 없이도 성공한다.** `CREATE FUNCTION ... AS 'MODULE_PATHNAME', 'symbol'` 은 그 심볼이 실제로 존재하는지 검증하기 위해 **그 자리에서 라이브러리를 dlopen 한다.** 그래서 `CREATE EXTENSION` 을 직접 실행한 세션은 설치가 끝나는 순간 이미 `pg_bigm.so` 가 메모리에 로드되어 있다 - `_PG_init()` 도 이때 실행되어 커스텀 GUC 가 "진짜"로 등록된다(`pg_settings.vartype = 'real'`, `source = 'default'`로 직접 확인했다).
+1. **`CREATE EXTENSION pg_bigm` 은 preload 없이도 성공한다.** `CREATE FUNCTION ... AS 'MODULE_PATHNAME', 'symbol'` 은 그 심볼이 실제로 존재하는지 검증하기 위해 **그 자리에서 라이브러리를 dlopen 한다.** 그래서 `CREATE EXTENSION` 을 직접 실행한 세션은 설치가 끝나는 순간 이미 `pg_bigm.so` 가 메모리에 로드되어 있다 - `_PG_init()` 도 이때 실행되어 커스텀 GUC가 해당 자료형과 기본값으로 등록된다(`pg_settings.vartype = 'real'`, `source = 'default'`로 직접 확인했다).
 2. **`LIKE` 검색과 GIN 인덱스는 preload 와 전혀 무관하다.** 어떤 세션이든 `gin_bigm_ops` 연산자 클래스의 지원 함수를 처음 호출하는 순간, PostgreSQL 함수 관리자(`fmgr`)가 자동으로 그 세션에 라이브러리를 로드한다 - 모든 C 언어 함수의 공통 동작이다.
 3. **평범한 `SET pg_bigm.similarity_limit = 0.2;` 는 preload 도, `CREATE EXTENSION` 조차도 필요 없다.** PostgreSQL 은 점(`.`)이 포함된 미지의 GUC 이름을 만나면 "placeholder" 로 일단 받아준다 - 이건 pg_bigm 만의 특징이 아니라 PostgreSQL 의 범용 커스텀 GUC 메커니즘이다. `pg_bigm` 을 설치조차 하지 않은 이름(`whatever.foo`)으로도 똑같이 성공하는 것으로 직접 확인했다.
 4. **그런데 `ALTER SYSTEM SET pg_bigm.similarity_limit = ...;` 는 다르다.** 이건 **현재 세션이 그 이름을 실제 GUC 로 알고 있어야만** 동작한다 - placeholder 를 새로 만들어주지 않는다. `CREATE EXTENSION` 을 직접 실행한 세션에서는 성공하지만, "이미 설치돼 있는 DB 에 그냥 접속만 한" 새 세션에서는 `ERROR: unrecognized configuration parameter "pg_bigm.similarity_limit"` 로 실패한다 - 이 lab 에서 두 세션을 나란히 띄워 직접 재현했다.
@@ -209,7 +209,7 @@ GIN 의 FASTUPDATE pending list 크기를 본다. **`pg_bigm` 이 제공하지�
 comment = 'text similarity measurement and index searching based on bigrams'
 ```
 
-`LIKE` 가속만 하는 확장에 "similarity measurement" 라고 붙은 건 과장 아닌가 — 라는 의심이 들 수 있다. **직접 확인해보니 과장이 아니다. 진짜 유사도 검색이고, 인덱스도 탄다.**
+pg_bigm은 LIKE 검색 외에 조각 기반 유사도 검색도 제공한다. `=%` 연산자는 GIN 인덱스를 이용해 유사도 조건에 맞는 후보를 찾는다.
 
 ### 1. 오탈자·띄어쓰기가 달라도 매치된다
 
@@ -226,7 +226,7 @@ FROM sim_demo WHERE doc =% '클라우드클럽' ORDER BY sim DESC;
 | `클라우드 클럽` | 0.8571 |
 | `클라으드클럽` | 0.7143 |
 
-**아래 두 행은 `LIKE '%클라우드클럽%'` 으로는 절대 안 잡힌다.** 띄어쓰기가 들어갔거나 한 글자가 틀렸기 때문이다. `=%` 는 그걸 잡는다 — **부분 문자열 검색이 아니라 진짜 유사도 검색이 맞다.**
+**아래 두 행은 `LIKE '%클라우드클럽%'` 으로는 절대 안 잡힌다.** 띄어쓰기가 들어갔거나 한 글자가 틀렸기 때문이다. `=%` 는 그걸 잡는다 — **부분 문자열 검색이 아니라 조각 기반 유사도 검색이 맞다.**
 
 ### 2. `=%` 는 GIN 인덱스를 탄다 — `LIKE` 와 다른 경로로
 

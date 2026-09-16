@@ -107,7 +107,7 @@ SELECT * FROM tbl WHERE doc LIKE likequery('trial');
 
 | 조건 | 결과 |
 | --- | --- |
-| preload 없이 `CREATE EXTENSION pg_bigm` 실행 | 성공. `pg_settings` 확인 결과 이 세션은 이미 `vartype=real`(진짜 GUC, placeholder 아님) - `CREATE FUNCTION` 의 심볼 검증이 그 자리에서 라이브러리를 로드하기 때문 |
+| preload 없이 `CREATE EXTENSION pg_bigm` 실행 | 성공. `pg_settings` 확인 결과 이 세션은 이미 `vartype=real`(등록된 GUC, placeholder 아님) - `CREATE FUNCTION` 의 심볼 검증이 그 자리에서 라이브러리를 로드하기 때문 |
 | 같은 서버, "설치만 되어있고 함수는 한 번도 안 부른" 새 세션에서 `ALTER SYSTEM SET pg_bigm.similarity_limit=...` | **실패** (`unrecognized configuration parameter`) - 그 세션 프로세스 메모리에는 아직 `.so` 가 없다 |
 | 같은 새 세션에서 평범한 `SET pg_bigm.similarity_limit=...` (세션 로컬) | **성공** - 그런데 `pg_bigm` 을 설치도 안 한 임의의 이름(`whatever.foo`)으로도 똑같이 성공해서, 이건 pg_bigm 과 무관한 PostgreSQL 범용 placeholder 메커니즘임을 확인 |
 | 2글자 키워드(`%AB%`)로 `pg_bigm` vs `pg_trgm` 인덱스 비교 | 둘 다 `EXPLAIN` 에 `Index Cond` 가 붙지만, `pg_trgm` 쪽 cost 가 약 300배 높음(후보 4000/20000행) - "인덱스를 타는가"가 아니라 "얼마나 선택적인가"의 문제 |
