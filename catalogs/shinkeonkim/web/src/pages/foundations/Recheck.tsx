@@ -26,7 +26,7 @@ export default function Recheck() {
         <p>
           찾아보기에서 쪽수를 보고 갔는데 그 쪽에 원하는 말이 없을 수 있습니다. 조각이 다 있다고 원래 단어가 있는 건
           아니거든요. 그래서 데이터베이스는 <strong>찾아보기로 후보를 추린 다음, 그 후보들의 원문을 다시 읽어
-          진짜인지 확인</strong>합니다. 이 확인 단계가 <strong>Recheck</strong> 입니다.
+          조건에 맞는지 확인</strong>합니다. 이 확인 단계가 <strong>Recheck</strong> 입니다.
         </p>
       </EasyFirst>
 
@@ -150,7 +150,7 @@ else
         />
         <SourceNote path={ONECHAR_ENV.repo}>실험 10</SourceNote>
 
-        <h3>② 진짜 비용 단위는 “행”이 아니라 “페이지”다</h3>
+        <h3>② 행 수와 함께 읽은 페이지 수를 확인한다</h3>
         <p>
           위 실측에서 후보 <strong>{nf(ONE_CHAR[1].idxRows)}행</strong>을 읽는 데 버퍼가{' '}
           <strong>{nf(ONE_CHAR[1].buf)}장</strong> 들었다 — 거의 <strong>행 하나에 페이지 하나</strong>다. 주입을{' '}

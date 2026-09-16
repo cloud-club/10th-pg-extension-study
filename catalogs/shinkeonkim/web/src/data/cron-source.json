@@ -1,0 +1,67 @@
+{
+  "version": "v1.6.8",
+  "url": "https://github.com/citusdata/pg_cron/blob/v1.6.8/src/pg_cron.c",
+  "sha256": "89074a157dfc79381141d443dc7f07a0c377f27d25d5be705e29590ffdc04715",
+  "excerpts": {
+    "init": {
+      "start": 219,
+      "end": 234,
+      "code": "void\n_PG_init(void)\n{\n\tBackgroundWorker worker = {0,};\n\n\tif (IsBinaryUpgrade)\n\t{\n\t\treturn;\n\t}\n\n\tif (!process_shared_preload_libraries_in_progress)\n\t{\n\t\tereport(ERROR, (errmsg(\"pg_cron can only be loaded via shared_preload_libraries\"),\n\t\t\t\t\t\terrhint(\"Add pg_cron to the shared_preload_libraries \"\n\t\t\t\t\t\t\t\t\"configuration variable in postgresql.conf.\")));\n\t}"
+    },
+    "register": {
+      "start": 365,
+      "end": 381,
+      "code": "\t/* set up common data for all our workers */\n\tworker.bgw_flags = BGWORKER_SHMEM_ACCESS | BGWORKER_BACKEND_DATABASE_CONNECTION;\n\tworker.bgw_start_time = BgWorkerStart_RecoveryFinished;\n\tworker.bgw_restart_time = 1;\n#if (PG_VERSION_NUM < 100000)\n\tworker.bgw_main = PgCronLauncherMain;\n#endif\n\tworker.bgw_main_arg = Int32GetDatum(0);\n\tworker.bgw_notify_pid = 0;\n\tsprintf(worker.bgw_library_name, \"pg_cron\");\n\tsprintf(worker.bgw_function_name, \"PgCronLauncherMain\");\n\tsnprintf(worker.bgw_name, BGW_MAXLEN, \"pg_cron launcher\");\n#if (PG_VERSION_NUM >= 110000)\n\tsnprintf(worker.bgw_type, BGW_MAXLEN, \"pg_cron launcher\");\n#endif\n\n\tRegisterBackgroundWorker(&worker);"
+    },
+    "entry": {
+      "start": 595,
+      "end": 604,
+      "code": "\tBackgroundWorkerUnblockSignals();\n\n\t/* Connect to our database */\n#if (PG_VERSION_NUM < 110000)\n\tBackgroundWorkerInitializeConnection(CronTableDatabaseName, NULL);\n#else\n\tBackgroundWorkerInitializeConnection(CronTableDatabaseName, NULL, 0);\n#endif\n\n\t/* Make pg_cron recognisable in pg_stat_activity */"
+    },
+    "loop": {
+      "start": 685,
+      "end": 699,
+      "code": "\n\t\tif (!CronJobCacheValid)\n\t\t{\n\t\t\tRefreshTaskHash();\n\t\t}\n\n\t\ttaskList = CurrentTaskList();\n\t\tcurrentTime = GetCurrentTimestamp();\n\n\t\tStartAllPendingRuns(taskList, currentTime);\n\n\t\tWaitForCronTasks(taskList);\n\t\tManageCronTasks(taskList, currentTime);\n\n\t\tMemoryContextReset(CronLoopContext);"
+    },
+    "gate": {
+      "start": 1282,
+      "end": 1287,
+      "code": "static bool\nCanStartTask(CronTask *task)\n{\n\treturn task->state == CRON_TASK_WAITING && task->pendingRunCount > 0 &&\n\t\t   RunningTaskCount < MaxRunningTasks;\n}"
+    },
+    "mode": {
+      "start": 1336,
+      "end": 1340,
+      "code": "\t\t\ttask->pendingRunCount -= 1;\n\t\t\tif (UseBackgroundWorkers)\n\t\t\t\ttask->state = CRON_TASK_BGW_START;\n\t\t\telse\n\t\t\t\ttask->state = CRON_TASK_START;"
+    },
+    "libpq": {
+      "start": 1396,
+      "end": 1398,
+      "code": "\t\t\t\tconnection = PQconnectStartParams(keywordArray, valueArray, false);\n\t\t\t\tPQsetnonblocking(connection, 1);\n\t\t\t\tPQsetNoticeReceiver(connection, CronNoticeReceiver, (void *) task);"
+    },
+    "worker": {
+      "start": 1514,
+      "end": 1525,
+      "code": "\t\t\tmemset(&worker, 0, sizeof(BackgroundWorker));\n\t\t\tworker.bgw_flags = BGWORKER_SHMEM_ACCESS | BGWORKER_BACKEND_DATABASE_CONNECTION;\n\t\t\tworker.bgw_start_time = BgWorkerStart_ConsistentState;\n\t\t\tworker.bgw_restart_time = BGW_NEVER_RESTART;\n\t\t\tsprintf(worker.bgw_library_name, \"pg_cron\");\n\t\t\tsprintf(worker.bgw_function_name, \"CronBackgroundWorker\");\n#if (PG_VERSION_NUM >= 110000)\n\t\t\tsnprintf(worker.bgw_type, BGW_MAXLEN, \"pg_cron\");\n#endif\n\t\t\tsnprintf(worker.bgw_name, BGW_MAXLEN, \"pg_cron worker\");\n\t\t\tworker.bgw_main_arg = UInt32GetDatum(dsm_segment_handle(task->seg));\n\t\t\tworker.bgw_notify_pid = MyProcPid;"
+    },
+    "execute": {
+      "start": 2145,
+      "end": 2162,
+      "code": "#if (PG_VERSION_NUM < 110000)\n\tBackgroundWorkerInitializeConnection(database, username);\n#else\n\tBackgroundWorkerInitializeConnection(database, username, 0);\n#endif\n\n\t/* Prepare to execute the query. */\n\tSetCurrentStatementStartTimestamp();\n\tdebug_query_string = command;\n\tpgstat_report_activity(STATE_RUNNING, command);\n\tStartTransactionCommand();\n\tif (StatementTimeout > 0)\n\t\tenable_timeout_after(STATEMENT_TIMEOUT, StatementTimeout);\n\telse\n\t\tdisable_timeout(STATEMENT_TIMEOUT, false);\n\n\t/* Execute the query. */\n\tExecuteSqlString(command);"
+    },
+    "reserve": {
+      "start": 1336,
+      "end": 1344,
+      "code": "\t\t\ttask->pendingRunCount -= 1;\n\t\t\tif (UseBackgroundWorkers)\n\t\t\t\ttask->state = CRON_TASK_BGW_START;\n\t\t\telse\n\t\t\t\ttask->state = CRON_TASK_START;\n\n\t\t\ttask->lastStartTime = currentTime;\n\n\t\t\tRunningTaskCount++;"
+    },
+    "release": {
+      "start": 1745,
+      "end": 1748,
+      "code": "\t\t\ttask->isSocketReady = false;\n\n\t\t\ttask->state = CRON_TASK_DONE;\n\t\t\tRunningTaskCount--;"
+    },
+    "workerLimit": {
+      "start": 638,
+      "end": 641,
+      "code": "\tif (UseBackgroundWorkers && max_worker_processes - 1 < MaxRunningTasks)\n\t{\n\t\tMaxRunningTasks = max_worker_processes - 1;\n\t}"
+    }
+  }
+}

@@ -1,0 +1,35 @@
+name: pg-study-catalog-shinkeonkim-pgcron-exp02
+
+services:
+  postgres:
+    build: .
+    container_name: pg-study-catalog-shinkeonkim-pgcron-exp02
+    environment:
+      POSTGRES_DB: study
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "15953:5432"
+    command:
+      - postgres
+      - -c
+      - shared_preload_libraries=pg_cron
+      - -c
+      - cron.database_name=study
+      - -c
+      - cron.host=/var/run/postgresql
+      - -c
+      - cron.max_running_jobs=32
+      - -c
+      - max_worker_processes=20           # background worker 모드에서 여유를 두기 위해 기본(8)보다 넉넉히
+      # 주의: cron.use_background_workers 는 여기서 -c 로 고정하면 안 된다.
+      # 커맨드라인 -c 옵션은 ALTER SYSTEM(=postgresql.auto.conf)보다 우선순위가 높아서,
+      # bench.sh 가 phase 2 에서 ALTER SYSTEM 으로 on 을 써넣고 재시작해도 이 줄이
+      # 매번 이겨버려 off 로 되돌아간다 - 실제로 이 버그를 겪고 나서 알게 된 것이다.
+      # 기본값 자체가 off 라서 이 줄을 아예 빼도 phase 1 의 초기 상태는 off 로 시작한다.
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -p 5432 -U postgres -d study"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+      start_period: 30s

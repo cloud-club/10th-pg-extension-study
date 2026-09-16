@@ -1,0 +1,665 @@
+{
+  "environment": {
+    "postgres": "PostgreSQL 16.15 (Debian 16.15-1.pgdg13+2) on aarch64-unknown-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit",
+    "extension_sql_version": "1.6",
+    "package": "postgresql-16-cron\t1.6.8-1.pgdg13+1",
+    "capacity": "2",
+    "mode": "off",
+    "cpu_count": "3",
+    "image_id": "107fc0d6e5447583318d3faaeca38209e76e0127e857506af4f9d895f71d678b"
+  },
+  "capacity": [
+    {
+      "repetition": 1,
+      "case": "four-jobs-cap2",
+      "jobs": 4,
+      "admission_seconds": 12,
+      "completed_admitted_runs": 2,
+      "admitted_runs_per_second": 0.16666666666666666,
+      "peak_overlap": 2,
+      "runs_by_job": {
+        "0": 0,
+        "1": 1,
+        "2": 0,
+        "3": 1
+      }
+    },
+    {
+      "repetition": 1,
+      "case": "four-jobs-cap4",
+      "jobs": 4,
+      "admission_seconds": 12,
+      "completed_admitted_runs": 24,
+      "admitted_runs_per_second": 2.0,
+      "peak_overlap": 4,
+      "runs_by_job": {
+        "0": 6,
+        "1": 6,
+        "2": 6,
+        "3": 6
+      }
+    },
+    {
+      "repetition": 1,
+      "case": "one-job",
+      "jobs": 1,
+      "admission_seconds": 12,
+      "completed_admitted_runs": 5,
+      "admitted_runs_per_second": 0.4166666666666667,
+      "peak_overlap": 1,
+      "runs_by_job": {
+        "0": 5
+      }
+    },
+    {
+      "repetition": 2,
+      "case": "four-jobs-cap2",
+      "jobs": 4,
+      "admission_seconds": 12,
+      "completed_admitted_runs": 3,
+      "admitted_runs_per_second": 0.25,
+      "peak_overlap": 2,
+      "runs_by_job": {
+        "0": 0,
+        "1": 1,
+        "2": 0,
+        "3": 2
+      }
+    },
+    {
+      "repetition": 2,
+      "case": "four-jobs-cap4",
+      "jobs": 4,
+      "admission_seconds": 12,
+      "completed_admitted_runs": 20,
+      "admitted_runs_per_second": 1.6666666666666667,
+      "peak_overlap": 4,
+      "runs_by_job": {
+        "0": 5,
+        "1": 5,
+        "2": 5,
+        "3": 5
+      }
+    },
+    {
+      "repetition": 2,
+      "case": "one-job",
+      "jobs": 1,
+      "admission_seconds": 12,
+      "completed_admitted_runs": 6,
+      "admitted_runs_per_second": 0.5,
+      "peak_overlap": 1,
+      "runs_by_job": {
+        "0": 6
+      }
+    },
+    {
+      "repetition": 3,
+      "case": "four-jobs-cap2",
+      "jobs": 4,
+      "admission_seconds": 12,
+      "completed_admitted_runs": 2,
+      "admitted_runs_per_second": 0.16666666666666666,
+      "peak_overlap": 2,
+      "runs_by_job": {
+        "0": 0,
+        "1": 1,
+        "2": 0,
+        "3": 1
+      }
+    },
+    {
+      "repetition": 3,
+      "case": "four-jobs-cap4",
+      "jobs": 4,
+      "admission_seconds": 12,
+      "completed_admitted_runs": 20,
+      "admitted_runs_per_second": 1.6666666666666667,
+      "peak_overlap": 4,
+      "runs_by_job": {
+        "0": 5,
+        "1": 5,
+        "2": 5,
+        "3": 5
+      }
+    },
+    {
+      "repetition": 3,
+      "case": "one-job",
+      "jobs": 1,
+      "admission_seconds": 12,
+      "completed_admitted_runs": 6,
+      "admitted_runs_per_second": 0.5,
+      "peak_overlap": 1,
+      "runs_by_job": {
+        "0": 6
+      }
+    },
+    {
+      "repetition": 4,
+      "case": "four-jobs-cap2",
+      "jobs": 4,
+      "admission_seconds": 12,
+      "completed_admitted_runs": 3,
+      "admitted_runs_per_second": 0.25,
+      "peak_overlap": 2,
+      "runs_by_job": {
+        "0": 1,
+        "1": 1,
+        "2": 0,
+        "3": 1
+      }
+    },
+    {
+      "repetition": 4,
+      "case": "four-jobs-cap4",
+      "jobs": 4,
+      "admission_seconds": 12,
+      "completed_admitted_runs": 20,
+      "admitted_runs_per_second": 1.6666666666666667,
+      "peak_overlap": 4,
+      "runs_by_job": {
+        "0": 5,
+        "1": 5,
+        "2": 5,
+        "3": 5
+      }
+    },
+    {
+      "repetition": 4,
+      "case": "one-job",
+      "jobs": 1,
+      "admission_seconds": 12,
+      "completed_admitted_runs": 6,
+      "admitted_runs_per_second": 0.5,
+      "peak_overlap": 1,
+      "runs_by_job": {
+        "0": 6
+      }
+    },
+    {
+      "repetition": 5,
+      "case": "four-jobs-cap2",
+      "jobs": 4,
+      "admission_seconds": 12,
+      "completed_admitted_runs": 2,
+      "admitted_runs_per_second": 0.16666666666666666,
+      "peak_overlap": 2,
+      "runs_by_job": {
+        "0": 0,
+        "1": 1,
+        "2": 0,
+        "3": 1
+      }
+    },
+    {
+      "repetition": 5,
+      "case": "four-jobs-cap4",
+      "jobs": 4,
+      "admission_seconds": 12,
+      "completed_admitted_runs": 20,
+      "admitted_runs_per_second": 1.6666666666666667,
+      "peak_overlap": 4,
+      "runs_by_job": {
+        "0": 5,
+        "1": 5,
+        "2": 5,
+        "3": 5
+      }
+    },
+    {
+      "repetition": 5,
+      "case": "one-job",
+      "jobs": 1,
+      "admission_seconds": 12,
+      "completed_admitted_runs": 6,
+      "admitted_runs_per_second": 0.5,
+      "peak_overlap": 1,
+      "runs_by_job": {
+        "0": 6
+      }
+    },
+    {
+      "repetition": 6,
+      "case": "four-jobs-cap2",
+      "jobs": 4,
+      "admission_seconds": 12,
+      "completed_admitted_runs": 2,
+      "admitted_runs_per_second": 0.16666666666666666,
+      "peak_overlap": 2,
+      "runs_by_job": {
+        "0": 0,
+        "1": 1,
+        "2": 0,
+        "3": 1
+      }
+    },
+    {
+      "repetition": 6,
+      "case": "four-jobs-cap4",
+      "jobs": 4,
+      "admission_seconds": 12,
+      "completed_admitted_runs": 24,
+      "admitted_runs_per_second": 2.0,
+      "peak_overlap": 4,
+      "runs_by_job": {
+        "0": 6,
+        "1": 6,
+        "2": 6,
+        "3": 6
+      }
+    },
+    {
+      "repetition": 6,
+      "case": "one-job",
+      "jobs": 1,
+      "admission_seconds": 12,
+      "completed_admitted_runs": 6,
+      "admitted_runs_per_second": 0.5,
+      "peak_overlap": 1,
+      "runs_by_job": {
+        "0": 6
+      }
+    },
+    {
+      "repetition": 7,
+      "case": "four-jobs-cap2",
+      "jobs": 4,
+      "admission_seconds": 12,
+      "completed_admitted_runs": 2,
+      "admitted_runs_per_second": 0.16666666666666666,
+      "peak_overlap": 2,
+      "runs_by_job": {
+        "0": 0,
+        "1": 1,
+        "2": 0,
+        "3": 1
+      }
+    },
+    {
+      "repetition": 7,
+      "case": "four-jobs-cap4",
+      "jobs": 4,
+      "admission_seconds": 12,
+      "completed_admitted_runs": 24,
+      "admitted_runs_per_second": 2.0,
+      "peak_overlap": 4,
+      "runs_by_job": {
+        "0": 6,
+        "1": 6,
+        "2": 6,
+        "3": 6
+      }
+    },
+    {
+      "repetition": 7,
+      "case": "one-job",
+      "jobs": 1,
+      "admission_seconds": 12,
+      "completed_admitted_runs": 5,
+      "admitted_runs_per_second": 0.4166666666666667,
+      "peak_overlap": 1,
+      "runs_by_job": {
+        "0": 5
+      }
+    },
+    {
+      "repetition": 8,
+      "case": "four-jobs-cap2",
+      "jobs": 4,
+      "admission_seconds": 12,
+      "completed_admitted_runs": 2,
+      "admitted_runs_per_second": 0.16666666666666666,
+      "peak_overlap": 2,
+      "runs_by_job": {
+        "0": 0,
+        "1": 1,
+        "2": 0,
+        "3": 1
+      }
+    },
+    {
+      "repetition": 8,
+      "case": "four-jobs-cap4",
+      "jobs": 4,
+      "admission_seconds": 12,
+      "completed_admitted_runs": 20,
+      "admitted_runs_per_second": 1.6666666666666667,
+      "peak_overlap": 4,
+      "runs_by_job": {
+        "0": 5,
+        "1": 5,
+        "2": 5,
+        "3": 5
+      }
+    },
+    {
+      "repetition": 8,
+      "case": "one-job",
+      "jobs": 1,
+      "admission_seconds": 12,
+      "completed_admitted_runs": 5,
+      "admitted_runs_per_second": 0.4166666666666667,
+      "peak_overlap": 1,
+      "runs_by_job": {
+        "0": 5
+      }
+    },
+    {
+      "repetition": 9,
+      "case": "four-jobs-cap2",
+      "jobs": 4,
+      "admission_seconds": 12,
+      "completed_admitted_runs": 2,
+      "admitted_runs_per_second": 0.16666666666666666,
+      "peak_overlap": 2,
+      "runs_by_job": {
+        "0": 0,
+        "1": 1,
+        "2": 0,
+        "3": 1
+      }
+    },
+    {
+      "repetition": 9,
+      "case": "four-jobs-cap4",
+      "jobs": 4,
+      "admission_seconds": 12,
+      "completed_admitted_runs": 20,
+      "admitted_runs_per_second": 1.6666666666666667,
+      "peak_overlap": 4,
+      "runs_by_job": {
+        "0": 5,
+        "1": 5,
+        "2": 5,
+        "3": 5
+      }
+    },
+    {
+      "repetition": 9,
+      "case": "one-job",
+      "jobs": 1,
+      "admission_seconds": 12,
+      "completed_admitted_runs": 5,
+      "admitted_runs_per_second": 0.4166666666666667,
+      "peak_overlap": 1,
+      "runs_by_job": {
+        "0": 5
+      }
+    },
+    {
+      "repetition": 10,
+      "case": "four-jobs-cap2",
+      "jobs": 4,
+      "admission_seconds": 12,
+      "completed_admitted_runs": 3,
+      "admitted_runs_per_second": 0.25,
+      "peak_overlap": 2,
+      "runs_by_job": {
+        "0": 1,
+        "1": 1,
+        "2": 0,
+        "3": 1
+      }
+    },
+    {
+      "repetition": 10,
+      "case": "four-jobs-cap4",
+      "jobs": 4,
+      "admission_seconds": 12,
+      "completed_admitted_runs": 22,
+      "admitted_runs_per_second": 1.8333333333333333,
+      "peak_overlap": 4,
+      "runs_by_job": {
+        "0": 6,
+        "1": 6,
+        "2": 5,
+        "3": 5
+      }
+    },
+    {
+      "repetition": 10,
+      "case": "one-job",
+      "jobs": 1,
+      "admission_seconds": 12,
+      "completed_admitted_runs": 6,
+      "admitted_runs_per_second": 0.5,
+      "peak_overlap": 1,
+      "runs_by_job": {
+        "0": 6
+      }
+    }
+  ],
+  "queue": [
+    {
+      "repetition": 1,
+      "queue": {
+        "total": 40,
+        "done": 40,
+        "min_attempts": 1,
+        "max_attempts": 1
+      },
+      "effects": 40,
+      "failed_runs": 2,
+      "effects_after_failure": 0
+    },
+    {
+      "repetition": 2,
+      "queue": {
+        "total": 40,
+        "done": 40,
+        "min_attempts": 1,
+        "max_attempts": 1
+      },
+      "effects": 40,
+      "failed_runs": 2,
+      "effects_after_failure": 0
+    },
+    {
+      "repetition": 3,
+      "queue": {
+        "total": 40,
+        "done": 40,
+        "min_attempts": 1,
+        "max_attempts": 1
+      },
+      "effects": 40,
+      "failed_runs": 2,
+      "effects_after_failure": 0
+    },
+    {
+      "repetition": 4,
+      "queue": {
+        "total": 40,
+        "done": 40,
+        "min_attempts": 1,
+        "max_attempts": 1
+      },
+      "effects": 40,
+      "failed_runs": 2,
+      "effects_after_failure": 0
+    },
+    {
+      "repetition": 5,
+      "queue": {
+        "total": 40,
+        "done": 40,
+        "min_attempts": 1,
+        "max_attempts": 1
+      },
+      "effects": 40,
+      "failed_runs": 2,
+      "effects_after_failure": 0
+    },
+    {
+      "repetition": 6,
+      "queue": {
+        "total": 40,
+        "done": 40,
+        "min_attempts": 1,
+        "max_attempts": 1
+      },
+      "effects": 40,
+      "failed_runs": 2,
+      "effects_after_failure": 0
+    },
+    {
+      "repetition": 7,
+      "queue": {
+        "total": 40,
+        "done": 40,
+        "min_attempts": 1,
+        "max_attempts": 1
+      },
+      "effects": 40,
+      "failed_runs": 2,
+      "effects_after_failure": 0
+    },
+    {
+      "repetition": 8,
+      "queue": {
+        "total": 40,
+        "done": 40,
+        "min_attempts": 1,
+        "max_attempts": 1
+      },
+      "effects": 40,
+      "failed_runs": 2,
+      "effects_after_failure": 0
+    },
+    {
+      "repetition": 9,
+      "queue": {
+        "total": 40,
+        "done": 40,
+        "min_attempts": 1,
+        "max_attempts": 1
+      },
+      "effects": 40,
+      "failed_runs": 2,
+      "effects_after_failure": 0
+    },
+    {
+      "repetition": 10,
+      "queue": {
+        "total": 40,
+        "done": 40,
+        "min_attempts": 1,
+        "max_attempts": 1
+      },
+      "effects": 40,
+      "failed_runs": 2,
+      "effects_after_failure": 0
+    }
+  ],
+  "diagnostics": [
+    {
+      "repetition": 1,
+      "committed": [
+        3,
+        3,
+        5
+      ],
+      "startup_timeouts": 2,
+      "client_backend_snapshots": 0
+    },
+    {
+      "repetition": 2,
+      "committed": [
+        3,
+        3,
+        5
+      ],
+      "startup_timeouts": 2,
+      "client_backend_snapshots": 0
+    },
+    {
+      "repetition": 3,
+      "committed": [
+        3,
+        3,
+        5
+      ],
+      "startup_timeouts": 2,
+      "client_backend_snapshots": 0
+    },
+    {
+      "repetition": 4,
+      "committed": [
+        3,
+        3,
+        5
+      ],
+      "startup_timeouts": 2,
+      "client_backend_snapshots": 0
+    },
+    {
+      "repetition": 5,
+      "committed": [
+        2,
+        2,
+        4
+      ],
+      "startup_timeouts": 2,
+      "client_backend_snapshots": 0
+    },
+    {
+      "repetition": 6,
+      "committed": [
+        2,
+        2,
+        4
+      ],
+      "startup_timeouts": 2,
+      "client_backend_snapshots": 0
+    },
+    {
+      "repetition": 7,
+      "committed": [
+        2,
+        2,
+        4
+      ],
+      "startup_timeouts": 2,
+      "client_backend_snapshots": 0
+    },
+    {
+      "repetition": 8,
+      "committed": [
+        2,
+        2,
+        4
+      ],
+      "startup_timeouts": 2,
+      "client_backend_snapshots": 1
+    },
+    {
+      "repetition": 9,
+      "committed": [
+        2,
+        2,
+        4
+      ],
+      "startup_timeouts": 2,
+      "client_backend_snapshots": 0
+    },
+    {
+      "repetition": 10,
+      "committed": [
+        3,
+        3,
+        5
+      ],
+      "startup_timeouts": 2,
+      "client_backend_snapshots": 0
+    }
+  ],
+  "failure_example": {
+    "jobid": 3,
+    "runid": 9,
+    "status": "failed",
+    "return_message": "ERROR:  intentional failure after insert\nCONTEXT:  PL/pgSQL function fail_after_write() line 4 at RAISE\n",
+    "start_time": "2026-09-15T12:08:24.843+00:00",
+    "end_time": "2026-09-15T12:08:24.845101+00:00"
+  }
+}

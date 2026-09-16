@@ -1,0 +1,292 @@
+{
+ "clothoVersion": 1,
+ "id": "cron-lifecycle",
+ "title": "예약 정의에서 SQL 실행까지",
+ "description": "소스 기반 개념 모형. 재생 시간은 실제 실행 시간과 무관하다.",
+ "duration": 24000,
+ "canvas": {
+  "width": 900,
+  "height": 330,
+  "background": "#0b1120"
+ },
+ "elements": [
+  {
+   "type": "text",
+   "id": "title",
+   "x": 40,
+   "y": 45,
+   "content": "예약 정의에서 SQL 실행까지",
+   "fontSize": 24,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 0,
+     "end": 24000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ],
+   "fontWeight": "700"
+  },
+  {
+   "type": "rect",
+   "id": "step0",
+   "x": 40,
+   "y": 95,
+   "width": 820,
+   "height": 70,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 0,
+     "end": 6000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "1. cron.schedule → cron.job",
+   "labelColor": "#0b1120",
+   "labelSize": 23
+  },
+  {
+   "type": "text",
+   "id": "detail0",
+   "x": 40,
+   "y": 215,
+   "content": "예약 시각 · SQL · DB · 사용자를 저장한다",
+   "fontSize": 19,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 0,
+     "end": 6000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "note0",
+   "x": 40,
+   "y": 265,
+   "content": "등록 트랜잭션 COMMIT 뒤 다른 세션에 보인다",
+   "fontSize": 17,
+   "color": "#94a3b8",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 0,
+     "end": 6000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "step1",
+   "x": 40,
+   "y": 95,
+   "width": 820,
+   "height": 70,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 6000,
+     "end": 12000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "2. 캐시 무효화 → launcher",
+   "labelColor": "#0b1120",
+   "labelSize": 23
+  },
+  {
+   "type": "text",
+   "id": "detail1",
+   "x": 40,
+   "y": 215,
+   "content": "변경된 작업 정의를 메모리로 다시 읽는다",
+   "fontSize": 19,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 6000,
+     "end": 12000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "note1",
+   "x": 40,
+   "y": 265,
+   "content": "작업 테이블을 매번 새로 조회하는 구조가 아니다",
+   "fontSize": 17,
+   "color": "#94a3b8",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 6000,
+     "end": 12000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "step2",
+   "x": 40,
+   "y": 95,
+   "width": 820,
+   "height": 70,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 12000,
+     "end": 18000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "3. StartAllPendingRuns",
+   "labelColor": "#0b1120",
+   "labelSize": 23
+  },
+  {
+   "type": "text",
+   "id": "detail2",
+   "x": 40,
+   "y": 215,
+   "content": "예약 시각이 되면 대기 실행을 표시한다",
+   "fontSize": 19,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 12000,
+     "end": 18000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "note2",
+   "x": 40,
+   "y": 265,
+   "content": "대기 상태와 실제 실행 시작은 서로 다르다",
+   "fontSize": 17,
+   "color": "#94a3b8",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 12000,
+     "end": 18000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "step3",
+   "x": 40,
+   "y": 95,
+   "width": 820,
+   "height": 70,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 18000,
+     "end": 24000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "4. ManageCronTask",
+   "labelColor": "#0b1120",
+   "labelSize": 23
+  },
+  {
+   "type": "text",
+   "id": "detail3",
+   "x": 40,
+   "y": 215,
+   "content": "libpq 연결 또는 동적 worker로 SQL을 실행한다",
+   "fontSize": 19,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 18000,
+     "end": 24000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "note3",
+   "x": 40,
+   "y": 265,
+   "content": "종료 결과를 수집하고 작업 상태를 다음 실행에 대비한다",
+   "fontSize": 17,
+   "color": "#94a3b8",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 18000,
+     "end": 24000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  }
+ ],
+ "chapters": [
+  {
+   "id": "ch0",
+   "time": 0,
+   "label": "1. cron.schedule → cron.job",
+   "subtitle": "등록 트랜잭션 COMMIT 뒤 다른 세션에 보인다"
+  },
+  {
+   "id": "ch1",
+   "time": 6000,
+   "label": "2. 캐시 무효화 → launcher",
+   "subtitle": "작업 테이블을 매번 새로 조회하는 구조가 아니다"
+  },
+  {
+   "id": "ch2",
+   "time": 12000,
+   "label": "3. StartAllPendingRuns",
+   "subtitle": "대기 상태와 실제 실행 시작은 서로 다르다"
+  },
+  {
+   "id": "ch3",
+   "time": 18000,
+   "label": "4. ManageCronTask",
+   "subtitle": "종료 결과를 수집하고 작업 상태를 다음 실행에 대비한다"
+  }
+ ],
+ "settings": {
+  "loop": false,
+  "autoplay": true,
+  "showChapterList": true
+ }
+}

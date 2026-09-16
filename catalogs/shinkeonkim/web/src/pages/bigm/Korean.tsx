@@ -110,8 +110,8 @@ export default function Korean() {
         <SourceNote path={`${DATA.repo.base}/${DATA.repo.exp.e02}`}>실험 02 · 표본 20,000행</SourceNote>
         <Callout kind="ok">
           <p>
-            <strong>“한국어면 2-gram”의 진짜 근거는 이것이다</strong> — 음절 문자 체계라 알파벳이 커서, 2-gram 으로도
-            선택도가 나온다.
+            <strong>이 표본의 한국어 bigram은 종류가 많고 각 조각의 출현 빈도가 낮았다.</strong>
+            이런 분포에서는 2-gram으로도 검색 후보를 좁힐 수 있다.
           </p>
         </Callout>
       </Section>
@@ -242,8 +242,8 @@ export default function Korean() {
             <li><strong>설치가 쉽다</strong> — contrib 이고 <K>trusted</K> 라 수퍼유저 없이도 되고, 매니지드 DB 지원이 훨씬 넓다.</li>
           </ul>
           <p>
-            <strong><K>pg_bigm</K> 을 쓸 진짜 이유는 “2글자 이하 검색어” 한 칸이다.</strong> 다만 한국어에서는
-            그 칸에 자주 들어가고, 거기서의 격차가 압도적이다(버퍼 1,274배).
+            <strong><K>pg_bigm</K> 의 이점을 확인할 주요 조건은 “2글자 이하 검색어”다.</strong> 다만 한국어에서는
+            짧은 검색어가 자주 쓰이며, 이 실험의 해당 조건에서는 읽은 버퍼 수가 1,274배 차이 났다.
           </p>
         </Callout>
       </Section>

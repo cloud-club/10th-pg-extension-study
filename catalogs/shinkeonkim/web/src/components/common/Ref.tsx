@@ -26,7 +26,7 @@ export function Ref({ to, children }: { to: string; children: React.ReactNode })
   if (samePage && id) {
     return (
       <a
-        href={`#${id}`}
+        href={`#${pathname}#${id}`}
         className={CLS}
         onClick={(e) => {
           e.preventDefault()

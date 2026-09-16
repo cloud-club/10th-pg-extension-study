@@ -117,7 +117,7 @@ export default function E09() {
         />
         <SourceNote path={ILIKE_ENV.repo}>실험 09 · A절</SourceNote>
 
-        <h3>(a) pg_trgm 의 ILIKE 는 진짜로 빠르다</h3>
+        <h3>(a) 이 실험에서 pg_trgm의 ILIKE가 빨랐다</h3>
         <p>
           {noneILike.ms} ms → {trgmILike.ms} ms(<strong>{Math.round(noneILike.ms / trgmILike.ms)}배</strong>),
           버퍼 {nf(noneILike.buf)} → {nf(trgmILike.buf)}. 그리고{' '}
