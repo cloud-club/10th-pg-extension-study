@@ -4,6 +4,10 @@
 
 슬라이드는 [`slides/slides.html`](slides/slides.html) 을 브라우저로 열고 ←→ 로 넘깁니다. **본편은 "직접 만들어보기 ② - C" 까지**(개념 한 줄 → 왜 필요한가 → 내부 동작 → 파일 → 직접 만들기 ①②)고, 프로세스·메모리와 부류별 사례는 **부록 A~D** 로 뺐습니다. 실습은 Docker 만 있으면 [`labs/`](labs/) 에서 `./run.sh` 하나로 끝납니다. 완료 기준은 `labs/00-hello-extension` 을 직접 돌려보고 결과를 톡방에 남기는 것.
 
+## 🧭 역사·설계 배경
+
+신웅비의 [`2주차 자료`](../kungbi/2주차/)에는 관계형 모델과 INGRES부터 POSTGRES·Postgres95·PostgreSQL까지의 계보, PostgreSQL의 확장 철학, MySQL·MyISAM·InnoDB·MariaDB의 별도 계보를 정리했습니다. 27장 PowerPoint·PDF·발표 대본과 상세 조사 문서를 함께 제공합니다.
+
 ## 📑 발표 자료
 
 **`.md` 가 원본이고 `.html` 은 생성물**이라, 내용을 고쳤으면 다시 빌드해야 합니다.
