@@ -1,10 +1,10 @@
-# pg_cron lab 05 - 직접 해보기
+# Lab 05 · 수동 실습
 
 ```bash
 ./run.sh up
 ```
 
-두 컨테이너가 뜹니다 - `postgres`(localhost:15934)와 `api`(localhost:18934). Swagger UI 를 열어 직접 두드려보세요:
+`postgres`는 localhost:15934, `api`는 localhost:18934에서 실행된다. Swagger UI는 다음 주소에서 연다.
 
 ```bash
 open http://localhost:18934/docs
@@ -33,7 +33,7 @@ sleep 5
 curl -s "http://localhost:18934/jobs/demo-heartbeat/runs?limit=5" | python3 -m json.tool
 ```
 
-부하가 있으면 5초 뒤에도 실행이 끝나지 않을 수 있으므로 이력을 다시 조회합니다. `status: "succeeded"`인 행이 보이면, 백그라운드에서 실제로 돌고 있다는 뜻입니다.
+부하가 있으면 5초 뒤에도 실행이 끝나지 않을 수 있으므로 이력을 다시 조회한다. `status: "succeeded"`인 행이 있으면 예약 SQL이 완료된 것이다.
 
 ## 비활성화
 
@@ -42,7 +42,7 @@ curl -s -X PATCH http://localhost:18934/jobs/demo-heartbeat \
   -H 'Content-Type: application/json' -d '{"active": false}'
 ```
 
-## 잘못된 스케줄 - DB 레이어의 검증이 그대로 올라온다
+## 잘못된 예약식의 오류 응답
 
 ```bash
 curl -s -X POST http://localhost:18934/jobs \
@@ -53,7 +53,7 @@ curl -s -X POST http://localhost:18934/jobs \
 {"detail": "invalid schedule: not-a-cron-expression\nHINT:  Use cron format (e.g. 5 4 * * *), or interval format '[1-59] seconds'"}
 ```
 
-API 서버가 cron 문법을 다시 검증할 필요가 없습니다 - pg_cron 이 이미 하고 있는 검증을 그대로 통과시켰을 뿐입니다.
+이 예제는 pg_cron의 예약식 검증 오류를 HTTP 400 응답으로 변환한다. API에서 같은 문법 검사를 중복 구현하지 않는다.
 
 ## 삭제
 
@@ -61,7 +61,7 @@ API 서버가 cron 문법을 다시 검증할 필요가 없습니다 - pg_cron �
 curl -s -X DELETE http://localhost:18934/jobs/demo-heartbeat -w '\n%{http_code}\n'
 ```
 
-## psql 로 직접 뒷단도 확인하고 싶다면
+## psql에서 예약 테이블 확인
 
 ```bash
 psql -h localhost -p 15934 -U postgres -d study -c "SELECT * FROM cron.job;"
@@ -73,15 +73,15 @@ psql -h localhost -p 15934 -U postgres -d study -c "SELECT * FROM cron.job;"
 
 | | |
 |---|---|
-| 이 lab 이 보여주는 것 | pg_cron 을 REST API 뒤로 감싸는 패턴 |
-| 핵심 포인트 | DB 레이어의 검증(cron 문법)을 API 레이어에서 재구현하지 않고 그대로 전달 |
-| 다음으로 볼 것 | `api/main.py` - 프로덕션이라면 인증/인가, SQL 화이트리스트가 더 필요하다 |
+| 실습 내용 | REST API에서 pg_cron 관리 함수 호출 |
+| 오류 처리 | pg_cron의 예약식 오류를 HTTP 400 응답으로 변환 |
+| 운영 전 추가 사항 | `api/main.py`에 인증·인가와 허용 작업 제한 필요 |
 
 ## 다음 단계
 
-- 종합 카탈로그 문서: [`../../README.md`](../../README.md)
-- 심화 설명: 웹 `#/pg-cron/recipes`, `#/pg-cron/failures`, `#/pg-cron/limits`
+- 카탈로그 문서: [`../../README.md`](../../README.md)
+- 상세 설명: 웹 `#/pg-cron/recipes`, `#/pg-cron/failures`, `#/pg-cron/limits`
 
-자동 검증과 별도로 수동 절차를 처음부터 실행하려면 `./run.sh down` 후 `./run.sh up`을 사용합니다.
+수동 절차를 처음부터 다시 실행하려면 `./run.sh down` 후 `./run.sh up`을 사용한다.
 
-재활성화는 같은 PATCH에 `{"active": true}`를 보냅니다. 실습을 마치면 `./run.sh down`으로 컨테이너와 실습 데이터를 정리합니다.
+재활성화하려면 같은 PATCH 요청에 `{"active": true}`를 보낸다. 실습을 마치면 `./run.sh down`으로 컨테이너와 실습 데이터를 정리한다.

@@ -4,7 +4,7 @@ import { Ref } from '@/components/common/Ref'
 
 export default function Limits() {
   return <>
-    <PageHeader eyebrow="Week 03 · 운영 한계" title="worker 슬롯, 서버 중단, 중복 실행을 따로 설계한다" lede="pg_cron은 PostgreSQL 안에서 SQL 실행 시각을 관리한다. 실행 자원과 서버 수명도 PostgreSQL에 묶이며, 장애를 가로지르는 exactly-once 처리는 제공하지 않는다." />
+    <PageHeader eyebrow="Week 03 · 운영 한계" title="worker 슬롯, 서버 중단과 중복 실행에 대비한다" lede="pg_cron은 PostgreSQL 안에서 SQL 실행 시각을 관리한다. 실행 자원과 수명도 PostgreSQL 서버에 종속되며, 장애 상황의 exactly-once 처리는 제공하지 않는다." />
     <Section title="1. worker 수는 서버 전체가 나눠 쓴다">
       <p><Ref to="/pg-cron/max-worker-processes">max_worker_processes</Ref>는 pg_cron 전용 개수가 아니다. 상주 pg_cron launcher, worker 모드의 실행 프로세스, 다른 확장의 worker, 병렬 쿼리 worker가 같은 전체 한도 안에서 움직인다.</p>
       <CodeBlock language="sql" output={' max_worker_processes | cron.max_running_jobs\n----------------------+-----------------------\n 8                    | 5\n(1 row)'} outputCaption="설명용 예시. 실제 서버 값은 다를 수 있음">{`SELECT current_setting('max_worker_processes') AS max_worker_processes,
@@ -24,7 +24,7 @@ export default function Limits() {
       <p>장애가 커밋 직전·직후에 생기면 호출자는 결과를 확신하지 못할 수 있다. 업무 테이블에 고유한 실행 키를 두고 <code>INSERT ... ON CONFLICT</code> 또는 UNIQUE 제약으로 중복 효과를 막는다.</p>
     </Section>
     <Section title="4. 분산·고가용성 구성에서는 실행 주체를 하나로 만든다">
-      <p>pg_cron 메타데이터는 <code>cron.database_name</code>의 한 DB에 있고 launcher는 해당 PostgreSQL 인스턴스에서 돈다. 물리 복제 standby는 쓰기 작업을 실행할 곳이 아니며, 승격 뒤 새 primary에서 launcher가 동작한다. 전환 시점에는 누락과 중복 가능성을 업무 기준으로 처리해야 한다.</p>
+      <p>pg_cron 메타데이터는 <code>cron.database_name</code>의 한 DB에 있고 launcher는 해당 PostgreSQL 인스턴스에서 실행된다. 물리 복제 standby에서는 쓰기 작업을 실행하지 않으며, 승격 뒤 새 primary에서 launcher가 동작한다. 전환 시점의 누락과 중복 가능성은 업무 로직에서 처리해야 한다.</p>
       <p>여러 독립 primary나 샤드에 같은 예약을 복제하면 각 서버가 자기 예약을 실행할 수 있다. 전체 클러스터에서 한 번만 필요한 업무라면 단일 조정 DB, advisory lock, 리더 선출 또는 외부 스케줄러로 실행 주체를 정한다.</p>
     </Section>
     <Section title="선택 기준">

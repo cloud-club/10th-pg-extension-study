@@ -1,6 +1,6 @@
 # pg_cron lab 02 — 예약 문법과 실제 실행
 
-Docker Engine + Compose v2가 실행 중이어야 한다. API lab은 호스트 Python 3도 필요하다.
+Docker Engine과 Compose v2가 실행 중이어야 한다.
 처음 빌드에는 네트워크와 수 분이 필요하며 이후는 캐시를 사용한다.
 
 1. 5필드·초 간격·월말($) 예약과 이름 없는 2인자 오버로드를 등록한다.

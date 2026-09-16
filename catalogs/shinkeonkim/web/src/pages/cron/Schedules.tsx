@@ -70,7 +70,7 @@ WHERE jobname = 'editable-demo' AND username = current_user;`}</CodeBlock>
       <ol><li>물리 standby가 새 primary로 승격되면, 준비된 pg_cron이 복제되어 있는 예약을 읽는다.</li><li>이전 launcher 메모리의 대기 회차는 새 launcher로 옮겨지는 영속 큐가 아니다. 서버가 멈춘 동안 놓친 모든 실행을 자동 복원한다고 기대하면 안 된다.</li><li>이전 primary가 계속 쓰기·예약 실행을 하지 못하도록 장애 전환 시스템이 차단해야 한다. pg_cron이 별도로 리더 선출을 해 주지는 않는다.</li><li>실패 직전 업무의 커밋 여부와 복제 도달 여부를 확인한다. 특히 비동기 복제에서는 최신 예약 변경·업무 데이터가 새 primary에 없을 수 있다.</li></ol>
       <p>따라서 장애 전환에서도 ‘업무 효과가 정확히 한 번 발생한다’는 보장은 별도 설계가 필요하다. 단일 서버가 꺼진 동안 놓친 회차가 왜 재생되지 않는지는 <Ref to="/pg-cron/downtime">서버 중단과 놓친 예약</Ref>에서 코드로 확인한다. 이 페이지의 복제·분산 설명은 공식 동작과 설계상 주의점을 정리한 것이며, 다중 노드 장애 전환을 직접 실험한 결과는 아니다.</p>
     </Section>
-    <details className="my-8 rounded-xl border border-border p-5"><summary className="cursor-pointer font-semibold">심화 · 변경 반영을 담당하는 실제 함수</summary>
+    <details className="my-8 rounded-xl border border-border p-5"><summary className="cursor-pointer font-semibold">예약 변경을 반영하는 C 함수</summary>
       <div className="prose-doc"><table><thead><tr><th>함수</th><th>역할</th></tr></thead><tbody>
         <tr><td>InvalidateJobCache</td><td>cron.job 관계의 캐시 무효화 요청</td></tr><tr><td>InvalidateJobCacheCallback</td><td>CronJobCacheValid를 false로 표시</td></tr><tr><td>RefreshTaskHash</td><td>예약을 다시 읽고 task의 활성 여부·초 간격 등을 반영</td></tr>
       </tbody></table><p><a href="https://github.com/citusdata/pg_cron/blob/v1.6.8/src/job_metadata.c#L805-L835">job_metadata.c의 캐시 무효화</a> · <a href="https://github.com/citusdata/pg_cron/blob/v1.6.8/src/task_states.c#L77-L115">task_states.c의 새 예약 반영</a></p></div>

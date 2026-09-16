@@ -20,7 +20,7 @@ export default function Source() {
       </tbody></table>
       <p>코드의 화살표 <code>task-&gt;state</code>는 ‘task가 가리키는 구조체의 state 필드’를 읽는 C 문법이다. <code>&amp;worker</code>는 구조체가 있는 주소를 함수에 전달한다. 둘 다 새로운 프로세스를 만드는 문법은 아니다.</p>
     </Section>
-    <Section title="1. _PG_init은 누가, 언제, 어디서 호출하나?">
+    <Section title="1. PostgreSQL이 _PG_init을 호출하는 시점">
       <p>pg_cron은 실행 파일이 아니라 서버가 로드하는 C 공유 라이브러리다. PostgreSQL의 라이브러리 로더는 그 안에 _PG_init이라는 심볼이 있으면 호출한다. 사용자가 SQL로 호출하는 함수도, 잡마다 실행되는 함수도 아니다.</p>
       <CodeBlock language="c" caption={<a href="https://github.com/postgres/postgres/blob/REL_16_STABLE/src/backend/utils/fmgr/dfmgr.c#L287-L289">PostgreSQL 16 · dfmgr.c:287–289 · 로더 원문</a>}>{`PG_init = (PG_init_t) dlsym(file_scanner->handle, "_PG_init");
 if (PG_init)
@@ -29,7 +29,7 @@ if (PG_init)
       <SourceExcerpt name="init" />
       <p>process_shared_preload_libraries_in_progress가 거짓이면 오류를 낸다. IsBinaryUpgrade 분기는 업그레이드용 예외다. 평소 CREATE EXTENSION만 실행해서 상주 스케줄러를 시작할 수 없는 이유가 여기에 있다. 초기화 중에는 설정 변수와 캐시 무효화 콜백도 등록한다.</p>
     </Section>
-    <Section title="2. PgCronLauncherMain은 갑자기 호출되는 함수가 아니다">
+    <Section title="2. PgCronLauncherMain이 호출되는 경로">
       <p>_PG_init의 아래쪽에서 BackgroundWorker 구조체에 ‘어떤 라이브러리의 어떤 함수를 새 프로세스의 시작점으로 쓸지’를 적는다. PgCronLauncherMain이라는 문자열이 그 연결 고리다.</p>
       <p>‘초기화 함수 안에서 launcher 함수를 호출한다’로 읽으면 실행 위치를 놓치게 된다. 먼저 시작 방법을 등록하고, 나중에 PostgreSQL이 별도 프로세스를 생성한다. 그 새 프로세스에서 등록한 함수가 시작된다.</p>
       <SourceExcerpt name="register" />

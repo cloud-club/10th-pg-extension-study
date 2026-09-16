@@ -1,6 +1,6 @@
 # pg_cron lab 01 — preload·단일 메타데이터 DB
 
-Docker Engine + Compose v2가 실행 중이어야 한다. API lab은 호스트 Python 3도 필요하다.
+Docker Engine과 Compose v2가 실행 중이어야 한다.
 처음 빌드에는 네트워크와 수 분이 필요하며 이후는 캐시를 사용한다.
 
 1. SHOW로 preload와 cron.database_name 확인 → study에서 확장 생성.

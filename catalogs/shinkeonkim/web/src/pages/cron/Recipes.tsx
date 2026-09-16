@@ -4,8 +4,8 @@ import { Ref } from '@/components/common/Ref'
 
 export default function Recipes() {
   return <>
-    <PageHeader eyebrow="Week 03 · 활용 조사" title="주기적인 SQL로 만들 수 있는 것들" lede="각 예제에서 먼저 반복 작업이 생기는 이유를 보고, SQL 한 회차가 무엇을 바꾸는지 살펴본다. pg_cron은 시각을 정하고, 처리량·잠금·실패 복구는 업무 SQL과 연계 도구가 결정한다." />
-    <Section title="pg_cron은 SQL만 실행한다면 어디까지 응용할 수 있을까?">
+    <PageHeader eyebrow="Week 03 · 활용 사례" title="반복 SQL로 구성하는 일곱 가지 작업" lede="각 사례에서 반복 실행이 필요한 이유, 한 회차가 변경하는 데이터와 운영 시 주의점을 설명한다. pg_cron은 실행 시각을 관리하고, 처리량·잠금·실패 복구는 업무 SQL과 연계 도구가 결정한다." />
+    <Section title="활용 사례 요약">
       <p>pg_cron이 직접 예약하는 명령은 SQL이다. 하지만 SQL은 SELECT로 조회만 하는 언어가 아니다. 데이터를 바꾸거나, 여러 업무 단계를 담은 함수·프로시저를 호출하고, 다른 확장의 기능을 실행할 수도 있다. pg_cron은 ‘언제 실행할지’를 맡고, 그 SQL이 ‘무엇을 할지’를 결정한다.</p>
       <table><thead><tr><th>하고 싶은 일</th><th>실제 작업 담당</th><th>아래 설명</th></tr></thead><tbody>
         <tr><td>대시보드 매출 집계를 갱신</td><td>PostgreSQL의 저장된 집계 갱신</td><td><Ref to="/pg-cron/recipes#refresh">1. 집계 갱신</Ref></td></tr>

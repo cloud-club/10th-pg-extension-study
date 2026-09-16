@@ -18,7 +18,7 @@ const repetitions = Math.min(...cases.map(name => data.capacity.filter(row => ro
 
 export default function Experiments() {
   return <>
-    <PageHeader eyebrow="Week 03 · 직접 실행한 실험" title="가설을 세우고 10회씩 다시 측정한 pg_cron 실험" lede="같은 잡의 직렬화, 동시 실행 한도, 큐 중복 처리, 실패 트랜잭션을 독립된 임시 DB에서 반복했다. 범위와 평균을 함께 보며 한 번의 우연한 결과로 결론내리지 않는다." tags={[{label:`각 조건 ${repetitions}회`}, {label:'pg_cron 1.6.8'}, {label:'PostgreSQL 16.15'}]} />
+    <PageHeader eyebrow="Week 03 · 반복 실험" title="가설과 반복 측정으로 확인한 pg_cron 동작" lede="같은 잡의 직렬 실행, 동시 실행 한도, 큐 중복 처리와 실패 트랜잭션을 독립된 임시 DB에서 반복했다. 각 조건의 범위, 평균과 표준편차를 함께 제시한다." tags={[{label:`각 조건 ${repetitions}회`}, {label:'pg_cron 1.6.8'}, {label:'PostgreSQL 16.15'}]} />
     <Section title="무엇을 확인했나?">
       <table><thead><tr><th>궁금한 점</th><th>확인한 결과</th><th>이어서 읽기</th></tr></thead><tbody>
         <tr><td>같은 잡도 동시에 여러 번 실행될까?</td><td>같은 잡의 회차는 겹치지 않았다. 다른 잡은 함께 실행됐다.</td><td><Ref to="/pg-cron/experiments#capacity">동시 실행 비교</Ref></td></tr>
@@ -27,7 +27,7 @@ export default function Experiments() {
       </tbody></table>
       <p>실험 03의 세 조건과 실험 04를 각각 {repetitions}회 새 컨테이너에서 실행했다. 회차별 상세 JSON과 서버 로그는 재현할 때 로컬 <code>results/</code>에 생성되며 Git에는 넣지 않는다. 웹에는 검토에 필요한 반복별 요약만 게시한다.</p>
     </Section>
-    <Section title="먼저 구분할 숫자 두 가지">
+    <Section title="측정 지표 두 가지">
       <table><thead><tr><th>지표</th><th>뜻</th><th>예시</th></tr></thead><tbody>
         <tr><td>최대 동시 실행 수</td><td>같은 순간에 겹쳐 실행된 작업의 최대 개수</td><td>작업 두 개가 함께 실행 중이면 2</td></tr>
         <tr><td>완료 작업 수</td><td>실행을 마치고 결과를 DB에 저장한 회차의 개수</td><td>두 작업을 세 번씩 끝냈다면 총 6</td></tr>
@@ -64,13 +64,13 @@ export default function Experiments() {
         <tr><td>업무 함수의 12초 접수 제한 제거</td><td>접수 종료 때문에 결과가 멈춘 것인지 구분</td></tr>
         <tr><td>약 6초 간격으로 세 번 조회, 전체를 10회 반복</td><td>결과 증가와 실제 실행 프로세스를 반복 관찰</td></tr>
       </tbody></table>
-      <table><thead><tr><th>대략적인 시점</th><th>누적 완료 수<br/>{data.diagnostics.length}회 범위·평균·표준편차</th><th>쉽게 읽기</th></tr></thead><tbody>
+      <table><thead><tr><th>대략적인 시점</th><th>누적 완료 수<br/>{data.diagnostics.length}회 범위·평균·표준편차</th><th>확인할 내용</th></tr></thead><tbody>
         <tr><td>6초</td><td>{rangeMean(data.diagnostics.map(row=>row.committed[0]))}</td><td>처음 일부 작업은 끝났다.</td></tr>
         <tr><td>12초</td><td>{rangeMean(data.diagnostics.map(row=>row.committed[1]))}</td><td>다음 관찰까지 완료 수가 얼마나 늘었는지 본다.</td></tr>
         <tr><td>18초</td><td>{rangeMean(data.diagnostics.map(row=>row.committed[2]))}</td><td>시작 시간 초과 뒤 일부 작업이 다시 진행되는지 본다.</td></tr>
       </tbody></table>
       <ul><li>마지막 스냅샷의 <code>job startup timeout</code> 수는 {rangeMean(data.diagnostics.map(row=>row.startup_timeouts))}였다. 작업 시작 준비를 정해진 시간 안에 마치지 못했다는 뜻이다.</li><li>30번의 시점 조회 중 실행용 client backend가 보인 시점은 {data.diagnostics.reduce((sum,row)=>sum+row.client_backend_snapshots,0)}번이었다. 나머지 시점에는 launcher만 보였지만 이력에는 connecting이 남았다.</li><li>한 번에 등록해도 정체가 남았다. 따라서 순차 등록만으로 현상을 설명할 수 없었다.</li></ul>
-      <details className="my-6 rounded-xl border border-border p-4"><summary className="cursor-pointer font-semibold">심화: 코드에서 의심한 부분과 아직 하지 않은 검증</summary>
+      <details className="my-6 rounded-xl border border-border p-4"><summary className="cursor-pointer font-semibold">코드에서 세운 원인 가설과 남은 검증</summary>
         <table><thead><tr><th>구분</th><th>내용</th></tr></thead><tbody>
           <tr><td>원인 가설</td><td>아직 시작하지 못한 대기 잡이 상태 확인 대상 수에 포함되어, 실제 연결 중인 잡을 확인하는 순서가 밀릴 수 있다.</td></tr>
           <tr><td>분석 위치</td><td>PollForTasks에서 pending이 있는 WAITING task를 fd=-1로 포함하는 경로</td></tr>

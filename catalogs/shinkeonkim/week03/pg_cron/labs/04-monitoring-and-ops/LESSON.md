@@ -1,6 +1,6 @@
 # pg_cron lab 04 — 직렬화·권한·운영
 
-Docker Engine + Compose v2가 실행 중이어야 한다. API lab은 호스트 Python 3도 필요하다.
+Docker Engine과 Compose v2가 실행 중이어야 한다.
 처음 빌드에는 네트워크와 수 분이 필요하며 이후는 캐시를 사용한다.
 
 1. 3초 잡의 완료·다음 시작 시각으로 동일 jobid의 겹침이 없는지 확인한다.

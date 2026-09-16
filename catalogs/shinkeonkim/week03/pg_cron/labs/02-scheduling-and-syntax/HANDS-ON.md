@@ -1,4 +1,4 @@
-# pg_cron lab 02 - 직접 해보기
+# Lab 02 · 수동 실습
 
 ```bash
 ./run.sh up
@@ -7,7 +7,7 @@
 
 ---
 
-## STEP 1 - cron 문법: 초 단위, 매월 마지막 날
+## 1. 초 간격과 매월 마지막 날 예약
 
 ```sql
 CREATE EXTENSION IF NOT EXISTS pg_cron;
@@ -20,10 +20,10 @@ SELECT cron.schedule('end-of-month', '0 12 $ * *', $$SELECT 'payroll'$$);  -- $ 
 
 ---
 
-## STEP 2 - 이름 없이 등록하기 (그리고 없는 오버로드 확인)
+## 2. 이름 없는 예약과 함수 인자 확인
 
 ```sql
-SELECT cron.schedule('SELECT pg_catalog.now()');  -- 1개 인자 - 에러가 난다
+SELECT cron.schedule('SELECT pg_catalog.now()');  -- 1인자 함수가 없어 오류 발생
 ```
 ```
 ERROR:  function cron.schedule(unknown) does not exist
@@ -38,11 +38,11 @@ SELECT jobid, jobname AS 이름, schedule, database AS DB, active
 FROM   cron.job ORDER BY jobid;
 ```
 
-이름을 안 주면 `jobname` 이 `NULL` 입니다.
+이름을 지정하지 않으면 `jobname`은 `NULL`이다.
 
 ---
 
-## STEP 3 - 다른 데이터베이스에 스케줄링
+## 3. 다른 데이터베이스의 SQL 예약
 
 ```sql
 SELECT cron.schedule_in_database(
@@ -50,7 +50,7 @@ SELECT cron.schedule_in_database(
        );
 
 SELECT pg_sleep(5);
-SELECT count(*) FROM heartbeat;   -- fast-tick 이 백그라운드에서 실제로 늘려놨다
+SELECT count(*) FROM heartbeat;   -- fast-tick이 추가한 행 확인
 ```
 
 ```sql
@@ -58,11 +58,11 @@ SELECT jobid, database, status, left(command, 25) AS 명령
 FROM   cron.job_run_details WHERE database IN ('study', 'otherdb') ORDER BY runid DESC LIMIT 8;
 ```
 
-`cron.job` 자체는 `study` 에만 있지만, 실행 기록에는 `otherdb` 잡도 함께 남습니다.
+`cron.job`은 `study`에만 있지만 `otherdb`에서 실행한 회차도 이력에 남는다.
 
 ---
 
-## STEP 4 - 잡 수정: `cron.alter_job()`
+## 4. `cron.alter_job()`으로 예약 수정
 
 ```sql
 SELECT jobid FROM cron.job WHERE jobname = 'fast-tick' \gset target_
@@ -79,13 +79,13 @@ SELECT jobid, jobname, schedule, active FROM cron.job WHERE jobid = :target_jobi
 | | |
 |---|---|
 | 문법 | 표준 5필드 + `[1-59] seconds`(1.5+) + `$`(매월 마지막 날, 1.6+) |
-| 시그니처 | `(schedule, command)` 또는 `(job_name, schedule, command)` - 1인자 오버로드는 없다 |
-| 다른 DB | `cron.schedule_in_database()` - `cron.job` 은 여전히 한 곳에만 있다 |
-| 수정 | `cron.alter_job()` - unschedule 후 재등록할 필요 없음 |
+| 함수 형식 | `(schedule, command)` 또는 `(job_name, schedule, command)`. 1인자 함수는 없음 |
+| 다른 DB | `cron.schedule_in_database()`를 사용해도 예약은 관리 DB의 `cron.job`에 저장 |
+| 수정 | `cron.alter_job()`을 사용하므로 삭제 후 재등록할 필요 없음 |
 
 ## 다음 단계
 
 - [`../03-execution-model-and-concurrency/HANDS-ON.md`](../03-execution-model-and-concurrency/HANDS-ON.md)
-- 종합 카탈로그 문서: [`../../README.md`](../../README.md)
+- 카탈로그 문서: [`../../README.md`](../../README.md)
 
-자동 검증과 별도로 수동 절차를 처음부터 실행하려면 `./run.sh down` 후 `./run.sh up`을 사용합니다.
+수동 절차를 처음부터 다시 실행하려면 `./run.sh down` 후 `./run.sh up`을 사용한다.

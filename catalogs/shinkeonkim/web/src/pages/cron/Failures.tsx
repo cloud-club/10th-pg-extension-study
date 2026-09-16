@@ -20,7 +20,7 @@ export default function Failures() {
 10:05  runid=42 실행 → 원래 시간표가 만든 새로운 회차`}</CodeBlock>
       <p>10:05 실행은 10:00 실패의 두 번째 시도가 아니다. 시간표가 원래 만들기로 한 다음 회차다. 잡이 비활성화되거나 제거되지 않았다면 이전 회차의 성공·실패와 관계없이 다음 예약 시각을 계속 평가한다.</p>
     </Section>
-    <Section title="먼저 답부터 확인한다">
+    <Section title="실패 회차의 처리 결과">
       <table><thead><tr><th>질문</th><th>동작</th></tr></thead><tbody>
         <tr><td>한 회차의 SQL이 오류를 내면?</td><td>그 회차를 failed로 끝내고 오류 문장을 return_message에 기록한다.</td></tr>
         <tr><td>다음 예약 시각에도 실행하나?</td><td>잡이 active 상태라면 새 runid로 다음 회차를 시도한다.</td></tr>

@@ -5,13 +5,13 @@ import { Clotho } from '@/components/viz/Clotho'
 
 export default function About() {
   return <>
-    <PageHeader eyebrow="Week 03 · pg_cron 개요" title="DB에 쌓이는 일을 정해진 시간에 처리한다" lede="pg_cron은 PostgreSQL 안에 실행 일정을 저장하고, 시간이 되면 SQL을 별도 세션에서 실행하는 스케줄러다. 만료 데이터 정리나 집계 갱신처럼 ‘DB에서 끝나는 반복 작업’을 애플리케이션과 분리해 운영할 때 사용한다." />
-    <Section title="이 자료는 어떤 순서로 읽으면 될까?">
-      <ol><li><strong>무엇에 쓰는지:</strong> 이 페이지에서 첫 예약을 실행하고, <Ref to="/pg-cron/recipes">활용처 전체 개요</Ref>에서 내 작업과 비슷한 사례를 찾는다.</li><li><strong>처음 보는 설정과 문법:</strong> <Ref to="/pg-cron/shared-preload-libraries">shared_preload_libraries</Ref>와 <Ref to="/pg-cron/dollar-quoting">$$ 문자열 문법</Ref>을 먼저 읽는다.</li><li><strong>어떻게 동작하는지:</strong> <Ref to="/pg-cron/storage">예약 테이블</Ref> → <Ref to="/pg-cron/schedules">예약 저장·수정</Ref> → <Ref to="/pg-cron/processes">프로세스 기초</Ref> → <Ref to="/pg-cron/background-workers">Background worker</Ref> → <Ref to="/pg-cron/max-worker-processes">worker 수의 한도</Ref> → <Ref to="/pg-cron/modes">실행 모드</Ref> 순서로 읽는다.</li><li><strong>운영과 확인:</strong> <Ref to="/pg-cron/operations">운영 점검</Ref> 뒤에 필요한 경우 <Ref to="/pg-cron/source">실제 코드</Ref>와 <Ref to="/pg-cron/experiments">실험 결과</Ref>를 살펴본다.</li></ol>
+    <PageHeader eyebrow="Week 03 · pg_cron 개요" title="반복 SQL을 정해진 시각에 실행한다" lede="pg_cron은 PostgreSQL에 일정을 저장하고 예약 시각마다 SQL을 실행한다. 만료 데이터 정리나 집계 갱신처럼 DB 안에서 끝나는 반복 작업을 애플리케이션과 분리할 때 사용한다." />
+    <Section title="권장 학습 순서">
+      <ol><li><strong>사용 여부 판단:</strong> <Ref to="/pg-cron/when-to-use">이럴 때 pg_cron을 쓴다</Ref>의 네 가지 질문을 확인한다.</li><li><strong>활용 사례:</strong> <Ref to="/pg-cron/recipes">활용 사례</Ref>에서 작업 유형과 주의점을 확인한다.</li><li><strong>설정과 문법:</strong> <Ref to="/pg-cron/shared-preload-libraries">shared_preload_libraries</Ref>와 <Ref to="/pg-cron/dollar-quoting">$$ 문자열 문법</Ref>을 읽는다.</li><li><strong>실행 구조:</strong> <Ref to="/pg-cron/storage">예약 테이블</Ref> → <Ref to="/pg-cron/schedules">예약 저장·수정</Ref> → <Ref to="/pg-cron/processes">프로세스 기초</Ref> → <Ref to="/pg-cron/background-workers">Background worker</Ref> → <Ref to="/pg-cron/max-worker-processes">worker 수의 한도</Ref> → <Ref to="/pg-cron/modes">실행 모드</Ref> 순서로 읽는다.</li><li><strong>운영과 검증:</strong> <Ref to="/pg-cron/operations">운영 점검</Ref>, <Ref to="/pg-cron/source">C 소스</Ref>, <Ref to="/pg-cron/experiments">실험 결과</Ref>를 확인한다.</li></ol>
     </Section>
     <Section id="why" title="1. 어떤 문제 때문에 필요한가?">
       <p>주문 서비스가 매번 대시보드를 열 때마다 하루 매출을 다시 집계한다고 해보자. 데이터가 늘면 사용자 요청이 무거워진다. 집계 결과를 별도로 저장하고 5분마다 갱신하면 조회 비용을 줄일 수 있지만, 이제 ‘누가 5분마다 갱신 SQL을 실행할지’를 정해야 한다.</p>
-      <p>앱 안의 타이머는 앱 재배포 때 함께 중단되고, 앱 인스턴스가 여러 개면 같은 작업을 중복 실행할 수 있다. OS cron이나 외부 작업 큐로 관리할 수도 있다. SQL 하나로 끝나는 작업이라면 pg_cron에 일정을 두어 DB와 함께 관리하는 선택이 가능하다.</p>
+      <p>앱 안의 타이머는 앱 재배포 때 중단되고, 앱 인스턴스가 여러 개면 같은 작업이 중복 실행될 수 있다. SQL 하나로 끝나는 작업은 pg_cron에 등록해 DB에서 일정과 실행 이력을 함께 관리할 수 있다.</p>
       <table><thead><tr><th>반복되는 일</th><th>pg_cron으로 예약할 SQL</th><th>얻으려는 효과</th></tr></thead><tbody>
         <tr><td>대시보드 집계가 오래 걸림</td><td>REFRESH MATERIALIZED VIEW</td><td>조회 시마다 집계하지 않고 갱신 간격만큼의 지연 허용</td></tr>
         <tr><td>오래된 이벤트가 계속 쌓임</td><td>만료 행을 제한된 수만큼 DELETE</td><td>보존 정책 적용과 회차별 작업량 제한</td></tr>
@@ -22,7 +22,7 @@ export default function About() {
     </Section>
     <Section id="tradeoffs" title="2. pg_cron을 선택했을 때의 장점과 단점">
       <h3>장점</h3>
-      <table><thead><tr><th>장점</th><th>실제로 얻는 효과</th></tr></thead><tbody>
+      <table><thead><tr><th>장점</th><th>효과</th></tr></thead><tbody>
         <tr><td>예약과 SQL을 DB에서 함께 관리</td><td><code>cron.job</code>에서 시간표·명령·실행 사용자를 SQL로 조회하고 변경할 수 있다.</td></tr>
         <tr><td>애플리케이션과 실행 수명 분리</td><td>예약을 커밋한 뒤 앱이나 psql이 종료돼도 PostgreSQL 서버가 정상 동작하면 실행을 계속한다.</td></tr>
         <tr><td>같은 jobid의 실행 직렬화</td><td>이전 회차가 끝나기 전에 같은 잡의 SQL을 동시에 하나 더 실행하지 않는다.</td></tr>
@@ -35,7 +35,7 @@ export default function About() {
         <tr><td>자동 재시도 정책 없음</td><td>실패 회차의 횟수 제한, backoff와 최종 격리를 직접 구현해야 한다. 다음 정규 회차는 retry가 아니다.</td><td><Ref to="/pg-cron/failures">실패와 재시도</Ref></td></tr>
         <tr><td>서버 중단 중 실행 회차 누락</td><td>예약 정의는 남지만, PostgreSQL이 꺼진 동안 지난 회차를 재시작 후 몰아서 실행하거나 실패 이력으로 만들지 않는다.</td><td><Ref to="/pg-cron/downtime">놓친 예약</Ref></td></tr>
         <tr><td>DB와 자원을 함께 사용</td><td>무거운 배치가 서비스 쿼리와 CPU·I/O·잠금·연결 또는 worker 슬롯을 두고 경쟁한다.</td><td><Ref to="/pg-cron/operations">동시성과 운영</Ref></td></tr>
-        <tr><td>설치와 재시작 필요</td><td>서버 패키지와 shared_preload_libraries 설정이 필요하다. 사용할 수 없는 관리형 DB도 있다.</td><td><Ref to="/pg-cron/shared-preload-libraries">preload 기초</Ref></td></tr>
+        <tr><td>설치와 재시작 필요</td><td>자체 서버는 패키지와 shared_preload_libraries 설정이 필요하다. 관리형 서비스 중 Heroku Postgres와 Lakebase는 공식 pg_cron 호환성 표에서 미지원이다.</td><td><a href="#managed-services">서비스별 지원 표</a></td></tr>
         <tr><td>실행 모드별 추가 설정</td><td>기본 모드는 연결 인증, worker 모드는 max_worker_processes 용량을 준비해야 한다.</td><td><Ref to="/pg-cron/modes">두 실행 모드</Ref></td></tr>
         <tr><td>알림·이력 보존 자동화 없음</td><td>실패 알림을 별도로 붙여야 하고, 계속 쌓이는 실행 이력의 정리 정책도 운영자가 정한다.</td><td><Ref to="/pg-cron/failures#history">실패 이력</Ref></td></tr>
         <tr><td>분산 실행 조정 기능 없음</td><td>독립된 여러 primary가 같은 예약을 가지면 각각 실행할 수 있다. 전역 단일 실행과 리더 선출을 제공하지 않는다.</td><td><Ref to="/pg-cron/schedules">분산 환경</Ref></td></tr>
@@ -44,17 +44,30 @@ export default function About() {
       <p>SQL로 끝나고 다음 실행 때 미완료 구간을 안전하게 보충할 수 있는 반복 작업에는 장점이 크다. 정해진 시각의 실행 자체가 반드시 보장돼야 하거나 여러 시스템을 순서대로 제어해야 한다면 외부 스케줄러·작업 큐와 비교한다.</p>
       <p className="text-muted-foreground">근거: <a href="https://github.com/citusdata/pg_cron/tree/v1.6.8#readme">pg_cron v1.6.8 사용법·제약</a> · <a href="https://github.com/citusdata/pg_cron/blob/v1.6.8/src/pg_cron.c#L1790-L1862">실패 상태 처리 코드</a> · <a href="https://www.postgresql.org/docs/16/runtime-config-client.html#GUC-SHARED-PRELOAD-LIBRARIES">PostgreSQL preload 설정</a></p>
     </Section>
-    <Section id="fit" title="3. 어디에서 쓰고, 어디까지 맡기는가?">
+    <Section id="managed-services" title="3. 관리형 PostgreSQL 지원 범위">
+      <p><strong>표의 ○는 해당 서비스가 pg_cron을 제공한다는 뜻이다.</strong> 설치 방법과 실행 모드는 서비스마다 다르며, 목록에 없는 서비스의 지원을 뜻하지 않는다.</p>
+      <table><thead><tr><th>서비스</th><th>지원</th><th>설치·실행 조건</th></tr></thead><tbody>
+        <tr><td>AWS RDS / Aurora PostgreSQL</td><td>○</td><td>파라미터 그룹 설정과 재부팅이 필요하다. 버전·권한 조건은 서비스 문서를 따른다.</td></tr>
+        <tr><td>Azure Database for PostgreSQL</td><td>○</td><td>서비스가 허용한 확장 목록과 서버 파라미터로 활성화한다.</td></tr>
+        <tr><td>Google Cloud SQL</td><td>○ · 제약 있음</td><td><code>cloudsql.enable_pg_cron</code>을 켠다. Cloud SQL은 두 실행 모드 중 background worker 모드만 지원한다.</td></tr>
+        <tr><td>Supabase / Neon</td><td>○</td><td>대시보드나 SQL에서 서비스가 제공하는 방식으로 확장을 켠다.</td></tr>
+        <tr><td>Heroku Postgres</td><td>✕</td><td>Heroku가 제공하는 PostgreSQL 확장 목록에 pg_cron이 없으며, pg_cron 공식 표도 미지원으로 표시한다.</td></tr>
+        <tr><td>Lakebase</td><td>✕</td><td>pg_cron 공식 관리형 서비스 표에서 미지원으로 표시한다.</td></tr>
+      </tbody></table>
+      <p>관리형 DB에서는 운영체제 패키지나 <code>postgresql.conf</code>를 직접 만지지 않는다. 서비스가 pg_cron을 제공하면 파라미터 그룹, 플래그, 대시보드 같은 전용 절차를 사용한다. 따라서 ○는 “직접 설정할 수 있다”가 아니라 “그 서비스가 pg_cron을 제품 기능으로 허용한다”는 뜻이다.</p>
+      <p className="text-muted-foreground">지원 현황 확인일: 2026-09-16 · <a href="https://github.com/citusdata/pg_cron#managed-services">pg_cron 공식 Managed services 표</a> · <a href="https://devcenter.heroku.com/articles/heroku-postgres-extensions-postgis-full-text-search">Heroku 지원 확장 문서</a> · <a href="https://cloud.google.com/sql/docs/postgres/extensions">Cloud SQL 확장 문서</a></p>
+    </Section>
+    <Section id="fit" title="4. pg_cron과 업무 코드의 책임 범위">
       <p>PostgreSQL 확장을 설치할 수 있는 서버나 pg_cron을 지원하는 관리형 DB에서 쓴다. 앱 서버에 설치하는 라이브러리가 아니라 DB 서버에 로드하는 확장이다. 앱이 꺼져 있어도 DB가 정상 실행 중이면 예약은 진행된다.</p>
-      <table><thead><tr><th>pg_cron이 맡는 것</th><th>업무 SQL·운영자가 맡는 것</th></tr></thead><tbody>
+      <table><thead><tr><th>pg_cron의 역할</th><th>업무 SQL과 운영 설정의 역할</th></tr></thead><tbody>
         <tr><td>언제, 어느 DB에서, 어떤 사용자로 SQL을 실행할지</td><td>무엇을 지우거나 갱신할지, 적절한 인덱스와 배치 크기</td></tr>
         <tr><td>같은 jobid의 실행 직렬화와 실행 이력</td><td>다른 잡·앱과의 중복 방지, 오류 알림과 이력 보존</td></tr>
         <tr><td>다음 예약 시각에 다시 실행</td><td>실패한 항목의 재시도 횟수·백오프·격리 정책</td></tr>
       </tbody></table>
       <p>여러 외부 시스템의 의존성, 사람의 승인, 복잡한 재시도가 필요하면 작업 큐나 외부 오케스트레이터가 더 적합할 수 있다. 서버 장애 중 놓친 회차를 모두 복원하거나 업무 효과를 정확히 한 번 보장하는 기능은 아니다.</p>
     </Section>
-    <Section id="first-job" title="4. 설치와 첫 예약을 구분해서 따라 해보기">
-      <p>서버 준비가 끝난 환경이라면 CREATE EXTENSION pg_cron을 실행한 뒤 바로 예약 함수를 사용할 수 있다. 아래에 나오는 heartbeat 테이블은 pg_cron 설치에 필요한 테이블이 아니다. ‘예약한 INSERT가 정말 실행됐는지’ 눈으로 확인하려고 이 실습에서 만드는 결과 저장용 테이블이다.</p>
+    <Section id="first-job" title="5. 설치하고 첫 예약 실행하기">
+      <p>서버 설정을 마친 뒤 <code>CREATE EXTENSION pg_cron</code>을 실행하면 예약 함수를 사용할 수 있다. 아래 heartbeat 테이블은 예약한 INSERT의 실행 결과를 확인하기 위한 실습용 테이블이며 pg_cron 설치에는 필요하지 않다.</p>
       <h3>서버 관리자가 준비하는 부분</h3>
       <p>처음 설치하는 서버는 pg_cron 패키지 설치 → 서버 설정 → 재시작이 먼저다. 패키지는 pg_cron 코드 파일을 서버에 놓고, shared_preload_libraries는 서버 시작 때 그 코드를 읽으라는 설정이다. 재시작하면서 예약 시간을 확인하는 pg_cron launcher 프로세스가 시작된다. 이 서버 작업은 CREATE EXTENSION 한 줄이 대신하지 않는다.</p>
       <CodeBlock language="ini">{`# postgresql.conf · pg_cron 패키지 설치 후 서버 재시작
@@ -89,13 +102,13 @@ shared_preload_libraries = 'pg_stat_statements,pg_cron'`}</CodeBlock>
 <CodeBlock language="sql" output={" unschedule\n------------\n t\n(1 row)"} outputCaption={"예상 출력 · ID와 시각은 실행 환경에 따라 달라짐"}>{"SELECT cron.unschedule('intro-heartbeat');"}</CodeBlock>
       <p>t는 true, 즉 예약 제거 성공이다. 이미 저장된 tick 행은 남는다. 예약을 지우면 실행 중인 회차에도 취소를 요청할 수 있다.</p>
       <Clotho id="cron-lifecycle" />
-      <p>그림의 launcher는 pg_cron launcher를 줄여 부른 것이다. PostgreSQL 안에서 예약 시간을 살피는 별도 프로세스이며, INSERT 자체는 또 다른 실행 프로세스가 맡는다. 그림의 시간은 설명용이다.</p>
+      <p>그림의 launcher는 예약 시각을 확인하는 pg_cron launcher 프로세스다. INSERT는 회차마다 생성되는 실행 프로세스가 처리한다. 표시된 시각은 설명을 위한 예시다.</p>
     </Section>
     <Section title="예약을 바꾸거나 서버가 여러 대라면?">
       <p>예약은 cron.job 테이블에 저장된다. 수정이 커밋되면 pg_cron launcher가 메모리의 예약 정보를 다시 읽으므로, 일반적인 시간표·SQL 변경에 재시작은 필요하지 않다. 이미 실행 중인 SQL이 도중에 새 SQL로 바뀌는 것은 아니다.</p>
       <p><Ref to="/pg-cron/schedules">예약 저장·수정·분산 환경</Ref>에서 같은 이름의 예약 수정 예제, 커밋과 캐시 갱신 순서, 물리 복제·장애 전환·독립 노드의 차이를 설명한다.</p>
     </Section>
-    <Section title="5. 예약 문법: crontab처럼 다섯 칸을 읽는다">
+    <Section title="6. 예약 문법: crontab처럼 다섯 칸을 읽는다">
       <p>기본 시간 표현식은 OS의 crontab에서 쓰는 다섯 칸 형식과 같다. 왼쪽부터 ‘분, 시, 일, 월, 요일’이다. 다만 OS cron이 셸 명령을 실행하는 것과 달리 pg_cron은 SQL을 실행한다. OS crontab의 사용자 칸이나 셸 명령을 이 문자열에 붙이지 않는다.</p>
       <CodeBlock language="text">{`0   3   *   *   *
 분  시  일  월  요일
@@ -117,7 +130,7 @@ shared_preload_libraries = 'pg_stat_statements,pg_cron'`}</CodeBlock>
       <details className="my-6 rounded-xl border border-border p-4"><summary className="cursor-pointer font-semibold">추가 규칙: 날짜와 요일을 함께 지정하면?</summary>
         <p>기본값은 OR 조건이다. 예를 들어 0 9 1 * 1은 매월 1일 또는 매주 월요일 09:00에 실행한다. v1.6.8의 cron.dom_dow_and_logic으로 AND를 선택할 수 있다. 초 간격 문자열은 1~59초를 지원한다. 예약 시각을 계산하는 cron.timezone과 SQL 세션의 TimeZone 설정도 용도가 다르다.</p>
       </details>
-      <p>다음은 <Ref to="/pg-cron/recipes">어디에 활용할 수 있는지</Ref>를 살펴보고, <Ref to="/pg-cron/processes">프로세스 기초</Ref>로 넘어가면 된다. C 코드가 궁금할 때 <Ref to="/pg-cron/source">소스 분석</Ref>으로 넘어간다. 기준 버전은 <a href="https://github.com/citusdata/pg_cron/tree/v1.6.8">pg_cron v1.6.8</a>이다.</p>
+      <p><Ref to="/pg-cron/recipes">활용 사례</Ref>와 <Ref to="/pg-cron/processes">프로세스 구성</Ref>을 읽은 뒤, 구현이 궁금하면 <Ref to="/pg-cron/source">C 소스 분석</Ref>으로 이동한다. 분석 기준은 <a href="https://github.com/citusdata/pg_cron/tree/v1.6.8">pg_cron v1.6.8</a>이다.</p>
     </Section>
   </>
 }

@@ -130,12 +130,13 @@ export const SECTIONS: SectionDef[] = [
     hint: '왜 쓰는지와 첫 예약',
     pages: [
       { slug: 'about', title: '개요와 첫 예약', view: lazy(() => import('@/pages/cron/About')) },
-      { slug: 'recipes', title: '활용처 한눈에 보기', view: lazy(() => import('@/pages/cron/Recipes')) },
+      { slug: 'when-to-use', title: '이럴 때 pg_cron을 쓴다', hint: '4개 질문으로 빠르게 판단', view: lazy(() => import('@/pages/cron/WhenToUse')) },
+      { slug: 'recipes', title: '활용 사례', hint: '작업 유형별 SQL과 주의점', view: lazy(() => import('@/pages/cron/Recipes')) },
     ],
   },
   {
     week: 'week03', slug: 'cron-foundations', routeSlug: 'pg-cron', title: '기초 개념',
-    hint: '예약이 저장되고 실행되는 바탕',
+    hint: '예약 저장과 실행에 필요한 개념',
     pages: [
       { slug: 'shared-preload-libraries', title: 'shared_preload_libraries 기초', view: lazy(() => import('@/pages/cron/SharedPreloadLibraries')) },
       { slug: 'dollar-quoting', title: '$$ 문자열 문법', view: lazy(() => import('@/pages/cron/DollarQuoting')) },
@@ -159,11 +160,11 @@ export const SECTIONS: SectionDef[] = [
     ],
   },
   {
-    week: 'week03', slug: 'cron-internals', routeSlug: 'pg-cron', title: '심화·검증', accent: 'warn',
-    hint: 'C 코드와 직접 실행한 실험',
+    week: 'week03', slug: 'cron-internals', routeSlug: 'pg-cron', title: '구현과 검증', accent: 'warn',
+    hint: 'C 소스와 반복 실험',
     pages: [
       { slug: 'source-map', title: '소스 파일·함수 지도', view: lazy(() => import('@/pages/cron/SourceMap')) },
-      { slug: 'source', title: '심화 · 실제 C 코드', view: lazy(() => import('@/pages/cron/Source')) },
+      { slug: 'source', title: 'pg_cron C 코드 읽기', view: lazy(() => import('@/pages/cron/Source')) },
       { slug: 'experiments', title: '실험 질문과 결과', view: lazy(() => import('@/pages/cron/Experiments')) },
     ],
   },

@@ -6,7 +6,7 @@ import { SourceExcerpt } from './SourceExcerpt'
 
 export default function BackgroundWorkers() {
   return <>
-    <PageHeader eyebrow="Week 03 · 배경 지식" title="Background worker: 확장 코드를 별도 프로세스에서 실행하기" lede="PostgreSQL은 확장이 서버 안에서 계속 일하거나 필요할 때 작업하도록 프로세스 실행 기능을 제공한다. 이 기능이 background worker다. 먼저 사용자가 보는 역할을 이해하고, 뒤에서 개발자가 등록하는 방법을 살펴본다." />
+    <PageHeader eyebrow="Week 03 · 배경 지식" title="Background worker: 확장 코드를 실행하는 서버 프로세스" lede="PostgreSQL은 확장 코드가 서버 안에서 계속 실행되거나 필요할 때 시작될 수 있도록 background worker API를 제공한다. 사용자가 관찰하는 프로세스와 확장 개발자가 등록하는 방법을 차례로 설명한다." />
     <Section title="1. 어떤 문제를 해결하는 기능인가?">
       <p>일반 SQL 함수는 누군가 호출해야 실행된다. 그런데 pg_cron은 앱이 SQL을 보내지 않는 동안에도 시간을 확인해야 한다. PostgreSQL은 이런 확장이 자기 코드를 별도 프로세스에서 실행하도록 background worker API를 제공한다. API는 확장 개발자가 호출할 수 있는 C 함수와 자료구조의 모음이다.</p>
       <table><thead><tr><th>구성</th><th>누가 일을 시작하나?</th><th>예시</th></tr></thead><tbody>
@@ -16,7 +16,7 @@ export default function BackgroundWorkers() {
       </tbody></table>
       <p>background는 별도로 일을 맡는다는 뜻이다. 웹 서버나 스레드를 뜻하지 않는다. 각 worker는 OS 프로세스이고 자기 PID를 갖는다. 이 기능 자체에 cron 시간표나 자동 업무 재시도가 들어 있는 것은 아니다. 그런 동작은 확장이 구현한다.</p>
     </Section>
-    <Section title="2. PostgreSQL과 확장이 각각 맡는 일">
+    <Section title="2. PostgreSQL과 확장의 역할">
       <Diagram chart={`flowchart TD
         E["확장 개발자: 실행할 C 함수 작성"] --> R["시작 함수와 조건을 PostgreSQL에 등록"]
         R --> P["postmaster: worker 프로세스 시작·관리"]
@@ -50,7 +50,7 @@ GROUP BY backend_type ORDER BY backend_type;`}</CodeBlock>
       <p>worker 모드에서 잡이 실행 중이면 backend_type='pg_cron' 행도 나타날 수 있다. 기본 모드의 잡은 client backend라 이 쿼리에는 포함하지 않았다. <Ref to="/pg-cron/processes">전체 프로세스 관찰 예제</Ref>에서 함께 볼 수 있다.</p>
     </Section>
     <details className="my-8 rounded-xl border border-border p-5">
-      <summary className="cursor-pointer font-semibold">심화 · 확장 개발자가 구현하는 절차와 실제 코드</summary>
+      <summary className="cursor-pointer font-semibold">확장 개발 절차와 pg_cron 등록 코드</summary>
       <Section title="C 코드에서 실행 조건과 시작 함수를 등록한다">
         <ol><li>공유 라이브러리에 worker의 시작 함수를 작성한다.</li><li>BackgroundWorker 구조체에 함수 이름·라이브러리·시작 시점·재시작 정책을 채운다.</li><li>기동 시 등록 또는 동적 등록 API를 호출한다. 등록 성공과 실제 프로세스 시작은 구분한다.</li><li>worker 함수에서 신호 처리, 필요한 DB 연결, 반복 작업과 종료 정리를 구현한다.</li></ol>
         <SourceExcerpt name="register" />
@@ -59,7 +59,7 @@ GROUP BY backend_type ORDER BY backend_type;`}</CodeBlock>
         <p>직접 개발할 때에는 PostgreSQL 소스의 <a href="https://github.com/postgres/postgres/tree/REL_16_STABLE/src/test/modules/worker_spi">worker_spi 예제</a>를 참고할 수 있다. 이것은 C 확장 개발 자료이며 SQL 입력창에 붙여 넣는 설치 예제가 아니다.</p>
       </Section>
     </details>
-    <Section title="5. 여기서 다음으로 읽을 내용">
+    <Section title="5. 관련 설정과 실행 모드">
       <p>Background worker API의 역할을 알았다면 <Ref to="/pg-cron/max-worker-processes">서버 전체 worker 슬롯의 한도</Ref>를 먼저 확인하고 pg_cron이 잡을 실행하는 두 모드를 비교할 수 있다. 서버 중단, exactly-once와 분산 구성은 별도 운영 한계 페이지에서 사례와 함께 다룬다.</p>
       <p><a href="https://www.postgresql.org/docs/16/bgworker.html">PostgreSQL 16 공식 Background Worker 문서</a> · <Ref to="/pg-cron/max-worker-processes">max_worker_processes 기초</Ref> · <Ref to="/pg-cron/modes">pg_cron의 두 실행 모드</Ref> · <Ref to="/pg-cron/limits">장애·자원·분산 한계</Ref></p>
     </Section>

@@ -1,6 +1,6 @@
 # pg_cron lab 03 — 실행 모드·동시성 상한
 
-Docker Engine + Compose v2가 실행 중이어야 한다. API lab은 호스트 Python 3도 필요하다.
+Docker Engine과 Compose v2가 실행 중이어야 한다.
 처음 빌드에는 네트워크와 수 분이 필요하며 이후는 캐시를 사용한다.
 
 1. 3초 sleep 잡을 예약해 client backend / application_name=pg_cron을 확인한다.

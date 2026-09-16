@@ -2,20 +2,40 @@ import { PageHeader, Section } from '@/components/layout/PageHeader'
 import { CodeBlock } from '@/components/common/Code'
 import { Diagram } from '@/components/viz/Diagram'
 import { Ref } from '@/components/common/Ref'
+import { Callout } from '@/components/layout/Callout'
 import { SourceExcerpt } from './SourceExcerpt'
 
 export default function Modes() {
   return <>
-    <PageHeader eyebrow="Week 03 · 실행 모드" title="같은 SQL을 실행하는 두 경로" lede="두 모드 모두 pg_cron launcher가 예약 시간을 확인한다. 차이는 시간이 됐을 때 SQL을 일반 DB 연결로 보낼지, PostgreSQL 내부 worker 프로세스에서 실행할지다." tags={[{label:'입문 설명'}, {label:'선택표'}, {label:'C 코드 심화'}]} />
+    <PageHeader eyebrow="Week 03 · 실행 모드" title="같은 SQL을 실행하는 두 경로" lede="두 모드 모두 pg_cron launcher가 예약 시간을 확인한다. 예약 시각이 되면 기본 모드는 일반 DB 연결을 만들고, worker 모드는 PostgreSQL background worker를 시작한다." tags={[{label:'기본 개념'}, {label:'선택 기준'}, {label:'C 코드'}]} />
     <p className="text-muted-foreground">프로세스가 낯설다면 <Ref to="/pg-cron/processes">프로세스 기초</Ref>와 <Ref to="/pg-cron/background-workers">Background worker</Ref>를 먼저 읽는다.</p>
 
-    <Section title="1. 먼저 변하지 않는 부분과 바뀌는 부분">
-      <table><thead><tr><th>구분</th><th>두 모드에서의 동작</th></tr></thead><tbody>
-        <tr><td>항상 존재</td><td><strong>pg_cron launcher</strong>가 cron.job을 읽고 예약 시간을 계산한다.</td></tr>
-        <tr><td>바뀌는 부분</td><td>한 회차의 SQL을 실행할 프로세스를 만드는 경로</td></tr>
-        <tr><td>항상 적용</td><td>잡의 database·username 권한, 같은 jobid 직렬화, cron.max_running_jobs</td></tr>
+    <Callout kind="tip" title="두 모드 모두 회차별 실행 프로세스를 만든다">
+      <p>예약 한 회차가 시작될 때마다 <strong>SQL을 실행할 별도 PostgreSQL 서버 프로세스 하나</strong>가 생긴다. 기본 모드는 일반 접속을 받아 <strong>client backend</strong>를 만들고, worker 모드는 PostgreSQL의 background worker API로 <strong>SQL 실행 worker</strong>를 만든다. 둘 다 스레드나 별도 웹 서버가 아니다.</p>
+    </Callout>
+
+    <Section title="1. 공통 출발점 하나, 실행 프로세스를 만드는 경로 두 개">
+      <p>PostgreSQL을 시작하면 <strong>postmaster</strong>가 상주하는 <strong>pg_cron launcher</strong> 하나를 띄운다. launcher는 <code>cron.job</code>을 읽고 “지금 실행할 잡이 있는가?”를 계속 확인한다. 예약 시간이 되면 launcher 자신이 업무 SQL을 실행하지 않고, 아래 두 경로 중 하나로 실행 담당 프로세스를 요청한다.</p>
+      <Diagram chart={`flowchart TD
+        P[postmaster<br/>PostgreSQL 부모 프로세스] -->|서버 시작 때 1개| L[pg_cron launcher<br/>예약 확인·상태 관리]
+        J[(cron.job)] -->|일정 읽기| L
+        L -->|기본값: libpq 접속| C[client backend<br/>한 회차 SQL 실행]
+        L -->|worker 옵션: 동적 worker 요청| W[pg_cron worker<br/>한 회차 SQL 실행]
+        C --> R[(업무 테이블)]
+        W --> R
+      `} caption="launcher까지는 공통이다. 갈라지는 지점은 한 회차의 SQL 실행 프로세스를 만드는 방법이다." />
+      <table><thead><tr><th>비교 항목</th><th>기본 libpq 모드</th><th>background worker 모드</th></tr></thead><tbody>
+        <tr><td>누가 예약을 확인하나</td><td colSpan={2}>같은 pg_cron launcher</td></tr>
+        <tr><td>회차마다 생기는 것</td><td>일반 DB 접속을 담당하는 client backend 프로세스</td><td>동적으로 등록한 pg_cron worker 프로세스</td></tr>
+        <tr><td>어떻게 생기나</td><td>launcher의 libpq 접속을 postmaster가 수락</td><td>launcher의 worker 요청을 postmaster가 수락</td></tr>
+        <tr><td>SQL 전달 경로</td><td>일반 PostgreSQL 연결 프로토콜</td><td>동적 공유 메모리</td></tr>
+        <tr><td>주요 자원 한도</td><td><code>max_connections</code></td><td><code>max_worker_processes</code></td></tr>
+        <tr><td>접속 인증</td><td><code>pg_hba.conf</code>, 비밀번호·로컬 인증 필요</td><td>libpq 접속 인증은 없음</td></tr>
+        <tr><td>DB 객체 권한</td><td colSpan={2}>잡의 username 권한을 똑같이 검사</td></tr>
+        <tr><td>같은 jobid 직렬화</td><td colSpan={2}>똑같이 적용. 앞 회차가 끝날 때까지 다음 회차 대기</td></tr>
+        <tr><td>종료 시점</td><td colSpan={2}>해당 회차의 SQL과 결과 처리가 끝나면 실행 프로세스 종료</td></tr>
       </tbody></table>
-      <p><strong>postmaster</strong>는 PostgreSQL의 부모 프로세스, <strong>launcher</strong>는 예약 관리자, <strong>실행 프로세스</strong>는 한 회차의 SQL을 수행하는 프로세스다. ‘worker 모드’는 launcher를 켜는 옵션이 아니라 마지막 실행 프로세스를 고르는 옵션이다.</p>
+      <p>‘worker 모드’는 launcher를 새로 하나 더 켜는 옵션이 아니다. 항상 있던 launcher가 <strong>마지막 실행 담당자를 만드는 방법</strong>만 바꾼다.</p>
     </Section>
 
     <Section id="libpq" title="2. 기본 libpq 모드: 새 DB 연결로 실행한다">
@@ -37,6 +57,7 @@ export default function Modes() {
         <tr><td>max_connections의 여유</td><td>새 연결을 받지 못함</td></tr>
         <tr><td>잡 username의 DB·객체 권한</td><td>permission denied로 회차 실패</td></tr>
       </tbody></table>
+      <p><code>pg_stat_activity</code>에서는 일반 애플리케이션 연결과 같은 <code>client backend</code>로 보이며, <code>application_name</code>이 <code>pg_cron</code>이라 어느 연결인지 구분할 수 있다.</p>
     </Section>
 
     <Section id="worker" title="3. worker 모드: 내부 작업 프로세스로 실행한다">
@@ -60,6 +81,7 @@ export default function Modes() {
         <tr><td>잡 username의 DB·객체 권한</td><td>permission denied로 회차 실패</td></tr>
       </tbody></table>
       <p>네트워크 접속 인증은 거치지 않지만 사용자 권한 검사는 그대로 적용된다.</p>
+      <p><code>pg_stat_activity</code>에서는 <code>backend_type = 'pg_cron'</code>인 프로세스로 구분된다. 이 모드를 지원하지 않는 관리형 서비스도 있으며, Cloud SQL처럼 반대로 이 모드만 허용하는 서비스도 있다.</p>
     </Section>
 
     <Section title="4. 내 환경에서는 어떤 모드를 고를까?">
@@ -68,6 +90,7 @@ export default function Modes() {
         <tr><td>잡용 접속 비밀번호 관리가 어려움</td><td>worker</td><td>서비스 지원 여부, max_worker_processes 여유</td></tr>
         <tr><td>다른 확장·병렬 쿼리가 worker를 많이 사용</td><td>libpq부터 비교</td><td>worker 사용량과 앱 연결 여유를 함께 측정</td></tr>
         <tr><td>짧은 잡을 매우 자주 실행</td><td>두 모드 측정</td><td>예약 시각부터 업무 커밋까지 지연과 실패율</td></tr>
+        <tr><td>관리형 PostgreSQL 사용</td><td>서비스가 허용한 모드</td><td>확장 문서의 실행 모드 제한. Cloud SQL은 worker 모드만 지원</td></tr>
       </tbody></table>
       <p>어느 모드가 항상 빠르다고 정할 수 없다. libpq는 연결·인증 비용, worker는 프로세스 기동·공유 메모리 비용이 있다. SQL 실행 시간이 길면 이 차이가 작게 보일 수 있다.</p>
     </Section>
@@ -81,7 +104,7 @@ export default function Modes() {
     </Section>
 
     <details className="my-10 rounded-xl border border-border p-5">
-      <summary className="cursor-pointer text-lg font-semibold">심화 · 실제 C 코드에서 두 경로가 갈리는 곳</summary>
+      <summary className="cursor-pointer text-lg font-semibold">C 코드에서 실행 경로가 나뉘는 지점</summary>
       <div className="mt-5 space-y-6">
         <div><h3>libpq 경로</h3><SourceExcerpt name="libpq" /><p><code>PQconnectStartParams</code>로 비동기 접속을 시작하고, 상태 기계가 <code>PQconnectPoll</code>·<code>PQsendQuery</code>·<code>PQgetResult</code>를 차례로 진행한다.</p></div>
         <div><h3>worker 등록 경로</h3><SourceExcerpt name="worker" /><p>동적 worker의 시작 함수는 상주 launcher 함수와 다른 <code>CronBackgroundWorker</code>다. <code>BGW_NEVER_RESTART</code>는 이 한 회차용 프로세스를 자동 재시작하지 않는다는 뜻이다.</p></div>
