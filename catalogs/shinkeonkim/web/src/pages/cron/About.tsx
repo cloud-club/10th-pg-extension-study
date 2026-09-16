@@ -93,7 +93,7 @@ shared_preload_libraries = 'pg_stat_statements,pg_cron'`}</CodeBlock>
       <h3>③ 5초마다 한 행을 넣도록 예약</h3>
 <CodeBlock language="sql" output={" schedule\n----------\n        1\n(1 row)"} outputCaption={"예상 출력 · ID와 시각은 실행 환경에 따라 달라짐"}>{"SELECT cron.schedule('intro-heartbeat', '5 seconds',\n  $$INSERT INTO public.cron_intro_heartbeat DEFAULT VALUES$$);"}</CodeBlock>
       <p>세 인자는 잡 이름, 실행 간격, 나중에 실행할 SQL이다. <Ref to="/pg-cron/dollar-quoting">$$…$$는 SQL을 문자열로 감싼 PostgreSQL 문법</Ref>이다. 반환된 1은 예약 번호(jobid)이며 INSERT가 끝났다는 뜻은 아니다. 각 SQL이 바로 커밋되는 자동 커밋 상태로 실행한다. 전체 실습을 하나의 BEGIN/COMMIT으로 묶으면 다른 프로세스에서 새 예약을 아직 볼 수 없다.</p>
-      <p>이 호출이 <code>cron.job</code>에 만든 실제 행과 첫 실행 뒤 <code>cron.job_run_details</code>에 추가되는 이력은 <Ref to="/pg-cron/storage">예약 테이블 들여다보기</Ref>에서 실제 출력으로 확인한다.</p>
+      <p>이 호출이 <code>cron.job</code>에 만든 행과 첫 실행 이력은 <Ref to="/pg-cron/storage">예약 테이블 들여다보기</Ref>에서 확인한다. libpq와 worker 모드의 등록 SQL이 같은 이유와 서버 설정으로 모드를 바꾸는 방법은 <Ref to="/pg-cron/modes#registration">잡 등록과 모드 선택</Ref>에서 설명한다.</p>
       <h3>④ 한 회차가 실행될 때까지 기다린 뒤 결과 조회</h3>
 <CodeBlock language="sql" output={" pg_sleep\n----------\n\n(1 row)"} outputCaption={"예상 출력 · 6초 대기만 수행하므로 반환값 칸은 비어 있음"}>{"SELECT pg_sleep(6);"}</CodeBlock>
 <CodeBlock language="sql" output={"             tick\n-------------------------------\n 2026-09-15 12:00:05.123456+09\n(1 row)"} outputCaption={"예상 출력 · ID와 시각은 실행 환경에 따라 달라짐"}>{"SELECT * FROM public.cron_intro_heartbeat;"}</CodeBlock>

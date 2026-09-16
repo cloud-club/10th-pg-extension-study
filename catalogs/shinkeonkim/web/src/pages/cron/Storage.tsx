@@ -22,6 +22,7 @@ export default function Storage() {
         <tr><td>업무 테이블</td><td>INSERT·DELETE·집계 등 SQL의 결과</td><td>예약 SQL의 트랜잭션이 성공해 커밋될 때</td></tr>
       </tbody></table>
       <p><code>cron.schedule</code>이 jobid를 반환했다고 업무 SQL까지 성공한 것은 아니다. 예약 등록은 <code>cron.job</code>에서, 실행 결과는 이력과 업무 테이블에서 따로 확인한다.</p>
+      <p>libpq 모드와 worker 모드 모두 같은 예약 행을 사용한다. 실행 모드는 이 테이블의 열이 아니라 서버의 <code>cron.use_background_workers</code> 설정으로 선택한다. <Ref to="/pg-cron/modes#registration">잡 등록과 모드 선택</Ref></p>
     </Section>
 
     <Section title="1. 어느 DB와 스키마에 있는지 확인한다">
