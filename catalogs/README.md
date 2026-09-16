@@ -10,6 +10,11 @@
 
 | 익스텐션 | 한 줄 요약 | 카테고리 | 매니지드 지원 | 정리 |
 | --- | --- | --- | --- | --- |
-| *(첫 번째 항목을 기다리는 중)* | | | | |
+| [pg_stat_statements](shinkeonkim/week03/pg_stat_statements/README.md) | 실행된 SQL 을 정규화해 서버 전역 누적 통계로 추적 | 성능 진단 | RDS ○ / Aurora ○ / Supabase ○ / Neon ○ / Cloud SQL ○ / Azure ○ | shinkeonkim (week03) |
+| [pg_cron](shinkeonkim/week03/pg_cron/README.md) | DB 안에서 cron 문법으로 주기적인 SQL 을 예약 실행 | 자동화 (스케줄러) | RDS ○ / Supabase ○ / Neon ○ / Cloud SQL ○ / Azure ○ / Heroku ✕ | shinkeonkim (week03) |
+| [pg_bigm](shinkeonkim/week02/pg_bigm/README.md) | LIKE 검색을 2-gram GIN 인덱스로 가속 - 짧은 한글 키워드에 강함 | 검색 · 텍스트 | RDS ○ / Aurora ○ / Cloud SQL ○ (PG17+) / Azure·Supabase·Neon 확인 필요 | shinkeonkim (week02) |
+| [pg_trgm](shinkeonkim/week02/pg_trgm/README.md) | 3-gram 으로 LIKE · 정규식 · 유사도 · KNN 검색을 가속하는 contrib | 검색 · 텍스트 | RDS ○ / Aurora ○ / Supabase ○ / Neon ○ / Cloud SQL ○ / Azure ○ (contrib + trusted) | shinkeonkim (week02) |
 
 <sub>매니지드 지원 열은 `RDS ○ / Supabase ○ / Neon ✕` 처럼 짧게 적습니다.</sub>
+
+<sub>`pg_bigm` 과 `pg_trgm` 은 같은 문제(부분 문자열 검색)를 다른 방식으로 푸는 확장이라 [`shinkeonkim/week02/bigm-vs-trgm/`](shinkeonkim/week02/bigm-vs-trgm/) 에 정면 비교를 따로 정리했습니다.</sub>

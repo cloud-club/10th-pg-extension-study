@@ -1,0 +1,51 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 다크 전용. 카탈로그의 visualizations 와 같은 팔레트를 HSL 로 옮겼다. */
+@layer base {
+  :root {
+    --background: 222 47% 8%;
+    --foreground: 213 31% 91%;
+    --card: 222 41% 11%;
+    --card-foreground: 213 31% 91%;
+    --primary: 213 94% 68%;
+    --primary-foreground: 222 47% 8%;
+    --secondary: 217 33% 24%;
+    --secondary-foreground: 213 31% 91%;
+    --muted: 217 33% 24%;
+    --muted-foreground: 215 20% 65%;
+    --accent: 217 33% 24%;
+    --accent-foreground: 213 31% 91%;
+    --border: 215 25% 27%;
+    --input: 215 25% 27%;
+    --ring: 213 94% 68%;
+    --radius: 0.75rem;
+
+    --bigm: 213 94% 68%;   /* 파랑 */
+    --trgm: 351 95% 71%;   /* 빨강 */
+    --tsv:  258 90% 76%;   /* 보라 */
+    --ok:   160 84% 52%;   /* 초록 */
+    --warn:  38 96% 61%;   /* 주황 */
+  }
+  * { @apply border-border; }
+  body { @apply bg-background text-foreground; font-feature-settings: "cv02","cv03","cv04","cv11"; }
+}
+
+@layer components {
+  /* 본문 산문 — 카탈로그의 마크다운 느낌을 그대로 옮긴다 */
+  .prose-doc { @apply leading-[1.75] text-[15.5px]; }
+  .prose-doc p { @apply my-3; }
+  .prose-doc strong { @apply font-semibold text-foreground; }
+  .prose-doc ul { @apply my-3 list-disc pl-5 space-y-1; }
+  .prose-doc ol { @apply my-3 list-decimal pl-5 space-y-1; }
+  .prose-doc code { @apply rounded bg-secondary px-1.5 py-0.5 font-mono text-[0.9em]; }
+  .prose-doc pre { @apply my-3 overflow-x-auto rounded-xl bg-[hsl(222_60%_5%)] p-4 text-[12.5px] leading-relaxed; }
+  .prose-doc pre code { @apply bg-transparent p-0; }
+  .prose-doc a { @apply text-primary underline-offset-4 hover:underline; }
+  .prose-doc table { @apply my-4 w-full border-collapse text-[14px]; }
+  .prose-doc th { @apply border-b border-border bg-secondary/60 px-3 py-2 text-left font-semibold; }
+  .prose-doc td { @apply border-b border-border px-3 py-2 align-top; }
+  .prose-doc h3 { @apply mt-8 mb-2 text-[17px] font-semibold; }
+  .prose-doc h4 { @apply mt-6 mb-2 text-[15px] font-semibold; }
+}

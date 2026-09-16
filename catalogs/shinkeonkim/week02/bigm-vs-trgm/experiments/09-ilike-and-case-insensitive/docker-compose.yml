@@ -1,0 +1,23 @@
+name: pg-study-bigmvstrgm-exp09
+
+services:
+  postgres:
+    build: .
+    container_name: pg-study-bigmvstrgm-exp09
+    environment:
+      POSTGRES_DB: study
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "15988:5432"
+    # 큰 데이터셋을 다루므로 인덱스 빌드 메모리를 키운다 (기본 64MB 로는 5M 행에서 과도하게 스필한다)
+    command:
+      - postgres
+      - -c
+      - maintenance_work_mem=256MB
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -p 5432 -U postgres -d study"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+      start_period: 30s
