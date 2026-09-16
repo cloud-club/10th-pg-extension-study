@@ -1,0 +1,47 @@
+{
+  "note": "PostgreSQL 16 / pg_cron 1.6.8 · 별도 임시 study DB에서 실측. jobid·runid·PID·시각·물리 파일명은 실행마다 달라진다.",
+  "location": {
+    "sql": "SELECT current_database() AS connected_db,\n       e.extname, n.nspname AS extension_schema\nFROM pg_extension e\nJOIN pg_namespace n ON n.oid = e.extnamespace\nWHERE e.extname = 'pg_cron';",
+    "output": "connected_db | extname | extension_schema \n--------------+---------+------------------\n study        | pg_cron | pg_catalog\n(1 row)"
+  },
+  "tables": {
+    "sql": "SELECT table_schema, table_name\nFROM information_schema.tables\nWHERE table_schema = 'cron'\nORDER BY table_name;",
+    "output": "table_schema |   table_name    \n--------------+-----------------\n cron         | job\n cron         | job_run_details\n(2 rows)"
+  },
+  "columns": {
+    "sql": "SELECT table_name, ordinal_position AS no, column_name, data_type\nFROM information_schema.columns\nWHERE table_schema = 'cron'\n  AND table_name IN ('job', 'job_run_details')\nORDER BY table_name, ordinal_position;",
+    "output": "table_name    | no |  column_name   |        data_type         \n-----------------+----+----------------+--------------------------\n job             |  1 | jobid          | bigint\n job             |  2 | schedule       | text\n job             |  3 | command        | text\n job             |  4 | nodename       | text\n job             |  5 | nodeport       | integer\n job             |  6 | database       | text\n job             |  7 | username       | text\n job             |  8 | active         | boolean\n job             |  9 | jobname        | text\n job_run_details |  1 | jobid          | bigint\n job_run_details |  2 | runid          | bigint\n job_run_details |  3 | job_pid        | integer\n job_run_details |  4 | database       | text\n job_run_details |  5 | username       | text\n job_run_details |  6 | command        | text\n job_run_details |  7 | status         | text\n job_run_details |  8 | return_message | text\n job_run_details |  9 | start_time     | timestamp with time zone\n job_run_details | 10 | end_time       | timestamp with time zone\n(19 rows)"
+  },
+  "empty": {
+    "sql": "SELECT count(*) AS jobs_before FROM cron.job;",
+    "output": "jobs_before \n-------------\n           0\n(1 row)"
+  },
+  "schedule": {
+    "sql": "SELECT cron.schedule(\n  'storage-demo', '2 seconds',\n  $$INSERT INTO public.cron_storage_heartbeat DEFAULT VALUES$$\n) AS jobid;",
+    "output": "jobid \n-------\n     1\n(1 row)"
+  },
+  "job": {
+    "sql": "SELECT jobid, jobname, schedule, command, nodename, nodeport,\n       database, username, active\nFROM cron.job\nWHERE jobname = 'storage-demo';",
+    "output": "jobid |   jobname    | schedule  |                         command                          |      nodename       | nodeport | database | username | active \n-------+--------------+-----------+----------------------------------------------------------+---------------------+----------+----------+----------+--------\n     1 | storage-demo | 2 seconds | INSERT INTO public.cron_storage_heartbeat DEFAULT VALUES | /var/run/postgresql |     5432 | study    | postgres | t\n(1 row)"
+  },
+  "run": {
+    "sql": "SELECT runid, jobid, job_pid, database, username,\n       status, return_message, start_time, end_time\nFROM cron.job_run_details\nWHERE jobid = (SELECT jobid FROM cron.job WHERE jobname = 'storage-demo')\nORDER BY runid DESC LIMIT 1;",
+    "output": "runid | jobid | job_pid | database | username |  status   | return_message |          start_time           |           end_time            \n-------+-------+---------+----------+----------+-----------+----------------+-------------------------------+-------------------------------\n     1 |     1 |     198 | study    | postgres | succeeded | INSERT 0 1     | 2026-09-15 11:15:19.340679+00 | 2026-09-15 11:15:19.341203+00\n(1 row)"
+  },
+  "effect": {
+    "sql": "SELECT count(*) AS heartbeat_rows FROM public.cron_storage_heartbeat;",
+    "output": "heartbeat_rows \n----------------\n              1\n(1 row)"
+  },
+  "physical": {
+    "sql": "SELECT current_database() AS database, n.nspname AS schema,\n       c.relname AS table_name, pg_relation_filepath(c.oid) AS internal_path\nFROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace\nWHERE n.nspname = 'cron'\n  AND c.relname IN ('job', 'job_run_details')\nORDER BY c.relname;",
+    "output": "database | schema |   table_name    |  internal_path   \n----------+--------+-----------------+------------------\n study    | cron   | job             | base/16384/16425\n study    | cron   | job_run_details | base/16384/16407\n(2 rows)"
+  },
+  "unschedule": {
+    "sql": "SELECT cron.unschedule('storage-demo');",
+    "output": "unschedule \n------------\n t\n(1 row)"
+  },
+  "after_unschedule": {
+    "sql": "SELECT\n  (SELECT count(*) FROM cron.job WHERE jobname = 'storage-demo') AS jobs_after,\n  (SELECT count(*) FROM cron.job_run_details WHERE jobid = 1) AS histories_after;",
+    "output": "jobs_after | histories_after \n------------+-----------------\n          0 |               1\n(1 row)"
+  }
+}

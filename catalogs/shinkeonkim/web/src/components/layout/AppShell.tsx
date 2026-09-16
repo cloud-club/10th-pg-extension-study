@@ -41,7 +41,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </Button>
         <Link to={HOME} className="text-[14px] font-semibold lg:hidden">PG 확장 스터디</Link>
         <div className="ml-auto text-[12px] text-muted-foreground">
-          측정 환경 · PostgreSQL 16~18 · Docker
+          PostgreSQL 확장 · 주차별 학습 자료
         </div>
       </header>
 

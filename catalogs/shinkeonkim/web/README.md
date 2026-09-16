@@ -18,6 +18,7 @@ bun run typecheck
 
 ```ts
 {
+  week: 'week03',                      // 소속 주차
   slug: 'pg-something',
   title: 'pg_something',
   hint: '한 줄 소개',
@@ -102,7 +103,7 @@ src/
 ```sh
 python3 src/animations/build.py            # JSON + index.ts 생성 + 스키마 검증
 python3 src/animations/build.py --check    # 검증만
-bun run check:animations                   # 7개 문서를 6개 시점에서 실제로 SVG 로 그려본다
+bun run check:animations                   # 모든 문서를 6개 시점에서 실제로 SVG 로 그려본다
 bun run check                              # typecheck + 위 검사
 ```
 
@@ -149,3 +150,63 @@ bun run check                              # typecheck + 위 검사
 테마 토글이 없다. 색은 `src/index.css` 의 CSS 변수 한 곳에서만 오고, 차트 색은 `src/lib/chart.ts` 의
 `C` 상수와 같은 값을 쓴다. clotho 문서의 색도 `build.py` 상단에서 같은 팔레트를 쓴다.
 **세 곳을 함께 고쳐야 한다** — 그래서 값이 세 파일에만 있다.
+
+## 주차별 탐색
+
+사이드바의 주차 선택으로 Week 02(검색)와 Week 03(pg_cron)을 전환한다.
+각 섹션의 `week`가 소속 주차를 정하며, 이전/다음 이동도 같은 주차 안에서만 이어진다.
+새 주차는 `registry.ts`의 `WEEKS`와 `SECTIONS`에 등록한다.
+기존 `#/start/overview`, `#/foundations/gin` 등 링크는 유지한다. 섹션 slug는 주차 전체에서 유일해야 한다.
+
+Week 03 진입점은 `#/pg-cron/about`이다. 사이드바는 기존 URL을 유지하면서 다음 네 분류로 나눈다.
+
+- 시작하기: 개요 → 활용
+- 기초 개념: shared_preload_libraries → `$$` 문자열 → 예약 테이블 → 예약 저장·수정 → 프로세스 → Background worker → max_worker_processes
+- pg_cron 실행과 운영: 실행 모드 → 서버 중단과 놓친 예약 → 실패 처리 → 동시성과 운영 → AWS RDS → 운영 한계
+- 심화·검증: 소스 파일·함수 지도 → v1.6.8 원문 분석 → 실험
+
+`SectionDef.routeSlug`를 사용하면 여러 사이드바 분류가 `#/pg-cron/...` URL 접두사를 공유할 수 있다.
+웹 원문 분석은 실습 이미지와 같은 pg_cron v1.6.8을 기준으로 한다. 함수 지도는 별도로 2026-09-15의 main commit `5cedfa4`를 고정해 `entry.c`, `misc.c`, `job_metadata.c`, `task_states.c`, `pg_cron.c`를 함께 안내한다.
+`src/data/cron-source.json`에 원문 발췌, 파일 해시, 행 번호와 원문 링크를 보관한다.
+`cron-lifecycle`, `cron-concurrency`, `cron-event-loop` Clotho 문서는 소스 기반 설명용이며 실측 타임라인이 아니다.
+pg_stat_statements의 문서와 실습은 `../week04/pg_stat_statements/`로 옮겼다.
+
+### pg_cron 추가 조사와 측정 데이터
+
+`#/pg-cron/recipes`: 활용 7가지의 전체 개요와 전제조건. `#/pg-cron/experiments`: 실험 03·04 차트와 진단.
+회차별 측정 원본과 서버 로그는 실험 실행 시 `../week03/pg_cron/experiments/*/results/`에 생성되며 Git에서 제외한다. 검토할 요약값은 `src/data/cron-experiments.json`에 게시한다.
+
+```sh
+python3 scripts/sync-cron-results.py          # 로컬에서 실험을 모두 실행한 뒤 요약 게시
+python3 scripts/sync-cron-results.py --check  # 게시된 요약의 반복 수·필수 필드 검사
+```
+
+실험과 웹 해설은 pg_cron 1.6.8 기준이다. week03의 기존 Markdown 소스 분석은 1.6.7 기준으로 남아 있다.
+실험 03·04는 각 조건을 기본 10회 실행한다. 실험 페이지는 가설·예상·반복별 관측 범위와 평균, 추가 검증이 필요한 원인 추정을 구분한다.
+
+### 코드와 실행 결과
+
+`CodeBlock`은 SQL·C·Bash·설정 파일·Python·JSON 문법을 강조한다.
+언어가 정해진 블록은 `language="sql"`처럼 지정하고, 설명용 텍스트는 `language="text"`로 둔다.
+`output`과 `outputCaption`을 지정하면 코드 아래에 간격을 둔 출력 영역이 생긴다.
+실측과 예상 출력은 캡션에서 구분한다. 출력에는 문법 강조를 적용하지 않는다.
+
+프로세스·소스 페이지의 두 잡 실행 결과는 `src/data/cron-concurrency-demo.json`에 저장한다.
+다음 명령은 전용 임시 Docker DB에서 SQL을 실행하고, 동일 잡 겹침 0·최대 동시 실행 2를 검증한 뒤 데이터를 갱신한다.
+
+```sh
+python3 scripts/capture-cron-demo.py
+```
+
+이 결과는 함수 실행 구간의 동시성을 보여준다. SQL 기동 비용이나 CPU 처리량 측정이 아니다.
+
+예약 테이블 페이지의 출력은 `src/data/cron-storage-demo.json`에 저장한다. 다음 명령은 전용 임시 DB에서
+예약 등록, `cron.job`, `cron.job_run_details`, 업무 결과와 내부 relation 경로를 확인하고 결과를 갱신한다.
+
+```sh
+python3 scripts/capture-cron-storage.py
+```
+
+실행 모드 페이지는 기본 설명과 접어서 표시하는 심화 설명으로 나눈다.
+처음 등장하는 postmaster·client backend·pg_cron launcher는 프로세스 페이지에서 역할과 실행 위치부터 설명한다.
+SQL 예제는 실행 문장 하나와 그 결과를 한 쌍으로 표시한다. 함수 본문이나 예약 문자열 안의 SQL은 하나의 문장 일부이므로 분리하지 않는다.

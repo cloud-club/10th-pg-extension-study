@@ -156,7 +156,7 @@ export default function TwoChar() {
           <TCaption>
             <strong>“2-gram 이라 짧은 키워드에 강하다”는 설명은 절반만 맞다.</strong> 나머지 절반은{' '}
             <strong>조각을 해싱하지 않아서 접두어 탐색이 가능하다</strong>는 것이고, 이쪽이 1글자 검색까지 되는
-            진짜 이유다.
+            구조적 이유다.
           </TCaption>
         </Table>
       </Section>

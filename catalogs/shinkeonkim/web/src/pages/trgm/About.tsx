@@ -74,7 +74,7 @@ CREATE INDEX docs_gist ON docs USING gist (doc gist_trgm_ops(siglen=256));`}</Co
           <p>
             “<K>KEEPONLYALNUM</K> 때문에 <K>pg_trgm</K> 이 한글을 걸러낸다”는 <strong>틀렸다.</strong>{' '}
             <K>show_trgm('가나다라')</K> 는 조각 5개를 정상 생성한다 — <K>ISWORDCHR</K> 가 쓰는{' '}
-            <K>t_isalnum_with_len()</K> 은 멀티바이트를 인식한다. 진짜 문제는 구두점이다.
+            <K>t_isalnum_with_len()</K> 은 멀티바이트를 인식한다. 구두점 처리도 확인해야 한다.
           </p>
         </Callout>
       </Section>

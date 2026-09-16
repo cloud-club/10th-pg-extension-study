@@ -13,7 +13,10 @@ export type PageDef = {
 }
 
 export type SectionDef = {
+  week: string
   slug: string
+  /** 여러 학습 섹션이 기존 URL 접두사를 함께 쓸 때 지정한다. */
+  routeSlug?: string
   title: string
   /** 섹션을 한 줄로 소개한다. 섹션 인덱스 화면에서 쓴다. */
   hint?: string
@@ -29,6 +32,7 @@ export type SectionDef = {
  * ------------------------------------------------------------------------- */
 export const SECTIONS: SectionDef[] = [
   {
+    week: 'week02',
     slug: 'start',
     title: '시작하기',
     hint: '무엇을 왜 재는지, 그리고 용어',
@@ -40,6 +44,7 @@ export const SECTIONS: SectionDef[] = [
     ],
   },
   {
+    week: 'week02',
     slug: 'foundations',
     title: '기초 개념',
     hint: '확장을 보기 전에 알아야 할 것',
@@ -52,6 +57,7 @@ export const SECTIONS: SectionDef[] = [
     ],
   },
   {
+    week: 'week02',
     slug: 'pg-bigm',
     title: 'pg_bigm',
     hint: '2-gram · 한국어에 유리한 쪽',
@@ -63,6 +69,7 @@ export const SECTIONS: SectionDef[] = [
     ],
   },
   {
+    week: 'week02',
     slug: 'pg-trgm',
     title: 'pg_trgm',
     hint: '3-gram · 유사도와 정규식',
@@ -75,6 +82,7 @@ export const SECTIONS: SectionDef[] = [
     ],
   },
   {
+    week: 'week02',
     slug: 'fulltext',
     title: '전문검색 (코어)',
     hint: 'tsvector · tsquery',
@@ -86,6 +94,7 @@ export const SECTIONS: SectionDef[] = [
     ],
   },
   {
+    week: 'week02',
     slug: 'experiments',
     title: '성능 실험',
     hint: '전부 이 저장소에서 재현된다',
@@ -106,6 +115,7 @@ export const SECTIONS: SectionDef[] = [
     ],
   },
   {
+    week: 'week02',
     slug: 'meta',
     title: '기록',
     hint: '측정 원칙과 정정',
@@ -115,6 +125,48 @@ export const SECTIONS: SectionDef[] = [
       { slug: 'method', title: '측정 원칙과 재현', hint: '어떻게 쟀나', view: lazy(() => import('@/pages/meta/Method')) },
     ],
   },
+  {
+    week: 'week03', slug: 'cron-start', routeSlug: 'pg-cron', title: '시작하기', accent: 'ok',
+    hint: '왜 쓰는지와 첫 예약',
+    pages: [
+      { slug: 'about', title: '개요와 첫 예약', view: lazy(() => import('@/pages/cron/About')) },
+      { slug: 'recipes', title: '활용처 한눈에 보기', view: lazy(() => import('@/pages/cron/Recipes')) },
+    ],
+  },
+  {
+    week: 'week03', slug: 'cron-foundations', routeSlug: 'pg-cron', title: '기초 개념',
+    hint: '예약이 저장되고 실행되는 바탕',
+    pages: [
+      { slug: 'shared-preload-libraries', title: 'shared_preload_libraries 기초', view: lazy(() => import('@/pages/cron/SharedPreloadLibraries')) },
+      { slug: 'dollar-quoting', title: '$$ 문자열 문법', view: lazy(() => import('@/pages/cron/DollarQuoting')) },
+      { slug: 'storage', title: '예약 테이블 들여다보기', view: lazy(() => import('@/pages/cron/Storage')) },
+      { slug: 'schedules', title: '예약 저장·수정·분산 환경', view: lazy(() => import('@/pages/cron/Schedules')) },
+      { slug: 'processes', title: '프로세스 기초', view: lazy(() => import('@/pages/cron/Processes')) },
+      { slug: 'background-workers', title: 'Background worker란?', view: lazy(() => import('@/pages/cron/BackgroundWorkers')) },
+      { slug: 'max-worker-processes', title: 'max_worker_processes 기초', view: lazy(() => import('@/pages/cron/MaxWorkerProcesses')) },
+    ],
+  },
+  {
+    week: 'week03', slug: 'cron-runtime', routeSlug: 'pg-cron', title: 'pg_cron 실행과 운영', accent: 'ok',
+    hint: '실행 방식·동시성·관찰',
+    pages: [
+      { slug: 'modes', title: '두 실행 모드 이해하기', view: lazy(() => import('@/pages/cron/Modes')) },
+      { slug: 'downtime', title: '서버 중단과 놓친 예약', view: lazy(() => import('@/pages/cron/Downtime')) },
+      { slug: 'failures', title: '실패하면 어떻게 되나', view: lazy(() => import('@/pages/cron/Failures')) },
+      { slug: 'operations', title: '동시성과 운영', view: lazy(() => import('@/pages/cron/Operations')) },
+      { slug: 'rds', title: 'AWS RDS에서 사용하기', view: lazy(() => import('@/pages/cron/Rds')) },
+      { slug: 'limits', title: '장애·자원·분산 한계', view: lazy(() => import('@/pages/cron/Limits')) },
+    ],
+  },
+  {
+    week: 'week03', slug: 'cron-internals', routeSlug: 'pg-cron', title: '심화·검증', accent: 'warn',
+    hint: 'C 코드와 직접 실행한 실험',
+    pages: [
+      { slug: 'source-map', title: '소스 파일·함수 지도', view: lazy(() => import('@/pages/cron/SourceMap')) },
+      { slug: 'source', title: '심화 · 실제 C 코드', view: lazy(() => import('@/pages/cron/Source')) },
+      { slug: 'experiments', title: '실험 질문과 결과', view: lazy(() => import('@/pages/cron/Experiments')) },
+    ],
+  },
 ]
 
 export const HOME = `/${SECTIONS[0].slug}/${SECTIONS[0].pages[0].slug}`
@@ -122,20 +174,33 @@ export const HOME = `/${SECTIONS[0].slug}/${SECTIONS[0].pages[0].slug}`
 export type Located = { section: SectionDef; page: PageDef }
 
 export function findPage(sectionSlug?: string, pageSlug?: string): Located | null {
-  const section = SECTIONS.find((s) => s.slug === sectionSlug)
-  if (!section) return null
-  const page = section.pages.find((p) => p.slug === pageSlug)
-  return page ? { section, page } : null
+  for (const section of SECTIONS) {
+    if (section.slug !== sectionSlug && section.routeSlug !== sectionSlug) continue
+    const page = section.pages.find((p) => p.slug === pageSlug)
+    if (page) return { section, page }
+  }
+  return null
 }
 
 /** 사이드바 순서 그대로 평탄화한 목록. 이전/다음 이동에 쓴다. */
 export const FLAT: Located[] = SECTIONS.flatMap((section) => section.pages.map((page) => ({ section, page })))
 
 export function neighbors(sectionSlug: string, pageSlug: string) {
-  const i = FLAT.findIndex((x) => x.section.slug === sectionSlug && x.page.slug === pageSlug)
-  return { prev: i > 0 ? FLAT[i - 1] : null, next: i >= 0 && i < FLAT.length - 1 ? FLAT[i + 1] : null }
+  const week = SECTIONS.find((s) => s.slug === sectionSlug)?.week
+  const pages = FLAT.filter((x) => x.section.week === week)
+  const i = pages.findIndex((x) => x.section.slug === sectionSlug && x.page.slug === pageSlug)
+  return { prev: i > 0 ? pages[i - 1] : null, next: i >= 0 && i < pages.length - 1 ? pages[i + 1] : null }
 }
 
 export function href(l: Located) {
-  return `/${l.section.slug}/${l.page.slug}`
+  return `/${l.section.routeSlug ?? l.section.slug}/${l.page.slug}`
+}
+
+export const WEEKS = [
+  { slug: 'week02', title: 'Week 02 · 텍스트 검색' },
+  { slug: 'week03', title: 'Week 03 · 작업 예약' },
+]
+export function weekHome(week: string) {
+  const section = SECTIONS.find((s) => s.week === week)
+  return section ? `/${section.routeSlug ?? section.slug}/${section.pages[0].slug}` : HOME
 }
