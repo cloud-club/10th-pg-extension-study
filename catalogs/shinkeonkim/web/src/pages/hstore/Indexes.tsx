@@ -34,6 +34,9 @@ export default function Indexes() {
         <tr><td><strong>식 인덱스</strong> <code>((attrs -&gt; 'k'))</code></td><td>그 식의 <code>=</code> <code>&lt;</code> <code>&gt;</code> …</td><td>자주 쓰는 키 하나의 동등·범위 조회. 통계도 그 식에 쌓인다</td></tr>
       </tbody></table>
       <p><code>&lt;@</code>(포함됨)는 어느 인덱스 클래스에도 없다. 소스의 <code>hstore--1.4.sql</code>에서도 GiST 클래스의 <code>&lt;@</code> 항목은 주석 처리돼 있다. <code>@</code>·<code>~</code> 연산자는 hstore 1.8에서 제거됐다 (<code>hstore--1.7--1.8.sql</code>). 인덱스로 ‘~를 포함하는 행’을 찾으려면 항상 <code>attrs @&gt; ...</code> 형태로 쓴다.</p>
+      <Callout kind="info" title="jsonb와 비교하면: GiST가 hstore에만 있다">
+        <p>같은 조회를 <code>jsonb</code> 컬럼에 걸고 싶다면 GIN(<code>jsonb_ops</code>·<code>jsonb_path_ops</code>)만 고를 수 있다. jsonb는 GiST 연산자 클래스가 PostgreSQL 코어에 없기 때문이다 — <code>pg_opclass</code> 전수 조회로 직접 확인한 결과는 <Ref to="/hstore/vs-jsonb#query">jsonb와의 차이 · 5절</Ref>에 있다. hstore가 jsonb보다 나은 거의 유일하고 뚜렷한 지점이 이 GiST 옵션이다.</p>
+      </Callout>
     </Section>
 
     <Section id="gin" title="2. GIN은 키와 값을 따로 색인한다">

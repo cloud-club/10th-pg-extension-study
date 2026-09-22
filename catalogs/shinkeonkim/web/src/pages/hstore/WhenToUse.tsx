@@ -46,8 +46,14 @@ export default function WhenToUse() {
         <tr><td>키마다 TTL이 필요하다</td><td>hstore에는 필드 단위 만료가 없다. → Redis의 필드 만료, 또는 <code>expires_at</code> 열과 정리 작업 (<Ref to="/hstore/vs-redis">비교</Ref>)</td></tr>
         <tr><td>속성에 FK·CHECK·NOT NULL 같은 제약이 필요하다</td><td>hstore 안의 키에는 제약을 걸 수 없다. → 열</td></tr>
       </tbody></table>
-      <Callout kind="warn" title="jsonb가 있는데 왜 hstore인가?">
-        <p>이 자료의 측정으로는 저장 크기(키 20개 이하), UPDATE 비용(키 50개 이하), GIN 인덱스 크기가 hstore와 jsonb에서 사실상 같았다. 키 5개 기준 행당 hstore {fmtBytes(exp.storage.cells[0].hs.avg_column_bytes)}, jsonb {fmtBytes(exp.storage.cells[0].jb.avg_column_bytes)}다. hstore를 고를 이유는 <strong>값이 문자열뿐임을 타입으로 강제하고 싶을 때</strong>, 이미 hstore를 쓰는 시스템을 유지할 때, 큰 맵을 압축 없이 빠르게 읽고 싶을 때 정도다. 새로 시작하면서 다른 이유가 없다면 <Ref to="/hstore/vs-jsonb">jsonb와의 차이</Ref>를 읽고 jsonb를 먼저 검토한다. 이는 Citus 블로그 등 외부 글의 일반적 권고와도 같은 방향이다.</p>
+      <Callout kind="ok" title="jsonb가 있는데 왜 hstore인가? — 세 가지 구체적인 이유">
+        <p>키 20개 이하에서는 저장 크기·UPDATE 비용·GIN 인덱스 크기가 hstore와 jsonb에서 바이트 단위로 같았다(키 5개 기준 행당 hstore {fmtBytes(exp.storage.cells[0].hs.avg_column_bytes)}, jsonb {fmtBytes(exp.storage.cells[0].jb.avg_column_bytes)}). 이 범위에서는 우열이 없다 — 그런데 hstore에만 있고 jsonb에는 없는 것이 세 가지 있다.</p>
+        <ol>
+          <li><strong>GiST 인덱스.</strong> jsonb는 PostgreSQL 코어에 GiST 연산자 클래스가 아예 없다(<Ref to="/hstore/vs-jsonb#query">카탈로그로 확인</Ref>). hstore는 GiST로 인덱스를 GIN의 약 1/7 크기까지 줄일 수 있다 — 쓰기가 잦아 인덱스 유지 비용이 부담되는 테이블에서 jsonb에는 없는 선택지다.</li>
+          <li><strong>큰 맵을 압축 없이 읽는 속도.</strong> 키 500개에서 hstore 읽기 {fmtMs(exp.update.cases['500'].read_ms_1000_rows.hstore.median)}, jsonb {fmtMs(exp.update.cases['500'].read_ms_1000_rows.jsonb.median)} — jsonb는 매번 압축을 풀어야 해서 느리다.</li>
+          <li><strong>값이 문자열임을 타입으로 강제.</strong> jsonb는 <code>{`{"age":30}`}</code>과 <code>{`{"age":"30"}`}</code>이 다른 값이라 타입이 섞일 수 있다. hstore는 애초에 문자열만 담을 수 있어 이 문제가 없다.</li>
+        </ol>
+        <p>이 세 가지에 해당하지 않고 값에 숫자·중첩이 필요하다면 jsonb가 더 범용적이다. 자세한 근거는 <Ref to="/hstore/vs-jsonb">jsonb와의 차이</Ref>에 있다.</p>
       </Callout>
     </Section>
 

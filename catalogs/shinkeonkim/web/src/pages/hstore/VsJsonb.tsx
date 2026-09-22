@@ -24,7 +24,7 @@ export default function VsJsonb() {
         <tr><td>키</td><td>text, NULL 불가</td><td>문자열</td></tr>
         <tr><td>키 정렬·중복 키</td><td>키 (길이, 바이트) 순, 중복 키는 하나만 남김</td><td>키 (길이, 바이트) 순, 중복 키는 하나만 남김 — 어느 값이 남는지는 아래 결과 참고</td></tr>
         <tr><td>연산자</td><td><code>-&gt;</code> <code>?</code> <code>@&gt;</code> <code>||</code> <code>-</code> …</td><td>비슷한 연산자 + 경로(<code>#&gt;</code>), SQL/JSON 경로(<code>@?</code> <code>@@</code>)</td></tr>
-        <tr><td>GIN 인덱스</td><td><code>gin_hstore_ops</code> 하나</td><td><code>jsonb_ops</code> · <code>jsonb_path_ops</code></td></tr>
+        <tr><td>지원 인덱스</td><td><strong>btree · hash · GIN · GiST</strong> 네 가지 전부</td><td>btree · hash · GIN(<code>jsonb_ops</code>·<code>jsonb_path_ops</code>) — <strong>GiST는 코어에 없다</strong></td></tr>
         <tr><td>표준·이식성</td><td>PostgreSQL 전용 확장</td><td>JSON은 표준 교환 형식, 타입은 PostgreSQL 내장</td></tr>
         <tr><td>설치</td><td><code>CREATE EXTENSION hstore</code></td><td>내장</td></tr>
       </tbody></table>
@@ -74,6 +74,11 @@ export default function VsJsonb() {
         <li><strong>hstore GIN = jsonb_ops GIN:</strong> 크기({fmtBytes(idx.hstore_gin.index_bytes.median)} vs {fmtBytes(idx.jsonb_gin.index_bytes.median)})도 조회 시간도 사실상 같다. 둘 다 키와 값을 별도 항목으로 색인하는 구조다. 다만 <strong>생성 시간</strong>은 hstore가 {idx.hstore_gin.build_seconds.median.toFixed(1)}초, jsonb가 {idx.jsonb_gin.build_seconds.median.toFixed(1)}초로 {ratio(idx.hstore_gin.build_seconds.median, idx.jsonb_gin.build_seconds.median)} 걸렸다.</li>
         <li><strong>jsonb_path_ops</strong>는 더 작고({fmtBytes(idx.jsonb_gin_path.index_bytes.median)}) 포함 조회가 더 빠르지만 <code>?</code> 연산자를 지원하지 않아 그 쿼리는 순차 스캔이 됐다. hstore에는 이런 선택지가 없다.</li>
       </ul>
+      <Callout kind="ok" title="jsonb에는 없는 선택지: GiST">
+        <p>카탈로그(<code>pg_opclass</code>)를 직접 조회하면 <strong>jsonb는 GiST 연산자 클래스가 코어에 아예 없다</strong> — btree·hash·GIN 셋뿐이다. hstore는 이 셋에 GiST(<code>gist_hstore_ops</code>)까지 더해 네 가지 인덱스 방식을 모두 가진 유일한 쪽이다.</p>
+        <CodeBlock language="sql" output={demo.jsonb_opclass.output} outputCaption="실제 실행 결과 · pg_opclass 전수 조회">{demo.jsonb_opclass.sql}</CodeBlock>
+        <p>이게 단순히 “선택지가 하나 더 있다”가 아니라 실측으로 이어진다: <Ref to="/hstore/indexes#benchmark">인덱스 실험</Ref>에서 20만 행 기준 hstore GiST(siglen 16)는 {fmtBytes(idx.hstore_gist16.index_bytes.median)}로 GIN({fmtBytes(idx.hstore_gin.index_bytes.median)})의 약 {Math.round(100 * idx.hstore_gist16.index_bytes.median / idx.hstore_gin.index_bytes.median)}% 크기다 — 재검사가 늘어 조회는 느려지지만(<Ref to="/hstore/indexes#benchmark">실측</Ref> 참고), 인덱스를 최소한으로 유지해야 하는 상황(쓰기가 잦아 인덱스 유지 비용이 부담되거나, 디스크·캐시가 빠듯한 경우)에서는 jsonb에 없는 트레이드오프를 hstore만 쓸 수 있다.</p>
+      </Callout>
       <p>인덱스 종류와 연산자 지원의 자세한 내용은 <Ref to="/hstore/indexes">인덱스 페이지</Ref>에 있다. 쿼리 조건은 {q.contain_2keys_common}, {q.contain_rare_value}, {q.key_exists_rare}다.</p>
     </Section>
 
@@ -92,12 +97,15 @@ export default function VsJsonb() {
       <SourceNote path="week04/hstore/experiments/02-update-write-amplification/bench.py">읽기는 EXPLAIN ANALYZE 실행 시간의 중앙값이다.</SourceNote>
     </Section>
 
-    <Section id="choose" title="7. 어떻게 고르나">
-      <ul>
-        <li>값에 숫자·불리언·배열·중첩이 있거나 SQL/JSON 경로 쿼리가 필요하다 → <strong>jsonb</strong>.</li>
-        <li>값이 전부 문자열이고 키가 적다(수십 개 이하) → <strong>둘 다 가능</strong>. 크기·인덱스·갱신 비용이 같다. 타입 계약을 문자열로 못 박고 싶으면 hstore.</li>
-        <li>키가 수백 개인 큰 맵 → 저장 공간은 jsonb, 읽기 속도는 hstore가 유리했다. 어느 쪽이든 <Ref to="/hstore/updates">키 하나 수정이 값 전체 재기록</Ref>이라는 점은 같다.</li>
-      </ul>
+    <Section id="choose" title="7. hstore가 실제로 유리한 경우">
+      <p>측정 결과를 종합하면 hstore가 jsonb보다 <strong>확실히</strong> 나은 지점이 있다 — “이미 쓰고 있어서”가 아니라 구체적인 이유가 있는 경우다.</p>
+      <table><thead><tr><th>상황</th><th>근거</th></tr></thead><tbody>
+        <tr><td>인덱스를 최소 크기로 유지해야 한다 (쓰기가 잦거나 디스크·캐시가 빠듯함)</td><td>jsonb에는 없는 <strong>GiST 옵션</strong>으로 인덱스를 {fmtBytes(idx.hstore_gist16.index_bytes.median)}까지 줄일 수 있다 — GIN({fmtBytes(idx.hstore_gin.index_bytes.median)})의 약 {Math.round(100 * idx.hstore_gist16.index_bytes.median / idx.hstore_gin.index_bytes.median)}% 크기다 (siglen 조절, 재검사와 맞바꾼다)</td></tr>
+        <tr><td>키가 많은(100개 이상) 값을 자주 읽는다</td><td>hstore는 압축을 안 해도 되면 그대로 읽는다: 키 500개에서 hstore {fmtMs(upd['500'].read_ms_1000_rows.hstore.median)} vs jsonb {fmtMs(upd['500'].read_ms_1000_rows.jsonb.median)}({ratio(upd['500'].read_ms_1000_rows.jsonb.median, upd['500'].read_ms_1000_rows.hstore.median)} 느림) — jsonb는 읽을 때마다 압축을 풀어야 한다</td></tr>
+        <tr><td>값이 전부 문자열이어야 한다는 걸 스키마로 보장하고 싶다</td><td>hstore는 값 타입 자체가 text다. jsonb는 <code>{`{"age":30}`}</code>과 <code>{`{"age":"30"}`}</code>을 구분하는 타입이라, 문자열만 허용하려면 애플리케이션이나 CHECK 제약으로 따로 검증해야 한다</td></tr>
+        <tr><td>키가 적은(20개 이하) 단순 맵</td><td>저장 크기·GIN 크기·갱신 비용이 jsonb와 <strong>바이트 단위로 같다</strong> — jsonb를 고를 이유도, hstore를 피할 이유도 없다</td></tr>
+      </tbody></table>
+      <p>반대로 값에 숫자·불리언·배열·중첩이 필요하거나 SQL/JSON 경로 쿼리(<code>#&gt;</code>, <code>@?</code>, <code>@@</code>)가 필요하면 hstore로는 애초에 표현이 안 되므로 jsonb를 쓴다. 키가 수백 개인 큰 맵에서 저장 공간이 우선이면 jsonb, 읽기 속도가 우선이면 hstore — 어느 쪽이든 <Ref to="/hstore/updates">키 하나 수정이 값 전체 재기록</Ref>이라는 점은 같다.</p>
     </Section>
   </>
 }
