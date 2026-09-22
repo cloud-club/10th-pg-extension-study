@@ -1,0 +1,21 @@
+name: pg-study-catalog-shinkeonkim-hstore-03
+
+services:
+  postgres:
+    build: .
+    container_name: pg-study-catalog-shinkeonkim-hstore-03
+    environment:
+      POSTGRES_DB: study
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "127.0.0.1:15942:5432"
+    volumes:
+      - ./sql:/lab/sql:ro
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -p 5432 -U postgres -d study"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+      start_period: 30s
