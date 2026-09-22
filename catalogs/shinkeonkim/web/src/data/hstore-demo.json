@@ -1,0 +1,259 @@
+{
+  "note": "PostgreSQL 16.15 · hstore 1.8 · 별도 임시 study DB에서 실측. PID·경과 시간·물리 크기는 실행마다 달라질 수 있다.",
+  "available": {
+    "sql": "SELECT name, default_version, installed_version\nFROM pg_available_extensions WHERE name = 'hstore';",
+    "output": "name  | default_version | installed_version \n--------+-----------------+-------------------\n hstore | 1.8             | \n(1 row)"
+  },
+  "trusted": {
+    "sql": "SELECT name, version, trusted, relocatable\nFROM pg_available_extension_versions WHERE name = 'hstore';",
+    "output": "name  | version | trusted | relocatable \n--------+---------+---------+-------------\n hstore | 1.4     | t       | t\n hstore | 1.7     | t       | t\n hstore | 1.8     | t       | t\n hstore | 1.5     | t       | t\n hstore | 1.6     | t       | t\n(5 rows)"
+  },
+  "create": "CREATE EXTENSION hstore;",
+  "objects": {
+    "sql": "SELECT classid::regclass AS kind, count(*) AS n\nFROM pg_depend\nWHERE refclassid = 'pg_extension'::regclass\n  AND refobjid = (SELECT oid FROM pg_extension WHERE extname = 'hstore')\n  AND deptype = 'e'\nGROUP BY 1 ORDER BY 2 DESC;",
+    "output": "kind     | n  \n-------------+----\n pg_proc     | 60\n pg_operator | 20\n pg_opclass  |  4\n pg_opfamily |  4\n pg_cast     |  3\n pg_type     |  2\n(6 rows)"
+  },
+  "literal_basic": {
+    "sql": "SELECT 'a=>1, b=>2'::hstore AS basic,\n       '  a  =>  1 ,   b=>2 '::hstore AS whitespace_ignored;",
+    "output": "basic        | whitespace_ignored \n--------------------+--------------------\n \"a\"=>\"1\", \"b\"=>\"2\" | \"a\"=>\"1\", \"b\"=>\"2\"\n(1 row)"
+  },
+  "literal_quoted": {
+    "sql": "SELECT '\"key with space\"=>\"value, with comma\"'::hstore AS quoted;\nSELECT 'say=>\"he said \\\"hi\\\"\"'::hstore AS escaped_quote;",
+    "output": "quoted                 \n---------------------------------------\n \"key with space\"=>\"value, with comma\"\n(1 row)\n\n      escaped_quote      \n-------------------------\n \"say\"=>\"he said \\\"hi\\\"\"\n(1 row)"
+  },
+  "literal_sorted": {
+    "sql": "SELECT 'ccc=>1, b=>2, aa=>3, ab=>4'::hstore AS sorted;",
+    "output": "sorted                   \n--------------------------------------------\n \"b\"=>\"2\", \"aa\"=>\"3\", \"ab\"=>\"4\", \"ccc\"=>\"1\"\n(1 row)"
+  },
+  "literal_duplicate": {
+    "sql": "SELECT 'a=>1, a=>2'::hstore AS duplicate_key;",
+    "output": "duplicate_key \n---------------\n \"a\"=>\"1\"\n(1 row)"
+  },
+  "literal_nulls": {
+    "sql": "SELECT h -> 'a' IS NULL AS a_null, h -> 'b' IS NULL AS b_null,\n       h -> 'c' IS NULL AS c_null, exist(h, 'a') AS a_exists, defined(h, 'a') AS a_defined\nFROM (SELECT 'a=>NULL, b=>\"NULL\", c=>\"\"'::hstore AS h) s;",
+    "output": "a_null | b_null | c_null | a_exists | a_defined \n--------+--------+--------+----------+-----------\n t      | f      | f      | t        | f\n(1 row)"
+  },
+  "text_type": {
+    "sql": "SELECT pg_typeof('n=>42'::hstore -> 'n') AS value_type,\n       ('n=>42'::hstore -> 'n')::int + 1 AS after_cast;",
+    "output": "value_type | after_cast \n------------+------------\n text       |         43\n(1 row)"
+  },
+  "text_type_error": {
+    "sql": "SELECT ('n=>42'::hstore -> 'n') + 1;",
+    "output": "ERROR:  operator does not exist: text + integer\nLINE 1: SELECT ('n=>42'::hstore -> 'n') + 1;\n                                        ^\nHINT:  No operator matches the given name and argument types. You might need to add explicit type casts."
+  },
+  "setup_product": "CREATE TABLE product (id serial PRIMARY KEY, name text NOT NULL, attrs hstore NOT NULL DEFAULT '');\nINSERT INTO product (name, attrs) VALUES\n  ('shirt',  'color=>red,   size=>M, material=>cotton'),\n  ('mug',    'color=>white, capacity=>350ml, material=>ceramic'),\n  ('laptop', 'brand=>acme,  ram=>16GB, ssd=>512GB, color=>silver'),\n  ('hoodie', 'color=>red,   size=>L, material=>cotton, promo=>yes');",
+  "op_fetch": {
+    "sql": "SELECT name, attrs -> 'color' AS color,\n       attrs -> ARRAY['color', 'size'] AS color_and_size\nFROM product ORDER BY id;",
+    "output": "name  | color  | color_and_size \n--------+--------+----------------\n shirt  | red    | {red,M}\n mug    | white  | {white,NULL}\n laptop | silver | {silver,NULL}\n hoodie | red    | {red,L}\n(4 rows)"
+  },
+  "op_exists": {
+    "sql": "SELECT name FROM product WHERE attrs ? 'promo';\nSELECT name FROM product WHERE attrs ?& ARRAY['color', 'size'] ORDER BY id;\nSELECT name FROM product WHERE attrs ?| ARRAY['ram', 'capacity'] ORDER BY id;",
+    "output": "name  \n--------\n hoodie\n(1 row)\n\n  name  \n--------\n shirt\n hoodie\n(2 rows)\n\n  name  \n--------\n mug\n laptop\n(2 rows)"
+  },
+  "op_contains": {
+    "sql": "SELECT name FROM product WHERE attrs @> 'color=>red' ORDER BY id;\nSELECT name FROM product WHERE attrs @> 'color=>red, material=>cotton' ORDER BY id;\nSELECT 'color=>red'::hstore <@ (SELECT attrs FROM product WHERE id = 1) AS contained;",
+    "output": "name  \n--------\n shirt\n hoodie\n(2 rows)\n\n  name  \n--------\n shirt\n hoodie\n(2 rows)\n\n contained \n-----------\n t\n(1 row)"
+  },
+  "op_merge": {
+    "sql": "SELECT attrs || 'color=>blue, stock=>10' AS merged\nFROM product WHERE id = 1;",
+    "output": "merged                               \n-------------------------------------------------------------------\n \"size\"=>\"M\", \"color\"=>\"blue\", \"stock\"=>\"10\", \"material\"=>\"cotton\"\n(1 row)"
+  },
+  "op_delete": {
+    "sql": "SELECT attrs - 'material'::text AS del_key,\n       attrs - ARRAY['material', 'size'] AS del_keys,\n       attrs - 'color=>red, size=>XL'::hstore AS del_pairs\nFROM product WHERE id = 1;",
+    "output": "del_key           |    del_keys    |             del_pairs             \n-----------------------------+----------------+-----------------------------------\n \"size\"=>\"M\", \"color\"=>\"red\" | \"color\"=>\"red\" | \"size\"=>\"M\", \"material\"=>\"cotton\"\n(1 row)"
+  },
+  "op_delete_error": {
+    "sql": "SELECT attrs - 'material' FROM product WHERE id = 1;",
+    "output": "ERROR:  syntax error in hstore: unexpected end of string\nLINE 1: SELECT attrs - 'material' FROM product WHERE id = 1;\n                       ^"
+  },
+  "fn_keys_vals": {
+    "sql": "SELECT akeys(attrs) AS keys, avals(attrs) AS vals FROM product WHERE id = 1;\nSELECT (each(attrs)).key, (each(attrs)).value FROM product WHERE id = 1;",
+    "output": "keys          |      vals      \n-----------------------+----------------\n {size,color,material} | {M,red,cotton}\n(1 row)\n\n   key    | value  \n----------+--------\n size     | M\n color    | red\n material | cotton\n(3 rows)"
+  },
+  "fn_build": {
+    "sql": "SELECT hstore(ARRAY['a', 'b'], ARRAY['1', '2']) AS from_arrays,\n       hstore('k', 'v') AS one_pair;\nSELECT hstore(p) AS from_record FROM product p WHERE id = 1;\nSELECT hstore(array_agg(name), array_agg(attrs -> 'color')) AS name_to_color FROM product;",
+    "output": "from_arrays     | one_pair \n--------------------+----------\n \"a\"=>\"1\", \"b\"=>\"2\" | \"k\"=>\"v\"\n(1 row)\n\n                                             from_record                                              \n------------------------------------------------------------------------------------------------------\n \"id\"=>\"1\", \"name\"=>\"shirt\", \"attrs\"=>\"\\\"size\\\"=>\\\"M\\\", \\\"color\\\"=>\\\"red\\\", \\\"material\\\"=>\\\"cotton\\\"\"\n(1 row)\n\n                            name_to_color                            \n---------------------------------------------------------------------\n \"mug\"=>\"white\", \"shirt\"=>\"red\", \"hoodie\"=>\"red\", \"laptop\"=>\"silver\"\n(1 row)"
+  },
+  "fn_populate": {
+    "sql": "CREATE TYPE spec AS (color text, size text, ram text);\nSELECT * FROM populate_record(NULL::spec, (SELECT attrs FROM product WHERE id = 3));",
+    "output": "color  | size | ram  \n--------+------+------\n silver |      | 16GB\n(1 row)"
+  },
+  "fn_key_stats": {
+    "sql": "SELECT k AS attr, count(*) AS rows\nFROM product, LATERAL skeys(attrs) AS k\nGROUP BY k ORDER BY rows DESC, attr;",
+    "output": "attr   | rows \n----------+------\n color    |    4\n material |    3\n size     |    2\n brand    |    1\n capacity |    1\n promo    |    1\n ram      |    1\n ssd      |    1\n(8 rows)"
+  },
+  "sub_read": {
+    "sql": "SELECT extversion FROM pg_extension WHERE extname = 'hstore';\nSELECT name, attrs['color'] AS color FROM product ORDER BY id;",
+    "output": "extversion \n------------\n 1.8\n(1 row)\n\n  name  | color  \n--------+--------\n shirt  | red\n mug    | white\n laptop | silver\n hoodie | red\n(4 rows)"
+  },
+  "sub_write": {
+    "sql": "UPDATE product SET attrs['color'] = 'blue', attrs['stock'] = '7' WHERE id = 1;\nSELECT name, attrs FROM product WHERE id = 1;",
+    "output": "name  |                              attrs                               \n-------+------------------------------------------------------------------\n shirt | \"size\"=>\"M\", \"color\"=>\"blue\", \"stock\"=>\"7\", \"material\"=>\"cotton\"\n(1 row)"
+  },
+  "upd_concat": {
+    "sql": "UPDATE product SET attrs = attrs || 'color=>green, size=>XL, stock=>3' WHERE id = 1;\nSELECT name, attrs FROM product WHERE id = 1;",
+    "output": "name  |                               attrs                                \n-------+--------------------------------------------------------------------\n shirt | \"size\"=>\"XL\", \"color\"=>\"green\", \"stock\"=>\"3\", \"material\"=>\"cotton\"\n(1 row)"
+  },
+  "upd_delete": {
+    "sql": "UPDATE product SET attrs = attrs - 'stock'::text WHERE id = 1;\nSELECT name, attrs FROM product WHERE id = 1;",
+    "output": "name  |                        attrs                         \n-------+------------------------------------------------------\n shirt | \"size\"=>\"XL\", \"color\"=>\"green\", \"material\"=>\"cotton\"\n(1 row)"
+  },
+  "upd_counter": {
+    "sql": "UPDATE product\nSET attrs = attrs || hstore('views', (coalesce((attrs -> 'views')::int, 0) + 1)::text)\nWHERE id = 2\nRETURNING attrs -> 'views' AS views;",
+    "output": "views \n-------\n 1\n(1 row)"
+  },
+  "sub_null_error": {
+    "sql": "UPDATE product SET attrs[NULL] = 'x' WHERE id = 1;",
+    "output": "ERROR:  hstore subscript in assignment must not be null"
+  },
+  "to_json": {
+    "sql": "SELECT hstore_to_json('n=>42, t=>true, s=>hello, z=>NULL') AS json_strict;\nSELECT hstore_to_jsonb('n=>42, t=>true, s=>hello, z=>NULL') AS jsonb_strict;",
+    "output": "json_strict                    \n---------------------------------------------------\n {\"n\": \"42\", \"s\": \"hello\", \"t\": \"true\", \"z\": null}\n(1 row)\n\n                   jsonb_strict                    \n---------------------------------------------------\n {\"n\": \"42\", \"s\": \"hello\", \"t\": \"true\", \"z\": null}\n(1 row)"
+  },
+  "to_jsonb_loose": {
+    "sql": "SELECT hstore_to_jsonb_loose('n=>42, flag=>t, off=>f, word=>true, s=>hello, z=>NULL, ver=>1.10, zip=>007') AS jsonb_loose;",
+    "output": "jsonb_loose                                                \n-----------------------------------------------------------------------------------------------------------\n {\"n\": 42, \"s\": \"hello\", \"z\": null, \"off\": false, \"ver\": 1.10, \"zip\": \"007\", \"flag\": true, \"word\": \"true\"}\n(1 row)"
+  },
+  "jsonb_to_hstore": {
+    "sql": "WITH src AS (\n  SELECT '{\"a\": 1, \"b\": true, \"c\": [1, 2], \"d\": {\"x\": 1}}'::jsonb AS j\n)\nSELECT hstore(array_agg(key), array_agg(value)) AS as_hstore\nFROM src, LATERAL jsonb_each_text(src.j);",
+    "output": "as_hstore                        \n---------------------------------------------------------\n \"a\"=>\"1\", \"b\"=>\"true\", \"c\"=>\"[1, 2]\", \"d\"=>\"{\\\"x\\\": 1}\"\n(1 row)"
+  },
+  "jsonb_order": {
+    "sql": "SELECT '{\"ccc\": 1, \"b\": 2, \"aa\": 3, \"b\": 9}'::jsonb AS jsonb_value,\n       'ccc=>1, b=>2, aa=>3, b=>9'::hstore AS hstore_value;",
+    "output": "jsonb_value         |          hstore_value           \n-----------------------------+---------------------------------\n {\"b\": 9, \"aa\": 3, \"ccc\": 1} | \"b\"=>\"2\", \"aa\"=>\"3\", \"ccc\"=>\"1\"\n(1 row)"
+  },
+  "sort_text": {
+    "sql": "SELECT h -> 'n' AS as_text\nFROM unnest(ARRAY['n=>9', 'n=>10', 'n=>2']::hstore[]) AS h\nORDER BY h -> 'n';\nSELECT h -> 'n' AS as_int\nFROM unnest(ARRAY['n=>9', 'n=>10', 'n=>2']::hstore[]) AS h\nORDER BY (h -> 'n')::int;",
+    "output": "as_text \n---------\n 10\n 2\n 9\n(3 rows)\n\n as_int \n--------\n 2\n 9\n 10\n(3 rows)"
+  },
+  "kv_setup": "CREATE TABLE kv (k text PRIMARY KEY, h hstore NOT NULL DEFAULT '');",
+  "kv_hset": {
+    "sql": "-- HSET user:1 name Kim age 30  (키가 있으면 필드를 합치고, 없으면 만든다)\nINSERT INTO kv VALUES ('user:1', 'name=>Kim, age=>30')\nON CONFLICT (k) DO UPDATE SET h = kv.h || EXCLUDED.h\nRETURNING k, h;",
+    "output": "k    |             h              \n--------+----------------------------\n user:1 | \"age\"=>\"30\", \"name\"=>\"Kim\"\n(1 row)"
+  },
+  "kv_hget": {
+    "sql": "SELECT h -> 'name' AS hget_name, h ? 'age' AS hexists_age,\n       akeys(h) AS hkeys, avals(h) AS hvals, array_length(akeys(h), 1) AS hlen\nFROM kv WHERE k = 'user:1';",
+    "output": "hget_name | hexists_age |   hkeys    |  hvals   | hlen \n-----------+-------------+------------+----------+------\n Kim       | t           | {age,name} | {30,Kim} |    2\n(1 row)"
+  },
+  "kv_hincrby": {
+    "sql": "-- HINCRBY user:1 age 1\nUPDATE kv SET h = h || hstore('age', ((h -> 'age')::int + 1)::text)\nWHERE k = 'user:1'\nRETURNING h -> 'age' AS age;",
+    "output": "age \n-----\n 31\n(1 row)"
+  },
+  "kv_hgetall": {
+    "sql": "-- HGETALL user:1\nSELECT (each(h)).* FROM kv WHERE k = 'user:1';",
+    "output": "key  | value \n------+-------\n age  | 31\n name | Kim\n(2 rows)"
+  },
+  "kv_hdel": {
+    "sql": "-- HDEL user:1 age\nUPDATE kv SET h = h - 'age'::text WHERE k = 'user:1' RETURNING h;",
+    "output": "h       \n---------------\n \"name\"=>\"Kim\"\n(1 row)"
+  },
+  "st_setup": "CREATE EXTENSION pageinspect;\nCREATE TABLE s (id int, attrs hstore);\nINSERT INTO s VALUES (1, 'ccc=>333, aa=>1, b=>NULL, aa=>9');",
+  "st_logical": {
+    "sql": "SELECT attrs, pg_column_size(attrs) AS stored_bytes FROM s;",
+    "output": "attrs                | stored_bytes \n------------------------------------+--------------\n \"b\"=>NULL, \"aa\"=>\"1\", \"ccc\"=>\"333\" |           39\n(1 row)"
+  },
+  "st_hex": {
+    "sql": "SELECT t_hoff, encode(substring(t_data FROM 5), 'hex') AS hstore_hex\nFROM heap_page_items(get_raw_page('s', 0));",
+    "output": "t_hoff |                                   hstore_hex                                   \n--------+--------------------------------------------------------------------------------\n     24 | 4f0300008001000080010000400300000004000000070000000a00000062616131636363333333\n(1 row)"
+  },
+  "st_u32": "CREATE FUNCTION u32(b bytea, off int) RETURNS bigint LANGUAGE sql IMMUTABLE AS $$\n  SELECT get_byte(b, off)::bigint + get_byte(b, off + 1)::bigint * 256\n       + get_byte(b, off + 2)::bigint * 65536 + get_byte(b, off + 3)::bigint * 16777216\n$$;",
+  "st_header": {
+    "sql": "WITH raw AS (\n  SELECT substring(t_data FROM 5) AS b FROM heap_page_items(get_raw_page('s', 0))\n)\nSELECT get_byte(b, 0) >> 1                    AS varlena_total_bytes,\n       (u32(b, 1) & x'0FFFFFFF'::int)         AS pair_count,\n       (u32(b, 1) >> 31) = 1                  AS new_format_flag\nFROM raw;",
+    "output": "varlena_total_bytes | pair_count | new_format_flag \n---------------------+------------+-----------------\n                  39 |          3 | t\n(1 row)"
+  },
+  "st_entries": {
+    "sql": "WITH raw AS (\n  SELECT substring(t_data FROM 5) AS b FROM heap_page_items(get_raw_page('s', 0))\n), hdr AS (\n  SELECT b, (u32(b, 1) & x'0FFFFFFF'::int)::int AS n FROM raw\n), ent AS (\n  SELECT g AS i, CASE WHEN g % 2 = 0 THEN 'key' ELSE 'value' END AS role,\n         u32(b, 5 + 4 * g) AS e, b, n\n  FROM hdr, generate_series(0, 2 * n - 1) g\n), pos AS (\n  SELECT *, e & x'3FFFFFFF'::int AS end_pos,\n         coalesce(lag(e & x'3FFFFFFF'::int) OVER (ORDER BY i), 0) AS start_pos\n  FROM ent\n)\nSELECT i, role, (e >> 31) & 1 AS isfirst, (e >> 30) & 1 AS isnull, end_pos, end_pos - start_pos AS len,\n       CASE WHEN (e >> 30) & 1 = 1 THEN NULL\n            ELSE convert_from(substring(b FROM (5 + 8 * n + 1 + start_pos)::int FOR (end_pos - start_pos)::int), 'UTF8') END AS text\nFROM pos ORDER BY i;",
+    "output": "i | role  | isfirst | isnull | end_pos | len | text \n---+-------+---------+--------+---------+-----+------\n 0 | key   |       1 |      0 |       1 |   1 | b\n 1 | value |       0 |      1 |       1 |   0 | \n 2 | key   |       0 |      0 |       3 |   2 | aa\n 3 | value |       0 |      0 |       4 |   1 | 1\n 4 | key   |       0 |      0 |       7 |   3 | ccc\n 5 | value |       0 |      0 |      10 |   3 | 333\n(6 rows)"
+  },
+  "st_formula": {
+    "sql": "SELECT pg_column_size(attrs) AS stored,\n       4 + 4 + 4 * 2 * 3 + (1 + 2 + 1 + 3 + 3)     AS raw_by_formula,\n       4 + 4 + 4 * 2 * 3 + (1 + 2 + 1 + 3 + 3) - 3 AS short_header_by_formula\nFROM s;",
+    "output": "stored | raw_by_formula | short_header_by_formula \n--------+----------------+-------------------------\n     39 |             42 |                      39\n(1 row)"
+  },
+  "st_null_vs_empty": {
+    "sql": "SELECT pg_column_size('a=>NULL'::hstore) AS null_value,\n       pg_column_size('a=>\"\"'::hstore)   AS empty_string,\n       pg_column_size('a=>x'::hstore)    AS one_char;",
+    "output": "null_value | empty_string | one_char \n------------+--------------+----------\n         17 |           17 |       18\n(1 row)"
+  },
+  "ix_opclasses": {
+    "sql": "SELECT am.amname AS index_method, opc.opcname AS operator_class, amop.amopopr::regoperator AS operator\nFROM pg_opclass opc\nJOIN pg_am am ON am.oid = opc.opcmethod\nJOIN pg_amop amop ON amop.amopfamily = opc.opcfamily AND amop.amoplefttype = 'hstore'::regtype\nWHERE opc.opcintype = 'hstore'::regtype\nORDER BY 1, 2, 3;",
+    "output": "index_method |  operator_class  |      operator       \n--------------+------------------+---------------------\n btree        | btree_hstore_ops | =(hstore,hstore)\n btree        | btree_hstore_ops | #>#(hstore,hstore)\n btree        | btree_hstore_ops | #>=#(hstore,hstore)\n btree        | btree_hstore_ops | #<#(hstore,hstore)\n btree        | btree_hstore_ops | #<=#(hstore,hstore)\n gin          | gin_hstore_ops   | ?(hstore,text)\n gin          | gin_hstore_ops   | ?|(hstore,text[])\n gin          | gin_hstore_ops   | ?&(hstore,text[])\n gin          | gin_hstore_ops   | @>(hstore,hstore)\n gist         | gist_hstore_ops  | ?(hstore,text)\n gist         | gist_hstore_ops  | ?|(hstore,text[])\n gist         | gist_hstore_ops  | ?&(hstore,text[])\n gist         | gist_hstore_ops  | @>(hstore,hstore)\n hash         | hash_hstore_ops  | =(hstore,hstore)\n(14 rows)"
+  },
+  "ix_setup": "CREATE TABLE item (id int PRIMARY KEY, attrs hstore NOT NULL);\nINSERT INTO item\nSELECT id,\n       hstore(ARRAY['color','size','brand','sku_grp'],\n              ARRAY[(ARRAY['red','green','blue','black','white','gray','pink','navy'])[1 + id % 8],\n                    (ARRAY['S','M','L','XL','XXL'])[1 + (id / 8) % 5],\n                    'brand' || lpad((id % 40)::text, 2, '0'),\n                    'g' || lpad((id % 1000)::text, 4, '0')])\n       || CASE WHEN id % 1000 = 7 THEN hstore('promo', 'yes') ELSE ''::hstore END\nFROM generate_series(1, 100000) id;\nINSERT INTO item SELECT 100000 + i, 'shade=>red, color=>blue, sku_grp=>g0007'::hstore FROM generate_series(1, 500) i;\nVACUUM (ANALYZE) item;",
+  "ix_seq": {
+    "sql": "EXPLAIN (COSTS OFF) SELECT count(*) FROM item WHERE attrs @> 'color=>red, sku_grp=>g0007';",
+    "output": "QUERY PLAN                                \n-------------------------------------------------------------------------\n Aggregate\n   ->  Seq Scan on item\n         Filter: (attrs @> '\"color\"=>\"red\", \"sku_grp\"=>\"g0007\"'::hstore)\n(3 rows)"
+  },
+  "ix_gin_create": "CREATE INDEX item_gin ON item USING gin (attrs);",
+  "ix_gin_contains": {
+    "sql": "EXPLAIN (COSTS OFF) SELECT count(*) FROM item WHERE attrs @> 'color=>red, sku_grp=>g0007';",
+    "output": "QUERY PLAN                                     \n-----------------------------------------------------------------------------------\n Aggregate\n   ->  Bitmap Heap Scan on item\n         Recheck Cond: (attrs @> '\"color\"=>\"red\", \"sku_grp\"=>\"g0007\"'::hstore)\n         ->  Bitmap Index Scan on item_gin\n               Index Cond: (attrs @> '\"color\"=>\"red\", \"sku_grp\"=>\"g0007\"'::hstore)\n(5 rows)"
+  },
+  "ix_gin_exists": {
+    "sql": "EXPLAIN (COSTS OFF) SELECT count(*) FROM item WHERE attrs ? 'promo';\nEXPLAIN (COSTS OFF) SELECT count(*) FROM item WHERE attrs ?& ARRAY['promo', 'color'];",
+    "output": "QUERY PLAN                     \n---------------------------------------------------\n Aggregate\n   ->  Bitmap Heap Scan on item\n         Recheck Cond: (attrs ? 'promo'::text)\n         ->  Bitmap Index Scan on item_gin\n               Index Cond: (attrs ? 'promo'::text)\n(5 rows)\n\n                          QUERY PLAN                          \n--------------------------------------------------------------\n Aggregate\n   ->  Bitmap Heap Scan on item\n         Recheck Cond: (attrs ?& '{promo,color}'::text[])\n         ->  Bitmap Index Scan on item_gin\n               Index Cond: (attrs ?& '{promo,color}'::text[])\n(5 rows)"
+  },
+  "ix_arrow_seq": {
+    "sql": "EXPLAIN (COSTS OFF) SELECT count(*) FROM item WHERE attrs -> 'brand' = 'brand07';",
+    "output": "QUERY PLAN                          \n--------------------------------------------------------------\n Aggregate\n   ->  Seq Scan on item\n         Filter: ((attrs -> 'brand'::text) = 'brand07'::text)\n(3 rows)"
+  },
+  "ix_recheck": {
+    "sql": "EXPLAIN (ANALYZE, COSTS OFF, TIMING OFF, SUMMARY OFF)\nSELECT count(*) FROM item WHERE attrs @> 'color=>red, sku_grp=>g0007';",
+    "output": "QUERY PLAN                                     \n-----------------------------------------------------------------------------------\n Aggregate (actual rows=1 loops=1)\n   ->  Bitmap Heap Scan on item (actual rows=0 loops=1)\n         Recheck Cond: (attrs @> '\"color\"=>\"red\", \"sku_grp\"=>\"g0007\"'::hstore)\n         Rows Removed by Index Recheck: 500\n         Heap Blocks: exact=7\n         ->  Bitmap Index Scan on item_gin (actual rows=500 loops=1)\n               Index Cond: (attrs @> '\"color\"=>\"red\", \"sku_grp\"=>\"g0007\"'::hstore)\n(7 rows)"
+  },
+  "ix_expr_create": "CREATE INDEX item_brand ON item ((attrs -> 'brand'));",
+  "ix_expr": {
+    "sql": "EXPLAIN (COSTS OFF) SELECT count(*) FROM item WHERE attrs -> 'brand' = 'brand07';",
+    "output": "QUERY PLAN                               \n------------------------------------------------------------------------\n Aggregate\n   ->  Bitmap Heap Scan on item\n         Recheck Cond: ((attrs -> 'brand'::text) = 'brand07'::text)\n         ->  Bitmap Index Scan on item_brand\n               Index Cond: ((attrs -> 'brand'::text) = 'brand07'::text)\n(5 rows)"
+  },
+  "ix_gist_create": "CREATE INDEX item_gist16 ON item USING gist (attrs gist_hstore_ops(siglen = 16));\nCREATE INDEX item_gist128 ON item USING gist (attrs gist_hstore_ops(siglen = 128));",
+  "ix_sizes": {
+    "sql": "SELECT c.relname AS index, am.amname AS method, pg_size_pretty(pg_relation_size(c.oid)) AS size\nFROM pg_class c JOIN pg_am am ON am.oid = c.relam\nWHERE c.relname LIKE 'item\\_%' ESCAPE '\\' AND c.relkind = 'i'\nORDER BY pg_relation_size(c.oid) DESC;\nSELECT pg_size_pretty(pg_relation_size('item')) AS table_heap;",
+    "output": "index     | method |  size   \n--------------+--------+---------\n item_gist128 | gist   | 18 MB\n item_gist16  | gist   | 4912 kB\n item_pkey    | btree  | 2216 kB\n item_gin     | gin    | 1784 kB\n item_brand   | btree  | 696 kB\n(5 rows)\n\n table_heap \n------------\n 11 MB\n(1 row)"
+  },
+  "ops_cleanup": "DROP INDEX item_gist16, item_gist128;",
+  "ops_estimate_contains": {
+    "sql": "EXPLAIN (ANALYZE, TIMING OFF, SUMMARY OFF) SELECT * FROM item WHERE attrs ? 'promo';\nEXPLAIN (ANALYZE, TIMING OFF, SUMMARY OFF) SELECT * FROM item WHERE attrs @> 'sku_grp=>g0007';\nEXPLAIN (ANALYZE, TIMING OFF, SUMMARY OFF) SELECT * FROM item WHERE attrs @> 'color=>red';",
+    "output": "QUERY PLAN                                             \n---------------------------------------------------------------------------------------------------\n Bitmap Heap Scan on item  (cost=12.86..50.41 rows=10 width=79) (actual rows=100 loops=1)\n   Recheck Cond: (attrs ? 'promo'::text)\n   Heap Blocks: exact=100\n   ->  Bitmap Index Scan on item_gin  (cost=0.00..12.86 rows=10 width=0) (actual rows=100 loops=1)\n         Index Cond: (attrs ? 'promo'::text)\n(5 rows)\n\n                                             QUERY PLAN                                             \n----------------------------------------------------------------------------------------------------\n Bitmap Heap Scan on item  (cost=24.11..1012.61 rows=499 width=79) (actual rows=600 loops=1)\n   Recheck Cond: (attrs @> '\"sku_grp\"=>\"g0007\"'::hstore)\n   Heap Blocks: exact=107\n   ->  Bitmap Index Scan on item_gin  (cost=0.00..23.98 rows=499 width=0) (actual rows=600 loops=1)\n         Index Cond: (attrs @> '\"sku_grp\"=>\"g0007\"'::hstore)\n(5 rows)\n\n                                               QUERY PLAN                                               \n--------------------------------------------------------------------------------------------------------\n Bitmap Heap Scan on item  (cost=100.74..1608.14 rows=11952 width=79) (actual rows=12500 loops=1)\n   Recheck Cond: (attrs @> '\"color\"=>\"red\"'::hstore)\n   Rows Removed by Index Recheck: 500\n   Heap Blocks: exact=1358\n   ->  Bitmap Index Scan on item_gin  (cost=0.00..97.75 rows=11952 width=0) (actual rows=13000 loops=1)\n         Index Cond: (attrs @> '\"color\"=>\"red\"'::hstore)\n(6 rows)"
+  },
+  "ops_estimate_expr_before": {
+    "sql": "-- 식 인덱스를 만든 직후, 아직 ANALYZE 전\nEXPLAIN (ANALYZE, TIMING OFF, SUMMARY OFF) SELECT * FROM item WHERE attrs -> 'brand' = 'brand07';",
+    "output": "QUERY PLAN                                              \n------------------------------------------------------------------------------------------------------\n Bitmap Heap Scan on item  (cost=8.18..1000.96 rows=502 width=79) (actual rows=2500 loops=1)\n   Recheck Cond: ((attrs -> 'brand'::text) = 'brand07'::text)\n   Heap Blocks: exact=1351\n   ->  Bitmap Index Scan on item_brand  (cost=0.00..8.06 rows=502 width=0) (actual rows=2500 loops=1)\n         Index Cond: ((attrs -> 'brand'::text) = 'brand07'::text)\n(5 rows)"
+  },
+  "ops_analyze": "ANALYZE item;",
+  "ops_estimate_expr_after": {
+    "sql": "-- ANALYZE 뒤\nEXPLAIN (ANALYZE, TIMING OFF, SUMMARY OFF) SELECT * FROM item WHERE attrs -> 'brand' = 'brand07';",
+    "output": "QUERY PLAN                                               \n--------------------------------------------------------------------------------------------------------\n Bitmap Heap Scan on item  (cost=32.39..1443.98 rows=2593 width=79) (actual rows=2500 loops=1)\n   Recheck Cond: ((attrs -> 'brand'::text) = 'brand07'::text)\n   Heap Blocks: exact=1351\n   ->  Bitmap Index Scan on item_brand  (cost=0.00..31.74 rows=2593 width=0) (actual rows=2500 loops=1)\n         Index Cond: ((attrs -> 'brand'::text) = 'brand07'::text)\n(5 rows)"
+  },
+  "ops_monitor": {
+    "sql": "SELECT c.relname,\n       pg_size_pretty(pg_relation_size(c.oid)) AS heap,\n       pg_size_pretty(coalesce(pg_relation_size(c.reltoastrelid), 0)) AS toast,\n       s.n_live_tup, s.n_dead_tup,\n       round(100.0 * s.n_tup_hot_upd / nullif(s.n_tup_upd, 0), 1) AS hot_pct\nFROM pg_class c JOIN pg_stat_user_tables s ON s.relid = c.oid\nWHERE c.relname = 'item';",
+    "output": "relname | heap  |  toast  | n_live_tup | n_dead_tup | hot_pct \n---------+-------+---------+------------+------------+---------\n item    | 11 MB | 0 bytes |     100500 |          0 |        \n(1 row)"
+  },
+  "ops_key_width": {
+    "sql": "SELECT count(*) AS rows,\n       percentile_cont(0.5) WITHIN GROUP (ORDER BY pg_column_size(attrs)) AS median_bytes,\n       max(pg_column_size(attrs)) AS max_bytes,\n       max(array_length(akeys(attrs), 1)) AS max_keys\nFROM item;",
+    "output": "rows  | median_bytes | max_bytes | max_keys \n--------+--------------+-----------+----------\n 100500 |           76 |        91 |        5\n(1 row)"
+  },
+  "ops_promote_setup": "ALTER TABLE item ADD COLUMN brand text;",
+  "ops_promote": {
+    "sql": "-- 자주 쓰는 키를 열로 승격: 값을 복사하고 hstore에서는 뺀다\nUPDATE item SET brand = attrs -> 'brand', attrs = attrs - 'brand'::text WHERE id <= 5;\nSELECT id, brand, attrs FROM item WHERE id <= 3 ORDER BY id;",
+    "output": "id |  brand  |                       attrs                       \n----+---------+---------------------------------------------------\n  1 | brand01 | \"size\"=>\"S\", \"color\"=>\"green\", \"sku_grp\"=>\"g0001\"\n  2 | brand02 | \"size\"=>\"S\", \"color\"=>\"blue\", \"sku_grp\"=>\"g0002\"\n  3 | brand03 | \"size\"=>\"S\", \"color\"=>\"black\", \"sku_grp\"=>\"g0003\"\n(3 rows)"
+  },
+  "cc_row_lock": {
+    "sql": "bash /lab/scripts/s1-row-lock.sh",
+    "output": "세션 A: 키 b 를 추가하고, 3초 동안 커밋하지 않는다\n세션 B: (A 가 커밋하기 전에) 같은 행에서 다른 키 c 를 추가한다\n\n[관찰] B 는 지금 무엇을 기다리나 (pg_stat_activity):\n state  | wait_event_type |  wait_event   |                        query                         \n--------+-----------------+---------------+------------------------------------------------------\n active | Lock            | transactionid | UPDATE doc SET attrs = attrs || 'c=>3' WHERE id = 1;\n(1 row)\n\nB 가 끝날 때까지 걸린 시간: 2012 ms  (A 가 커밋할 때까지 기다렸다)\n\n[결과] 두 변경이 모두 남았다:\n            attrs             \n------------------------------\n \"a\"=>\"1\", \"b\"=>\"2\", \"c\"=>\"3\"\n(1 row)\n\n✔ B 가 A 를 기다렸고 두 변경이 모두 남았다"
+  },
+  "cc_lost_update": {
+    "sql": "bash /lab/scripts/s2-lost-update.sh",
+    "output": "세션 A 가 읽은 값: \"a\"=>\"1\"\n세션 B 가 읽은 값: \"a\"=>\"1\"   (A 가 쓰기 전이라 같은 값)\n\n세션 A: 읽은 값에 b=>2 를 합쳐 UPDATE\n세션 B: 자기가 읽은 값에 c=>3 을 합쳐 UPDATE\n\n[결과] A 가 넣은 b 가 사라졌다 (lost update):\n       attrs        \n--------------------\n \"a\"=>\"1\", \"c\"=>\"3\"\n(1 row)\n\n✔ 유실 갱신이 재현됐다"
+  },
+  "cc_atomic_for_update": {
+    "sql": "bash /lab/scripts/s3-atomic-vs-for-update.sh",
+    "output": "=== (1) 원자적 갱신: 새 값을 UPDATE 안에서 계산한다 ===\n            attrs             \n------------------------------\n \"a\"=>\"1\", \"b\"=>\"2\", \"c\"=>\"3\"\n(1 row)\n\n  -> B 는 A 가 커밋하길 기다린 뒤, '최신 행'에 대해 식을 다시 계산했다 (READ COMMITTED 의 재평가).\n\n=== (2) SELECT ... FOR UPDATE: 읽는 순간 행을 잠근다 ===\n  B 는 A 의 커밋을 기다렸다가 '최신' 값을 읽었다: \"a\"=>\"1\", \"b\"=>\"2\"\n            attrs             \n------------------------------\n \"a\"=>\"1\", \"b\"=>\"2\", \"c\"=>\"3\"\n(1 row)\n\n✔ 두 방법 모두 유실이 없었다"
+  },
+  "cc_repeatable_read": {
+    "sql": "bash /lab/scripts/s4-repeatable-read.sh",
+    "output": "세션 B: REPEATABLE READ 로 스냅샷을 잡고 2초 뒤 갱신을 시도한다\n세션 A: 그 사이에 b 를 추가하고 커밋한다\n\n[B 의 결과]\nERROR:  could not serialize access due to concurrent update\n\n[최종 행] B 의 변경은 적용되지 않았다:\n       attrs        \n--------------------\n \"a\"=>\"1\", \"b\"=>\"2\"\n(1 row)\n\n✔ REPEATABLE READ 에서 오류로 거절됐다"
+  },
+  "cc_counter": {
+    "sql": "bash /lab/scripts/s5-counter-pgbench.sh",
+    "output": "읽고 → 앱에서 +1 → 쓰기 (RMW) 최종 cnt = 66 / 400\n원자적 UPDATE ... || (식 안에서 +1) 최종 cnt = 400 / 400\n✔ 읽고-쓰기는 유실(66), 원자적 UPDATE 는 400"
+  }
+}

@@ -1,0 +1,77 @@
+{
+  "tag": "REL_16_15",
+  "commit": "7d3e000c5961a544302072058a1184e9a588837b",
+  "files": {
+    "contrib/hstore/hstore.h": "897af244a4230592d07d0e4184839b71625d5cd8",
+    "contrib/hstore/hstore_io.c": "b6157699af143c00a91ad8e44345cf1145d97219",
+    "contrib/hstore/hstore_op.c": "0d4ec16d1e5401ebbbd9d414798dc667e078e83e",
+    "contrib/hstore/hstore_gin.c": "766c00bb6a7352378061b703dbbff7b63e945230",
+    "contrib/hstore/hstore_subs.c": "6ac91e01935260ddf2883bfc4e0346bf6dd00e04"
+  },
+  "excerpts": {
+    "entry": {
+      "file": "contrib/hstore/hstore.h",
+      "start": 18,
+      "end": 30,
+      "note": "HEntry: 키와 값마다 하나, 문자열 영역 안의 \"끝 위치\"",
+      "code": "typedef struct\n{\n\tuint32\t\tentry;\n} HEntry;\n\n#define HENTRY_ISFIRST 0x80000000\n#define HENTRY_ISNULL  0x40000000\n#define HENTRY_POSMASK 0x3FFFFFFF\n\n/* note possible multiple evaluations, also access to prior array element */\n#define HSE_ISFIRST(he_) (((he_).entry & HENTRY_ISFIRST) != 0)\n#define HSE_ISNULL(he_) (((he_).entry & HENTRY_ISNULL) != 0)\n#define HSE_ENDPOS(he_) ((he_).entry & HENTRY_POSMASK)",
+      "url": "https://github.com/postgres/postgres/blob/REL_16_15/contrib/hstore/hstore.h#L18-L30"
+    },
+    "header": {
+      "file": "contrib/hstore/hstore.h",
+      "start": 44,
+      "end": 76,
+      "note": "HStore 헤더와 CALCDATASIZE·ARRPTR·STRPTR",
+      "code": "typedef struct\n{\n\tint32\t\tvl_len_;\t\t/* varlena header (do not touch directly!) */\n\tuint32\t\tsize_;\t\t\t/* flags and number of items in hstore */\n\t/* array of HEntry follows */\n} HStore;\n\n/*\n * It's not possible to get more than 2^28 items into an hstore, so we reserve\n * the top few bits of the size field.  See hstore_compat.c for one reason\n * why.  Some bits are left for future use here.  MaxAllocSize makes the\n * practical count limit slightly more than 2^28 / 3, or INT_MAX / 24, the\n * limit for an hstore full of 4-byte keys and null values.  Therefore, we\n * don't explicitly check the format-imposed limit.\n */\n#define HS_FLAG_NEWVERSION 0x80000000\n\n#define HS_COUNT(hsp_) ((hsp_)->size_ & 0x0FFFFFFF)\n#define HS_SETCOUNT(hsp_,c_) ((hsp_)->size_ = (c_) | HS_FLAG_NEWVERSION)\n\n\n/*\n * \"x\" comes from an existing HS_COUNT() (as discussed, <= INT_MAX/24) or a\n * Pairs array length (due to MaxAllocSize, <= INT_MAX/40).  \"lenstr\" is no\n * more than INT_MAX, that extreme case arising in hstore_from_arrays().\n * Therefore, this calculation is limited to about INT_MAX / 5 + INT_MAX.\n */\n#define HSHRDSIZE\t(sizeof(HStore))\n#define CALCDATASIZE(x, lenstr) ( (x) * 2 * sizeof(HEntry) + HSHRDSIZE + (lenstr) )\n\n/* note multiple evaluations of x */\n#define ARRPTR(x)\t\t( (HEntry*) ( (HStore*)(x) + 1 ) )\n#define STRPTR(x)\t\t( (char*)(ARRPTR(x) + HS_COUNT((HStore*)(x)) * 2) )",
+      "url": "https://github.com/postgres/postgres/blob/REL_16_15/contrib/hstore/hstore.h#L44-L76"
+    },
+    "compare": {
+      "file": "contrib/hstore/hstore_io.c",
+      "start": 325,
+      "end": 350,
+      "note": "comparePairs: 길이 먼저, 같으면 memcmp",
+      "code": "static int\ncomparePairs(const void *a, const void *b)\n{\n\tconst Pairs *pa = a;\n\tconst Pairs *pb = b;\n\n\tif (pa->keylen == pb->keylen)\n\t{\n\t\tint\t\t\tres = memcmp(pa->key, pb->key, pa->keylen);\n\n\t\tif (res)\n\t\t\treturn res;\n\n\t\t/* guarantee that needfree will be later */\n\t\tif (pb->needfree == pa->needfree)\n\t\t\treturn 0;\n\t\telse if (pa->needfree)\n\t\t\treturn 1;\n\t\telse\n\t\t\treturn -1;\n\t}\n\treturn (pa->keylen > pb->keylen) ? 1 : -1;\n}\n\n/*\n * this code still respects pairs.needfree, even though in general",
+      "url": "https://github.com/postgres/postgres/blob/REL_16_15/contrib/hstore/hstore_io.c#L325-L350"
+    },
+    "findkey": {
+      "file": "contrib/hstore/hstore_op.c",
+      "start": 36,
+      "end": 71,
+      "note": "hstoreFindKey: 정렬된 키 위의 이진 탐색",
+      "code": "hstoreFindKey(HStore *hs, int *lowbound, char *key, int keylen)\n{\n\tHEntry\t   *entries = ARRPTR(hs);\n\tint\t\t\tstopLow = lowbound ? *lowbound : 0;\n\tint\t\t\tstopHigh = HS_COUNT(hs);\n\tint\t\t\tstopMiddle;\n\tchar\t   *base = STRPTR(hs);\n\n\twhile (stopLow < stopHigh)\n\t{\n\t\tint\t\t\tdifference;\n\n\t\tstopMiddle = stopLow + (stopHigh - stopLow) / 2;\n\n\t\tif (HSTORE_KEYLEN(entries, stopMiddle) == keylen)\n\t\t\tdifference = memcmp(HSTORE_KEY(entries, base, stopMiddle), key, keylen);\n\t\telse\n\t\t\tdifference = (HSTORE_KEYLEN(entries, stopMiddle) > keylen) ? 1 : -1;\n\n\t\tif (difference == 0)\n\t\t{\n\t\t\tif (lowbound)\n\t\t\t\t*lowbound = stopMiddle + 1;\n\t\t\treturn stopMiddle;\n\t\t}\n\t\telse if (difference < 0)\n\t\t\tstopLow = stopMiddle + 1;\n\t\telse\n\t\t\tstopHigh = stopMiddle;\n\t}\n\n\tif (lowbound)\n\t\t*lowbound = stopLow;\n\treturn -1;\n}\n",
+      "url": "https://github.com/postgres/postgres/blob/REL_16_15/contrib/hstore/hstore_op.c#L36-L71"
+    },
+    "concat": {
+      "file": "contrib/hstore/hstore_op.c",
+      "start": 515,
+      "end": 552,
+      "note": "hstore_concat: 정렬된 두 배열의 병합",
+      "code": "\ted = ARRPTR(out);\n\n\t/*\n\t * this is in effect a merge between s1 and s2, both of which are already\n\t * sorted by (keylen,key); we take s2 for equal keys\n\t */\n\n\tfor (s1idx = s2idx = 0; s1idx < s1count || s2idx < s2count; ++outcount)\n\t{\n\t\tint\t\t\tdifference;\n\n\t\tif (s1idx >= s1count)\n\t\t\tdifference = 1;\n\t\telse if (s2idx >= s2count)\n\t\t\tdifference = -1;\n\t\telse\n\t\t{\n\t\t\tint\t\t\ts1keylen = HSTORE_KEYLEN(es1, s1idx);\n\t\t\tint\t\t\ts2keylen = HSTORE_KEYLEN(es2, s2idx);\n\n\t\t\tif (s1keylen == s2keylen)\n\t\t\t\tdifference = memcmp(HSTORE_KEY(es1, ps1, s1idx),\n\t\t\t\t\t\t\t\t\tHSTORE_KEY(es2, ps2, s2idx),\n\t\t\t\t\t\t\t\t\ts1keylen);\n\t\t\telse\n\t\t\t\tdifference = (s1keylen > s2keylen) ? 1 : -1;\n\t\t}\n\n\t\tif (difference >= 0)\n\t\t{\n\t\t\tHS_COPYITEM(ed, bufd, pd,\n\t\t\t\t\t\tHSTORE_KEY(es2, ps2, s2idx), HSTORE_KEYLEN(es2, s2idx),\n\t\t\t\t\t\tHSTORE_VALLEN(es2, s2idx), HSTORE_VALISNULL(es2, s2idx));\n\t\t\t++s2idx;\n\t\t\tif (difference == 0)\n\t\t\t\t++s1idx;\n\t\t}\n\t\telse",
+      "url": "https://github.com/postgres/postgres/blob/REL_16_15/contrib/hstore/hstore_op.c#L515-L552"
+    },
+    "gin_extract": {
+      "file": "contrib/hstore/hstore_gin.c",
+      "start": 44,
+      "end": 78,
+      "note": "gin_extract_hstore: K/V/N 항목",
+      "code": "gin_extract_hstore(PG_FUNCTION_ARGS)\n{\n\tHStore\t   *hs = PG_GETARG_HSTORE_P(0);\n\tint32\t   *nentries = (int32 *) PG_GETARG_POINTER(1);\n\tDatum\t   *entries = NULL;\n\tHEntry\t   *hsent = ARRPTR(hs);\n\tchar\t   *ptr = STRPTR(hs);\n\tint\t\t\tcount = HS_COUNT(hs);\n\tint\t\t\ti;\n\n\t*nentries = 2 * count;\n\tif (count)\n\t\tentries = (Datum *) palloc(sizeof(Datum) * 2 * count);\n\n\tfor (i = 0; i < count; ++i)\n\t{\n\t\ttext\t   *item;\n\n\t\titem = makeitem(HSTORE_KEY(hsent, ptr, i),\n\t\t\t\t\t\tHSTORE_KEYLEN(hsent, i),\n\t\t\t\t\t\tKEYFLAG);\n\t\tentries[2 * i] = PointerGetDatum(item);\n\n\t\tif (HSTORE_VALISNULL(hsent, i))\n\t\t\titem = makeitem(NULL, 0, NULLFLAG);\n\t\telse\n\t\t\titem = makeitem(HSTORE_VAL(hsent, ptr, i),\n\t\t\t\t\t\t\tHSTORE_VALLEN(hsent, i),\n\t\t\t\t\t\t\tVALFLAG);\n\t\tentries[2 * i + 1] = PointerGetDatum(item);\n\t}\n\n\tPG_RETURN_POINTER(entries);\n}\n",
+      "url": "https://github.com/postgres/postgres/blob/REL_16_15/contrib/hstore/hstore_gin.c#L44-L78"
+    },
+    "gin_consistent": {
+      "file": "contrib/hstore/hstore_gin.c",
+      "start": 151,
+      "end": 181,
+      "note": "gin_consistent_hstore: @> 는 recheck = true",
+      "code": "gin_consistent_hstore(PG_FUNCTION_ARGS)\n{\n\tbool\t   *check = (bool *) PG_GETARG_POINTER(0);\n\tStrategyNumber strategy = PG_GETARG_UINT16(1);\n\n\t/* HStore\t   *query = PG_GETARG_HSTORE_P(2); */\n\tint32\t\tnkeys = PG_GETARG_INT32(3);\n\n\t/* Pointer\t   *extra_data = (Pointer *) PG_GETARG_POINTER(4); */\n\tbool\t   *recheck = (bool *) PG_GETARG_POINTER(5);\n\tbool\t\tres = true;\n\tint32\t\ti;\n\n\tif (strategy == HStoreContainsStrategyNumber)\n\t{\n\t\t/*\n\t\t * Index doesn't have information about correspondence of keys and\n\t\t * values, so we need recheck.  However, if not all the keys are\n\t\t * present, we can fail at once.\n\t\t */\n\t\t*recheck = true;\n\t\tfor (i = 0; i < nkeys; i++)\n\t\t{\n\t\t\tif (!check[i])\n\t\t\t{\n\t\t\t\tres = false;\n\t\t\t\tbreak;\n\t\t\t}\n\t\t}\n\t}\n\telse if (strategy == HStoreExistsStrategyNumber)",
+      "url": "https://github.com/postgres/postgres/blob/REL_16_15/contrib/hstore/hstore_gin.c#L151-L181"
+    },
+    "subs_handler": {
+      "file": "contrib/hstore/hstore_subs.c",
+      "start": 286,
+      "end": 297,
+      "note": "hstore_subscript_handler",
+      "code": "hstore_subscript_handler(PG_FUNCTION_ARGS)\n{\n\tstatic const SubscriptRoutines sbsroutines = {\n\t\t.transform = hstore_subscript_transform,\n\t\t.exec_setup = hstore_exec_setup,\n\t\t.fetch_strict = true,\t/* fetch returns NULL for NULL inputs */\n\t\t.fetch_leakproof = true,\t/* fetch returns NULL for bad subscript */\n\t\t.store_leakproof = false\t/* ... but assignment throws error */\n\t};\n\n\tPG_RETURN_POINTER(&sbsroutines);\n}",
+      "url": "https://github.com/postgres/postgres/blob/REL_16_15/contrib/hstore/hstore_subs.c#L286-L297"
+    }
+  }
+}
