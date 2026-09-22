@@ -2,7 +2,7 @@
  "clothoVersion": 1,
  "id": "hstore-lost-update",
  "title": "같은 행을 동시에 고치면 — 통째로 쓰면 유실되고, || 는 안전하다",
- "description": "실험 04: 클라이언트 8개가 같은 행에 총 400번. RMW 는 키 62개만 남았다 (10회 중앙값).",
+ "description": "실험 04: 클라이언트 8개가 같은 행에 총 400번. RMW 는 키 63개만 남았다 (10회 중앙값).",
  "duration": 33000,
  "canvas": {
   "width": 940,

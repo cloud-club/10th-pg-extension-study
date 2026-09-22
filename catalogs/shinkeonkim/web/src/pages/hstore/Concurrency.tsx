@@ -13,17 +13,17 @@ const ka = conc.key_add
 const ct = conc.counter
 const total = conc.clients * conc.per_client
 const KEY_LABEL: Record<keyof typeof ka, string> = {
-  rmw_autocommit: '읽고 → 앱에서 합치고 → 쓰기 (각각 자동 커밋)',
-  rmw_read_committed: '같은 일을 한 트랜잭션(READ COMMITTED)에서',
-  rmw_for_update: 'SELECT ... FOR UPDATE 후 쓰기',
-  atomic_concat: 'UPDATE ... SET attrs = attrs || ...',
-  atomic_repeatable_read: '위 UPDATE를 REPEATABLE READ에서',
+  rmw_autocommit: '읽고 → 앱에서 합치고 → 통째로 쓰기 (문장마다 자동 커밋)',
+  rmw_read_committed: '읽고 → 앱에서 합치고 → 통째로 쓰기 (한 트랜잭션, READ COMMITTED)',
+  rmw_for_update: 'SELECT ... FOR UPDATE로 잠그고 읽은 뒤 쓰기',
+  atomic_concat: '원자적 UPDATE (attrs || ...)',
+  atomic_repeatable_read: '원자적 UPDATE (attrs || ...), REPEATABLE READ',
 }
 const CT_LABEL: Record<keyof typeof ct, string> = {
-  counter_rmw: '읽고 → 앱에서 +1 → 쓰기',
-  counter_atomic: 'UPDATE 안에서 +1 (원자적)',
-  counter_for_update: 'SELECT ... FOR UPDATE 후 +1',
-  counter_atomic_repeatable_read: 'UPDATE 안에서 +1, REPEATABLE READ',
+  counter_rmw: '읽고 → 앱에서 +1 계산 → 통째로 쓰기',
+  counter_atomic: '원자적 UPDATE (식 안에서 +1)',
+  counter_for_update: 'SELECT ... FOR UPDATE로 잠그고 읽은 뒤 +1',
+  counter_atomic_repeatable_read: '원자적 UPDATE (식 안에서 +1), REPEATABLE READ',
 }
 const clientsList = [1, 2, 4, 8, 16]
 const cont = (rows: number, c: number) => conc.contention[`rows${rows}_clients${c}` as keyof typeof conc.contention]
@@ -50,27 +50,30 @@ export default function Concurrency() {
     <Section id="lost" title="2. 통째로 쓰면 유실된다">
       <Clotho id="hstore-lost-update" />
       <CodeBlock language="bash" output={demo.cc_lost_update.output} outputCaption="두 세션이 각자 읽고 각자 합쳐 쓴다 · 실제 실행 결과">{demo.cc_lost_update.sql}</CodeBlock>
-      <p>아래는 같은 일을 클라이언트 {conc.clients}개가 각자 {conc.per_client}번, 총 {total}번 반복한 결과다. 매번 <strong>서로 다른 키</strong>를 추가하므로 성공했다면 키가 {total}개 남아야 한다. {conc.runs}회 반복.</p>
-      <table><thead><tr><th>방식</th><th>성공한 UPDATE</th><th>남은 키 (기대 {total})<br />중앙값 (최소~최대)</th><th>유실이 있던 회차</th><th>TPS</th></tr></thead><tbody>
+      <p>아래는 같은 일을 클라이언트 {conc.clients}개가 각자 {conc.per_client}번, 총 {total}번 반복한 결과다. 매번 <strong>서로 다른 키</strong>를 추가하므로 유실 없이 다 반영됐다면 키가 {total}개 남아야 한다. {conc.runs}회 반복.</p>
+      <Callout kind="warn" title="표를 읽는 법: “SQL 오류 없이 실행됨”과 “실제로 값이 남음”은 다른 숫자다">
+        <p>읽고-쓰기 시나리오에서 UPDATE는 <strong>{total}번 다 SQL 오류 없이 끝난다</strong> — 유실은 SQL 오류로 나타나지 않기 때문이다. 그래서 “SQL 오류 없이 실행된 횟수”는 항상 {total}으로 고정이고(모든 방식이 같은 값), 정작 방식마다 갈리는 건 그 옆의 <strong>“실제로 남은 키 수”</strong>다. 이 둘이 같은 시나리오(원자적 UPDATE)도 있고 크게 벌어지는 시나리오(읽고-쓰기)도 있다 — 그 차이 자체가 이 실험의 핵심 결과다.</p>
+      </Callout>
+      <table><thead><tr><th>방식</th><th>실제로 남은 키<br />(기대 {total} · 중앙값, 범위)</th><th>SQL 오류 없이<br />실행된 횟수</th><th>유실이 있던 회차</th><th>TPS</th></tr></thead><tbody>
         {(Object.keys(ka) as (keyof typeof ka)[]).map((n) => <tr key={n}>
           <td>{KEY_LABEL[n]}</td>
-          <td>{range(ka[n].succeeded)}</td>
           <td><strong>{range(ka[n].keys_present)}</strong></td>
+          <td>{range(ka[n].succeeded)}</td>
           <td>{ka[n].runs_with_loss} / {conc.runs}</td>
           <td>{fmtTps(ka[n].tps.median)}</td>
         </tr>)}
       </tbody></table>
-      <ChartBox type="bar" title={`남은 키 수 (중앙값, 기대 ${total})`} height={280}
+      <ChartBox type="bar" title={`실제로 남은 키 수 (중앙값, 기대 ${total})`} height={280}
         data={{
-          labels: ['읽고-쓰기\n(자동 커밋)', '읽고-쓰기\n(한 트랜잭션)', 'FOR UPDATE\n후 쓰기', '원자적 ||', '원자적 ||\n(REPEATABLE READ)'],
+          labels: [['읽고-쓰기', '(자동 커밋)'], ['읽고-쓰기', '(한 트랜잭션)'], ['FOR UPDATE', '후 쓰기'], ['원자적', 'UPDATE'], ['원자적 UPDATE', '(REPEATABLE READ)']],
           datasets: [{ label: '남은 키', data: (Object.keys(ka) as (keyof typeof ka)[]).map((n) => ka[n].keys_present.median), backgroundColor: [C.trgm, C.trgm, C.ok, C.ok, C.warn] }],
         }}
         options={{ scales: { x: axes().x, y: { ...axes({ yTitle: '남은 키 수' }).y, max: total } }, plugins: { legend: { display: false } } }}
-        caption="빨강은 유실, 초록은 유실 없음, 노랑은 유실은 없지만 대부분의 시도가 오류로 실패한 경우다." />
+        caption="빨강은 유실이 있었던 방식, 초록은 유실 없음, 노랑은 유실은 없지만 대부분의 시도가 REPEATABLE READ 오류로 거절된 경우다." />
       <ul>
-        <li><strong>읽고 → 합치고 → 쓰기</strong>는 한 트랜잭션 안에서 해도(READ COMMITTED) 유실된다. 트랜잭션이 남의 변경을 막아 주지 않는다. 오류가 없으니 <strong>조용히</strong> 사라진다.</li>
-        <li><strong><code>attrs || ...</code>와 <code>SELECT ... FOR UPDATE</code></strong>는 {conc.runs}회 모두 {total}개가 남았다(유실 0). 후자는 읽는 순간 행을 잠가 그동안 남이 못 고치게 한다. 대신 TPS가 낮다.</li>
-        <li><strong>REPEATABLE READ</strong>에서는 유실 대신 오류(<code>40001 could not serialize access</code>)로 거절된다. 성공은 {total}번 중 중앙값 {fmtNum(ka.atomic_repeatable_read.succeeded.median)}번이다. 오류난 시도는 재시도해야 한다. (pgbench를 재시도 없이 실행했다.)</li>
+        <li><strong>읽고 → 합치고 → 쓰기</strong>는 한 트랜잭션 안에서 해도(READ COMMITTED) 유실된다. 트랜잭션이 남의 변경을 막아 주지 않는다. UPDATE 문장 자체는 매번 성공(커밋)하므로, 로그만 봐서는 아무 문제가 없어 보인다 — 그런데도 값은 <strong>조용히</strong> 사라진다.</li>
+        <li><strong><code>attrs || ...</code>와 <code>SELECT ... FOR UPDATE</code></strong>는 {conc.runs}회 모두 {total}개가 남았다(유실 0). 후자는 읽는 순간 행을 잠가 그동안 남이 못 고치게 한다. 대신 TPS가 낮다(행 잠금을 오래 쥐고 있기 때문).</li>
+        <li><strong>REPEATABLE READ</strong>에서는 유실 대신 오류(<code>40001 could not serialize access</code>)로 거절된다. {total}번 시도 중 SQL 오류 없이 끝난(=그대로 반영된) 것은 중앙값 {fmtNum(ka.atomic_repeatable_read.succeeded.median)}번뿐이고, 나머지는 40001 오류로 롤백됐다. 오류난 시도는 앱이 재시도해야 한다(이 실험은 재시도 없이 1회만 시도했다).</li>
       </ul>
       <CodeBlock language="bash" output={demo.cc_atomic_for_update.output} outputCaption="유실을 막는 두 방법 · 실제 실행 결과">{demo.cc_atomic_for_update.sql}</CodeBlock>
       <CodeBlock language="bash" output={demo.cc_repeatable_read.output} outputCaption="REPEATABLE READ에서의 오류 · 실제 실행 결과">{demo.cc_repeatable_read.sql}</CodeBlock>
@@ -78,13 +81,13 @@ export default function Concurrency() {
     </Section>
 
     <Section id="counter" title="3. 카운터: 같은 키를 여럿이 올릴 때">
-      <p>키 하나(<code>cnt</code>)를 {conc.clients}개 클라이언트가 {conc.per_client}번씩 올린다. 기대값은 {total}이다.</p>
-      <table><thead><tr><th>방식</th><th>성공한 UPDATE</th><th>최종 값 (중앙값, 범위)</th><th>유실 증가분</th></tr></thead><tbody>
+      <p>키 하나(<code>cnt</code>)를 {conc.clients}개 클라이언트가 {conc.per_client}번씩 올린다. 유실 없이 다 반영됐다면 최종값은 {total}이어야 한다.</p>
+      <table><thead><tr><th>방식</th><th>최종 값<br />(기대 {total} · 중앙값, 범위)</th><th>유실된 증가분<br />(기대 0)</th><th>SQL 오류 없이<br />실행된 횟수</th></tr></thead><tbody>
         {(Object.keys(ct) as (keyof typeof ct)[]).map((n) => <tr key={n}>
           <td>{CT_LABEL[n]}</td>
-          <td>{range(ct[n].succeeded)}</td>
           <td><strong>{range(ct[n].final_value)}</strong></td>
           <td>{range(ct[n].lost_increments)}</td>
+          <td>{range(ct[n].succeeded)}</td>
         </tr>)}
       </tbody></table>
       <CodeBlock language="bash" output={demo.cc_counter.output} outputCaption="lab 04에서 pgbench로 다시 확인 · 실제 실행 결과">{demo.cc_counter.sql}</CodeBlock>

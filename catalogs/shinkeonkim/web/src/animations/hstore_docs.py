@@ -7,6 +7,7 @@ build.py 의 DOCS 에 `docs(kit)` 결과가 합쳐진다. 헬퍼(txt/box)와 색
 """
 from __future__ import annotations
 import json
+import math
 import os
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -20,10 +21,16 @@ def load_stats():
         return json.load(f)
 
 
+def rnd(n):
+    """JS의 Math.round와 같은 반올림(0.5는 항상 위로). Python의 :.0f는 은행가 반올림(62.5→62)이라
+    페이지의 fmtNum(62.5→63)과 어긋날 수 있어, 웹에 나오는 중앙값은 전부 이 함수로 맞춘다."""
+    return math.floor(float(n) + 0.5)
+
+
 def kb(n):
     """바이트를 읽기 좋게. 1000 미만은 B, 그 위는 KB(소수 한 자리)."""
     n = float(n)
-    return f"{n:,.0f} B" if n < 1000 else f"{n / 1000:,.1f} KB"
+    return f"{rnd(n):,} B" if n < 1000 else f"{n / 1000:,.1f} KB"
 
 
 class Story:
@@ -284,7 +291,7 @@ def doc_lost_update(k, st):
     rr = conc["key_add"]["atomic_repeatable_read"]["succeeded"]
     runs = conc["runs"]
     s = Story(k, "hstore-lost-update", "같은 행을 동시에 고치면 — 통째로 쓰면 유실되고, || 는 안전하다",
-              f"실험 04: 클라이언트 {conc['clients']}개가 같은 행에 총 {total}번. RMW 는 키 {rmw['median']:.0f}개만 남았다 ({runs}회 중앙값).",
+              f"실험 04: 클라이언트 {conc['clients']}개가 같은 행에 총 {total}번. RMW 는 키 {rnd(rmw['median'])}개만 남았다 ({runs}회 중앙값).",
               940, 540)
 
     c = s.chapter("1. 둘 다 읽는다", "행 {a=>1} — A 와 B 가 같은 값을 읽는다", 5500)
@@ -363,9 +370,9 @@ def doc_redis_path(k, st):
         c.text(40, y + 16, lab, 300 + i * 900, 15, MUTED)
         rv, pv = ops("redis", name), ops("postgres", name)
         c.box(40, y + 26, max(6, int(520 * rv / mx)), 26, BIGM, None, 500 + i * 900)
-        c.text(40 + max(6, int(520 * rv / mx)) + 12, y + 46, f"Redis {rv:,.0f}/s", 700 + i * 900, 15, INK, "700")
+        c.text(40 + max(6, int(520 * rv / mx)) + 12, y + 46, f"Redis {rnd(rv):,}/s", 700 + i * 900, 15, INK, "700")
         c.box(40, y + 58, max(6, int(520 * pv / mx)), 26, OK, None, 900 + i * 900)
-        c.text(40 + max(6, int(520 * pv / mx)) + 12, y + 78, f"hstore {pv:,.0f}/s", 1100 + i * 900, 15, INK, "700")
+        c.text(40 + max(6, int(520 * pv / mx)) + 12, y + 78, f"hstore {rnd(pv):,}/s", 1100 + i * 900, 15, INK, "700")
     c.text(40, 452, "같은 행이 아닌 객체 5만 개에 무작위로 — 경합이 없을 때의 수치다. 쌍마다 영속 보장이 같은 수준일 때만 비교할 수 있다.", 5600, 14, MUTED)
     return s.build()
 
