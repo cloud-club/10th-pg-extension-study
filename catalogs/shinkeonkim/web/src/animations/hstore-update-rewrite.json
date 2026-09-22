@@ -1,0 +1,1096 @@
+{
+ "clothoVersion": 1,
+ "id": "hstore-update-rewrite",
+ "title": "키 하나를 바꿔도 값 전체가 다시 쓰인다",
+ "description": "실험 02: 행 1000개, 키 개수별 UPDATE 1건당 WAL. 5개 176 B · 50개 692 B · 500개 15.8 KB.",
+ "duration": 38000,
+ "canvas": {
+  "width": 940,
+  "height": 520,
+  "background": "#0b1120"
+ },
+ "elements": [
+  {
+   "type": "text",
+   "id": "title",
+   "x": 40,
+   "y": 42,
+   "content": "키 하나를 바꿔도 값 전체가 다시 쓰인다",
+   "fontSize": 22,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 0,
+     "end": 38000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ],
+   "fontWeight": "700"
+  },
+  {
+   "type": "text",
+   "id": "e1",
+   "x": 40,
+   "y": 96,
+   "content": "heap 튜플 한 개 (id + attrs)",
+   "fontSize": 15,
+   "color": "#94a3b8",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 100,
+     "end": 6500,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "e2",
+   "x": 40,
+   "y": 112,
+   "width": 260,
+   "height": 50,
+   "fill": "#1e293b",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 300,
+     "end": 6500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "id=1  attrs → TOAST 포인터",
+   "labelColor": "#e2e8f0",
+   "labelSize": 15,
+   "stroke": "#334155",
+   "strokeWidth": 2
+  },
+  {
+   "type": "text",
+   "id": "e3",
+   "x": 40,
+   "y": 212,
+   "content": "TOAST 테이블에는 값 14.0 KB 가 약 2KB 조각(chunk)들로 나뉘어 있다",
+   "fontSize": 15,
+   "color": "#94a3b8",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 1200,
+     "end": 6500,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "e4",
+   "x": 40,
+   "y": 232,
+   "width": 108,
+   "height": 44,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 1600,
+     "end": 6500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "chunk 1",
+   "labelColor": "#0b1120",
+   "labelSize": 15
+  },
+  {
+   "type": "rect",
+   "id": "e5",
+   "x": 160,
+   "y": 232,
+   "width": 108,
+   "height": 44,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 1800,
+     "end": 6500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "chunk 2",
+   "labelColor": "#0b1120",
+   "labelSize": 15
+  },
+  {
+   "type": "rect",
+   "id": "e6",
+   "x": 280,
+   "y": 232,
+   "width": 108,
+   "height": 44,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 2000,
+     "end": 6500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "chunk 3",
+   "labelColor": "#0b1120",
+   "labelSize": 15
+  },
+  {
+   "type": "rect",
+   "id": "e7",
+   "x": 400,
+   "y": 232,
+   "width": 108,
+   "height": 44,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 2200,
+     "end": 6500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "chunk 4",
+   "labelColor": "#0b1120",
+   "labelSize": 15
+  },
+  {
+   "type": "rect",
+   "id": "e8",
+   "x": 520,
+   "y": 232,
+   "width": 108,
+   "height": 44,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 2400,
+     "end": 6500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "chunk 5",
+   "labelColor": "#0b1120",
+   "labelSize": 15
+  },
+  {
+   "type": "rect",
+   "id": "e9",
+   "x": 640,
+   "y": 232,
+   "width": 108,
+   "height": 44,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 2600,
+     "end": 6500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "chunk 6",
+   "labelColor": "#0b1120",
+   "labelSize": 15
+  },
+  {
+   "type": "rect",
+   "id": "e10",
+   "x": 760,
+   "y": 232,
+   "width": 108,
+   "height": 44,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 2800,
+     "end": 6500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "chunk 7",
+   "labelColor": "#0b1120",
+   "labelSize": 15
+  },
+  {
+   "type": "text",
+   "id": "e11",
+   "x": 40,
+   "y": 330,
+   "content": "값은 통째로 압축되거나 통째로 저장된다 — 일부만 고치는 방법이 없다.",
+   "fontSize": 15,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 3600,
+     "end": 6500,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "e12",
+   "x": 40,
+   "y": 110,
+   "width": 860,
+   "height": 50,
+   "fill": "#1e293b",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 6700,
+     "end": 13000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "UPDATE t SET attrs = attrs || hstore('attr_001', 'x') WHERE id = 1",
+   "labelColor": "#e2e8f0",
+   "labelSize": 17,
+   "stroke": "#334155",
+   "strokeWidth": 2
+  },
+  {
+   "type": "text",
+   "id": "e13",
+   "x": 40,
+   "y": 212,
+   "content": "hstore_concat() 은 정렬된 두 배열을 병합해 500개 쌍 전체를 담은 새 값을 만든다",
+   "fontSize": 15,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 7700,
+     "end": 13000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "e14",
+   "x": 40,
+   "y": 244,
+   "content": "바뀐 것은 값 하나(12바이트)뿐이지만, 결과는 새 14KB 짜리 값이다.",
+   "fontSize": 15,
+   "color": "#94a3b8",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 8700,
+     "end": 13000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "e15",
+   "x": 40,
+   "y": 290,
+   "content": "첨자 h['k'] = 'v' 로 써도 마찬가지다 (실험 02 에서 함께 측정).",
+   "fontSize": 15,
+   "color": "#94a3b8",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 9900,
+     "end": 13000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "e16",
+   "x": 40,
+   "y": 96,
+   "content": "MVCC: 옛 튜플과 옛 TOAST 조각은 죽은 채 남고, 새 튜플과 새 조각이 추가된다",
+   "fontSize": 15,
+   "color": "#94a3b8",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 13100,
+     "end": 21500,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "e17",
+   "x": 40,
+   "y": 118,
+   "width": 260,
+   "height": 46,
+   "fill": "#334155",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 13400,
+     "end": 21500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "옛 튜플 (dead)",
+   "labelColor": "#94a3b8",
+   "labelSize": 16
+  },
+  {
+   "type": "rect",
+   "id": "e18",
+   "x": 320,
+   "y": 118,
+   "width": 260,
+   "height": 46,
+   "fill": "#34d399",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 13900,
+     "end": 21500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "새 튜플 (id=1)",
+   "labelColor": "#0b1120",
+   "labelSize": 16
+  },
+  {
+   "type": "rect",
+   "id": "e19",
+   "x": 40,
+   "y": 196,
+   "width": 108,
+   "height": 40,
+   "fill": "#334155",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 14400,
+     "end": 21500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "옛 1",
+   "labelColor": "#94a3b8",
+   "labelSize": 14
+  },
+  {
+   "type": "rect",
+   "id": "e20",
+   "x": 40,
+   "y": 246,
+   "width": 108,
+   "height": 40,
+   "fill": "#34d399",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 14900,
+     "end": 21500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "새 1",
+   "labelColor": "#0b1120",
+   "labelSize": 14
+  },
+  {
+   "type": "rect",
+   "id": "e21",
+   "x": 160,
+   "y": 196,
+   "width": 108,
+   "height": 40,
+   "fill": "#334155",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 14400,
+     "end": 21500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "옛 2",
+   "labelColor": "#94a3b8",
+   "labelSize": 14
+  },
+  {
+   "type": "rect",
+   "id": "e22",
+   "x": 160,
+   "y": 246,
+   "width": 108,
+   "height": 40,
+   "fill": "#34d399",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 15050,
+     "end": 21500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "새 2",
+   "labelColor": "#0b1120",
+   "labelSize": 14
+  },
+  {
+   "type": "rect",
+   "id": "e23",
+   "x": 280,
+   "y": 196,
+   "width": 108,
+   "height": 40,
+   "fill": "#334155",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 14400,
+     "end": 21500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "옛 3",
+   "labelColor": "#94a3b8",
+   "labelSize": 14
+  },
+  {
+   "type": "rect",
+   "id": "e24",
+   "x": 280,
+   "y": 246,
+   "width": 108,
+   "height": 40,
+   "fill": "#34d399",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 15200,
+     "end": 21500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "새 3",
+   "labelColor": "#0b1120",
+   "labelSize": 14
+  },
+  {
+   "type": "rect",
+   "id": "e25",
+   "x": 400,
+   "y": 196,
+   "width": 108,
+   "height": 40,
+   "fill": "#334155",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 14400,
+     "end": 21500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "옛 4",
+   "labelColor": "#94a3b8",
+   "labelSize": 14
+  },
+  {
+   "type": "rect",
+   "id": "e26",
+   "x": 400,
+   "y": 246,
+   "width": 108,
+   "height": 40,
+   "fill": "#34d399",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 15350,
+     "end": 21500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "새 4",
+   "labelColor": "#0b1120",
+   "labelSize": 14
+  },
+  {
+   "type": "rect",
+   "id": "e27",
+   "x": 520,
+   "y": 196,
+   "width": 108,
+   "height": 40,
+   "fill": "#334155",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 14400,
+     "end": 21500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "옛 5",
+   "labelColor": "#94a3b8",
+   "labelSize": 14
+  },
+  {
+   "type": "rect",
+   "id": "e28",
+   "x": 520,
+   "y": 246,
+   "width": 108,
+   "height": 40,
+   "fill": "#34d399",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 15500,
+     "end": 21500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "새 5",
+   "labelColor": "#0b1120",
+   "labelSize": 14
+  },
+  {
+   "type": "rect",
+   "id": "e29",
+   "x": 640,
+   "y": 196,
+   "width": 108,
+   "height": 40,
+   "fill": "#334155",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 14400,
+     "end": 21500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "옛 6",
+   "labelColor": "#94a3b8",
+   "labelSize": 14
+  },
+  {
+   "type": "rect",
+   "id": "e30",
+   "x": 640,
+   "y": 246,
+   "width": 108,
+   "height": 40,
+   "fill": "#34d399",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 15650,
+     "end": 21500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "새 6",
+   "labelColor": "#0b1120",
+   "labelSize": 14
+  },
+  {
+   "type": "rect",
+   "id": "e31",
+   "x": 760,
+   "y": 196,
+   "width": 108,
+   "height": 40,
+   "fill": "#334155",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 14400,
+     "end": 21500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "옛 7",
+   "labelColor": "#94a3b8",
+   "labelSize": 14
+  },
+  {
+   "type": "rect",
+   "id": "e32",
+   "x": 760,
+   "y": 246,
+   "width": 108,
+   "height": 40,
+   "fill": "#34d399",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 15800,
+     "end": 21500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "새 7",
+   "labelColor": "#0b1120",
+   "labelSize": 14
+  },
+  {
+   "type": "text",
+   "id": "e33",
+   "x": 40,
+   "y": 338,
+   "content": "실측(중앙값): WAL 15.8 KB / UPDATE 1건, TOAST 증가 16.4 KB / UPDATE 1건",
+   "fontSize": 16,
+   "color": "#fbbf24",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 16500,
+     "end": 21500,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ],
+   "fontWeight": "700"
+  },
+  {
+   "type": "text",
+   "id": "e34",
+   "x": 40,
+   "y": 370,
+   "content": "옛 조각은 VACUUM 이 돌기 전까지 그대로 쌓인다.",
+   "fontSize": 15,
+   "color": "#94a3b8",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 17300,
+     "end": 21500,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "e35",
+   "x": 40,
+   "y": 144,
+   "content": "키 5개",
+   "fontSize": 16,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 21800,
+     "end": 30000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "e36",
+   "x": 190,
+   "y": 116,
+   "width": 6,
+   "height": 40,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 22000,
+     "end": 30000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "e37",
+   "x": 208,
+   "y": 144,
+   "content": "176 B",
+   "fontSize": 16,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 22200,
+     "end": 30000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ],
+   "fontWeight": "700"
+  },
+  {
+   "type": "text",
+   "id": "e38",
+   "x": 40,
+   "y": 206,
+   "content": "키 50개",
+   "fontSize": 16,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 22300,
+     "end": 30000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "e39",
+   "x": 190,
+   "y": 178,
+   "width": 24,
+   "height": 40,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 22500,
+     "end": 30000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "e40",
+   "x": 226,
+   "y": 206,
+   "content": "692 B",
+   "fontSize": 16,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 22700,
+     "end": 30000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ],
+   "fontWeight": "700"
+  },
+  {
+   "type": "text",
+   "id": "e41",
+   "x": 40,
+   "y": 268,
+   "content": "키 500개",
+   "fontSize": 16,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 22800,
+     "end": 30000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "e42",
+   "x": 190,
+   "y": 240,
+   "width": 560,
+   "height": 40,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 23000,
+     "end": 30000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "e43",
+   "x": 762,
+   "y": 268,
+   "content": "15.8 KB",
+   "fontSize": 16,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 23200,
+     "end": 30000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ],
+   "fontWeight": "700"
+  },
+  {
+   "type": "text",
+   "id": "e44",
+   "x": 40,
+   "y": 330,
+   "content": "EAV (행 하나)",
+   "fontSize": 16,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 23300,
+     "end": 30000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "e45",
+   "x": 190,
+   "y": 302,
+   "width": 6,
+   "height": 40,
+   "fill": "#34d399",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 23500,
+     "end": 30000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "e46",
+   "x": 208,
+   "y": 330,
+   "content": "176 B",
+   "fontSize": 16,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 23700,
+     "end": 30000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ],
+   "fontWeight": "700"
+  },
+  {
+   "type": "text",
+   "id": "e47",
+   "x": 40,
+   "y": 388,
+   "content": "EAV(속성 하나 = 행 하나)는 키가 500개여도 바뀐 행 하나만 쓴다 — 대신 읽을 때 행이 많다.",
+   "fontSize": 15,
+   "color": "#94a3b8",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 24700,
+     "end": 30000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "e48",
+   "x": 40,
+   "y": 110,
+   "width": 400,
+   "height": 48,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 30200,
+     "end": 38000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "GIN 없음: WAL 15.8 KB",
+   "labelColor": "#0b1120",
+   "labelSize": 17
+  },
+  {
+   "type": "rect",
+   "id": "e49",
+   "x": 40,
+   "y": 178,
+   "width": 860,
+   "height": 48,
+   "fill": "#fb7185",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 30900,
+     "end": 38000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "GIN 있음: WAL 113.6 KB  (7.2배)",
+   "labelColor": "#0b1120",
+   "labelSize": 17
+  },
+  {
+   "type": "text",
+   "id": "e50",
+   "x": 40,
+   "y": 276,
+   "content": "GIN 은 값마다 항목(키 500 + 값 500 = 1,000개)을 넣는다. 새 튜플 = 새 TID 이므로 전부 다시 등록한다.",
+   "fontSize": 15,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 32200,
+     "end": 38000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "e51",
+   "x": 40,
+   "y": 308,
+   "content": "인덱스 열의 값이 바뀌면 HOT 갱신을 못 쓴다 — 실험 02 의 hot_ratio 가 1.0 에서 0.0 으로 내려간다.",
+   "fontSize": 15,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 33200,
+     "end": 38000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "e52",
+   "x": 40,
+   "y": 356,
+   "content": "자주 바뀌는 속성은 GIN 대상 hstore 에서 빼거나, 그 키만 별도 열로 분리하는 편이 낫다.",
+   "fontSize": 15,
+   "color": "#fbbf24",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 34600,
+     "end": 38000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  }
+ ],
+ "chapters": [
+  {
+   "id": "ch0",
+   "time": 0,
+   "label": "1. 행 하나",
+   "subtitle": "키 500개 = hstore 값 14.0 KB. 2KB를 넘어 TOAST 로 나간다"
+  },
+  {
+   "id": "ch1",
+   "time": 6500,
+   "label": "2. UPDATE",
+   "subtitle": "attrs || hstore('attr_001', ...) — 두 hstore 를 병합해 새 값을 만든다"
+  },
+  {
+   "id": "ch2",
+   "time": 13000,
+   "label": "3. 새 버전을 통째로 쓴다",
+   "subtitle": "UPDATE 1건 = WAL 15.8 KB, TOAST 증가 16.4 KB"
+  },
+  {
+   "id": "ch3",
+   "time": 21500,
+   "label": "4. 키 개수에 비례한다",
+   "subtitle": "바뀐 것은 한 키인데 쓰는 양은 값 크기를 따라간다"
+  },
+  {
+   "id": "ch4",
+   "time": 30000,
+   "label": "5. GIN 이 있으면",
+   "subtitle": "HOT 갱신이 불가능해지고 인덱스 항목이 전부 다시 들어간다 — WAL 113.6 KB"
+  }
+ ],
+ "settings": {
+  "loop": false,
+  "autoplay": true,
+  "showChapterList": true
+ }
+}

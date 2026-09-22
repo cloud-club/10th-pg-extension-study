@@ -1,0 +1,490 @@
+{
+ "clothoVersion": 1,
+ "id": "hstore-lost-update",
+ "title": "같은 행을 동시에 고치면 — 통째로 쓰면 유실되고, || 는 안전하다",
+ "description": "실험 04: 클라이언트 8개가 같은 행에 총 400번. RMW 는 키 62개만 남았다 (10회 중앙값).",
+ "duration": 33000,
+ "canvas": {
+  "width": 940,
+  "height": 540,
+  "background": "#0b1120"
+ },
+ "elements": [
+  {
+   "type": "text",
+   "id": "title",
+   "x": 40,
+   "y": 42,
+   "content": "같은 행을 동시에 고치면 — 통째로 쓰면 유실되고, || 는 안전하다",
+   "fontSize": 22,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 0,
+     "end": 33000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ],
+   "fontWeight": "700"
+  },
+  {
+   "type": "rect",
+   "id": "e1",
+   "x": 310,
+   "y": 100,
+   "width": 320,
+   "height": 52,
+   "fill": "#1e293b",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 200,
+     "end": 5500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "doc 행  attrs = {a=>1}",
+   "labelColor": "#e2e8f0",
+   "labelSize": 17,
+   "stroke": "#334155",
+   "strokeWidth": 2
+  },
+  {
+   "type": "rect",
+   "id": "e2",
+   "x": 40,
+   "y": 210,
+   "width": 260,
+   "height": 52,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 900,
+     "end": 5500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "세션 A  읽음 {a=>1}",
+   "labelColor": "#0b1120",
+   "labelSize": 16
+  },
+  {
+   "type": "rect",
+   "id": "e3",
+   "x": 640,
+   "y": 210,
+   "width": 260,
+   "height": 52,
+   "fill": "#fb7185",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 1400,
+     "end": 5500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "세션 B  읽음 {a=>1}",
+   "labelColor": "#0b1120",
+   "labelSize": 16
+  },
+  {
+   "type": "text",
+   "id": "e4",
+   "x": 40,
+   "y": 330,
+   "content": "앱이 SELECT 로 attrs 를 읽어 메모리에서 고친 뒤 UPDATE 로 통째로 돌려 쓰는 흔한 패턴이다.",
+   "fontSize": 15,
+   "color": "#94a3b8",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 2600,
+     "end": 5500,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "e5",
+   "x": 310,
+   "y": 100,
+   "width": 320,
+   "height": 52,
+   "fill": "#34d399",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 5800,
+     "end": 11000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "doc 행  attrs = {a, b}",
+   "labelColor": "#0b1120",
+   "labelSize": 17
+  },
+  {
+   "type": "rect",
+   "id": "e6",
+   "x": 40,
+   "y": 210,
+   "width": 260,
+   "height": 52,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 5800,
+     "end": 11000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "A  UPDATE ← {a,b}",
+   "labelColor": "#0b1120",
+   "labelSize": 16
+  },
+  {
+   "type": "rect",
+   "id": "e7",
+   "x": 640,
+   "y": 210,
+   "width": 260,
+   "height": 52,
+   "fill": "#fb7185",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 5800,
+     "end": 11000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "B  아직 {a=>1} 을 들고 있다",
+   "labelColor": "#0b1120",
+   "labelSize": 15
+  },
+  {
+   "type": "text",
+   "id": "e8",
+   "x": 40,
+   "y": 330,
+   "content": "A 의 UPDATE 는 성공했고 커밋됐다.",
+   "fontSize": 15,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 6900,
+     "end": 11000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "e9",
+   "x": 310,
+   "y": 100,
+   "width": 320,
+   "height": 52,
+   "fill": "#fb7185",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 11300,
+     "end": 17500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "doc 행  attrs = {a, c}",
+   "labelColor": "#0b1120",
+   "labelSize": 17
+  },
+  {
+   "type": "rect",
+   "id": "e10",
+   "x": 640,
+   "y": 210,
+   "width": 260,
+   "height": 52,
+   "fill": "#fb7185",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 11300,
+     "end": 17500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "B  UPDATE ← {a,c}",
+   "labelColor": "#0b1120",
+   "labelSize": 16
+  },
+  {
+   "type": "text",
+   "id": "e11",
+   "x": 40,
+   "y": 330,
+   "content": "b=>2 는 B 가 읽은 사본에 없었으므로 덮어써져 사라졌다. 오류는 나지 않는다.",
+   "fontSize": 16,
+   "color": "#fbbf24",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 12200,
+     "end": 17500,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ],
+   "fontWeight": "700"
+  },
+  {
+   "type": "text",
+   "id": "e12",
+   "x": 40,
+   "y": 366,
+   "content": "실측: 총 400번 중 10회 모두 키가 51~70개만 남았다 (기대 400개).",
+   "fontSize": 15,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 13400,
+     "end": 17500,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "e13",
+   "x": 310,
+   "y": 100,
+   "width": 320,
+   "height": 52,
+   "fill": "#1e293b",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 17700,
+     "end": 26000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "doc 행  {a, b}  (A 커밋)",
+   "labelColor": "#e2e8f0",
+   "labelSize": 17,
+   "stroke": "#334155",
+   "strokeWidth": 2
+  },
+  {
+   "type": "rect",
+   "id": "e14",
+   "x": 640,
+   "y": 210,
+   "width": 260,
+   "height": 52,
+   "fill": "#fb7185",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 18400,
+     "end": 26000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "B  attrs || 'c=>3' 대기…",
+   "labelColor": "#0b1120",
+   "labelSize": 15
+  },
+  {
+   "type": "text",
+   "id": "e15",
+   "x": 40,
+   "y": 330,
+   "content": "A 가 행 잠금을 쥐고 있으면 B 는 기다린다. 다른 키라도 잠금 단위는 행이다.",
+   "fontSize": 15,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 19100,
+     "end": 26000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "e16",
+   "x": 40,
+   "y": 364,
+   "content": "A 가 커밋하면 B 는 최신 행에 대해 식을 다시 계산한다 → {a, b, c}",
+   "fontSize": 15,
+   "color": "#34d399",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 20500,
+     "end": 26000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ],
+   "fontWeight": "700"
+  },
+  {
+   "type": "text",
+   "id": "e17",
+   "x": 40,
+   "y": 398,
+   "content": "실측: 10회 모두 키 400~400개 (총 400번, 유실 0). SELECT ... FOR UPDATE 후 쓰기도 같다.",
+   "fontSize": 15,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 21900,
+     "end": 26000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "e18",
+   "x": 40,
+   "y": 100,
+   "width": 860,
+   "height": 52,
+   "fill": "#1e293b",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 26200,
+     "end": 33000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "BEGIN ISOLATION LEVEL REPEATABLE READ; UPDATE … attrs || …",
+   "labelColor": "#e2e8f0",
+   "labelSize": 17,
+   "stroke": "#334155",
+   "strokeWidth": 2
+  },
+  {
+   "type": "text",
+   "id": "e19",
+   "x": 40,
+   "y": 220,
+   "content": "스냅샷 이후에 다른 세션이 커밋한 행을 바꾸려 하면 오류: could not serialize access due to concurrent update",
+   "fontSize": 15,
+   "color": "#fbbf24",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 27000,
+     "end": 33000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "e20",
+   "x": 40,
+   "y": 262,
+   "content": "실측: 400번 시도 중 성공 92번(중앙값), 나머지는 재시도가 필요한 40001 오류.",
+   "fontSize": 16,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 28400,
+     "end": 33000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ],
+   "fontWeight": "700"
+  },
+  {
+   "type": "text",
+   "id": "e21",
+   "x": 40,
+   "y": 300,
+   "content": "유실은 없지만, 한 행에 몰리는 쓰기는 앱이 재시도 루프를 가져야 한다.",
+   "fontSize": 15,
+   "color": "#94a3b8",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 29600,
+     "end": 33000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  }
+ ],
+ "chapters": [
+  {
+   "id": "ch0",
+   "time": 0,
+   "label": "1. 둘 다 읽는다",
+   "subtitle": "행 {a=>1} — A 와 B 가 같은 값을 읽는다"
+  },
+  {
+   "id": "ch1",
+   "time": 5500,
+   "label": "2. A 가 먼저 쓴다",
+   "subtitle": "A: 읽은 값 || 'b=>2' → {a, b}"
+  },
+  {
+   "id": "ch2",
+   "time": 11000,
+   "label": "3. B 가 자기 사본을 쓴다",
+   "subtitle": "B: 읽어 둔 {a} || 'c=>3' → {a, c}, b 가 사라진다"
+  },
+  {
+   "id": "ch3",
+   "time": 17500,
+   "label": "4. 원자적 ||",
+   "subtitle": "UPDATE ... SET attrs = attrs || 'c=>3' — 식을 서버가 계산한다"
+  },
+  {
+   "id": "ch4",
+   "time": 26000,
+   "label": "5. REPEATABLE READ",
+   "subtitle": "재계산하지 않고 40001 오류로 거절한다"
+  }
+ ],
+ "settings": {
+  "loop": false,
+  "autoplay": true,
+  "showChapterList": true
+ }
+}

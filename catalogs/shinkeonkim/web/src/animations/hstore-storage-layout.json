@@ -1,0 +1,1132 @@
+{
+ "clothoVersion": 1,
+ "id": "hstore-storage-layout",
+ "title": "hstore 한 값이 디스크에 놓이는 방식",
+ "description": "입력 문자열 → 중복 제거·정렬 → HEntry 배열 → 문자열 영역. 크기는 lab 02 의 pageinspect 출력과 같다.",
+ "duration": 43000,
+ "canvas": {
+  "width": 940,
+  "height": 520,
+  "background": "#0b1120"
+ },
+ "elements": [
+  {
+   "type": "text",
+   "id": "title",
+   "x": 40,
+   "y": 42,
+   "content": "hstore 한 값이 디스크에 놓이는 방식",
+   "fontSize": 22,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 0,
+     "end": 43000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ],
+   "fontWeight": "700"
+  },
+  {
+   "type": "text",
+   "id": "e1",
+   "x": 40,
+   "y": 100,
+   "content": "이 문자열을 hstore 로 저장한다",
+   "fontSize": 16,
+   "color": "#94a3b8",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 200,
+     "end": 5500,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "e2",
+   "x": 40,
+   "y": 118,
+   "width": 860,
+   "height": 56,
+   "fill": "#1e293b",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 400,
+     "end": 5500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "'ccc=>333, aa=>1, b=>NULL, aa=>9'::hstore",
+   "labelColor": "#e2e8f0",
+   "labelSize": 21,
+   "stroke": "#334155",
+   "strokeWidth": 2
+  },
+  {
+   "type": "text",
+   "id": "e3",
+   "x": 40,
+   "y": 226,
+   "content": "쌍이 4개다. 순서는 뒤섞여 있고, 키 aa 가 두 번 나온다.",
+   "fontSize": 16,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 1600,
+     "end": 5500,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "e4",
+   "x": 40,
+   "y": 258,
+   "content": "저장할 때 hstore_in() → hstoreUniquePairs() 가 정렬하고 중복을 없앤다.",
+   "fontSize": 16,
+   "color": "#94a3b8",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 2600,
+     "end": 5500,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "e5",
+   "x": 40,
+   "y": 96,
+   "content": "입력 순서",
+   "fontSize": 15,
+   "color": "#94a3b8",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 5600,
+     "end": 15000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "e6",
+   "x": 40,
+   "y": 108,
+   "width": 200,
+   "height": 46,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 5800,
+     "end": 15000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "ccc=>333",
+   "labelColor": "#0b1120",
+   "labelSize": 17
+  },
+  {
+   "type": "rect",
+   "id": "e7",
+   "x": 260,
+   "y": 108,
+   "width": 200,
+   "height": 46,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 6050,
+     "end": 15000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "aa=>1",
+   "labelColor": "#0b1120",
+   "labelSize": 17
+  },
+  {
+   "type": "rect",
+   "id": "e8",
+   "x": 480,
+   "y": 108,
+   "width": 200,
+   "height": 46,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 6300,
+     "end": 15000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "b=>NULL",
+   "labelColor": "#0b1120",
+   "labelSize": 17
+  },
+  {
+   "type": "rect",
+   "id": "e9",
+   "x": 700,
+   "y": 108,
+   "width": 200,
+   "height": 46,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 6550,
+     "end": 9100,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "aa=>9",
+   "labelColor": "#0b1120",
+   "labelSize": 17
+  },
+  {
+   "type": "rect",
+   "id": "e10",
+   "x": 700,
+   "y": 108,
+   "width": 200,
+   "height": 46,
+   "fill": "#334155",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 9100,
+     "end": 15000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "aa=>9 (중복)",
+   "labelColor": "#94a3b8",
+   "labelSize": 17
+  },
+  {
+   "type": "text",
+   "id": "e11",
+   "x": 40,
+   "y": 188,
+   "content": "aa 가 두 번: 하나만 남는다. 여기서는 aa=>1 이 남았다 (어느 쪽인지 문서는 보장하지 않는다)",
+   "fontSize": 15,
+   "color": "#fbbf24",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 9400,
+     "end": 15000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "e12",
+   "x": 40,
+   "y": 244,
+   "content": "정렬 결과 — 키 길이 오름차순, 같으면 memcmp (comparePairs)",
+   "fontSize": 15,
+   "color": "#94a3b8",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 10500,
+     "end": 15000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "e13",
+   "x": 40,
+   "y": 256,
+   "width": 200,
+   "height": 46,
+   "fill": "#34d399",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 10900,
+     "end": 15000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "b=>NULL",
+   "labelColor": "#0b1120",
+   "labelSize": 17
+  },
+  {
+   "type": "text",
+   "id": "e14",
+   "x": 140,
+   "y": 326,
+   "content": "길이 1",
+   "fontSize": 14,
+   "color": "#94a3b8",
+   "textAnchor": "middle",
+   "appearances": [
+    {
+     "start": 11200,
+     "end": 15000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "e15",
+   "x": 260,
+   "y": 256,
+   "width": 200,
+   "height": 46,
+   "fill": "#34d399",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 11400,
+     "end": 15000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "aa=>1",
+   "labelColor": "#0b1120",
+   "labelSize": 17
+  },
+  {
+   "type": "text",
+   "id": "e16",
+   "x": 360,
+   "y": 326,
+   "content": "길이 2",
+   "fontSize": 14,
+   "color": "#94a3b8",
+   "textAnchor": "middle",
+   "appearances": [
+    {
+     "start": 11700,
+     "end": 15000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "e17",
+   "x": 480,
+   "y": 256,
+   "width": 200,
+   "height": 46,
+   "fill": "#34d399",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 11900,
+     "end": 15000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "ccc=>333",
+   "labelColor": "#0b1120",
+   "labelSize": 17
+  },
+  {
+   "type": "text",
+   "id": "e18",
+   "x": 580,
+   "y": 326,
+   "content": "길이 3",
+   "fontSize": 14,
+   "color": "#94a3b8",
+   "textAnchor": "middle",
+   "appearances": [
+    {
+     "start": 12200,
+     "end": 15000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "e19",
+   "x": 40,
+   "y": 388,
+   "content": "알파벳순이 아니다. 'b' < 'aa' 인 이유는 사전순이 아니라 길이가 먼저이기 때문이다.",
+   "fontSize": 15,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 13100,
+     "end": 15000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "e20",
+   "x": 40,
+   "y": 418,
+   "content": "이 순서 덕분에 키 하나를 찾을 때 이진 탐색을 쓸 수 있다.",
+   "fontSize": 15,
+   "color": "#94a3b8",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 13700,
+     "end": 15000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "e21",
+   "x": 40,
+   "y": 96,
+   "content": "[헤더 4B][size_ 4B][HEntry × 6][문자열 영역]",
+   "fontSize": 16,
+   "color": "#94a3b8",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 15100,
+     "end": 25500,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "e22",
+   "x": 40,
+   "y": 116,
+   "width": 150,
+   "height": 46,
+   "fill": "#64748b",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 15400,
+     "end": 25500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "varlena 헤더",
+   "labelColor": "#0b1120",
+   "labelSize": 16
+  },
+  {
+   "type": "rect",
+   "id": "e23",
+   "x": 200,
+   "y": 116,
+   "width": 340,
+   "height": 46,
+   "fill": "#a78bfa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 15800,
+     "end": 25500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "size_ = 3쌍 · 새 형식 플래그",
+   "labelColor": "#0b1120",
+   "labelSize": 16
+  },
+  {
+   "type": "text",
+   "id": "e24",
+   "x": 40,
+   "y": 214,
+   "content": "HEntry 6개: 각 칸의 숫자 = 문자열 영역 안의 '끝 위치'",
+   "fontSize": 15,
+   "color": "#94a3b8",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 16600,
+     "end": 25500,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "e25",
+   "x": 40,
+   "y": 230,
+   "width": 136,
+   "height": 46,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 17000,
+     "end": 25500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "키 b → 1",
+   "labelColor": "#0b1120",
+   "labelSize": 16
+  },
+  {
+   "type": "rect",
+   "id": "e26",
+   "x": 184,
+   "y": 230,
+   "width": 136,
+   "height": 46,
+   "fill": "#fbbf24",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 17400,
+     "end": 25500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "값 NULL → 1",
+   "labelColor": "#0b1120",
+   "labelSize": 16
+  },
+  {
+   "type": "rect",
+   "id": "e27",
+   "x": 328,
+   "y": 230,
+   "width": 136,
+   "height": 46,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 17800,
+     "end": 25500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "키 aa → 3",
+   "labelColor": "#0b1120",
+   "labelSize": 16
+  },
+  {
+   "type": "rect",
+   "id": "e28",
+   "x": 472,
+   "y": 230,
+   "width": 136,
+   "height": 46,
+   "fill": "#34d399",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 18200,
+     "end": 25500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "값 1 → 4",
+   "labelColor": "#0b1120",
+   "labelSize": 16
+  },
+  {
+   "type": "rect",
+   "id": "e29",
+   "x": 616,
+   "y": 230,
+   "width": 136,
+   "height": 46,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 18600,
+     "end": 25500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "키 ccc → 7",
+   "labelColor": "#0b1120",
+   "labelSize": 16
+  },
+  {
+   "type": "rect",
+   "id": "e30",
+   "x": 760,
+   "y": 230,
+   "width": 136,
+   "height": 46,
+   "fill": "#34d399",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 19000,
+     "end": 25500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "값 333 → 10",
+   "labelColor": "#0b1120",
+   "labelSize": 16
+  },
+  {
+   "type": "text",
+   "id": "e31",
+   "x": 40,
+   "y": 316,
+   "content": "첫 항목에는 ISFIRST 비트, NULL 값에는 ISNULL 비트가 켜진다 — 문자열 영역을 쓰지 않는다.",
+   "fontSize": 15,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 20200,
+     "end": 25500,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "e32",
+   "x": 40,
+   "y": 346,
+   "content": "길이는 저장하지 않는다. '내 끝 위치 − 앞 항목의 끝 위치' 로 구한다.",
+   "fontSize": 15,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 21000,
+     "end": 25500,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "e33",
+   "x": 40,
+   "y": 392,
+   "content": "→ 끝 위치는 1, 1, 3, 4, 7, 10 처럼 계속 커지는 숫자다. (압축 실험에서 이 사실이 중요해진다)",
+   "fontSize": 15,
+   "color": "#fbbf24",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 22400,
+     "end": 25500,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "e34",
+   "x": 40,
+   "y": 96,
+   "content": "문자열 영역 = 정렬된 순서로 이어붙인 키와 값 (NULL 값은 0바이트)",
+   "fontSize": 15,
+   "color": "#94a3b8",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 25600,
+     "end": 35000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "e35",
+   "x": 40,
+   "y": 116,
+   "width": 78,
+   "height": 46,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 25900,
+     "end": 35000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "b",
+   "labelColor": "#0b1120",
+   "labelSize": 18
+  },
+  {
+   "type": "rect",
+   "id": "e36",
+   "x": 124,
+   "y": 116,
+   "width": 162,
+   "height": 46,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 26300,
+     "end": 35000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "aa",
+   "labelColor": "#0b1120",
+   "labelSize": 18
+  },
+  {
+   "type": "rect",
+   "id": "e37",
+   "x": 292,
+   "y": 116,
+   "width": 78,
+   "height": 46,
+   "fill": "#34d399",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 26700,
+     "end": 35000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "1",
+   "labelColor": "#0b1120",
+   "labelSize": 18
+  },
+  {
+   "type": "rect",
+   "id": "e38",
+   "x": 376,
+   "y": 116,
+   "width": 246,
+   "height": 46,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 27100,
+     "end": 35000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "ccc",
+   "labelColor": "#0b1120",
+   "labelSize": 18
+  },
+  {
+   "type": "rect",
+   "id": "e39",
+   "x": 628,
+   "y": 116,
+   "width": 246,
+   "height": 46,
+   "fill": "#34d399",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 27500,
+     "end": 35000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "333",
+   "labelColor": "#0b1120",
+   "labelSize": 18
+  },
+  {
+   "type": "text",
+   "id": "e40",
+   "x": 40,
+   "y": 214,
+   "content": "b · (NULL 은 없음) · aa · 1 · ccc · 333  →  1 + 2 + 1 + 3 + 3 = 10 바이트",
+   "fontSize": 15,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 28100,
+     "end": 35000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "e41",
+   "x": 40,
+   "y": 270,
+   "content": "전체 크기",
+   "fontSize": 17,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 28900,
+     "end": 35000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ],
+   "fontWeight": "700"
+  },
+  {
+   "type": "text",
+   "id": "e42",
+   "x": 40,
+   "y": 306,
+   "content": "4 (varlena) + 4 (size_) + 24 (HEntry 6개 × 4) + 10 (문자열) = 42 바이트",
+   "fontSize": 16,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 29300,
+     "end": 35000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "e43",
+   "x": 40,
+   "y": 342,
+   "content": "디스크에는 130바이트 이하라 1바이트 짧은 헤더가 쓰여 39 바이트로 저장된다.",
+   "fontSize": 15,
+   "color": "#34d399",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 30500,
+     "end": 35000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "e44",
+   "x": 40,
+   "y": 396,
+   "content": "pg_column_size(attrs) = 39 — lab 02 에서 pageinspect 로 직접 확인한다.",
+   "fontSize": 15,
+   "color": "#94a3b8",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 31700,
+     "end": 35000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "e45",
+   "x": 40,
+   "y": 96,
+   "content": "정렬돼 있으니 이진 탐색이다:  attrs -> 'ccc'",
+   "fontSize": 16,
+   "color": "#94a3b8",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 35100,
+     "end": 43000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "e46",
+   "x": 40,
+   "y": 116,
+   "width": 200,
+   "height": 46,
+   "fill": "#1e293b",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 35300,
+     "end": 43000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "b",
+   "labelColor": "#e2e8f0",
+   "labelSize": 18,
+   "stroke": "#334155",
+   "strokeWidth": 2
+  },
+  {
+   "type": "rect",
+   "id": "e47",
+   "x": 260,
+   "y": 116,
+   "width": 200,
+   "height": 46,
+   "fill": "#1e293b",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 35300,
+     "end": 43000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "aa",
+   "labelColor": "#e2e8f0",
+   "labelSize": 18,
+   "stroke": "#334155",
+   "strokeWidth": 2
+  },
+  {
+   "type": "rect",
+   "id": "e48",
+   "x": 480,
+   "y": 116,
+   "width": 200,
+   "height": 46,
+   "fill": "#1e293b",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 35300,
+     "end": 43000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "ccc",
+   "labelColor": "#e2e8f0",
+   "labelSize": 18,
+   "stroke": "#334155",
+   "strokeWidth": 2
+  },
+  {
+   "type": "text",
+   "id": "e49",
+   "x": 40,
+   "y": 210,
+   "content": "① 가운데 'aa' 와 비교 — 길이 2 < 3 이므로 memcmp 없이 오른쪽으로",
+   "fontSize": 15,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 36400,
+     "end": 43000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "e50",
+   "x": 260,
+   "y": 116,
+   "width": 200,
+   "height": 46,
+   "fill": "#fb7185",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 36400,
+     "end": 38000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "aa",
+   "labelColor": "#0b1120",
+   "labelSize": 18
+  },
+  {
+   "type": "text",
+   "id": "e51",
+   "x": 40,
+   "y": 250,
+   "content": "② 남은 구간 'ccc' — 길이 3 == 3, memcmp 결과 0 → 찾았다",
+   "fontSize": 15,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 38000,
+     "end": 43000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "e52",
+   "x": 480,
+   "y": 116,
+   "width": 200,
+   "height": 46,
+   "fill": "#34d399",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 38000,
+     "end": 43000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "ccc",
+   "labelColor": "#0b1120",
+   "labelSize": 18
+  },
+  {
+   "type": "text",
+   "id": "e53",
+   "x": 40,
+   "y": 300,
+   "content": "값은 HEntry[2i+1] 의 끝 위치 두 개로 잘라 낸다.",
+   "fontSize": 15,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 39400,
+     "end": 43000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "e54",
+   "x": 40,
+   "y": 350,
+   "content": "값 하나를 읽으려고 값 전체(TOAST 로 나갔다면 전체 조각)를 먼저 펼쳐야 한다.",
+   "fontSize": 15,
+   "color": "#fbbf24",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 40600,
+     "end": 43000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  }
+ ],
+ "chapters": [
+  {
+   "id": "ch0",
+   "time": 0,
+   "label": "1. 입력",
+   "subtitle": "hstore_in() 이 문자열을 (키, 값) 쌍으로 파싱한다"
+  },
+  {
+   "id": "ch1",
+   "time": 5500,
+   "label": "2. 중복 제거 · 정렬",
+   "subtitle": "키 길이 → 같으면 바이트 순. 중복 키는 하나만 남는다"
+  },
+  {
+   "id": "ch2",
+   "time": 15000,
+   "label": "3. 헤더와 HEntry",
+   "subtitle": "쌍 하나당 HEntry 두 개(키용 · 값용), 각 4바이트"
+  },
+  {
+   "id": "ch3",
+   "time": 25500,
+   "label": "4. 문자열 영역과 크기",
+   "subtitle": "키·값을 이어붙인 10바이트, 전체 42바이트"
+  },
+  {
+   "id": "ch4",
+   "time": 35000,
+   "label": "5. 키 찾기",
+   "subtitle": "hstoreFindKey — (길이, 바이트) 순서 위의 이진 탐색"
+  }
+ ],
+ "settings": {
+  "loop": false,
+  "autoplay": true,
+  "showChapterList": true
+ }
+}
