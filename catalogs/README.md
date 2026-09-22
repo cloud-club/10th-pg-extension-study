@@ -10,7 +10,7 @@
 
 | 익스텐션 | 한 줄 요약 | 카테고리 | 매니지드 지원 | 정리 |
 | --- | --- | --- | --- | --- |
-| [pg_stat_statements](shinkeonkim/week04/pg_stat_statements/README.md) | 실행된 SQL 을 정규화해 서버 전역 누적 통계로 추적 | 성능 진단 | RDS ○ / Aurora ○ / Supabase ○ / Neon ○ / Cloud SQL ○ / Azure ○ | shinkeonkim (week04) |
+| [pg_stat_statements](shinkeonkim/etc/pg_stat_statements/README.md) | 실행된 SQL 을 정규화해 서버 전역 누적 통계로 추적 | 성능 진단 | RDS ○ / Aurora ○ / Supabase ○ / Neon ○ / Cloud SQL ○ / Azure ○ | shinkeonkim (etc) |
 | [pg_cron](shinkeonkim/pg_cron.md) | DB 안에서 cron 문법으로 주기적인 SQL 을 예약 실행 | 자동화 (스케줄러) | RDS ○ / Supabase ○ / Neon ○ / Cloud SQL ○ / Azure ○ / Heroku ✕ | shinkeonkim (week03) |
 | [pg_bigm](shinkeonkim/pg_bigm.md) | LIKE 검색을 2-gram GIN 인덱스로 가속 - 짧은 한글 키워드에 강함 | 검색 · 텍스트 | RDS ○ / Aurora ○ / Cloud SQL ○ (PG17+) / Azure·Supabase·Neon 확인 필요 | shinkeonkim (week02) |
 | [pg_trgm](shinkeonkim/pg_trgm.md) | 3-gram 으로 LIKE · 정규식 · 유사도 · KNN 검색을 가속하는 contrib | 검색 · 텍스트 | RDS ○ / Aurora ○ / Supabase ○ / Neon ○ / Cloud SQL ○ / Azure ○ (contrib + trusted) | shinkeonkim (week02) |

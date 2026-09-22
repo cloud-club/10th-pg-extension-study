@@ -169,7 +169,7 @@ Week 03 진입점은 `#/pg-cron/about`이다. 사이드바는 기존 URL을 유�
 웹 원문 분석은 실습 이미지와 같은 pg_cron v1.6.8을 기준으로 한다. 함수 지도는 별도로 2026-09-15의 main commit `5cedfa4`를 고정해 `entry.c`, `misc.c`, `job_metadata.c`, `task_states.c`, `pg_cron.c`를 함께 안내한다.
 `src/data/cron-source.json`에 원문 발췌, 파일 해시, 행 번호와 원문 링크를 보관한다.
 `cron-lifecycle`, `cron-concurrency`, `cron-event-loop` Clotho 문서는 소스 기반 설명용이며 실측 타임라인이 아니다.
-pg_stat_statements의 문서와 실습은 `../week04/pg_stat_statements/`로 옮겼다.
+pg_stat_statements의 문서와 실습은 `../etc/pg_stat_statements/`로 옮겼다.
 
 ### pg_cron 추가 조사와 측정 데이터
 
