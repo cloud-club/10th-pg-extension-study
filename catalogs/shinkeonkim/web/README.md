@@ -85,6 +85,9 @@ src/
 | `threshold.ts` | pg_trgm 실험 02 — 임계값 스윕 · KNN |
 | `whitespace.ts` | 실험 08 — 공백/구두점 조각 · 인덱스 동작 |
 | `images.ts` | trivy 로 잰 베이스 이미지 취약점 |
+| `hstore-experiments.json` | Week 04 hstore 실험 01~05 요약(중앙값·범위·반복 수). `scripts/sync-hstore-results.py` 가 로컬 결과에서 만든다 |
+| `hstore-demo.json` | hstore 페이지의 SQL 예제와 **실제 출력**. `scripts/capture-hstore-demo.py` 가 임시 DB에서 실행해 저장한다 |
+| `hstore-source.json` | `contrib/hstore`(PostgreSQL REL_16_15)의 발췌·행 범위·blob 해시. `scripts/extract-hstore-source.py` |
 
 각 파일 머리에 **측정 환경과 재현 경로**를 주석으로 적어 둔다. 페이지에서는 `<SourceNote path="…" />` 로
 그 경로를 화면에도 노출한다 — 출처 없는 숫자가 화면에 올라가지 않게 하는 장치다.
@@ -153,7 +156,7 @@ bun run check                              # typecheck + 위 검사
 
 ## 주차별 탐색
 
-사이드바의 주차 선택으로 Week 02(검색)와 Week 03(pg_cron)을 전환한다.
+사이드바의 주차 선택으로 Week 02(검색), Week 03(pg_cron), Week 04(hstore)를 전환한다.
 각 섹션의 `week`가 소속 주차를 정하며, 이전/다음 이동도 같은 주차 안에서만 이어진다.
 새 주차는 `registry.ts`의 `WEEKS`와 `SECTIONS`에 등록한다.
 기존 `#/start/overview`, `#/foundations/gin` 등 링크는 유지한다. 섹션 slug는 주차 전체에서 유일해야 한다.
@@ -210,3 +213,26 @@ python3 scripts/capture-cron-storage.py
 실행 모드 페이지는 기본 설명과 접어서 표시하는 심화 설명으로 나눈다.
 처음 등장하는 postmaster·client backend·pg_cron launcher는 프로세스 페이지에서 역할과 실행 위치부터 설명한다.
 SQL 예제는 실행 문장 하나와 그 결과를 한 쌍으로 표시한다. 함수 본문이나 예약 문자열 안의 SQL은 하나의 문장 일부이므로 분리하지 않는다.
+
+## Week 04 · hstore
+
+진입점은 `#/hstore/about`이다. 사이드바는 네 분류로 나뉜다. 네 분류 모두 URL 접두사 `#/hstore/...`를 공유한다(`SectionDef.routeSlug`).
+
+- 시작하기: 개요와 첫 사용 → 설치와 기본 문법 → 언제 쓰고 언제 피하나
+- 저장과 조회: 저장 방식 → jsonb와의 차이 → 인덱스
+- 갱신·동시성·운영: 갱신 비용 → 동시성 → Redis 해시와 비교 → 운영과 관리형 DB
+- 구현과 검증: 소스 파일·함수 지도 → 실험 질문과 결과 → 참고 자료
+
+페이지에 올라가는 숫자와 SQL 출력은 손으로 적지 않는다. 세 파일에서만 온다.
+
+```sh
+python3 scripts/sync-hstore-results.py           # 로컬 실험 결과 → src/data/hstore-experiments.json
+python3 scripts/sync-hstore-results.py --check   # 게시된 요약의 반복 수(01:3 · 02:5 · 03:5 · 04:10 · 05:5회 이상)와 필수 필드 검사
+python3 scripts/capture-hstore-demo.py           # 임시 DB에서 예제를 실행해 src/data/hstore-demo.json 갱신
+python3 scripts/extract-hstore-source.py <pgsrc> # 소스 발췌 갱신
+python3 src/animations/build.py                  # 애니메이션(수치는 hstore-experiments.json 에서 읽는다)
+```
+
+실험 원본은 `../week04/hstore/experiments/*/results/`에 생성되며 Git에서 제외한다. 실험 다섯 개는 같은 Compose 프로젝트를 쓰므로 동시에 실행하지 않는다.
+
+Clotho 문서 7개는 `src/animations/hstore_docs.py`에 있고 `build.py`가 함께 만든다. `hstore-storage-layout`, `hstore-gin-lookup`, `hstore-vs-jsonb-types`는 소스와 실습 출력 기반의 개념 모형이고, `hstore-update-rewrite`, `hstore-lost-update`, `hstore-redis-path`, `hstore-offsets-vs-lengths`는 실험 결과 요약의 수치를 읽어 그린다. 재생 시간은 실제 실행 시간과 무관하다.

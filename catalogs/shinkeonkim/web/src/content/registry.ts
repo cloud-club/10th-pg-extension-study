@@ -168,6 +168,43 @@ export const SECTIONS: SectionDef[] = [
       { slug: 'experiments', title: '실험 질문과 결과', view: lazy(() => import('@/pages/cron/Experiments')) },
     ],
   },
+  {
+    week: 'week04', slug: 'hstore-start', routeSlug: 'hstore', title: '시작하기', accent: 'tsv',
+    hint: '무엇이고 언제 쓰나',
+    pages: [
+      { slug: 'about', title: '개요와 첫 사용', hint: '키-값 묶음을 한 컬럼에', view: lazy(() => import('@/pages/hstore/About')) },
+      { slug: 'install-syntax', title: '설치와 기본 문법', hint: '리터럴·연산자·함수·첨자', view: lazy(() => import('@/pages/hstore/InstallSyntax')) },
+      { slug: 'when-to-use', title: '언제 쓰고 언제 피하나', hint: '열·EAV·jsonb·Redis와 비교', view: lazy(() => import('@/pages/hstore/WhenToUse')) },
+    ],
+  },
+  {
+    week: 'week04', slug: 'hstore-model', routeSlug: 'hstore', title: '저장과 조회', accent: 'tsv',
+    hint: '디스크 형식·jsonb·인덱스',
+    pages: [
+      { slug: 'storage', title: '저장 방식', hint: '정렬된 쌍·HEntry·TOAST·압축', view: lazy(() => import('@/pages/hstore/Storage')) },
+      { slug: 'vs-jsonb', title: 'jsonb와의 차이', hint: '타입·중첩·크기·연산자', view: lazy(() => import('@/pages/hstore/VsJsonb')) },
+      { slug: 'indexes', title: '인덱스', hint: 'GIN·GiST·btree 식 인덱스', view: lazy(() => import('@/pages/hstore/Indexes')) },
+    ],
+  },
+  {
+    week: 'week04', slug: 'hstore-runtime', routeSlug: 'hstore', title: '갱신·동시성·운영', accent: 'ok',
+    hint: '쓰기 비용과 동시 갱신',
+    pages: [
+      { slug: 'updates', title: '갱신 비용', hint: '키 하나 수정 = 값 전체 재기록', view: lazy(() => import('@/pages/hstore/Updates')) },
+      { slug: 'concurrency', title: '동시성', hint: '행 잠금·유실 갱신·재시도', view: lazy(() => import('@/pages/hstore/Concurrency')) },
+      { slug: 'vs-redis', title: 'Redis 해시와 비교', hint: '같은 일·다른 보장', view: lazy(() => import('@/pages/hstore/VsRedis')) },
+      { slug: 'operations', title: '운영과 관리형 DB', hint: '지원 현황·ORM·이전·모니터링', view: lazy(() => import('@/pages/hstore/Operations')) },
+    ],
+  },
+  {
+    week: 'week04', slug: 'hstore-internals', routeSlug: 'hstore', title: '구현과 검증', accent: 'warn',
+    hint: 'C 소스·실험·참고 자료',
+    pages: [
+      { slug: 'source', title: '소스 파일·함수 지도', hint: 'contrib/hstore 읽기', view: lazy(() => import('@/pages/hstore/Source')) },
+      { slug: 'experiments', title: '실험 질문과 결과', hint: '5개 실험·반복·한계', view: lazy(() => import('@/pages/hstore/Experiments')) },
+      { slug: 'resources', title: '참고 자료', hint: '공식 문서·GitHub·글', view: lazy(() => import('@/pages/hstore/Resources')) },
+    ],
+  },
 ]
 
 export const HOME = `/${SECTIONS[0].slug}/${SECTIONS[0].pages[0].slug}`
@@ -200,6 +237,7 @@ export function href(l: Located) {
 export const WEEKS = [
   { slug: 'week02', title: 'Week 02 · 텍스트 검색' },
   { slug: 'week03', title: 'Week 03 · 작업 예약' },
+  { slug: 'week04', title: 'Week 04 · hstore' },
 ]
 export function weekHome(week: string) {
   const section = SECTIONS.find((s) => s.week === week)
