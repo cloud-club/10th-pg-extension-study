@@ -37,13 +37,27 @@
 
 재현하면 `results/`에 `diagnostic-1.json`부터 `diagnostic-10.json`과 같은 번호의 서버 로그가 생성된다. 이 파일들도 Git에는 넣지 않는다. 로그의 초기 `database study does not exist`는 Docker 최초 initdb 중 메타데이터 DB 생성 이전 launcher 시도이며, 이후 정상 기동된 서버에서 위 현상을 관찰했다.
 
-## 코드에서 찾은 가설 — 아직 원인 확정 아님
+## 원인 확인: WAITING 작업이 폴링 자리를 차지한다
 
 [v1.6.8 PollForTasks](https://github.com/citusdata/pg_cron/blob/v1.6.8/src/pg_cron.c#L1116-L1214)는 `activeTaskCount >= MaxRunningTasks`이면 순회를 중단한다. WAITING이면서 pendingRunCount가 0인 작업은 건너뛰지만, pending이 있는 WAITING 작업은 시작 슬롯이 없을 때 fd=-1로 폴링 목록에 들어가고 activeTaskCount도 늘어난다.
 
-따라서 **대기 작업이 폴링 대상 한도를 차지해 뒤쪽의 실제 연결을 충분히 처리하지 못하는 경로**가 의심된다. 이는 관찰과 맞는 소스 기반 가설이다. 패치 전후 비교나 디버거로 해당 상태를 직접 확인한 것은 아니므로 확정된 업스트림 결함·버전 전체의 일반적 동작으로 단정하지 않는다. 타 버전·TCP·worker 모드는 이번 실험 범위 밖이다.
+이는 같은 jobid의 대기 회차가 다른 jobid를 의도적으로 막는 정책이 아니다. 각 jobid는 별도 `CronTask`와 `pendingRunCount`를 갖는다. 문제는 실행 한도 2를 모두 쓴 순간에 pending이 있는 WAITING 작업 두 개가 폴링 목록의 두 자리를 차지할 수 있다는 점이다. 두 항목의 fd는 -1이므로 실제 연결 중인 작업의 소켓을 확인하지 못한다. 완료된 작업도 launcher가 완료로 전환하지 못해 `RunningTaskCount`가 줄지 않고, 약 10초 뒤 `job startup timeout` 처리로 자리가 풀릴 때까지 정체된다.
 
-운영에서는 한도를 낮추는 것만으로 정상적인 큐 대기를 보장한다고 가정하지 말고, 사용하는 버전에서 등록 잡 수가 한도를 초과하는 경우를 검증해야 한다. 다른 버전에 같은 현상이 있는지는 별도 실험이 필요하다.
+원인을 분리하기 위해 v1.6.8 원본과 아래 조건 하나만 바꾼 빌드를 같은 환경에서 각각 10회 비교했다. 수정은 시작 가능한 WAITING 작업을 앞의 `CanStartTask()`에서 이미 처리한다는 점을 이용해, 나머지 WAITING 작업을 pending 수와 관계없이 폴링 목록에서 제외한다.
+
+```diff
+- if (task->state == CRON_TASK_WAITING && task->pendingRunCount == 0)
++ if (task->state == CRON_TASK_WAITING)
+```
+
+| 빌드 | 6초 누적 완료 | 12초 누적 완료 | 18초 누적 완료 | startup timeout |
+| --- | --- | --- | --- | --- |
+| v1.6.8 원본 | 2~3 | 2~3 | 4~5 | 매회 2건 |
+| 조건 변경 | 4 | 10 | 16 | 매회 0건 |
+
+원본은 10회 모두 6초와 12초 사이 완료 수가 늘지 않았다. 조건 변경 빌드는 10회 모두 4→10→16건으로 계속 진행했다. 다른 코드는 같았으므로 **이번 환경의 정체와 timeout은 pending이 있는 WAITING 작업을 폴링 대상으로 센 경로 때문에 발생했다고 판단할 수 있다.** 2018년에 등록되어 현재도 열려 있는 [upstream issue #63](https://github.com/citusdata/pg_cron/issues/63)에도 한도 초과 시 `poll([{fd=-1}], ...)`로 멈추는 같은 증상이 기록되어 있다.
+
+이 비교는 PostgreSQL 16.15, pg_cron v1.6.8, 기본 libpq·유닉스 소켓 모드에서 원인을 확인한 것이다. 첨부 패치는 인과관계 확인용 최소 변경이며 검토된 운영 패치가 아니다. worker 모드와 다른 버전은 별도로 확인해야 한다. 운영에서는 사용하는 버전에서 활성 잡 수가 한도를 초과하는 조건을 반드시 검증한다.
 
 ## 재현
 
@@ -52,8 +66,9 @@
 ```sh
 python3 catalogs/shinkeonkim/week03/pg_cron/experiments/03-capacity-and-serialization/bench.py
 python3 catalogs/shinkeonkim/week03/pg_cron/experiments/03-capacity-and-serialization/diagnose.py
+python3 catalogs/shinkeonkim/week03/pg_cron/experiments/03-capacity-and-serialization/confirm_cause.py
 ```
 
 공유 [runtime](../runtime/)의 **전용 Compose 프로젝트**를 사용하므로 실험 04와 동시에 실행하지 않는다. 케이스마다 임시 DB를 만들고 finally에서 컨테이너·볼륨을 정리한다. 로컬 결과 JSON은 다시 실행하면 덮어쓰므로 비교할 실행은 저장소 밖으로 먼저 복사한다. 베이스 이미지 digest와 pg_cron 패키지 버전을 Dockerfile에 고정했지만 apt 저장소에서 해당 패키지가 사라지면 재빌드가 실패할 수 있다.
 
-검사 통과는 동일 jobid 직렬화·동시 상한 검사가 통과했다는 뜻이다. 정상 처리량이나 실패 없음까지 보장하는 성공 표시는 아니다. 짧은 구간·10회 반복·sleep 워크로드·시작 비용을 포함한 수치이므로 운영 용량 산정에는 더 긴 부하 실험이 필요하다. 반복 수는 `REPETITIONS` 환경 변수로 늘릴 수 있으며 웹에 게시할 결과는 조건별 최소 10회를 요구한다.
+`confirm_cause.py`는 소스 빌드 때문에 처음 실행할 때 시간이 더 걸린다. v1.6.8 원본과 [인과 확인용 패치](waiting-tasks-not-polled.patch)를 적용한 이미지를 만들고 두 조건을 나란히 10회 실행한다. 검사 통과는 동일 jobid 직렬화·동시 상한 또는 위 원인 분리 조건이 통과했다는 뜻이다. 정상 처리량이나 운영 패치의 안전성까지 보장하지 않는다. 짧은 구간·10회 반복·sleep 워크로드·시작 비용을 포함한 수치이므로 운영 용량 산정에는 더 긴 부하 실험이 필요하다. 반복 수는 `REPETITIONS` 환경 변수로 늘릴 수 있으며 웹에 게시할 결과는 조건별 최소 10회를 요구한다.
