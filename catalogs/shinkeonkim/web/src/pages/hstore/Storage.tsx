@@ -112,6 +112,30 @@ export default function Storage() {
       <Callout kind="ok" title="결론: 원인은 배열의 종류">
         <p>문자열이 같아도 끝 위치 배열은 {fmtBytes(probe.layout_offsets_lz4_avg)}, 길이 배열은 {fmtBytes(probe.layout_lengths_lz4_avg)}로 압축된다. 실제 hstore(lz4 {fmtBytes(probe.lz4_hstore_avg)})는 끝 위치 배열 합성본과 거의 같고, 실제 jsonb({fmtBytes(probe.lz4_jsonb_avg)})는 길이 배열 합성본과 같다. 이 대조는 hstore의 실제 바이트를 직접 조작한 것이 아니라 <strong>같은 정보를 두 방식으로 배치한 합성 데이터</strong>이므로, ‘배열의 종류가 압축률을 좌우한다’는 것까지가 확인된 범위다.</p>
       </Callout>
+
+      <h3>왜 키 100개는 압축되고 키 500개는 안 되는가: pglz의 두 문턱값</h3>
+      <p>PostgreSQL의 기본 TOAST 압축기(pglz)는 아무 조건 없이 압축을 시도하지 않는다. 소스(<code>src/common/pg_lzcompress.c</code>)의 기본 전략 <code>PGLZ_strategy_default</code>에 두 숫자가 박혀 있다.</p>
+      <CodeBlock language="c" caption={<>src/common/pg_lzcompress.c · <a className="text-primary underline-offset-4 hover:underline" href="https://github.com/postgres/postgres/blob/REL_16_15/src/common/pg_lzcompress.c#L223-L235" target="_blank" rel="noreferrer">REL_16_15 223~235행</a></>}>{`static const PGLZ_Strategy strategy_default_data = {
+    32,       /* Data chunks less than 32 bytes are not compressed */
+    INT_MAX,  /* No upper limit on what we'll try to compress */
+    25,       /* Require 25% compression rate, or not worth it */
+    1024,     /* Give up if no compression in the first 1KB */
+    128,      /* Stop history lookup if a match of 128 bytes is found */
+    10        /* Lower good match size by 10% at every attempt */
+};`}</CodeBlock>
+      <p>중요한 두 값: <strong>25% 이상 줄어들지 않으면 압축한 걸 버리고 원본을 저장</strong>하고(<code>min_comp_rate</code>), <strong>맨 앞 1024바이트를 훑는 동안 단 하나도 줄일 거리를 못 찾으면 그 시점에서 아예 포기</strong>한다(<code>first_success_by</code>, pg_lzcompress.c 621~628행의 <code>if (!found_match &amp;&amp; bp - bstart &gt;= strategy-&gt;first_success_by) return -1;</code>).</p>
+      <p>pglz는 varlena 헤더 바로 뒤, 즉 <code>size_</code>부터 스캔을 시작한다 — <Ref to="#layout">1절</Ref>의 구조 그대로라면 <strong>HEntry/JEntry 배열이 문자열보다 먼저</strong> 나온다는 뜻이다. 그래서 “처음 1024바이트”가 엔트리 배열 안에서 끝나는지, 문자열까지 넘어가는지가 압축 여부를 가른다. 엔트리 배열의 크기는 <strong>키 개수 × 2 × 4바이트</strong>(hstore·jsonb 동일한 계산)다.</p>
+      <table><thead><tr><th>키 개수</th><th>엔트리 배열 크기</th><th>1024바이트 문턱</th><th>hstore 압축된 행 (실측)</th></tr></thead><tbody>
+        <tr><td>100</td><td>100 × 2 × 4 = 800B</td><td>800 &lt; 1024 → <strong>문자열까지 스캔이 넘어간다</strong></td><td>5,000/5,000 (값 종류 적음) · 0/5,000 (값 무작위)</td></tr>
+        <tr><td>500</td><td>500 × 2 × 4 = 4,000B</td><td>4,000 &gt; 1024 → <strong>엔트리 배열 안에서 문턱에 도달한다</strong></td><td>200/2,000 (값 종류 적음) · 0/2,000 (값 무작위)</td></tr>
+      </tbody></table>
+      <p>키 100개는 엔트리 배열이 800바이트로 1024바이트보다 작아서, pglz가 처음 1024바이트를 훑는 동안 <strong>문자열 영역까지 들어간다</strong>. 문자열이 반복되는 값(10종류)이면 그 안에서 압축 가능한 구간을 찾아 <code>first_success_by</code> 문턱을 통과하고, 전체적으로도 25% 이상 줄어들어(2,098→1,298B) 5,000행 전부 압축됐다. 문자열이 12자리 해시(사실상 무작위)라면 문자열 구간에 들어가도 압축할 거리가 없어 0행이 압축됐다 — <strong>엔트리 배열 크기와 무관하게, 순전히 문자열 내용의 반복 여부가 결정한다.</strong></p>
+      <p>키 500개는 엔트리 배열만 4,000바이트라 <strong>처음 1024바이트가 전부 엔트리 배열 안</strong>에서 끝난다. hstore의 HEntry는 끝 위치를 담는데(<Ref to="#bytes">2절</Ref>에서 본 1, 1, 3, 4, 7, 10처럼 계속 커지는 4바이트 정수), 그 구간 안에서 반복되는 4바이트 패턴이 거의 없고, 대부분(1,800/2,000, 90%) <code>first_success_by</code>를 못 채워 포기한다. 나머지 200/2,000(10%)은 정수들이 우연히 만든 반복 패턴으로 문턱을 넘긴 사례로 보인다 — 이건 추정이며 이 실험에서 개별 확인하지 않았다.</p>
+      <p>반면 jsonb는 같은 크기(4,000B)의 엔트리 배열인데도 K=500 두 프로파일 모두 100% 압축됐다(2,000/2,000). JEntry는 대부분 <strong>길이</strong>를 담는데, 이 데이터에서 키 이름은 전부 8자(<code>attr_XXX</code>), 값은 전부 12자(무작위 프로파일이어도 <em>길이</em>는 고정 12)라 <strong>JEntry 값 자체가 소수의 정수(대략 8과 12)만 반복</strong>한다. 문자열 내용이 무작위여도 엔트리 배열 수준에서 이미 반복이 있으니 <code>first_success_by</code>를 넘기고, 전체 압축률도 25%를 넘긴다. <strong>hstore의 압축 여부는 (엔트리 배열 크기, 문자열 내용) 둘 다에 좌우되지만, jsonb는 엔트리 배열 자체의 구조만으로 대개 문턱을 넘는다</strong> — 이게 2절의 데이터에서 K=100·무작위 값 조건에서만 hstore와 jsonb가 갈리는 이유이기도 하다(hstore 0/5,000, jsonb 5,000/5,000).</p>
+      <Callout kind="info" title="확인 범위">
+        <p>1024바이트 문턱과 4,000B/800B 엔트리 배열 크기, 25% 문턱은 소스 상수와 이 실험의 데이터 구조에서 정확히 계산된다. 다만 pglz의 실제 매치 탐색(해시 체인)이 “처음 1024바이트 안에서 어떤 4바이트 시퀀스가 우연히 반복되는가”까지는 이 페이지에서 바이트 단위로 재현하지 않았다 — K=500 저-엔트로피에서 10%가 압축된 이유는 그래서 “추정”으로 남겨 둔다.</p>
+      </Callout>
+
       <p>실무 의미: 키가 많고 값이 반복되는 큰 맵은 hstore가 jsonb보다 디스크를 더 쓴다. 대신 압축을 풀 필요가 없어 읽기는 빠르다 (<Ref to="/hstore/updates#read">읽기 비교</Ref>). <code>ALTER TABLE ... SET COMPRESSION lz4</code>로 줄일 수는 있지만(위 표) jsonb만큼은 되지 않는다.</p>
     </Section>
 
