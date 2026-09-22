@@ -212,7 +212,7 @@
   "ops_cleanup": "DROP INDEX item_gist16, item_gist128;",
   "ops_estimate_contains": {
     "sql": "EXPLAIN (ANALYZE, TIMING OFF, SUMMARY OFF) SELECT * FROM item WHERE attrs ? 'promo';\nEXPLAIN (ANALYZE, TIMING OFF, SUMMARY OFF) SELECT * FROM item WHERE attrs @> 'sku_grp=>g0007';\nEXPLAIN (ANALYZE, TIMING OFF, SUMMARY OFF) SELECT * FROM item WHERE attrs @> 'color=>red';",
-    "output": "QUERY PLAN                                             \n---------------------------------------------------------------------------------------------------\n Bitmap Heap Scan on item  (cost=12.86..50.41 rows=10 width=79) (actual rows=100 loops=1)\n   Recheck Cond: (attrs ? 'promo'::text)\n   Heap Blocks: exact=100\n   ->  Bitmap Index Scan on item_gin  (cost=0.00..12.86 rows=10 width=0) (actual rows=100 loops=1)\n         Index Cond: (attrs ? 'promo'::text)\n(5 rows)\n\n                                             QUERY PLAN                                             \n----------------------------------------------------------------------------------------------------\n Bitmap Heap Scan on item  (cost=24.11..1012.61 rows=499 width=79) (actual rows=600 loops=1)\n   Recheck Cond: (attrs @> '\"sku_grp\"=>\"g0007\"'::hstore)\n   Heap Blocks: exact=107\n   ->  Bitmap Index Scan on item_gin  (cost=0.00..23.98 rows=499 width=0) (actual rows=600 loops=1)\n         Index Cond: (attrs @> '\"sku_grp\"=>\"g0007\"'::hstore)\n(5 rows)\n\n                                               QUERY PLAN                                               \n--------------------------------------------------------------------------------------------------------\n Bitmap Heap Scan on item  (cost=100.74..1608.14 rows=11952 width=79) (actual rows=12500 loops=1)\n   Recheck Cond: (attrs @> '\"color\"=>\"red\"'::hstore)\n   Rows Removed by Index Recheck: 500\n   Heap Blocks: exact=1358\n   ->  Bitmap Index Scan on item_gin  (cost=0.00..97.75 rows=11952 width=0) (actual rows=13000 loops=1)\n         Index Cond: (attrs @> '\"color\"=>\"red\"'::hstore)\n(6 rows)"
+    "output": "QUERY PLAN                                             \n---------------------------------------------------------------------------------------------------\n Bitmap Heap Scan on item  (cost=12.86..50.41 rows=10 width=79) (actual rows=100 loops=1)\n   Recheck Cond: (attrs ? 'promo'::text)\n   Heap Blocks: exact=100\n   ->  Bitmap Index Scan on item_gin  (cost=0.00..12.86 rows=10 width=0) (actual rows=100 loops=1)\n         Index Cond: (attrs ? 'promo'::text)\n(5 rows)\n\n                                             QUERY PLAN                                             \n----------------------------------------------------------------------------------------------------\n Bitmap Heap Scan on item  (cost=24.29..1046.73 rows=532 width=79) (actual rows=600 loops=1)\n   Recheck Cond: (attrs @> '\"sku_grp\"=>\"g0007\"'::hstore)\n   Heap Blocks: exact=107\n   ->  Bitmap Index Scan on item_gin  (cost=0.00..24.15 rows=532 width=0) (actual rows=600 loops=1)\n         Index Cond: (attrs @> '\"sku_grp\"=>\"g0007\"'::hstore)\n(5 rows)\n\n                                               QUERY PLAN                                               \n--------------------------------------------------------------------------------------------------------\n Bitmap Heap Scan on item  (cost=100.63..1607.78 rows=11932 width=79) (actual rows=12500 loops=1)\n   Recheck Cond: (attrs @> '\"color\"=>\"red\"'::hstore)\n   Rows Removed by Index Recheck: 500\n   Heap Blocks: exact=1358\n   ->  Bitmap Index Scan on item_gin  (cost=0.00..97.65 rows=11932 width=0) (actual rows=13000 loops=1)\n         Index Cond: (attrs @> '\"color\"=>\"red\"'::hstore)\n(6 rows)"
   },
   "ops_estimate_expr_before": {
     "sql": "-- 식 인덱스를 만든 직후, 아직 ANALYZE 전\nEXPLAIN (ANALYZE, TIMING OFF, SUMMARY OFF) SELECT * FROM item WHERE attrs -> 'brand' = 'brand07';",
@@ -221,7 +221,7 @@
   "ops_analyze": "ANALYZE item;",
   "ops_estimate_expr_after": {
     "sql": "-- ANALYZE 뒤\nEXPLAIN (ANALYZE, TIMING OFF, SUMMARY OFF) SELECT * FROM item WHERE attrs -> 'brand' = 'brand07';",
-    "output": "QUERY PLAN                                               \n--------------------------------------------------------------------------------------------------------\n Bitmap Heap Scan on item  (cost=32.39..1443.98 rows=2593 width=79) (actual rows=2500 loops=1)\n   Recheck Cond: ((attrs -> 'brand'::text) = 'brand07'::text)\n   Heap Blocks: exact=1351\n   ->  Bitmap Index Scan on item_brand  (cost=0.00..31.74 rows=2593 width=0) (actual rows=2500 loops=1)\n         Index Cond: ((attrs -> 'brand'::text) = 'brand07'::text)\n(5 rows)"
+    "output": "QUERY PLAN                                               \n--------------------------------------------------------------------------------------------------------\n Bitmap Heap Scan on item  (cost=31.04..1459.24 rows=2419 width=79) (actual rows=2500 loops=1)\n   Recheck Cond: ((attrs -> 'brand'::text) = 'brand07'::text)\n   Heap Blocks: exact=1351\n   ->  Bitmap Index Scan on item_brand  (cost=0.00..30.43 rows=2419 width=0) (actual rows=2500 loops=1)\n         Index Cond: ((attrs -> 'brand'::text) = 'brand07'::text)\n(5 rows)"
   },
   "ops_monitor": {
     "sql": "SELECT c.relname,\n       pg_size_pretty(pg_relation_size(c.oid)) AS heap,\n       pg_size_pretty(coalesce(pg_relation_size(c.reltoastrelid), 0)) AS toast,\n       s.n_live_tup, s.n_dead_tup,\n       round(100.0 * s.n_tup_hot_upd / nullif(s.n_tup_upd, 0), 1) AS hot_pct\nFROM pg_class c JOIN pg_stat_user_tables s ON s.relid = c.oid\nWHERE c.relname = 'item';",
@@ -238,7 +238,7 @@
   },
   "cc_row_lock": {
     "sql": "bash /lab/scripts/s1-row-lock.sh",
-    "output": "세션 A: 키 b 를 추가하고, 3초 동안 커밋하지 않는다\n세션 B: (A 가 커밋하기 전에) 같은 행에서 다른 키 c 를 추가한다\n\n[관찰] B 는 지금 무엇을 기다리나 (pg_stat_activity):\n state  | wait_event_type |  wait_event   |                        query                         \n--------+-----------------+---------------+------------------------------------------------------\n active | Lock            | transactionid | UPDATE doc SET attrs = attrs || 'c=>3' WHERE id = 1;\n(1 row)\n\nB 가 끝날 때까지 걸린 시간: 2012 ms  (A 가 커밋할 때까지 기다렸다)\n\n[결과] 두 변경이 모두 남았다:\n            attrs             \n------------------------------\n \"a\"=>\"1\", \"b\"=>\"2\", \"c\"=>\"3\"\n(1 row)\n\n✔ B 가 A 를 기다렸고 두 변경이 모두 남았다"
+    "output": "세션 A: 키 b 를 추가하고, 3초 동안 커밋하지 않는다\n세션 B: (A 가 커밋하기 전에) 같은 행에서 다른 키 c 를 추가한다\n\n[관찰] B 는 지금 무엇을 기다리나 (pg_stat_activity):\n state  | wait_event_type |  wait_event   |                        query                         \n--------+-----------------+---------------+------------------------------------------------------\n active | Lock            | transactionid | UPDATE doc SET attrs = attrs || 'c=>3' WHERE id = 1;\n(1 row)\n\nB 가 끝날 때까지 걸린 시간: 2022 ms  (A 가 커밋할 때까지 기다렸다)\n\n[결과] 두 변경이 모두 남았다:\n            attrs             \n------------------------------\n \"a\"=>\"1\", \"b\"=>\"2\", \"c\"=>\"3\"\n(1 row)\n\n✔ B 가 A 를 기다렸고 두 변경이 모두 남았다"
   },
   "cc_lost_update": {
     "sql": "bash /lab/scripts/s2-lost-update.sh",
@@ -254,6 +254,44 @@
   },
   "cc_counter": {
     "sql": "bash /lab/scripts/s5-counter-pgbench.sh",
-    "output": "읽고 → 앱에서 +1 → 쓰기 (RMW) 최종 cnt = 66 / 400\n원자적 UPDATE ... || (식 안에서 +1) 최종 cnt = 400 / 400\n✔ 읽고-쓰기는 유실(66), 원자적 UPDATE 는 400"
+    "output": "읽고 → 앱에서 +1 → 쓰기 (RMW) 최종 cnt = 60 / 400\n원자적 UPDATE ... || (식 안에서 +1) 최종 cnt = 400 / 400\n✔ 읽고-쓰기는 유실(60), 원자적 UPDATE 는 400"
+  },
+  "trust_catalog": {
+    "sql": "SELECT v.name, v.trusted, v.superuser\nFROM pg_available_extension_versions v\nJOIN pg_available_extensions e ON e.name = v.name AND e.default_version = v.version\nWHERE v.name IN ('hstore', 'pg_trgm', 'pgcrypto', 'citext', 'ltree', 'uuid-ossp',\n                  'pageinspect', 'pg_stat_statements', 'dblink', 'postgres_fdw', 'adminpack')\nORDER BY v.trusted DESC, v.name;",
+    "output": "name        | trusted | superuser \n--------------------+---------+-----------\n citext             | t       | t\n hstore             | t       | t\n ltree              | t       | t\n pg_trgm            | t       | t\n pgcrypto           | t       | t\n uuid-ossp          | t       | t\n adminpack          | f       | t\n dblink             | f       | t\n pageinspect        | f       | t\n pg_stat_statements | f       | t\n postgres_fdw       | f       | t\n(11 rows)"
+  },
+  "trust_role_setup": "CREATE ROLE app_owner LOGIN;",
+  "trust_no_create": {
+    "sql": "SET SESSION AUTHORIZATION app_owner;\nCREATE EXTENSION hstore;",
+    "output": "ERROR:  permission denied to create extension \"hstore\"\nHINT:  Must have CREATE privilege on current database to create this extension."
+  },
+  "trust_grant": "GRANT CREATE ON DATABASE trust_demo TO app_owner;",
+  "trust_ok": {
+    "sql": "SET SESSION AUTHORIZATION app_owner;\nCREATE EXTENSION hstore;\nSELECT extname, extowner::regrole AS owner FROM pg_extension WHERE extname = 'hstore';",
+    "output": "extname |   owner   \n---------+-----------\n hstore  | app_owner\n(1 row)"
+  },
+  "trust_pageinspect_denied": {
+    "sql": "SET SESSION AUTHORIZATION app_owner;\nCREATE EXTENSION pageinspect;",
+    "output": "ERROR:  permission denied to create extension \"pageinspect\"\nHINT:  Must be superuser to create this extension."
+  },
+  "trust_ownership_split": {
+    "sql": "SELECT extname, extowner::regrole AS extension_owner FROM pg_extension WHERE extname = 'hstore';\nSELECT proname, proowner::regrole AS function_owner FROM pg_proc WHERE proname = 'hstore_in';",
+    "output": "extname | extension_owner \n---------+-----------------\n hstore  | app_owner\n(1 row)\n\n  proname  | function_owner \n-----------+----------------\n hstore_in | postgres\n(1 row)"
+  },
+  "trust_cannot_alter": {
+    "sql": "SET SESSION AUTHORIZATION app_owner;\nCOMMENT ON FUNCTION hstore_in(cstring) IS 'x';",
+    "output": "ERROR:  must be owner of function hstore_in"
+  },
+  "trust_can_drop": {
+    "sql": "SET SESSION AUTHORIZATION app_owner;\nDROP EXTENSION hstore;\nSELECT count(*) AS hstore_extensions_left FROM pg_extension WHERE extname = 'hstore';",
+    "output": "hstore_extensions_left \n------------------------\n                      0\n(1 row)"
+  },
+  "trust_public_database_acl": {
+    "sql": "SELECT has_database_privilege('public', current_database(), 'CREATE') AS public_has_create,\n       has_database_privilege('public', current_database(), 'CONNECT') AS public_has_connect;",
+    "output": "public_has_create | public_has_connect \n-------------------+--------------------\n f                 | t\n(1 row)"
+  },
+  "jsonb_opclass": {
+    "sql": "SELECT t.typname, am.amname, opc.opcname\nFROM pg_opclass opc\nJOIN pg_am am ON am.oid = opc.opcmethod\nJOIN pg_type t ON t.oid = opc.opcintype\nWHERE t.typname IN ('hstore', 'jsonb')\nORDER BY t.typname, am.amname;",
+    "output": "typname | amname |     opcname      \n---------+--------+------------------\n hstore  | btree  | btree_hstore_ops\n hstore  | gin    | gin_hstore_ops\n hstore  | gist   | gist_hstore_ops\n hstore  | hash   | hash_hstore_ops\n jsonb   | btree  | jsonb_ops\n jsonb   | gin    | jsonb_ops\n jsonb   | gin    | jsonb_path_ops\n jsonb   | hash   | jsonb_ops\n(8 rows)"
   }
 }

@@ -19,23 +19,23 @@ OUT = OWNER / 'web/src/data/hstore-demo.json'
 LAB04 = OWNER / 'week04/hstore/labs/04-concurrency/scripts'
 
 
-def capture(sql):
+def capture(sql, db='study'):
     """실행하고 aligned 표 출력을 그대로 저장한다."""
-    return {'sql': sql, 'output': h.sql('\\pset format aligned\n\\pset tuples_only off\n' + sql)}
+    return {'sql': sql, 'output': h.sql('\\pset format aligned\n\\pset tuples_only off\n' + sql, db=db)}
 
 
-def capture_error(sql):
+def capture_error(sql, db='study'):
     """실패해야 하는 문장. 오류 메시지를 출력으로 저장한다. 성공하면 예제가 틀린 것이다."""
     try:
-        h.sql(sql)
+        h.sql(sql, db=db)
     except RuntimeError as e:
         return {'sql': sql, 'output': str(e).strip()}
     raise AssertionError('오류가 나야 하는 예제가 성공했다: ' + sql)
 
 
-def run(sql):
+def run(sql, db='study'):
     """출력이 필요 없는 준비 문장."""
-    h.sql(sql)
+    h.sql(sql, db=db)
     return sql
 
 
@@ -277,6 +277,39 @@ SELECT id, brand, attrs FROM item WHERE id <= 3 ORDER BY id;""")
                          ('cc_atomic_for_update', 's3-atomic-vs-for-update.sh'),
                          ('cc_repeatable_read', 's4-repeatable-read.sh'), ('cc_counter', 's5-counter-pgbench.sh')):
         demo[name] = {'sql': f'bash /lab/scripts/{script}', 'output': shell(f'bash /lab/scripts/{script}')}
+
+    # ---- trusted 확장: study 와 분리된 임시 DB에서 실행해 지금까지 만든 테이블에 영향이 없게 한다 -----
+    demo['trust_catalog'] = capture("""SELECT v.name, v.trusted, v.superuser
+FROM pg_available_extension_versions v
+JOIN pg_available_extensions e ON e.name = v.name AND e.default_version = v.version
+WHERE v.name IN ('hstore', 'pg_trgm', 'pgcrypto', 'citext', 'ltree', 'uuid-ossp',
+                  'pageinspect', 'pg_stat_statements', 'dblink', 'postgres_fdw', 'adminpack')
+ORDER BY v.trusted DESC, v.name;""")
+    run("CREATE DATABASE trust_demo;")
+    demo['trust_role_setup'] = run("CREATE ROLE app_owner LOGIN;")
+    demo['trust_no_create'] = capture_error("""SET SESSION AUTHORIZATION app_owner;
+CREATE EXTENSION hstore;""", db='trust_demo')
+    demo['trust_grant'] = run("GRANT CREATE ON DATABASE trust_demo TO app_owner;")
+    demo['trust_ok'] = capture("""SET SESSION AUTHORIZATION app_owner;
+CREATE EXTENSION hstore;
+SELECT extname, extowner::regrole AS owner FROM pg_extension WHERE extname = 'hstore';""", db='trust_demo')
+    demo['trust_pageinspect_denied'] = capture_error("""SET SESSION AUTHORIZATION app_owner;
+CREATE EXTENSION pageinspect;""", db='trust_demo')
+    demo['trust_ownership_split'] = capture("""SELECT extname, extowner::regrole AS extension_owner FROM pg_extension WHERE extname = 'hstore';
+SELECT proname, proowner::regrole AS function_owner FROM pg_proc WHERE proname = 'hstore_in';""", db='trust_demo')
+    demo['trust_cannot_alter'] = capture_error("""SET SESSION AUTHORIZATION app_owner;
+COMMENT ON FUNCTION hstore_in(cstring) IS 'x';""", db='trust_demo')
+    demo['trust_can_drop'] = capture("""SET SESSION AUTHORIZATION app_owner;
+DROP EXTENSION hstore;
+SELECT count(*) AS hstore_extensions_left FROM pg_extension WHERE extname = 'hstore';""", db='trust_demo')
+    demo['trust_public_database_acl'] = capture("""SELECT has_database_privilege('public', current_database(), 'CREATE') AS public_has_create,
+       has_database_privilege('public', current_database(), 'CONNECT') AS public_has_connect;""", db='trust_demo')
+    demo['jsonb_opclass'] = capture("""SELECT t.typname, am.amname, opc.opcname
+FROM pg_opclass opc
+JOIN pg_am am ON am.oid = opc.opcmethod
+JOIN pg_type t ON t.oid = opc.opcintype
+WHERE t.typname IN ('hstore', 'jsonb')
+ORDER BY t.typname, am.amname;""")
 
     OUT.write_text(json.dumps(demo, ensure_ascii=False, indent=2) + '\n')
     print(f'PASS: {len(demo) - 1}개 예제를 실행하고 web/src/data/hstore-demo.json 에 저장했다')

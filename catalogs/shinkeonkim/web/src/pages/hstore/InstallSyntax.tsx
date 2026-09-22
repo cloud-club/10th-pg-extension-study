@@ -21,7 +21,7 @@ export default function InstallSyntax() {
       </tbody></table>
       <h3>trusted 확장이다</h3>
       <CodeBlock language="sql" output={demo.trusted.output} outputCaption="실제 실행 결과">{demo.trusted.sql}</CodeBlock>
-      <p><code>trusted = t</code>이면 슈퍼유저가 아니어도 해당 DB에 <code>CREATE</code> 권한이 있으면 설치할 수 있다. <code>relocatable = t</code>이므로 원하는 스키마에 설치할 수 있지만, 연산자를 찾지 못하는 일을 줄이려면 <code>public</code>이나 검색 경로에 있는 스키마에 둔다.</p>
+      <p><code>trusted = t</code>이면 슈퍼유저가 아니어도 해당 DB에 <code>CREATE</code> 권한이 있으면 설치할 수 있다. <code>relocatable = t</code>이므로 원하는 스키마에 설치할 수 있지만, 연산자를 찾지 못하는 일을 줄이려면 <code>public</code>이나 검색 경로에 있는 스키마에 둔다. trusted가 정확히 무엇을 허용하고 무엇은 여전히 막는지는 <Ref to="/hstore/trusted">trusted 확장이란</Ref>에서 실제 권한 테스트로 확인한다.</p>
       <CodeBlock language="sql">{demo.create}</CodeBlock>
       <p>설치되는 객체는 타입 하나와 연산자·함수·연산자 클래스다. 종류별 개수는 다음과 같다.</p>
       <CodeBlock language="sql" output={demo.objects.output} outputCaption="실제 실행 결과">{demo.objects.sql}</CodeBlock>

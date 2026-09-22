@@ -19,7 +19,7 @@ export default function Operations() {
       </tbody></table>
       <p>Aurora PostgreSQL은 RDS 확장 표에 함께 있는 호환 서비스이나 별도로 확인하지 않았다. 표의 링크와 확인 내용은 <Ref to="/hstore/resources#managed">참고 자료</Ref>에 있다. 지원 현황은 바뀌므로 도입 전 각 서비스 문서를 다시 확인한다.</p>
       <Callout kind="info" title="권한과 설정">
-        <p>hstore는 <strong>trusted</strong> 확장이라 DB 소유자 수준 권한으로 설치되는 경우가 많다. 재시작·<code>shared_preload_libraries</code>·파라미터 그룹 변경이 필요 없다는 점이 pg_cron·pg_stat_statements(<Ref to="/pg-cron/shared-preload-libraries">preload가 필요한 확장</Ref>)와 다르다.</p>
+        <p>hstore는 <strong>trusted</strong> 확장이라 DB에 CREATE 권한이 있는 사용자면 슈퍼유저 없이도 설치할 수 있다(<Ref to="/hstore/trusted">trusted 확장이란</Ref>). 재시작·<code>shared_preload_libraries</code>·파라미터 그룹 변경이 필요 없다는 점이 pg_cron·pg_stat_statements(<Ref to="/pg-cron/shared-preload-libraries">preload가 필요한 확장</Ref>)와 다르다.</p>
       </Callout>
     </Section>
 

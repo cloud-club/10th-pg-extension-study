@@ -174,6 +174,7 @@ export const SECTIONS: SectionDef[] = [
     pages: [
       { slug: 'about', title: '개요와 첫 사용', hint: '키-값 묶음을 한 컬럼에', view: lazy(() => import('@/pages/hstore/About')) },
       { slug: 'install-syntax', title: '설치와 기본 문법', hint: '리터럴·연산자·함수·첨자', view: lazy(() => import('@/pages/hstore/InstallSyntax')) },
+      { slug: 'trusted', title: 'trusted 확장이란', hint: '슈퍼유저 없이 설치되는 이유', view: lazy(() => import('@/pages/hstore/Trusted')) },
       { slug: 'when-to-use', title: '언제 쓰고 언제 피하나', hint: '열·EAV·jsonb·Redis와 비교', view: lazy(() => import('@/pages/hstore/WhenToUse')) },
     ],
   },
