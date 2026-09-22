@@ -660,9 +660,18 @@
 - [x] hstore 소스 분석(REL_16_15 `contrib/hstore`, 파일 blob 해시 고정) — `web/src/data/hstore-source.json`
 - [x] Docker 실습 4개(설치·문법 / 저장 구조 / 인덱스 / 동시성): 모두 `./run.sh`로 실행하고 assertion으로 판정 검증
 - [x] 실험 5종(저장 크기 3회 · 갱신 5회 · 인덱스 5회 · 동시성 10회 · Redis 비교 5회) 실행, 웹 요약 게시
-- [x] 웹 Week 04 섹션 13페이지 + Clotho 7개(저장 구조·갱신 재기록·GIN 조회·유실 갱신·Redis 경로·압축 차이·jsonb 타입)
+- [x] 웹 Week 04 섹션 14페이지 + Clotho 7개(저장 구조·갱신 재기록·GIN 조회·유실 갱신·Redis 경로·압축 차이·jsonb 타입)
 - [x] 카탈로그 `hstore.md`, `week04/hstore/README.md`, 실험 README 5개
 - [x] 측정 중 바로잡은 것 9건 기록 (웹 `실험` 페이지 4절)
 - [ ] 브라우저(실제 렌더) 확인 — Chrome 확장이 로컬 서버에 접근하지 못해 못 했다. typecheck·build·SSR 스모크 13페이지·Clotho 검사로 대체
 - [ ] Supabase·Aurora의 hstore 지원 여부 공식 문서 확인
 - [ ] 압축 차이의 원인을 hstore 바이트를 직접 바꿔 검증(현재는 합성 데이터 대조까지)
+
+## Week 04 · hstore 후속 보강 · 2026-09-22
+
+- [x] trusted 확장 조사(control 파일 `superuser`/`trusted` 파라미터, PUBLIC 기본 권한, 소유권 분리) + `#/hstore/trusted` 신규 페이지. 비슈퍼유저 role로 실제 CREATE EXTENSION 성공/거절, 확장-내부객체 소유권 분리를 DB에서 직접 검증
+- [x] 저장 방식 페이지에 pglz 압축 임계값(`min_comp_rate=25%`, `first_success_by=1024B`, `src/common/pg_lzcompress.c`)로 K=100은 압축되고 K=500은 안 되는 이유를 수치로 직접 연결
+- [x] 동시성 페이지 라벨 정리: "성공한 UPDATE"(SQL 오류 없음)와 "남은 키"(실제 반영)가 다른 숫자라는 걸 표·캘아웃으로 명시, KEY_LABEL 문구 통일, 차트 다중 줄 라벨 배열로 수정
+- [x] hstore_docs.py의 중앙값 반올림을 JS Math.round와 일치시킴(Python `:.0f`의 은행가 반올림 때문에 62.5가 62/63으로 페이지와 애니메이션에서 다르게 보이던 문제)
+- [x] jsonb 대비 hstore 실제 강점 재정리: `pg_opclass` 전수 조회로 jsonb는 코어에 GiST가 없음을 확인(hstore만 btree·hash·GIN·GiST 4종 전부) → VsJsonb·WhenToUse·Indexes 페이지에 근거로 반영
+- [ ] 브라우저 실제 렌더 확인은 이번에도 못 함(로컬 서버 접근 불가는 동일) — typecheck·build·SSR 스모크 14페이지·애니메이션 17개 검사로 대체
