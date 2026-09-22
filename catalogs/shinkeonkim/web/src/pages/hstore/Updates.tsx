@@ -3,6 +3,7 @@ import { Callout } from '@/components/layout/Callout'
 import { Ref } from '@/components/common/Ref'
 import { SourceNote } from '@/components/common/SourceNote'
 import { ChartBox } from '@/components/charts/ChartBox'
+import { ChartNotes } from '@/components/common/ChartNotes'
 import { Clotho } from '@/components/viz/Clotho'
 import { C, axes } from '@/lib/chart'
 import { exp, fmtBytes, fmtMs, ratio } from './stats'
@@ -45,6 +46,28 @@ export default function Updates() {
         }}
         options={{ scales: axes({ log: true, yTitle: 'WAL 바이트 / UPDATE (log)' }) }}
         caption={`키 5개는 여섯 방식이 거의 같다(튜플 하나 분량). 키가 늘면 hstore·jsonb는 값 크기를 따라 늘고, EAV는 ${fmtBytes(wal('500', 'eav_row'))}로 그대로다. 키 500개에서 hstore ${fmtBytes(wal('500', 'hstore_concat'))}, EAV의 ${ratio(wal('500', 'hstore_concat'), wal('500', 'eav_row'))}.`} />
+      <ChartNotes items={[
+        {
+          label: '키 5개: GIN만 튀어 오른다', note: <>
+            나머지 다섯 방식은 {fmtBytes(wal('5', 'hstore_concat'))} 안팎으로 거의 같다 — 값 자체가 작아 튜플 하나를 새로 쓰는 고정비가 WAL의 대부분이기 때문이다. GIN이 걸린 hstore만 {fmtBytes(wal('5', 'hstore_concat_gin'))}({ratio(wal('5', 'hstore_concat_gin'), wal('5', 'hstore_concat'))})로 튀는데, 키가 5개뿐이어도 UPDATE마다 인덱스 항목 5개를 지우고 다시 넣어야 하기 때문이다.
+          </>,
+        },
+        {
+          label: '키 50개: hstore·jsonb·GIN은 커지고, 일반 열·EAV는 그대로', note: <>
+            hstore(<code>||</code>, 첨자)와 jsonb는 값 크기를 따라 {fmtBytes(wal('50', 'hstore_concat'))} 안팎까지 늘었다. 반면 일반 테이블은 바뀐 열 앞뒤가 옛 튜플과 같아 그 구간은 WAL에서 생략되므로 {fmtBytes(wal('50', 'plain_column'))}에 머물고, EAV는 여전히 좁은 행 하나만 바꾸므로 {fmtBytes(wal('50', 'eav_row'))} 그대로다. GIN은 인덱스 항목이 50개로 늘어 {fmtBytes(wal('50', 'hstore_concat_gin'))}({ratio(wal('50', 'hstore_concat_gin'), wal('50', 'hstore_concat'))})까지 뛴다.
+          </>,
+        },
+        {
+          label: '키 500개: hstore가 jsonb보다 큰 이유', note: <>
+            hstore는 {fmtBytes(wal('500', 'hstore_concat'))}인데 jsonb는 {fmtBytes(wal('500', 'jsonb_set'))}로 더 적다 — 같은 500쌍이라도 jsonb 쪽이 더 잘 압축되기 때문이다(<Ref to="/hstore/storage#toast">압축 차이</Ref>). 첨자와 <code>||</code>가 {fmtBytes(wal('500', 'hstore_subscript'))} vs {fmtBytes(wal('500', 'hstore_concat'))}로 거의 같은 것은, 어느 쪽도 값의 일부만 바꾸지 못하고 결국 정렬된 배열 전체를 다시 만들어 쓰기 때문이다.
+          </>,
+        },
+        {
+          label: '키 500개: GIN과 일반 열이 양 끝에 있는 이유', note: <>
+            GIN이 걸린 hstore가 {fmtBytes(wal('500', 'hstore_concat_gin'))}로 가장 크다 — GIN 없는 hstore의 {ratio(wal('500', 'hstore_concat_gin'), wal('500', 'hstore_concat'))}인데, 인덱스 항목 500개를 매번 지우고 다시 등록하기 때문이다. 일반 테이블은 {fmtBytes(wal('500', 'plain_column'))}로 hstore보다 적은데, 열 500개짜리 행이 통째로 새 페이지에 복사되긴 해도(HOT 0, 힙 증가 급등 — 위 표) 열 이름을 카탈로그가 아니라 행마다 반복해 저장하는 hstore 값(평균 {fmtBytes(cases['500'].hstore_avg_column_bytes)})보다는 가볍기 때문이다. EAV는 {fmtBytes(wal('500', 'eav_row'))}로 키 개수와 무관하게 늘 좁은 행 하나만 바꾼다.
+          </>,
+        },
+      ]} />
       <table><thead><tr><th>키 500개</th><th>WAL / UPDATE</th><th>힙 증가 (1000건)</th><th>TOAST 증가 (1000건)</th><th>HOT 비율</th></tr></thead><tbody>
         {names.map((n) => {
           const c = cases['500'][n]

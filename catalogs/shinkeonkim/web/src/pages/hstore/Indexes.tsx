@@ -4,6 +4,7 @@ import { CodeBlock } from '@/components/common/Code'
 import { Ref } from '@/components/common/Ref'
 import { SourceNote } from '@/components/common/SourceNote'
 import { ChartBox } from '@/components/charts/ChartBox'
+import { ChartNotes } from '@/components/common/ChartNotes'
 import { Clotho } from '@/components/viz/Clotho'
 import { C, axes } from '@/lib/chart'
 import { demo, exp, fmtBytes, fmtMs, fmtNum, ratio } from './stats'
@@ -90,6 +91,13 @@ export default function Indexes() {
         }}
         options={{ scales: axes({ log: true, yTitle: 'ms (log)' }) }}
         caption="같은 조건에서 인덱스 종류별 중앙값. 순차 스캔이 선택된 조합은 ‘인덱스 없음’과 비슷한 높이다." />
+      <ChartNotes items={[
+        { label: '2키 포함 흔함 (2.5%): GIN만 뚜렷이 낮다', note: <>GIN {fmtMs(cfg.hstore_gin.queries.contain_2keys_common.ms.median)}만 인덱스를 타고, 나머지 넷은 순차 스캔(재검사 탈락 0, 계획이 <code>Seq Scan</code>)이라 서로 비슷한 12~14ms대에 몰린다. GiST 둘이 GIN보다 느린 건 재검사 탈락(16: 3,360개, 128: 368개)이 섞여서다.</> },
+        { label: '2키 포함 좁음 (0.25%): GiST(16)가 순차 스캔만큼 느려진다', note: <>선택도가 좁아질수록 GiST(16)의 재검사 탈락이 3,360→14,844개로 급증해 인덱스를 타고도({fmtMs(cfg.hstore_gist16.queries.contain_2keys_narrow.ms.median)}) 순차 스캔({fmtMs(cfg.none.queries.contain_2keys_narrow.ms.median)})과 비슷해진다. 같은 조건에서 GiST(128)은 재검사가 153개뿐이라 훨씬 낫다({fmtMs(cfg.hstore_gist128.queries.contain_2keys_narrow.ms.median)}) — siglen이 정밀도를 좌우한다는 증거다.</> },
+        { label: '희귀 값 포함 (0.1%): GIN은 더 빨라지고 GiST는 더 느려진다', note: <>선택도가 가장 좁은 조건이라 GIN은 {fmtMs(cfg.hstore_gin.queries.contain_rare_value.ms.median)}로 이 차트에서 가장 낮다(후보가 적어질수록 유리). 반대로 GiST 둘은 재검사 탈락이 2만~3.9만 개로 커져 순차 스캔보다도 느리다 — 인덱스가 있는데 더 느린, 이 실험에서 유일한 역전 사례다.</> },
+        { label: '키 존재 ?: GIN이 이 차트에서 가장 낮은 점', note: <>{fmtMs(cfg.hstore_gin.queries.key_exists_rare.ms.median)} — <code>?</code>는 recheck가 없는(<Ref to="#gin">2절</Ref>) 연산자라 후보가 곧 정답이다. GiST(128)도 재검사 탈락이 1,512개로 비교적 적어 순차 스캔의 절반 이하({fmtMs(cfg.hstore_gist128.queries.key_exists_rare.ms.median)})까지 따라온다.</> },
+        { label: '-> 동등 비교: 유일하게 btree가 이기고 GIN·GiST는 전부 진다', note: <>이 조건만 btree 식 인덱스({fmtMs(cfg.btree_brand.queries.equal_expression.ms.median)})가 이기고, GIN·GiST·인덱스 없음은 <code>-&gt;</code> 연산자를 색인이 지원하지 않아 넷 다 순차 스캔으로 몰려 비슷하다(15~18ms). ‘인덱스 없음’과 ‘btree_brand’가 다른 조건에서 값이 조금씩 다른 것도 실은 같은 순차 스캔 계획의 병렬 워커 잡음이지, 실제 차이가 아니다.</> },
+      ]} />
       <table><thead><tr><th>쿼리 (결과 행 수)</th>{order.map((n) => <th key={n}>{names[n]}</th>)}</tr></thead><tbody>
         {queryKeys.map((k) => <tr key={k}>
           <td>{q[k]} ({fmtNum(cfg.none.queries[k].rows)}행)</td>

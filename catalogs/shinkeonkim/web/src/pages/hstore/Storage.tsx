@@ -4,6 +4,7 @@ import { CodeBlock } from '@/components/common/Code'
 import { Ref } from '@/components/common/Ref'
 import { SourceNote } from '@/components/common/SourceNote'
 import { ChartBox } from '@/components/charts/ChartBox'
+import { ChartNotes } from '@/components/common/ChartNotes'
 import { Clotho } from '@/components/viz/Clotho'
 import { C, axes } from '@/lib/chart'
 import { demo, exp, fmtBytes, fmtNum, ratio, storageCell } from './stats'
@@ -16,7 +17,10 @@ const formName: Record<string, string> = {
   compressed: '압축됨(인라인)',
   'external-uncompressed': 'TOAST 테이블 (압축 안 됨)',
 }
-const low500 = storageCell(500, 'low')
+const s5l = storageCell(5, 'low'), s5h = storageCell(5, 'high')
+const s20l = storageCell(20, 'low'), s20h = storageCell(20, 'high')
+const s100l = storageCell(100, 'low'), s100h = storageCell(100, 'high')
+const low500 = storageCell(500, 'low'), s500h = storageCell(500, 'high')
 const probe = low500.compression_probe!
 
 export default function Storage() {
@@ -80,6 +84,12 @@ export default function Storage() {
         }}
         options={{ scales: axes({ log: true, yTitle: '바이트 (log)' }) }}
         caption={`키가 적을 때(5·20개)는 두 타입의 크기가 같다. 키 100개 이상에서 갈라진다: 키 500개·값 종류 적음에서 hstore ${fmtBytes(low500.hs.avg_column_bytes)}, jsonb ${fmtBytes(low500.jb.avg_column_bytes)}(${ratio(low500.hs.avg_column_bytes, low500.jb.avg_column_bytes)}).`} />
+      <ChartNotes items={[
+        { label: `키 5개: ${fmtBytes(s5l.hs.avg_column_bytes)}~${fmtBytes(s5h.hs.avg_column_bytes)}, hstore=jsonb`, note: <>둘 다 압축 대상이 아닐 만큼 작아 헤더·엔트리 배열 오버헤드가 크기를 지배한다. 값 종류(낮음/무작위)에 따라 값 길이만큼만 차이 난다 — 압축이 끼어들 여지 자체가 없다.</> },
+        { label: `키 20개: ${fmtBytes(s20l.hs.avg_column_bytes)}~${fmtBytes(s20h.hs.avg_column_bytes)}, hstore=jsonb`, note: <>키 5개보다 전체적으로 크지만 hstore·jsonb 격차는 여전히 0이다. 엔트리 배열이 20×8=160B로 아직 압축 시도(2KB TOAST 문턱)에 한참 못 미친다.</> },
+        { label: `키 100개: hstore ${fmtBytes(s100l.hs.avg_column_bytes)}/${fmtBytes(s100h.hs.avg_column_bytes)}`, note: <>여기서부터 hstore와 jsonb가 갈라지기 시작한다(값 종류 적음일 때 jsonb {fmtBytes(s100l.jb.avg_column_bytes)}로 더 작음). 엔트리 배열이 800B로 1024B 문턱 아래라 압축 시도가 문자열까지 닿는다 — <Ref to="#toast">4절</Ref>에서 정확한 경계를 다룬다.</> },
+        { label: `키 500개: hstore가 가장 크게 벌어진다(jsonb의 최대 ${ratio(low500.hs.avg_column_bytes, low500.jb.avg_column_bytes)})`, note: <>엔트리 배열만 4,000B로 1024B 문턱을 넘어, hstore는 압축을 거의 못 받는다(외부 미압축). jsonb는 같은 크기의 엔트리 배열인데도 대부분 압축된다 — 값 종류(무작위 {fmtBytes(s500h.hs.avg_column_bytes)})가 낮음({fmtBytes(low500.hs.avg_column_bytes)})보다 큰 것도 값 자체가 더 길어서다(12자리 해시 vs 반복 단어).</> },
+      ]} />
       <ul>
         <li><strong>키 20개 이하:</strong> hstore와 jsonb의 행당 크기가 <strong>바이트까지 같았다</strong>. 두 형식 모두 쌍마다 8바이트(엔트리 2개)의 오버헤드를 쓴다.</li>
         <li><strong>EAV:</strong> 행마다 튜플 헤더와 인덱스 항목이 붙어 크다. 키 100개·값 종류 적음에서 hstore 전체 {fmtBytes(storageCell(100, 'low').hs.total_bytes)}, EAV {fmtBytes(storageCell(100, 'low').eav.total_bytes)}({ratio(storageCell(100, 'low').eav.total_bytes, storageCell(100, 'low').hs.total_bytes)}).</li>

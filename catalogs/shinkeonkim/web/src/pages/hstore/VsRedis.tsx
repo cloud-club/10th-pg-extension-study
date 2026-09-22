@@ -4,6 +4,7 @@ import { CodeBlock } from '@/components/common/Code'
 import { Ref } from '@/components/common/Ref'
 import { SourceNote } from '@/components/common/SourceNote'
 import { ChartBox } from '@/components/charts/ChartBox'
+import { ChartNotes } from '@/components/common/ChartNotes'
 import { Clotho } from '@/components/viz/Clotho'
 import { C, axes } from '@/lib/chart'
 import { demo, exp, fmtBytes, fmtNum, fmtTps, range, ratio } from './stats'
@@ -94,6 +95,23 @@ export default function VsRedis() {
         }}
         options={{ scales: axes({ log: true, yTitle: 'ops/s (log)' }) }}
         caption="영속화가 없거나 느슨하면 Redis가 앞선다. 매 쓰기 fsync를 요구하는 엄격한 쌍에서는 순서가 뒤집혔다. 뒤집힌 원인은 이 실험으로 가르지 않았다." />
+      <ChartNotes items={[
+        {
+          label: '영속화 없음 · 느슨한 내구성: 왼쪽 두 쌍이 서로 비슷한 이유', note: <>
+            두 설정 모두 <strong>쓰기마다 디스크를 기다리지 않는다</strong> — Redis는 영속화를 껐거나(RDB·AOF 끔) AOF를 초당 한 번만 fsync하고(everysec), PostgreSQL도 WAL이 없거나(UNLOGGED) 커밋마다 WAL을 기다리지 않는다(<code>synchronous_commit = off</code>). 그래서 Redis {fmtTps(rate('none', 'redis', 'write_one_field', 8))}→{fmtTps(rate('relaxed', 'redis', 'write_one_field', 8))}, hstore {fmtTps(rate('none', 'postgres', 'write_one_field', 8))}→{fmtTps(rate('relaxed', 'postgres', 'write_one_field', 8))}로 두 쌍 다 큰 차이 없이 메모리·페이지 캐시 속도에 가깝다.
+          </>,
+        },
+        {
+          label: '왜 이 두 쌍에서는 Redis가 hstore보다 훨씬 빠른가', note: <>
+            디스크 대기가 없으면 남는 건 명령 하나가 지나는 경로 차이다(<Ref to="#path">그림</Ref>) — Redis는 단일 스레드가 해시 필드 하나를 바로 갱신하지만, hstore는 SQL 파싱·플래너·트랜잭션 관리자를 거쳐 값 전체를 다시 쓴다(<Ref to="/hstore/updates">갱신 비용</Ref>). 그 결과 영속화 없음 {ratio(rate('none', 'redis', 'write_one_field', 8), rate('none', 'postgres', 'write_one_field', 8))}, 느슨한 내구성 {ratio(rate('relaxed', 'redis', 'write_one_field', 8), rate('relaxed', 'postgres', 'write_one_field', 8))}.
+          </>,
+        },
+        {
+          label: '엄격한 내구성: 왜 순서가 뒤집히나', note: <>
+            둘 다 느려지지만 같은 비율로 느려지지 않는다. Redis는 {fmtTps(rate('relaxed', 'redis', 'write_one_field', 8))} → {fmtTps(rate('strict', 'redis', 'write_one_field', 8))}로 약 {(rate('relaxed', 'redis', 'write_one_field', 8) / rate('strict', 'redis', 'write_one_field', 8)).toFixed(1)}배 떨어지는데, hstore는 {fmtTps(rate('relaxed', 'postgres', 'write_one_field', 8))} → {fmtTps(rate('strict', 'postgres', 'write_one_field', 8))}로 약 {(rate('relaxed', 'postgres', 'write_one_field', 8) / rate('strict', 'postgres', 'write_one_field', 8)).toFixed(1)}배만 떨어진다. 두 시스템 모두 그룹 커밋으로 여러 클라이언트의 쓰기를 fsync 한 번에 묶을 수 있지만, 이 환경에서는 그 효과가 서로 달라 hstore가 더 적게 느려졌고, 그 결과 막대 순서가 뒤집혔다 — 왜 이만큼 차이 나는지는 이 실험으로 가르지 않았다.
+          </>,
+        },
+      ]} />
       <ul>
         <li><strong>영속화가 없을 때·느슨할 때</strong> Redis가 hstore보다 {ratio(rate('none', 'redis', 'write_one_field', 8), rate('none', 'postgres', 'write_one_field', 8))}·{ratio(rate('relaxed', 'redis', 'write_one_field', 8), rate('relaxed', 'postgres', 'write_one_field', 8))} 빨랐다(쓰기, 클라이언트 8). 원인을 나눠 재지는 않았지만, 명령 하나가 지나는 경로의 차이(<Ref to="#path">위 그림</Ref>)가 가장 유력한 후보다.</li>
         <li><strong>엄격한 내구성</strong>에서는 순서가 뒤집혔다: Redis(AOF always) {fmtTps(rate('strict', 'redis', 'write_one_field', 8))}, hstore {fmtTps(rate('strict', 'postgres', 'write_one_field', 8))}. 두 시스템 모두 여러 클라이언트의 쓰기를 묶어 fsync할 수 있다(Redis 문서는 <code>always</code>가 그룹 커밋을 지원한다고 적는다). 이 환경에서 왜 이 순서가 나왔는지는 fsync 호출 방식·묶는 정도 등을 따로 재야 알 수 있고, 이 실험은 거기까지 가지 않았다.</li>

@@ -675,3 +675,12 @@
 - [x] hstore_docs.py의 중앙값 반올림을 JS Math.round와 일치시킴(Python `:.0f`의 은행가 반올림 때문에 62.5가 62/63으로 페이지와 애니메이션에서 다르게 보이던 문제)
 - [x] jsonb 대비 hstore 실제 강점 재정리: `pg_opclass` 전수 조회로 jsonb는 코어에 GiST가 없음을 확인(hstore만 btree·hash·GIN·GiST 4종 전부) → VsJsonb·WhenToUse·Indexes 페이지에 근거로 반영
 - [ ] 브라우저 실제 렌더 확인은 이번에도 못 함(로컬 서버 접근 불가는 동일) — typecheck·build·SSR 스모크 14페이지·애니메이션 17개 검사로 대체
+
+## Week 04 · hstore 실무 사용처 · CRUD 액션 · 차트 해설 · 2026-09-23
+
+- [x] hstore 실무 사용처 추가 조사: Rails `ActiveRecord::Store`/`PostgreSQL::OID::Hstore`, Django `HStoreField`가 코어에 있음을 공식 문서·소스로 확인, osm2pgsql 공식 문서의 `--hstore`/`--hstore-column`, `hstore_translate` 계열(여러 독립 포크)로 필드별 다국어 번역 패턴 확인 → `#/hstore/use-cases` 신규 페이지
+- [x] CRUD 액션 페이지(`#/hstore/actions`) 신규: 조회(단일/복수 키·존재확인·필터·역참조·unnest·집계)·삽입(리터럴/JSON 변환)·수정(병합 `||`·UPSERT·키 이름변경)·삭제(키/값조건/접두사/전체 비우기) 22개 예제를 전부 실제 DB 실행 결과로 구성 + 지원/미지원(우회 필요) 요약표
+- [x] "한 테이블에 여러 hstore 컬럼을 쓸 일이 있나" 질문에 근거로 답변: 감사로그 diff(`attrs - attrs_prev`)와 필드별 다국어 번역 두 실무 패턴을 실제 실행 결과로 제시, GIN 인덱스는 컬럼마다 별도로 필요하다는 비용도 캘아웃으로 명시 (UseCases 페이지 `#multi`)
+- [x] 차트 5개(Storage 저장크기·Indexes 쿼리시간·Updates WAL·Concurrency 유실키수/TPS·VsRedis 쓰기처리량)에 `ChartNotes` 컴포넌트로 "이 막대/선이 옆보다 왜 크거나 작거나 비슷한지"를 원본 실험 수치로 설명하는 문단 추가
+- [x] typecheck·`bun run check`(애니메이션 17개·내비게이션 68페이지·cron/hstore 데이터)·build·SSR 스모크 16페이지·`<Ref>` 앵커 전수 검증 모두 통과
+- [ ] 브라우저 실제 렌더 확인은 이번에도 못 함(로컬 서버 접근 불가는 동일) — typecheck·build·SSR 스모크·내비게이션 검사로 대체

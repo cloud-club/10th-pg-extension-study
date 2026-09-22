@@ -4,6 +4,7 @@ import { CodeBlock } from '@/components/common/Code'
 import { Ref } from '@/components/common/Ref'
 import { SourceNote } from '@/components/common/SourceNote'
 import { ChartBox } from '@/components/charts/ChartBox'
+import { ChartNotes } from '@/components/common/ChartNotes'
 import { Clotho } from '@/components/viz/Clotho'
 import { C, axes } from '@/lib/chart'
 import { demo, exp, fmtNum, fmtTps, range } from './stats'
@@ -70,6 +71,28 @@ export default function Concurrency() {
         }}
         options={{ scales: { x: axes().x, y: { ...axes({ yTitle: '남은 키 수' }).y, max: total } }, plugins: { legend: { display: false } } }}
         caption="빨강은 유실이 있었던 방식, 초록은 유실 없음, 노랑은 유실은 없지만 대부분의 시도가 REPEATABLE READ 오류로 거절된 경우다." />
+      <ChartNotes items={[
+        {
+          label: '읽고-쓰기 (자동 커밋): 왜 가장 많이 사라지나', note: <>
+            남은 키가 중앙값 {fmtNum(ka.rmw_autocommit.keys_present.median)}개로 기대 {total}개의 5분의 1도 안 남는다 — SELECT와 UPDATE가 따로따로 커밋되는 별개 문장이라, 그 사이에 다른 클라이언트가 끼어들 틈이 가장 넓게 열려 있기 때문이다.
+          </>,
+        },
+        {
+          label: '읽고-쓰기 (한 트랜잭션): 왜 옆 막대와 거의 같나', note: <>
+            {fmtNum(ka.rmw_read_committed.keys_present.median)}개로 자동 커밋 쪽과 거의 같다 — READ COMMITTED는 트랜잭션 단위가 아니라 <strong>문장 단위</strong>로 스냅샷을 새로 뜨므로, SELECT와 UPDATE를 한 트랜잭션으로 묶어도 그 사이의 경쟁 창은 그대로 열려 있다.
+          </>,
+        },
+        {
+          label: 'FOR UPDATE와 원자적 UPDATE: 왜 나란히 만점인가', note: <>
+            둘 다 {fmtNum(ka.rmw_for_update.keys_present.median)}개(기대치 전부)다 — 방식은 다르지만 결과는 같다. FOR UPDATE는 읽는 순간 행을 잠가 경쟁 창을 없애고, <code>attrs {'||'} ...</code>는 애초에 읽기·계산·쓰기를 한 문장으로 합쳐 경쟁 창 자체를 만들지 않는다. TPS는 원자적 UPDATE가 더 높다({fmtTps(ka.atomic_concat.tps.median)} vs {fmtTps(ka.rmw_for_update.tps.median)}) — 잠금을 쥐고 있는 시간이 더 짧기 때문이다.
+          </>,
+        },
+        {
+          label: 'REPEATABLE READ: 왜 초록도 빨강도 아닌 중간값인가', note: <>
+            {fmtNum(ka.atomic_repeatable_read.keys_present.median)}개로 어중간해 보이지만 원인은 앞의 빨간 막대들과 다르다 — 값이 조용히 사라진 게 아니라, {total}번 중 {fmtNum(ka.atomic_repeatable_read.succeeded.median)}번만 성공하고 나머지는 <code>40001</code> 오류로 거절됐다(아래 목록). 유실이 아니라 <strong>충돌 감지</strong>가 남긴 숫자다.
+          </>,
+        },
+      ]} />
       <ul>
         <li><strong>읽고 → 합치고 → 쓰기</strong>는 한 트랜잭션 안에서 해도(READ COMMITTED) 유실된다. 트랜잭션이 남의 변경을 막아 주지 않는다. UPDATE 문장 자체는 매번 성공(커밋)하므로, 로그만 봐서는 아무 문제가 없어 보인다 — 그런데도 값은 <strong>조용히</strong> 사라진다.</li>
         <li><strong><code>attrs || ...</code>와 <code>SELECT ... FOR UPDATE</code></strong>는 {conc.runs}회 모두 {total}개가 남았다(유실 0). 후자는 읽는 순간 행을 잠가 그동안 남이 못 고치게 한다. 대신 TPS가 낮다(행 잠금을 오래 쥐고 있기 때문).</li>
@@ -111,6 +134,28 @@ WHERE id = 2;`}</CodeBlock>
         }}
         options={{ scales: axes({ xTitle: '동시 클라이언트 수', yTitle: 'TPS' }) }}
         caption="측정 환경의 CPU는 3개이고 pgbench도 같은 VM에서 돈다. 분산 쪽의 상한은 CPU가 만든 것이고, 집중 쪽은 그와 별개로 행 잠금 때문에 늘지 않는다." />
+      <ChartNotes items={[
+        {
+          label: '클라이언트 1명: 두 선이 거의 겹친다', note: <>
+            행 1개 {fmtTps(cont(1, 1).tps.median)} vs 행 1000개 {fmtTps(cont(1000, 1).tps.median)} — 클라이언트가 하나뿐이면 애초에 경합이 없으므로 행을 분산하든 안 하든 차이가 나지 않는다.
+          </>,
+        },
+        {
+          label: '클라이언트가 늘수록 갈라진다', note: <>
+            클라이언트 4명부터 두 선이 눈에 띄게 벌어진다(행 1000개가 행 1개의 {(cont(1000, 4).tps.median / cont(1, 4).tps.median).toFixed(1)}배). 분산 쪽은 클라이언트마다 다른 행을 잡아 CPU 코어(3개)를 나눠 쓰지만, 집중 쪽은 클라이언트 수와 무관하게 한 번에 한 트랜잭션만 그 행을 쓸 수 있기 때문이다.
+          </>,
+        },
+        {
+          label: '행 1개: 늘려도 늘지 않고, 16명에서는 오히려 준다', note: <>
+            {fmtTps(cont(1, 1).tps.median)}(1명) → {fmtTps(cont(1, 16).tps.median)}(16명)로 사실상 제자리이거나 낮아진다. 행 잠금이 한 번에 한 트랜잭션만 통과시키므로 TPS는 클라이언트 수와 상관없이 거의 상수이고, 못 들어간 클라이언트는 줄만 서서 평균 지연만 {cont(1, 1).latency_ms.median.toFixed(2)}ms → {cont(1, 16).latency_ms.median.toFixed(2)}ms로 는다(대기 인원이 느는 만큼 대기 시간도 는다).
+          </>,
+        },
+        {
+          label: '행 1000개: 8명 → 16명에서 증가폭이 꺾인다', note: <>
+            1명 → 8명 구간은 거의 선형으로 늘지만({fmtTps(cont(1000, 1).tps.median)} → {fmtTps(cont(1000, 8).tps.median)}), 8명 → 16명은 {fmtTps(cont(1000, 8).tps.median)} → {fmtTps(cont(1000, 16).tps.median)}로 겨우 {(cont(1000, 16).tps.median / cont(1000, 8).tps.median).toFixed(2)}배다 — 서로 다른 행이라 잠금 경합은 없지만, CPU가 3개뿐이라 그 이상은 코어가 병목이 된다.
+          </>,
+        },
+      ]} />
       <table><thead><tr><th>클라이언트 수</th>{clientsList.map((c) => <th key={c}>{c}</th>)}</tr></thead><tbody>
         <tr><td>행 1개 · TPS</td>{clientsList.map((c) => <td key={c}>{fmtTps(cont(1, c).tps.median)}</td>)}</tr>
         <tr><td>행 1개 · 평균 지연</td>{clientsList.map((c) => <td key={c}>{cont(1, c).latency_ms.median.toFixed(2)} ms</td>)}</tr>
