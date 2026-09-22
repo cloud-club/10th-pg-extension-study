@@ -270,6 +270,83 @@ FROM item;""")
 UPDATE item SET brand = attrs -> 'brand', attrs = attrs - 'brand'::text WHERE id <= 5;
 SELECT id, brand, attrs FROM item WHERE id <= 3 ORDER BY id;""")
 
+    # ---- 실전 액션: 사용자 설정 테이블로 CRUD 레시피 ------------------------------------------
+    demo['crud_setup'] = run("""CREATE TABLE app_user (id serial PRIMARY KEY, email text NOT NULL, settings hstore NOT NULL DEFAULT '');
+INSERT INTO app_user (email, settings) VALUES
+  ('kim@example.com',   'theme=>dark,  locale=>ko, marketing_email=>off'),
+  ('lee@example.com',   'theme=>light, locale=>en, marketing_email=>on, notify_push=>on'),
+  ('park@example.com',  'theme=>dark,  locale=>en');""")
+    demo['crud_insert_literal'] = capture("""INSERT INTO app_user (email, settings) VALUES ('choi@example.com', 'theme=>dark, locale=>ko')
+RETURNING id, email, settings;""")
+    demo['crud_insert_from_json'] = capture("""-- API 요청 본문(JSON)을 그대로 hstore 컬럼에 받는다
+WITH payload AS (SELECT '{"theme": "dark", "locale": "ja"}'::jsonb AS body)
+INSERT INTO app_user (email, settings)
+SELECT 'yamada@example.com', hstore(array_agg(key), array_agg(value))
+FROM payload, LATERAL jsonb_each_text(payload.body)
+RETURNING id, email, settings;""")
+    demo['crud_read_one_key'] = capture("""SELECT email, settings -> 'theme' AS theme FROM app_user ORDER BY email;""")
+    demo['crud_read_many_keys'] = capture("""SELECT email, settings -> ARRAY['theme', 'locale'] AS theme_and_locale FROM app_user ORDER BY email;""")
+    demo['crud_read_key_exists'] = capture("""SELECT email, settings ? 'notify_push' AS has_notify_push FROM app_user ORDER BY email;""")
+    demo['crud_read_filter'] = capture("""-- 조건에 맞는 사용자만: 다크 테마 + 마케팅 메일 끔
+SELECT email FROM app_user WHERE settings @> 'theme=>dark, marketing_email=>off';""")
+    demo['crud_read_reverse'] = capture("""-- "이 값을 가진 사람은 누구?" 역방향 조회
+SELECT email FROM app_user WHERE settings @> 'theme=>dark' ORDER BY email;""")
+    demo['crud_read_unnest'] = capture("""-- 한 사용자의 설정을 행으로 펼친다 (화면에 표로 보여줄 때)
+SELECT (each(settings)).key, (each(settings)).value FROM app_user WHERE email = 'lee@example.com';""")
+    demo['crud_read_aggregate'] = capture("""-- 전체 사용자 기준 가장 흔한 설정 키
+SELECT key, count(*) AS users FROM app_user, LATERAL skeys(settings) AS key GROUP BY key ORDER BY users DESC, key;""")
+    demo['crud_update_merge'] = capture("""-- 키 하나 추가/변경: 나머지는 그대로 둔 채
+UPDATE app_user SET settings = settings || 'theme=>light' WHERE email = 'kim@example.com'
+RETURNING email, settings;""")
+    demo['crud_update_upsert'] = capture("""-- UPSERT: 있으면 설정을 병합, 없으면 새로 만든다
+INSERT INTO app_user (id, email, settings) VALUES (1, 'kim@example.com', 'beta=>on')
+ON CONFLICT (id) DO UPDATE SET settings = app_user.settings || excluded.settings
+RETURNING email, settings;""")
+    demo['crud_update_rename_key'] = capture("""-- 키 이름 바꾸기: hstore에 rename이 없어 "꺼내고 새 이름으로 넣고 옛 키 지우기"로 한다
+UPDATE app_user
+SET settings = (settings - 'locale'::text) || hstore('language', settings -> 'locale')
+WHERE email = 'lee@example.com'
+RETURNING email, settings;""")
+    demo['crud_delete_key'] = capture("""-- 키 하나 삭제
+UPDATE app_user SET settings = settings - 'locale'::text WHERE email = 'park@example.com'
+RETURNING email, settings;""")
+    demo['crud_delete_by_value'] = capture("""-- 값이 특정 조건에 맞는 키만 삭제: hstore가 직접 못 하므로 CASE로 조건부 처리
+UPDATE app_user
+SET settings = CASE WHEN settings -> 'marketing_email' = 'off' THEN settings - 'marketing_email'::text ELSE settings END
+RETURNING email, settings ? 'marketing_email' AS still_has_marketing_email;""")
+    demo['crud_delete_by_prefix'] = capture("""-- 접두사로 여러 키 한 번에 삭제: hstore에 패턴 삭제가 없어 each로 걸러 다시 조립한다
+UPDATE app_user u
+SET settings = coalesce((SELECT hstore(array_agg(key), array_agg(value))
+                          FROM each(u.settings) AS kv(key, value) WHERE key NOT LIKE 'notify_%'), '')
+WHERE email = 'lee@example.com'
+RETURNING email, settings;""")
+    demo['crud_delete_clear'] = capture("""-- 컬럼 전체 비우기
+UPDATE app_user SET settings = '' WHERE email = 'choi@example.com' RETURNING email, settings;""")
+
+    # ---- 여러 hstore 컬럼을 한 테이블에 두는 경우 -------------------------------------------
+    demo['multi_translate_setup'] = run("""CREATE TABLE post (
+  id serial PRIMARY KEY,
+  title_translations hstore NOT NULL DEFAULT '',
+  body_translations hstore NOT NULL DEFAULT ''
+);
+INSERT INTO post (title_translations, body_translations) VALUES
+  ('en=>"Hello", ko=>"안녕하세요", ja=>"こんにちは"',
+   'en=>"Welcome to our blog", ko=>"블로그에 오신 것을 환영합니다"');""")
+    demo['multi_translate_read'] = capture("""SELECT id, title_translations -> 'ko' AS title_ko, body_translations -> 'ko' AS body_ko FROM post;""")
+    demo['multi_translate_index'] = capture("""CREATE INDEX ON post USING gin (title_translations);
+CREATE INDEX ON post USING gin (body_translations);
+SELECT indexname, pg_size_pretty(pg_relation_size(indexname::regclass)) AS size
+FROM pg_indexes WHERE tablename = 'post' ORDER BY indexname;""")
+    demo['multi_audit_setup'] = run("""CREATE TABLE config (
+  id serial PRIMARY KEY,
+  attrs hstore NOT NULL DEFAULT '',
+  attrs_prev hstore NOT NULL DEFAULT ''
+);
+INSERT INTO config (attrs) VALUES ('timeout=>30, retries=>3, region=>us-east');""")
+    demo['multi_audit_update'] = run("""UPDATE config SET attrs_prev = attrs, attrs = attrs || 'timeout=>60, region=>ap-northeast' WHERE id = 1;""")
+    demo['multi_audit_diff'] = capture("""-- 같은 행 안의 두 hstore를 빼서 "무엇이 어떻게 바뀌었는지"를 바로 얻는다
+SELECT id, attrs - attrs_prev AS changed_to, attrs_prev - attrs AS changed_from FROM config WHERE id = 1;""")
+
     # ---- 동시 세션 (lab 04 스크립트를 그대로 실행) -----------------------------------------
     shell('mkdir -p /lab')
     h._compose('cp', str(LAB04), 'postgres:/lab/scripts', capture_output=True, check=True)

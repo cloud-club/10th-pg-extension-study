@@ -207,12 +207,12 @@
   "ix_gist_create": "CREATE INDEX item_gist16 ON item USING gist (attrs gist_hstore_ops(siglen = 16));\nCREATE INDEX item_gist128 ON item USING gist (attrs gist_hstore_ops(siglen = 128));",
   "ix_sizes": {
     "sql": "SELECT c.relname AS index, am.amname AS method, pg_size_pretty(pg_relation_size(c.oid)) AS size\nFROM pg_class c JOIN pg_am am ON am.oid = c.relam\nWHERE c.relname LIKE 'item\\_%' ESCAPE '\\' AND c.relkind = 'i'\nORDER BY pg_relation_size(c.oid) DESC;\nSELECT pg_size_pretty(pg_relation_size('item')) AS table_heap;",
-    "output": "index     | method |  size   \n--------------+--------+---------\n item_gist128 | gist   | 18 MB\n item_gist16  | gist   | 4912 kB\n item_pkey    | btree  | 2216 kB\n item_gin     | gin    | 1784 kB\n item_brand   | btree  | 696 kB\n(5 rows)\n\n table_heap \n------------\n 11 MB\n(1 row)"
+    "output": "index     | method |  size   \n--------------+--------+---------\n item_gist128 | gist   | 18 MB\n item_gist16  | gist   | 4952 kB\n item_pkey    | btree  | 2216 kB\n item_gin     | gin    | 1784 kB\n item_brand   | btree  | 696 kB\n(5 rows)\n\n table_heap \n------------\n 11 MB\n(1 row)"
   },
   "ops_cleanup": "DROP INDEX item_gist16, item_gist128;",
   "ops_estimate_contains": {
     "sql": "EXPLAIN (ANALYZE, TIMING OFF, SUMMARY OFF) SELECT * FROM item WHERE attrs ? 'promo';\nEXPLAIN (ANALYZE, TIMING OFF, SUMMARY OFF) SELECT * FROM item WHERE attrs @> 'sku_grp=>g0007';\nEXPLAIN (ANALYZE, TIMING OFF, SUMMARY OFF) SELECT * FROM item WHERE attrs @> 'color=>red';",
-    "output": "QUERY PLAN                                             \n---------------------------------------------------------------------------------------------------\n Bitmap Heap Scan on item  (cost=12.86..50.41 rows=10 width=79) (actual rows=100 loops=1)\n   Recheck Cond: (attrs ? 'promo'::text)\n   Heap Blocks: exact=100\n   ->  Bitmap Index Scan on item_gin  (cost=0.00..12.86 rows=10 width=0) (actual rows=100 loops=1)\n         Index Cond: (attrs ? 'promo'::text)\n(5 rows)\n\n                                             QUERY PLAN                                             \n----------------------------------------------------------------------------------------------------\n Bitmap Heap Scan on item  (cost=24.29..1046.73 rows=532 width=79) (actual rows=600 loops=1)\n   Recheck Cond: (attrs @> '\"sku_grp\"=>\"g0007\"'::hstore)\n   Heap Blocks: exact=107\n   ->  Bitmap Index Scan on item_gin  (cost=0.00..24.15 rows=532 width=0) (actual rows=600 loops=1)\n         Index Cond: (attrs @> '\"sku_grp\"=>\"g0007\"'::hstore)\n(5 rows)\n\n                                               QUERY PLAN                                               \n--------------------------------------------------------------------------------------------------------\n Bitmap Heap Scan on item  (cost=100.63..1607.78 rows=11932 width=79) (actual rows=12500 loops=1)\n   Recheck Cond: (attrs @> '\"color\"=>\"red\"'::hstore)\n   Rows Removed by Index Recheck: 500\n   Heap Blocks: exact=1358\n   ->  Bitmap Index Scan on item_gin  (cost=0.00..97.65 rows=11932 width=0) (actual rows=13000 loops=1)\n         Index Cond: (attrs @> '\"color\"=>\"red\"'::hstore)\n(6 rows)"
+    "output": "QUERY PLAN                                             \n---------------------------------------------------------------------------------------------------\n Bitmap Heap Scan on item  (cost=12.86..50.41 rows=10 width=79) (actual rows=100 loops=1)\n   Recheck Cond: (attrs ? 'promo'::text)\n   Heap Blocks: exact=100\n   ->  Bitmap Index Scan on item_gin  (cost=0.00..12.86 rows=10 width=0) (actual rows=100 loops=1)\n         Index Cond: (attrs ? 'promo'::text)\n(5 rows)\n\n                                             QUERY PLAN                                             \n----------------------------------------------------------------------------------------------------\n Bitmap Heap Scan on item  (cost=24.13..1015.65 rows=502 width=79) (actual rows=600 loops=1)\n   Recheck Cond: (attrs @> '\"sku_grp\"=>\"g0007\"'::hstore)\n   Heap Blocks: exact=107\n   ->  Bitmap Index Scan on item_gin  (cost=0.00..24.00 rows=502 width=0) (actual rows=600 loops=1)\n         Index Cond: (attrs @> '\"sku_grp\"=>\"g0007\"'::hstore)\n(5 rows)\n\n                                               QUERY PLAN                                               \n--------------------------------------------------------------------------------------------------------\n Bitmap Heap Scan on item  (cost=101.20..1609.70 rows=12040 width=79) (actual rows=12500 loops=1)\n   Recheck Cond: (attrs @> '\"color\"=>\"red\"'::hstore)\n   Rows Removed by Index Recheck: 500\n   Heap Blocks: exact=1358\n   ->  Bitmap Index Scan on item_gin  (cost=0.00..98.19 rows=12040 width=0) (actual rows=13000 loops=1)\n         Index Cond: (attrs @> '\"color\"=>\"red\"'::hstore)\n(6 rows)"
   },
   "ops_estimate_expr_before": {
     "sql": "-- 식 인덱스를 만든 직후, 아직 ANALYZE 전\nEXPLAIN (ANALYZE, TIMING OFF, SUMMARY OFF) SELECT * FROM item WHERE attrs -> 'brand' = 'brand07';",
@@ -221,7 +221,7 @@
   "ops_analyze": "ANALYZE item;",
   "ops_estimate_expr_after": {
     "sql": "-- ANALYZE 뒤\nEXPLAIN (ANALYZE, TIMING OFF, SUMMARY OFF) SELECT * FROM item WHERE attrs -> 'brand' = 'brand07';",
-    "output": "QUERY PLAN                                               \n--------------------------------------------------------------------------------------------------------\n Bitmap Heap Scan on item  (cost=31.04..1459.24 rows=2419 width=79) (actual rows=2500 loops=1)\n   Recheck Cond: ((attrs -> 'brand'::text) = 'brand07'::text)\n   Heap Blocks: exact=1351\n   ->  Bitmap Index Scan on item_brand  (cost=0.00..30.43 rows=2419 width=0) (actual rows=2500 loops=1)\n         Index Cond: ((attrs -> 'brand'::text) = 'brand07'::text)\n(5 rows)"
+    "output": "QUERY PLAN                                               \n--------------------------------------------------------------------------------------------------------\n Bitmap Heap Scan on item  (cost=31.81..1450.93 rows=2519 width=79) (actual rows=2500 loops=1)\n   Recheck Cond: ((attrs -> 'brand'::text) = 'brand07'::text)\n   Heap Blocks: exact=1351\n   ->  Bitmap Index Scan on item_brand  (cost=0.00..31.18 rows=2519 width=0) (actual rows=2500 loops=1)\n         Index Cond: ((attrs -> 'brand'::text) = 'brand07'::text)\n(5 rows)"
   },
   "ops_monitor": {
     "sql": "SELECT c.relname,\n       pg_size_pretty(pg_relation_size(c.oid)) AS heap,\n       pg_size_pretty(coalesce(pg_relation_size(c.reltoastrelid), 0)) AS toast,\n       s.n_live_tup, s.n_dead_tup,\n       round(100.0 * s.n_tup_hot_upd / nullif(s.n_tup_upd, 0), 1) AS hot_pct\nFROM pg_class c JOIN pg_stat_user_tables s ON s.relid = c.oid\nWHERE c.relname = 'item';",
@@ -236,9 +236,89 @@
     "sql": "-- 자주 쓰는 키를 열로 승격: 값을 복사하고 hstore에서는 뺀다\nUPDATE item SET brand = attrs -> 'brand', attrs = attrs - 'brand'::text WHERE id <= 5;\nSELECT id, brand, attrs FROM item WHERE id <= 3 ORDER BY id;",
     "output": "id |  brand  |                       attrs                       \n----+---------+---------------------------------------------------\n  1 | brand01 | \"size\"=>\"S\", \"color\"=>\"green\", \"sku_grp\"=>\"g0001\"\n  2 | brand02 | \"size\"=>\"S\", \"color\"=>\"blue\", \"sku_grp\"=>\"g0002\"\n  3 | brand03 | \"size\"=>\"S\", \"color\"=>\"black\", \"sku_grp\"=>\"g0003\"\n(3 rows)"
   },
+  "crud_setup": "CREATE TABLE app_user (id serial PRIMARY KEY, email text NOT NULL, settings hstore NOT NULL DEFAULT '');\nINSERT INTO app_user (email, settings) VALUES\n  ('kim@example.com',   'theme=>dark,  locale=>ko, marketing_email=>off'),\n  ('lee@example.com',   'theme=>light, locale=>en, marketing_email=>on, notify_push=>on'),\n  ('park@example.com',  'theme=>dark,  locale=>en');",
+  "crud_insert_literal": {
+    "sql": "INSERT INTO app_user (email, settings) VALUES ('choi@example.com', 'theme=>dark, locale=>ko')\nRETURNING id, email, settings;",
+    "output": "id |      email       |            settings             \n----+------------------+---------------------------------\n  4 | choi@example.com | \"theme\"=>\"dark\", \"locale\"=>\"ko\"\n(1 row)"
+  },
+  "crud_insert_from_json": {
+    "sql": "-- API 요청 본문(JSON)을 그대로 hstore 컬럼에 받는다\nWITH payload AS (SELECT '{\"theme\": \"dark\", \"locale\": \"ja\"}'::jsonb AS body)\nINSERT INTO app_user (email, settings)\nSELECT 'yamada@example.com', hstore(array_agg(key), array_agg(value))\nFROM payload, LATERAL jsonb_each_text(payload.body)\nRETURNING id, email, settings;",
+    "output": "id |       email        |            settings             \n----+--------------------+---------------------------------\n  5 | yamada@example.com | \"theme\"=>\"dark\", \"locale\"=>\"ja\"\n(1 row)"
+  },
+  "crud_read_one_key": {
+    "sql": "SELECT email, settings -> 'theme' AS theme FROM app_user ORDER BY email;",
+    "output": "email        | theme \n--------------------+-------\n choi@example.com   | dark\n kim@example.com    | dark\n lee@example.com    | light\n park@example.com   | dark\n yamada@example.com | dark\n(5 rows)"
+  },
+  "crud_read_many_keys": {
+    "sql": "SELECT email, settings -> ARRAY['theme', 'locale'] AS theme_and_locale FROM app_user ORDER BY email;",
+    "output": "email        | theme_and_locale \n--------------------+------------------\n choi@example.com   | {dark,ko}\n kim@example.com    | {dark,ko}\n lee@example.com    | {light,en}\n park@example.com   | {dark,en}\n yamada@example.com | {dark,ja}\n(5 rows)"
+  },
+  "crud_read_key_exists": {
+    "sql": "SELECT email, settings ? 'notify_push' AS has_notify_push FROM app_user ORDER BY email;",
+    "output": "email        | has_notify_push \n--------------------+-----------------\n choi@example.com   | f\n kim@example.com    | f\n lee@example.com    | t\n park@example.com   | f\n yamada@example.com | f\n(5 rows)"
+  },
+  "crud_read_filter": {
+    "sql": "-- 조건에 맞는 사용자만: 다크 테마 + 마케팅 메일 끔\nSELECT email FROM app_user WHERE settings @> 'theme=>dark, marketing_email=>off';",
+    "output": "email      \n-----------------\n kim@example.com\n(1 row)"
+  },
+  "crud_read_reverse": {
+    "sql": "-- \"이 값을 가진 사람은 누구?\" 역방향 조회\nSELECT email FROM app_user WHERE settings @> 'theme=>dark' ORDER BY email;",
+    "output": "email        \n--------------------\n choi@example.com\n kim@example.com\n park@example.com\n yamada@example.com\n(4 rows)"
+  },
+  "crud_read_unnest": {
+    "sql": "-- 한 사용자의 설정을 행으로 펼친다 (화면에 표로 보여줄 때)\nSELECT (each(settings)).key, (each(settings)).value FROM app_user WHERE email = 'lee@example.com';",
+    "output": "key       | value \n-----------------+-------\n theme           | light\n locale          | en\n notify_push     | on\n marketing_email | on\n(4 rows)"
+  },
+  "crud_read_aggregate": {
+    "sql": "-- 전체 사용자 기준 가장 흔한 설정 키\nSELECT key, count(*) AS users FROM app_user, LATERAL skeys(settings) AS key GROUP BY key ORDER BY users DESC, key;",
+    "output": "key       | users \n-----------------+-------\n locale          |     5\n theme           |     5\n marketing_email |     2\n notify_push     |     1\n(4 rows)"
+  },
+  "crud_update_merge": {
+    "sql": "-- 키 하나 추가/변경: 나머지는 그대로 둔 채\nUPDATE app_user SET settings = settings || 'theme=>light' WHERE email = 'kim@example.com'\nRETURNING email, settings;",
+    "output": "email      |                          settings                          \n-----------------+------------------------------------------------------------\n kim@example.com | \"theme\"=>\"light\", \"locale\"=>\"ko\", \"marketing_email\"=>\"off\"\n(1 row)"
+  },
+  "crud_update_upsert": {
+    "sql": "-- UPSERT: 있으면 설정을 병합, 없으면 새로 만든다\nINSERT INTO app_user (id, email, settings) VALUES (1, 'kim@example.com', 'beta=>on')\nON CONFLICT (id) DO UPDATE SET settings = app_user.settings || excluded.settings\nRETURNING email, settings;",
+    "output": "email      |                                 settings                                 \n-----------------+--------------------------------------------------------------------------\n kim@example.com | \"beta\"=>\"on\", \"theme\"=>\"light\", \"locale\"=>\"ko\", \"marketing_email\"=>\"off\"\n(1 row)"
+  },
+  "crud_update_rename_key": {
+    "sql": "-- 키 이름 바꾸기: hstore에 rename이 없어 \"꺼내고 새 이름으로 넣고 옛 키 지우기\"로 한다\nUPDATE app_user\nSET settings = (settings - 'locale'::text) || hstore('language', settings -> 'locale')\nWHERE email = 'lee@example.com'\nRETURNING email, settings;",
+    "output": "email      |                                     settings                                     \n-----------------+----------------------------------------------------------------------------------\n lee@example.com | \"theme\"=>\"light\", \"language\"=>\"en\", \"notify_push\"=>\"on\", \"marketing_email\"=>\"on\"\n(1 row)"
+  },
+  "crud_delete_key": {
+    "sql": "-- 키 하나 삭제\nUPDATE app_user SET settings = settings - 'locale'::text WHERE email = 'park@example.com'\nRETURNING email, settings;",
+    "output": "email       |    settings     \n------------------+-----------------\n park@example.com | \"theme\"=>\"dark\"\n(1 row)"
+  },
+  "crud_delete_by_value": {
+    "sql": "-- 값이 특정 조건에 맞는 키만 삭제: hstore가 직접 못 하므로 CASE로 조건부 처리\nUPDATE app_user\nSET settings = CASE WHEN settings -> 'marketing_email' = 'off' THEN settings - 'marketing_email'::text ELSE settings END\nRETURNING email, settings ? 'marketing_email' AS still_has_marketing_email;",
+    "output": "email        | still_has_marketing_email \n--------------------+---------------------------\n choi@example.com   | f\n yamada@example.com | f\n kim@example.com    | f\n lee@example.com    | t\n park@example.com   | f\n(5 rows)"
+  },
+  "crud_delete_by_prefix": {
+    "sql": "-- 접두사로 여러 키 한 번에 삭제: hstore에 패턴 삭제가 없어 each로 걸러 다시 조립한다\nUPDATE app_user u\nSET settings = coalesce((SELECT hstore(array_agg(key), array_agg(value))\n                          FROM each(u.settings) AS kv(key, value) WHERE key NOT LIKE 'notify_%'), '')\nWHERE email = 'lee@example.com'\nRETURNING email, settings;",
+    "output": "email      |                          settings                           \n-----------------+-------------------------------------------------------------\n lee@example.com | \"theme\"=>\"light\", \"language\"=>\"en\", \"marketing_email\"=>\"on\"\n(1 row)"
+  },
+  "crud_delete_clear": {
+    "sql": "-- 컬럼 전체 비우기\nUPDATE app_user SET settings = '' WHERE email = 'choi@example.com' RETURNING email, settings;",
+    "output": "email       | settings \n------------------+----------\n choi@example.com | \n(1 row)"
+  },
+  "multi_translate_setup": "CREATE TABLE post (\n  id serial PRIMARY KEY,\n  title_translations hstore NOT NULL DEFAULT '',\n  body_translations hstore NOT NULL DEFAULT ''\n);\nINSERT INTO post (title_translations, body_translations) VALUES\n  ('en=>\"Hello\", ko=>\"안녕하세요\", ja=>\"こんにちは\"',\n   'en=>\"Welcome to our blog\", ko=>\"블로그에 오신 것을 환영합니다\"');",
+  "multi_translate_read": {
+    "sql": "SELECT id, title_translations -> 'ko' AS title_ko, body_translations -> 'ko' AS body_ko FROM post;",
+    "output": "id |  title_ko  |            body_ko            \n----+------------+-------------------------------\n  1 | 안녕하세요 | 블로그에 오신 것을 환영합니다\n(1 row)"
+  },
+  "multi_translate_index": {
+    "sql": "CREATE INDEX ON post USING gin (title_translations);\nCREATE INDEX ON post USING gin (body_translations);\nSELECT indexname, pg_size_pretty(pg_relation_size(indexname::regclass)) AS size\nFROM pg_indexes WHERE tablename = 'post' ORDER BY indexname;",
+    "output": "indexname          | size  \n-----------------------------+-------\n post_body_translations_idx  | 16 kB\n post_pkey                   | 16 kB\n post_title_translations_idx | 16 kB\n(3 rows)"
+  },
+  "multi_audit_setup": "CREATE TABLE config (\n  id serial PRIMARY KEY,\n  attrs hstore NOT NULL DEFAULT '',\n  attrs_prev hstore NOT NULL DEFAULT ''\n);\nINSERT INTO config (attrs) VALUES ('timeout=>30, retries=>3, region=>us-east');",
+  "multi_audit_update": "UPDATE config SET attrs_prev = attrs, attrs = attrs || 'timeout=>60, region=>ap-northeast' WHERE id = 1;",
+  "multi_audit_diff": {
+    "sql": "-- 같은 행 안의 두 hstore를 빼서 \"무엇이 어떻게 바뀌었는지\"를 바로 얻는다\nSELECT id, attrs - attrs_prev AS changed_to, attrs_prev - attrs AS changed_from FROM config WHERE id = 1;",
+    "output": "id |                changed_to                 |             changed_from             \n----+-------------------------------------------+--------------------------------------\n  1 | \"region\"=>\"ap-northeast\", \"timeout\"=>\"60\" | \"region\"=>\"us-east\", \"timeout\"=>\"30\"\n(1 row)"
+  },
   "cc_row_lock": {
     "sql": "bash /lab/scripts/s1-row-lock.sh",
-    "output": "세션 A: 키 b 를 추가하고, 3초 동안 커밋하지 않는다\n세션 B: (A 가 커밋하기 전에) 같은 행에서 다른 키 c 를 추가한다\n\n[관찰] B 는 지금 무엇을 기다리나 (pg_stat_activity):\n state  | wait_event_type |  wait_event   |                        query                         \n--------+-----------------+---------------+------------------------------------------------------\n active | Lock            | transactionid | UPDATE doc SET attrs = attrs || 'c=>3' WHERE id = 1;\n(1 row)\n\nB 가 끝날 때까지 걸린 시간: 2022 ms  (A 가 커밋할 때까지 기다렸다)\n\n[결과] 두 변경이 모두 남았다:\n            attrs             \n------------------------------\n \"a\"=>\"1\", \"b\"=>\"2\", \"c\"=>\"3\"\n(1 row)\n\n✔ B 가 A 를 기다렸고 두 변경이 모두 남았다"
+    "output": "세션 A: 키 b 를 추가하고, 3초 동안 커밋하지 않는다\n세션 B: (A 가 커밋하기 전에) 같은 행에서 다른 키 c 를 추가한다\n\n[관찰] B 는 지금 무엇을 기다리나 (pg_stat_activity):\n state  | wait_event_type |  wait_event   |                        query                         \n--------+-----------------+---------------+------------------------------------------------------\n active | Lock            | transactionid | UPDATE doc SET attrs = attrs || 'c=>3' WHERE id = 1;\n(1 row)\n\nB 가 끝날 때까지 걸린 시간: 2015 ms  (A 가 커밋할 때까지 기다렸다)\n\n[결과] 두 변경이 모두 남았다:\n            attrs             \n------------------------------\n \"a\"=>\"1\", \"b\"=>\"2\", \"c\"=>\"3\"\n(1 row)\n\n✔ B 가 A 를 기다렸고 두 변경이 모두 남았다"
   },
   "cc_lost_update": {
     "sql": "bash /lab/scripts/s2-lost-update.sh",
@@ -254,7 +334,7 @@
   },
   "cc_counter": {
     "sql": "bash /lab/scripts/s5-counter-pgbench.sh",
-    "output": "읽고 → 앱에서 +1 → 쓰기 (RMW) 최종 cnt = 60 / 400\n원자적 UPDATE ... || (식 안에서 +1) 최종 cnt = 400 / 400\n✔ 읽고-쓰기는 유실(60), 원자적 UPDATE 는 400"
+    "output": "읽고 → 앱에서 +1 → 쓰기 (RMW) 최종 cnt = 70 / 400\n원자적 UPDATE ... || (식 안에서 +1) 최종 cnt = 400 / 400\n✔ 읽고-쓰기는 유실(70), 원자적 UPDATE 는 400"
   },
   "trust_catalog": {
     "sql": "SELECT v.name, v.trusted, v.superuser\nFROM pg_available_extension_versions v\nJOIN pg_available_extensions e ON e.name = v.name AND e.default_version = v.version\nWHERE v.name IN ('hstore', 'pg_trgm', 'pgcrypto', 'citext', 'ltree', 'uuid-ossp',\n                  'pageinspect', 'pg_stat_statements', 'dblink', 'postgres_fdw', 'adminpack')\nORDER BY v.trusted DESC, v.name;",

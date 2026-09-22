@@ -176,6 +176,8 @@ export const SECTIONS: SectionDef[] = [
       { slug: 'install-syntax', title: '설치와 기본 문법', hint: '리터럴·연산자·함수·첨자', view: lazy(() => import('@/pages/hstore/InstallSyntax')) },
       { slug: 'trusted', title: 'trusted 확장이란', hint: '슈퍼유저 없이 설치되는 이유', view: lazy(() => import('@/pages/hstore/Trusted')) },
       { slug: 'when-to-use', title: '언제 쓰고 언제 피하나', hint: '열·EAV·jsonb·Redis와 비교', view: lazy(() => import('@/pages/hstore/WhenToUse')) },
+      { slug: 'use-cases', title: '실무 사용처', hint: 'Rails·Django·osm2pgsql이 실제로 쓴 패턴', view: lazy(() => import('@/pages/hstore/UseCases')) },
+      { slug: 'actions', title: '실전 액션', hint: '조회·조작·삭제 전부 실제 실행 결과로', view: lazy(() => import('@/pages/hstore/Actions')) },
     ],
   },
   {
