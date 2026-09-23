@@ -1,0 +1,1446 @@
+{
+ "clothoVersion": 1,
+ "id": "btree-vs-inverted",
+ "title": "B-tree 가 못 하는 일, 역인덱스가 하는 일",
+ "description": "접두어는 정렬 순서의 연속 구간이라 풀리고, 부분 문자열은 아니다.",
+ "duration": 36000,
+ "canvas": {
+  "width": 1280,
+  "height": 1170,
+  "background": "#0b1120"
+ },
+ "elements": [
+  {
+   "type": "rect",
+   "id": "cam0",
+   "x": 146,
+   "y": 0,
+   "width": 988,
+   "height": 414,
+   "fill": "#0b1120",
+   "stroke": "#0b1120",
+   "strokeWidth": 0,
+   "cornerRadius": 0,
+   "appearances": [
+    {
+     "start": 0,
+     "end": 36000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "cam1",
+   "x": 146,
+   "y": 13,
+   "width": 988,
+   "height": 414,
+   "fill": "#0b1120",
+   "stroke": "#0b1120",
+   "strokeWidth": 0,
+   "cornerRadius": 0,
+   "appearances": [
+    {
+     "start": 0,
+     "end": 36000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "cam2",
+   "x": 146,
+   "y": 82,
+   "width": 988,
+   "height": 414,
+   "fill": "#0b1120",
+   "stroke": "#0b1120",
+   "strokeWidth": 0,
+   "cornerRadius": 0,
+   "appearances": [
+    {
+     "start": 0,
+     "end": 36000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "cam3",
+   "x": 146,
+   "y": 416,
+   "width": 988,
+   "height": 414,
+   "fill": "#0b1120",
+   "stroke": "#0b1120",
+   "strokeWidth": 0,
+   "cornerRadius": 0,
+   "appearances": [
+    {
+     "start": 0,
+     "end": 36000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "cam4",
+   "x": 146,
+   "y": 633,
+   "width": 988,
+   "height": 414,
+   "fill": "#0b1120",
+   "stroke": "#0b1120",
+   "strokeWidth": 0,
+   "cornerRadius": 0,
+   "appearances": [
+    {
+     "start": 0,
+     "end": 36000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "cam5",
+   "x": 146,
+   "y": 756,
+   "width": 988,
+   "height": 414,
+   "fill": "#0b1120",
+   "stroke": "#0b1120",
+   "strokeWidth": 0,
+   "cornerRadius": 0,
+   "appearances": [
+    {
+     "start": 0,
+     "end": 36000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "t",
+   "x": 210,
+   "y": 42,
+   "content": "B-tree 는 왜 LIKE '%클럽%' 를 못 푸나",
+   "fontSize": 22,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 0,
+     "end": 36000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ],
+   "fontWeight": "700"
+  },
+  {
+   "type": "text",
+   "id": "c1",
+   "x": 210,
+   "y": 92,
+   "content": "B-tree 는 컬럼 값 '전체'를 사전순으로 정렬해 저장한다",
+   "fontSize": 16,
+   "color": "#94a3b8",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 300,
+     "end": 36000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "bt0",
+   "x": 210,
+   "y": 112,
+   "width": 260,
+   "height": 38,
+   "fill": "#1e293b",
+   "cornerRadius": 6,
+   "appearances": [
+    {
+     "start": 600,
+     "end": 36000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "강남클럽",
+   "labelColor": "#e2e8f0",
+   "labelSize": 16,
+   "stroke": "#334155",
+   "strokeWidth": 2
+  },
+  {
+   "type": "rect",
+   "id": "bt1",
+   "x": 210,
+   "y": 158,
+   "width": 260,
+   "height": 38,
+   "fill": "#1e293b",
+   "cornerRadius": 6,
+   "appearances": [
+    {
+     "start": 860,
+     "end": 36000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "개발자모임",
+   "labelColor": "#e2e8f0",
+   "labelSize": 16,
+   "stroke": "#334155",
+   "strokeWidth": 2
+  },
+  {
+   "type": "rect",
+   "id": "bt2",
+   "x": 210,
+   "y": 204,
+   "width": 260,
+   "height": 38,
+   "fill": "#1e293b",
+   "cornerRadius": 6,
+   "appearances": [
+    {
+     "start": 1120,
+     "end": 36000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "클라우드클럽",
+   "labelColor": "#e2e8f0",
+   "labelSize": 16,
+   "stroke": "#334155",
+   "strokeWidth": 2
+  },
+  {
+   "type": "rect",
+   "id": "bt3",
+   "x": 210,
+   "y": 250,
+   "width": 260,
+   "height": 38,
+   "fill": "#1e293b",
+   "cornerRadius": 6,
+   "appearances": [
+    {
+     "start": 1380,
+     "end": 36000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "클럽하우스",
+   "labelColor": "#e2e8f0",
+   "labelSize": 16,
+   "stroke": "#334155",
+   "strokeWidth": 2
+  },
+  {
+   "type": "rect",
+   "id": "bt4",
+   "x": 210,
+   "y": 296,
+   "width": 260,
+   "height": 38,
+   "fill": "#1e293b",
+   "cornerRadius": 6,
+   "appearances": [
+    {
+     "start": 1640,
+     "end": 36000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "한국클럽",
+   "labelColor": "#e2e8f0",
+   "labelSize": 16,
+   "stroke": "#334155",
+   "strokeWidth": 2
+  },
+  {
+   "type": "text",
+   "id": "btord",
+   "x": 486,
+   "y": 200,
+   "content": "↑ 사전순",
+   "fontSize": 14,
+   "color": "#94a3b8",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 2200,
+     "end": 36000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "c2",
+   "x": 550,
+   "y": 130,
+   "content": "LIKE '클럽%'  →  '클럽' ≤ x < '클렄'",
+   "fontSize": 17,
+   "color": "#34d399",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 4000,
+     "end": 36000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ],
+   "fontWeight": "700"
+  },
+  {
+   "type": "text",
+   "id": "c2b",
+   "x": 550,
+   "y": 158,
+   "content": "정렬 순서에서 한 덩어리다 → 범위 스캔 한 번",
+   "fontSize": 15,
+   "color": "#94a3b8",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 4400,
+     "end": 36000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "hit1",
+   "x": 210,
+   "y": 250,
+   "width": 260,
+   "height": 38,
+   "fill": "#34d399",
+   "cornerRadius": 6,
+   "appearances": [
+    {
+     "start": 5000,
+     "end": 36000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "클럽하우스",
+   "labelColor": "#0b1120",
+   "labelSize": 16
+  },
+  {
+   "type": "text",
+   "id": "c2c",
+   "x": 550,
+   "y": 200,
+   "content": "찾는 값이 트리의 '한 곳'에 모여 있다",
+   "fontSize": 15,
+   "color": "#34d399",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 5400,
+     "end": 36000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ],
+   "fontWeight": "600"
+  },
+  {
+   "type": "text",
+   "id": "c2d",
+   "x": 550,
+   "y": 224,
+   "content": "플래너가 패턴을 범위로 다시 쓴다 —",
+   "fontSize": 14,
+   "color": "#94a3b8",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 6000,
+     "end": 36000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "c2d2",
+   "x": 550,
+   "y": 244,
+   "content": "'클럽' 의 마지막 글자를 하나 올려 끝점을 만든다",
+   "fontSize": 14,
+   "color": "#94a3b8",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 6200,
+     "end": 36000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "c2e",
+   "x": 550,
+   "y": 268,
+   "content": "단, 콜레이션이 C 가 아니면 이 변환이 성립하지 않는다",
+   "fontSize": 14,
+   "color": "#fbbf24",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 6800,
+     "end": 36000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "c2e2",
+   "x": 550,
+   "y": 288,
+   "content": "→ text_pattern_ops 연산자 클래스가 필요하다",
+   "fontSize": 14,
+   "color": "#fbbf24",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 7000,
+     "end": 36000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "c3",
+   "x": 550,
+   "y": 330,
+   "content": "LIKE '%클럽%'  →  범위로 표현할 수 없다",
+   "fontSize": 17,
+   "color": "#fb7185",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 9000,
+     "end": 36000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ],
+   "fontWeight": "700"
+  },
+  {
+   "type": "rect",
+   "id": "sc0",
+   "x": 210,
+   "y": 112,
+   "width": 260,
+   "height": 38,
+   "fill": "#fb7185",
+   "cornerRadius": 6,
+   "appearances": [
+    {
+     "start": 9400,
+     "end": 36000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "강남클럽",
+   "labelColor": "#0b1120",
+   "labelSize": 16
+  },
+  {
+   "type": "rect",
+   "id": "sc1",
+   "x": 210,
+   "y": 204,
+   "width": 260,
+   "height": 38,
+   "fill": "#fb7185",
+   "cornerRadius": 6,
+   "appearances": [
+    {
+     "start": 9800,
+     "end": 36000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "클라우드클럽",
+   "labelColor": "#0b1120",
+   "labelSize": 16
+  },
+  {
+   "type": "rect",
+   "id": "sc2",
+   "x": 210,
+   "y": 250,
+   "width": 260,
+   "height": 38,
+   "fill": "#fb7185",
+   "cornerRadius": 6,
+   "appearances": [
+    {
+     "start": 10200,
+     "end": 36000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "클럽하우스",
+   "labelColor": "#0b1120",
+   "labelSize": 16
+  },
+  {
+   "type": "rect",
+   "id": "sc3",
+   "x": 210,
+   "y": 296,
+   "width": 260,
+   "height": 38,
+   "fill": "#fb7185",
+   "cornerRadius": 6,
+   "appearances": [
+    {
+     "start": 10600,
+     "end": 36000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "한국클럽",
+   "labelColor": "#0b1120",
+   "labelSize": 16
+  },
+  {
+   "type": "text",
+   "id": "scl0",
+   "x": 486,
+   "y": 137,
+   "content": "ㄱ 구간",
+   "fontSize": 13,
+   "color": "#fb7185",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 9600,
+     "end": 36000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "scl1",
+   "x": 486,
+   "y": 229,
+   "content": "ㅋ 구간",
+   "fontSize": 13,
+   "color": "#fb7185",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 10000,
+     "end": 36000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "scl2",
+   "x": 486,
+   "y": 275,
+   "content": "ㅋ 구간",
+   "fontSize": 13,
+   "color": "#fb7185",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 10400,
+     "end": 36000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "scl3",
+   "x": 486,
+   "y": 321,
+   "content": "ㅎ 구간",
+   "fontSize": 13,
+   "color": "#fb7185",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 10800,
+     "end": 36000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "c3b",
+   "x": 550,
+   "y": 360,
+   "content": "'클럽' 을 포함하는 값이 정렬 순서 전체에 흩어진다",
+   "fontSize": 15,
+   "color": "#fb7185",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 11200,
+     "end": 36000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "c3b2",
+   "x": 550,
+   "y": 382,
+   "content": "첫 글자가 제각각이라서다",
+   "fontSize": 15,
+   "color": "#fb7185",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 11500,
+     "end": 36000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "c3c",
+   "x": 550,
+   "y": 408,
+   "content": "→ 시작점도 끝점도 정할 수 없다 → 전부 훑는 수밖에 없다",
+   "fontSize": 15,
+   "color": "#fb7185",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 11800,
+     "end": 36000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ],
+   "fontWeight": "600"
+  },
+  {
+   "type": "rect",
+   "id": "seq",
+   "x": 550,
+   "y": 428,
+   "width": 400,
+   "height": 44,
+   "fill": "#fb7185",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 12600,
+     "end": 36000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "Seq Scan — 100만 행이면 100만 번 비교",
+   "labelColor": "#0b1120",
+   "labelSize": 15
+  },
+  {
+   "type": "text",
+   "id": "c4",
+   "x": 210,
+   "y": 508,
+   "content": "그래서 저장하는 '단위'를 바꾼다",
+   "fontSize": 19,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 16000,
+     "end": 36000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ],
+   "fontWeight": "700"
+  },
+  {
+   "type": "text",
+   "id": "c4b",
+   "x": 210,
+   "y": 536,
+   "content": "값 전체가 아니라, 값을 쪼갠 조각을 키로 쓰고 값에는 '그 조각을 가진 행 목록'을 둔다",
+   "fontSize": 15,
+   "color": "#94a3b8",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 16400,
+     "end": 36000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "iv0",
+   "x": 210,
+   "y": 564,
+   "width": 120,
+   "height": 42,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 17200,
+     "end": 36000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "␣클",
+   "labelColor": "#0b1120",
+   "labelSize": 17
+  },
+  {
+   "type": "rect",
+   "id": "ivp0",
+   "x": 338,
+   "y": 564,
+   "width": 240,
+   "height": 42,
+   "fill": "#1e293b",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 17500,
+     "end": 36000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "1, 3, 4, 5",
+   "labelColor": "#e2e8f0",
+   "labelSize": 15,
+   "stroke": "#334155",
+   "strokeWidth": 2
+  },
+  {
+   "type": "rect",
+   "id": "iv1",
+   "x": 210,
+   "y": 616,
+   "width": 120,
+   "height": 42,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 18100,
+     "end": 36000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "클럽",
+   "labelColor": "#0b1120",
+   "labelSize": 17
+  },
+  {
+   "type": "rect",
+   "id": "ivp1",
+   "x": 338,
+   "y": 616,
+   "width": 240,
+   "height": 42,
+   "fill": "#1e293b",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 18400,
+     "end": 36000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "1, 3, 4, 5",
+   "labelColor": "#e2e8f0",
+   "labelSize": 15,
+   "stroke": "#334155",
+   "strokeWidth": 2
+  },
+  {
+   "type": "rect",
+   "id": "iv2",
+   "x": 210,
+   "y": 668,
+   "width": 120,
+   "height": 42,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 19000,
+     "end": 36000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "럽하",
+   "labelColor": "#0b1120",
+   "labelSize": 17
+  },
+  {
+   "type": "rect",
+   "id": "ivp2",
+   "x": 338,
+   "y": 668,
+   "width": 240,
+   "height": 42,
+   "fill": "#1e293b",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 19300,
+     "end": 36000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "4",
+   "labelColor": "#e2e8f0",
+   "labelSize": 15,
+   "stroke": "#334155",
+   "strokeWidth": 2
+  },
+  {
+   "type": "rect",
+   "id": "iv3",
+   "x": 210,
+   "y": 720,
+   "width": 120,
+   "height": 42,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 19900,
+     "end": 36000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "클라",
+   "labelColor": "#0b1120",
+   "labelSize": 17
+  },
+  {
+   "type": "rect",
+   "id": "ivp3",
+   "x": 338,
+   "y": 720,
+   "width": 240,
+   "height": 42,
+   "fill": "#1e293b",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 20200,
+     "end": 36000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "3",
+   "labelColor": "#e2e8f0",
+   "labelSize": 15,
+   "stroke": "#334155",
+   "strokeWidth": 2
+  },
+  {
+   "type": "text",
+   "id": "c4c",
+   "x": 600,
+   "y": 590,
+   "content": "키 = 조각",
+   "fontSize": 15,
+   "color": "#60a5fa",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 18000,
+     "end": 36000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ],
+   "fontWeight": "600"
+  },
+  {
+   "type": "text",
+   "id": "c4d",
+   "x": 600,
+   "y": 618,
+   "content": "값 = 그 조각을 가진 행들의 TID 목록 (포스팅 리스트)",
+   "fontSize": 15,
+   "color": "#94a3b8",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 18400,
+     "end": 36000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "c4e",
+   "x": 600,
+   "y": 644,
+   "content": "대가: 행 하나가 키 '글자 수 + 1' 개를 만든다",
+   "fontSize": 14,
+   "color": "#fbbf24",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 19200,
+     "end": 36000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "c4e2",
+   "x": 600,
+   "y": 664,
+   "content": "→ 인덱스가 커지고 쓰기가 느려진다",
+   "fontSize": 14,
+   "color": "#fbbf24",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 19500,
+     "end": 36000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "c4f",
+   "x": 600,
+   "y": 688,
+   "content": "실측: 테이블 대비 0.79~1.42배 (bigm)",
+   "fontSize": 14,
+   "color": "#94a3b8",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 20000,
+     "end": 36000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "c4f2",
+   "x": 600,
+   "y": 708,
+   "content": "btree 는 0.98배로 평평하다",
+   "fontSize": 14,
+   "color": "#94a3b8",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 20300,
+     "end": 36000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "c5",
+   "x": 210,
+   "y": 790,
+   "content": "이제 '%클럽%' 은 집합 연산이다",
+   "fontSize": 19,
+   "color": "#34d399",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 24000,
+     "end": 36000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ],
+   "fontWeight": "700"
+  },
+  {
+   "type": "rect",
+   "id": "q1",
+   "x": 210,
+   "y": 812,
+   "width": 130,
+   "height": 42,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 24400,
+     "end": 36000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "␣클 → 1,3,4,5",
+   "labelColor": "#0b1120",
+   "labelSize": 14
+  },
+  {
+   "type": "text",
+   "id": "amp",
+   "x": 352,
+   "y": 840,
+   "content": "∩",
+   "fontSize": 22,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 25000,
+     "end": 36000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ],
+   "fontWeight": "700"
+  },
+  {
+   "type": "rect",
+   "id": "q2",
+   "x": 380,
+   "y": 812,
+   "width": 130,
+   "height": 42,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 25000,
+     "end": 36000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "클럽 → 1,3,4,5",
+   "labelColor": "#0b1120",
+   "labelSize": 14
+  },
+  {
+   "type": "text",
+   "id": "eq",
+   "x": 522,
+   "y": 840,
+   "content": "=",
+   "fontSize": 22,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 25600,
+     "end": 36000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ],
+   "fontWeight": "700"
+  },
+  {
+   "type": "rect",
+   "id": "q3",
+   "x": 548,
+   "y": 812,
+   "width": 130,
+   "height": 42,
+   "fill": "#34d399",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 25600,
+     "end": 36000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "1, 3, 4, 5",
+   "labelColor": "#0b1120",
+   "labelSize": 15
+  },
+  {
+   "type": "text",
+   "id": "c5b",
+   "x": 210,
+   "y": 884,
+   "content": "B-tree 가 '못' 하는 게 아니라, B-tree 가 답할 수 있는 질문의 모양이 다른 것이다.",
+   "fontSize": 15,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 27000,
+     "end": 36000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ],
+   "fontWeight": "600"
+  },
+  {
+   "type": "text",
+   "id": "c5c",
+   "x": 210,
+   "y": 910,
+   "content": "n-gram 인덱스도 안쪽은 B-tree 다 — GIN 의 엔트리 트리가 바로 그것이다.",
+   "fontSize": 15,
+   "color": "#94a3b8",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 28000,
+     "end": 36000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "c6",
+   "x": 210,
+   "y": 962,
+   "content": "그런데 이 교집합은 '정답' 이 아니라 '후보' 다",
+   "fontSize": 19,
+   "color": "#fbbf24",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 30200,
+     "end": 36000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ],
+   "fontWeight": "700"
+  },
+  {
+   "type": "text",
+   "id": "c6b",
+   "x": 210,
+   "y": 990,
+   "content": "조각을 다 가졌다고 원래 문자열이 있는 건 아니다 - 조각 집합은 순서를 잃는다",
+   "fontSize": 15,
+   "color": "#94a3b8",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 30600,
+     "end": 36000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "fp1",
+   "x": 210,
+   "y": 1012,
+   "width": 330,
+   "height": 40,
+   "fill": "#1e293b",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 31200,
+     "end": 36000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "'arterial triage' 의 조각",
+   "labelColor": "#e2e8f0",
+   "labelSize": 14,
+   "stroke": "#fb7185",
+   "strokeWidth": 2
+  },
+  {
+   "type": "text",
+   "id": "fp2",
+   "x": 554,
+   "y": 1036,
+   "content": "tri · ria · ial 을 전부 갖고 있다",
+   "fontSize": 14,
+   "color": "#94a3b8",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 31800,
+     "end": 36000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "fp3",
+   "x": 554,
+   "y": 1058,
+   "content": "그런데 'trial' 이라는 연속된 문자열은 없다",
+   "fontSize": 14,
+   "color": "#fb7185",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 32400,
+     "end": 36000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ],
+   "fontWeight": "600"
+  },
+  {
+   "type": "rect",
+   "id": "rc",
+   "x": 210,
+   "y": 1066,
+   "width": 330,
+   "height": 40,
+   "fill": "#fbbf24",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 33200,
+     "end": 36000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "Recheck - 힙에서 원문을 다시 대본다",
+   "labelColor": "#0b1120",
+   "labelSize": 14
+  },
+  {
+   "type": "text",
+   "id": "rc2",
+   "x": 554,
+   "y": 1090,
+   "content": "후보만 읽으므로 테이블 전체를 훑는 것과 비용이 다르다",
+   "fontSize": 14,
+   "color": "#94a3b8",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 33800,
+     "end": 36000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "rc3",
+   "x": 210,
+   "y": 1130,
+   "content": "그래서 인덱스가 나쁠 때 나타나는 증상은 '틀린 결과' 가 아니라 '느림' 이다.",
+   "fontSize": 15,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 34600,
+     "end": 36000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ],
+   "fontWeight": "600"
+  }
+ ],
+ "chapters": [
+  {
+   "id": "b1",
+   "time": 0,
+   "label": "1. B-tree 가 저장하는 것",
+   "subtitle": "값 전체를 사전순으로"
+  },
+  {
+   "id": "b2",
+   "time": 3900,
+   "label": "2. 접두어는 풀린다",
+   "subtitle": "'클럽%' 는 정렬 순서상 연속 구간"
+  },
+  {
+   "id": "b3",
+   "time": 8900,
+   "label": "3. 부분 문자열은 못 푼다",
+   "subtitle": "정렬 순서에 흩어져 있어서 구간이 안 된다"
+  },
+  {
+   "id": "b4",
+   "time": 15900,
+   "label": "4. 문제를 뒤집는다",
+   "subtitle": "값→행 이 아니라 조각→행 목록"
+  },
+  {
+   "id": "b5",
+   "time": 23900,
+   "label": "5. 집합 연산이 된다",
+   "subtitle": "포스팅 리스트의 교집합"
+  },
+  {
+   "id": "b6",
+   "time": 29900,
+   "label": "6. 교집합은 후보다",
+   "subtitle": "정확한 판정은 힙에서 — Recheck"
+  }
+ ],
+ "camera": {
+  "focus": [
+   {
+    "time": 300,
+    "duration": 800,
+    "elementIds": [
+     "cam0"
+    ],
+    "padding": 0,
+    "maxZoom": 8.0,
+    "ease": "easeInOut"
+   },
+   {
+    "time": 4150,
+    "duration": 800,
+    "elementIds": [
+     "cam1"
+    ],
+    "padding": 0,
+    "maxZoom": 8.0,
+    "ease": "easeInOut"
+   },
+   {
+    "time": 9150,
+    "duration": 800,
+    "elementIds": [
+     "cam2"
+    ],
+    "padding": 0,
+    "maxZoom": 8.0,
+    "ease": "easeInOut"
+   },
+   {
+    "time": 16150,
+    "duration": 800,
+    "elementIds": [
+     "cam3"
+    ],
+    "padding": 0,
+    "maxZoom": 8.0,
+    "ease": "easeInOut"
+   },
+   {
+    "time": 24150,
+    "duration": 800,
+    "elementIds": [
+     "cam4"
+    ],
+    "padding": 0,
+    "maxZoom": 8.0,
+    "ease": "easeInOut"
+   },
+   {
+    "time": 30200,
+    "duration": 800,
+    "elementIds": [
+     "cam5"
+    ],
+    "padding": 0,
+    "maxZoom": 8.0,
+    "ease": "easeInOut"
+   }
+  ],
+  "strokeScaling": "fixed"
+ },
+ "settings": {
+  "loop": false,
+  "autoplay": true,
+  "showChapterList": true
+ }
+}

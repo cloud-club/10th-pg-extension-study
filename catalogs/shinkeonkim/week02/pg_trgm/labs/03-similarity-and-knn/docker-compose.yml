@@ -1,0 +1,23 @@
+name: pg-study-catalog-shinkeonkim-pgtrgm-03
+
+services:
+  postgres:
+    build: .
+    container_name: pg-study-catalog-shinkeonkim-pg-trgm-03
+    environment:
+      POSTGRES_DB: study
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "15962:5432"
+    volumes:
+      - ./sql:/lab/sql:ro
+    # pg_trgm 은 preload 가 필요 없다 - 훅도 워커도 공유메모리도 없고,
+    # 공식 문서도 요구하지 않는다. GUC 를 ALTER SYSTEM 으로 다루려 할 때만
+    # 얘기가 달라진다 (lab 04 에서 직접 재현한다).
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -p 5432 -U postgres -d study"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+      start_period: 30s

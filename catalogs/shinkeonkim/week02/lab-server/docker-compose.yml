@@ -1,0 +1,57 @@
+# ---------------------------------------------------------------------------
+# 실험 서버 - 브라우저에서 조건을 바꿔가며 직접 벤치를 돌린다
+#
+#   ./run.sh          기동 (최초 1회는 pg_bigm 빌드 때문에 5~10분)
+#   ./run.sh down     정리
+#
+# PostgreSQL 세 버전을 동시에 띄워두고, API 가 요청받은 버전으로 접속해 잰다.
+# 19beta1 은 pg_bigm 이 빌드되지 않아 뺐다 (Dockerfile.pg 주석 참고).
+# ---------------------------------------------------------------------------
+name: pg-study-lab-server
+
+x-pg-common: &pg-common
+  environment:
+    POSTGRES_DB: lab
+    POSTGRES_USER: postgres
+    POSTGRES_PASSWORD: postgres
+  # 인덱스 빌드가 잦으므로 기본 64MB 로는 과하게 스필한다
+  command: ["postgres", "-c", "maintenance_work_mem=256MB", "-c", "max_connections=50"]
+  healthcheck:
+    test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U postgres -d lab"]
+    interval: 3s
+    timeout: 3s
+    retries: 40
+    start_period: 30s
+
+services:
+  pg16:
+    <<: *pg-common
+    build: { context: ., dockerfile: Dockerfile.pg, args: { PGVER: "16", PGTAG: "16-trixie" } }
+    container_name: pg-study-lab-pg16
+
+  pg17:
+    <<: *pg-common
+    build: { context: ., dockerfile: Dockerfile.pg, args: { PGVER: "17", PGTAG: "17-trixie" } }
+    container_name: pg-study-lab-pg17
+
+  pg18:
+    <<: *pg-common
+    build: { context: ., dockerfile: Dockerfile.pg, args: { PGVER: "18", PGTAG: "18-trixie" } }
+    container_name: pg-study-lab-pg18
+
+  api:
+    build: ./api
+    container_name: pg-study-lab-api
+    ports: ["8000:8000"]
+    volumes:
+      - labdata:/data          # 작업 큐(SQLite) 와 말뭉치 캐시가 여기 남는다
+    environment:
+      PG_VERSIONS: "16,17,18"
+      DATA_DIR: /data
+    depends_on:
+      pg16: { condition: service_healthy }
+      pg17: { condition: service_healthy }
+      pg18: { condition: service_healthy }
+
+volumes:
+  labdata:

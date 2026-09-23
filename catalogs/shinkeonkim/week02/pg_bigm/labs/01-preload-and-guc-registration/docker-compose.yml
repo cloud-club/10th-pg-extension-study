@@ -1,0 +1,32 @@
+name: pg-study-catalog-shinkeonkim-pgbigm-01
+
+services:
+  postgres:
+    build: .
+    container_name: pg-study-catalog-shinkeonkim-pg-bigm-01
+    environment:
+      POSTGRES_DB: study
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "15940:5432"
+    volumes:
+      - ./sql:/lab/sql:ro
+    # ---------------------------------------------------------------------
+    # 이 lab 은 일부러 shared_preload_libraries 를 "안 켠 채로" 시작한다.
+    # pg_bigm 은 pg_stat_statements(훅+공유메모리)·pg_cron(백그라운드 워커)와
+    # preload 가 필요한 "이유" 자체가 다르다 - 이 lab 의 핵심 주제다.
+    # (docs/02-internals-and-source.md, sql/01-preload-and-guc-registration.sql 참고)
+    #
+    # HANDS-ON.md 의 "직접 실험해볼 것"에서 이 줄의 주석을 풀고 재기동하면
+    # 무엇이 달라지는지 직접 비교할 수 있다.
+    # command:
+    #   - postgres
+    #   - -c
+    #   - shared_preload_libraries=pg_bigm
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -p 5432 -U postgres -d study"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+      start_period: 30s

@@ -1,0 +1,1636 @@
+{
+ "clothoVersion": 1,
+ "id": "similarity-compare",
+ "title": "유사도 — bigm_similarity() vs similarity()",
+ "description": "같은 오타에 0.7143 과 0.4000. 겹친 조각은 한 개 차이인데 분모가 달라 점수가 벌어진다.",
+ "duration": 36000,
+ "canvas": {
+  "width": 1280,
+  "height": 1480,
+  "background": "#0b1120"
+ },
+ "elements": [
+  {
+   "type": "rect",
+   "id": "cam0",
+   "x": 146,
+   "y": 0,
+   "width": 988,
+   "height": 443,
+   "fill": "#0b1120",
+   "stroke": "#0b1120",
+   "strokeWidth": 0,
+   "cornerRadius": 0,
+   "appearances": [
+    {
+     "start": 0,
+     "end": 36000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "cam1",
+   "x": 146,
+   "y": 160,
+   "width": 988,
+   "height": 443,
+   "fill": "#0b1120",
+   "stroke": "#0b1120",
+   "strokeWidth": 0,
+   "cornerRadius": 0,
+   "appearances": [
+    {
+     "start": 0,
+     "end": 36000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "cam2",
+   "x": 146,
+   "y": 506,
+   "width": 988,
+   "height": 443,
+   "fill": "#0b1120",
+   "stroke": "#0b1120",
+   "strokeWidth": 0,
+   "cornerRadius": 0,
+   "appearances": [
+    {
+     "start": 0,
+     "end": 36000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "cam3",
+   "x": 146,
+   "y": 774,
+   "width": 988,
+   "height": 443,
+   "fill": "#0b1120",
+   "stroke": "#0b1120",
+   "strokeWidth": 0,
+   "cornerRadius": 0,
+   "appearances": [
+    {
+     "start": 0,
+     "end": 36000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "cam4",
+   "x": 146,
+   "y": 1037,
+   "width": 988,
+   "height": 443,
+   "fill": "#0b1120",
+   "stroke": "#0b1120",
+   "strokeWidth": 0,
+   "cornerRadius": 0,
+   "appearances": [
+    {
+     "start": 0,
+     "end": 36000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "t",
+   "x": 210,
+   "y": 42,
+   "content": "유사도 — 두 확장은 다른 자로 잰다",
+   "fontSize": 22,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 0,
+     "end": 36000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ],
+   "fontWeight": "700"
+  },
+  {
+   "type": "rect",
+   "id": "pair",
+   "x": 210,
+   "y": 74,
+   "width": 460,
+   "height": 48,
+   "fill": "#1e293b",
+   "cornerRadius": 10,
+   "appearances": [
+    {
+     "start": 300,
+     "end": 36000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "'클라우드클럽'  vs  '클라으드클럽'",
+   "labelColor": "#e2e8f0",
+   "labelSize": 17,
+   "stroke": "#334155",
+   "strokeWidth": 2
+  },
+  {
+   "type": "text",
+   "id": "pn",
+   "x": 210,
+   "y": 148,
+   "content": "6글자 중 가운데 한 글자만 다르다 — 사람 눈에는 거의 같은 말이다",
+   "fontSize": 15,
+   "color": "#94a3b8",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 900,
+     "end": 36000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "bl",
+   "x": 210,
+   "y": 208,
+   "content": "pg_bigm — 2-gram",
+   "fontSize": 18,
+   "color": "#60a5fa",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 3000,
+     "end": 36000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ],
+   "fontWeight": "700"
+  },
+  {
+   "type": "rect",
+   "id": "a2_0",
+   "x": 210,
+   "y": 228,
+   "width": 98,
+   "height": 42,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 3200,
+     "end": 36000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "␣클",
+   "labelColor": "#0b1120",
+   "labelSize": 16
+  },
+  {
+   "type": "rect",
+   "id": "a2_1",
+   "x": 316,
+   "y": 228,
+   "width": 98,
+   "height": 42,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 3400,
+     "end": 36000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "클라",
+   "labelColor": "#0b1120",
+   "labelSize": 16
+  },
+  {
+   "type": "rect",
+   "id": "a2_2",
+   "x": 422,
+   "y": 228,
+   "width": 98,
+   "height": 42,
+   "fill": "#334155",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 3600,
+     "end": 36000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "라우",
+   "labelColor": "#e2e8f0",
+   "labelSize": 16
+  },
+  {
+   "type": "rect",
+   "id": "a2_3",
+   "x": 528,
+   "y": 228,
+   "width": 98,
+   "height": 42,
+   "fill": "#334155",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 3800,
+     "end": 36000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "우드",
+   "labelColor": "#e2e8f0",
+   "labelSize": 16
+  },
+  {
+   "type": "rect",
+   "id": "a2_4",
+   "x": 634,
+   "y": 228,
+   "width": 98,
+   "height": 42,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 4000,
+     "end": 36000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "드클",
+   "labelColor": "#0b1120",
+   "labelSize": 16
+  },
+  {
+   "type": "rect",
+   "id": "a2_5",
+   "x": 740,
+   "y": 228,
+   "width": 98,
+   "height": 42,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 4200,
+     "end": 36000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "클럽",
+   "labelColor": "#0b1120",
+   "labelSize": 16
+  },
+  {
+   "type": "rect",
+   "id": "a2_6",
+   "x": 846,
+   "y": 228,
+   "width": 98,
+   "height": 42,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 4400,
+     "end": 36000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "럽␣",
+   "labelColor": "#0b1120",
+   "labelSize": 16
+  },
+  {
+   "type": "rect",
+   "id": "b2_0",
+   "x": 210,
+   "y": 278,
+   "width": 98,
+   "height": 42,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 4700,
+     "end": 36000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "␣클",
+   "labelColor": "#0b1120",
+   "labelSize": 16
+  },
+  {
+   "type": "rect",
+   "id": "b2_1",
+   "x": 316,
+   "y": 278,
+   "width": 98,
+   "height": 42,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 4900,
+     "end": 36000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "클라",
+   "labelColor": "#0b1120",
+   "labelSize": 16
+  },
+  {
+   "type": "rect",
+   "id": "b2_2",
+   "x": 422,
+   "y": 278,
+   "width": 98,
+   "height": 42,
+   "fill": "#334155",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 5100,
+     "end": 36000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "라으",
+   "labelColor": "#e2e8f0",
+   "labelSize": 16
+  },
+  {
+   "type": "rect",
+   "id": "b2_3",
+   "x": 528,
+   "y": 278,
+   "width": 98,
+   "height": 42,
+   "fill": "#334155",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 5300,
+     "end": 36000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "으드",
+   "labelColor": "#e2e8f0",
+   "labelSize": 16
+  },
+  {
+   "type": "rect",
+   "id": "b2_4",
+   "x": 634,
+   "y": 278,
+   "width": 98,
+   "height": 42,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 5500,
+     "end": 36000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "드클",
+   "labelColor": "#0b1120",
+   "labelSize": 16
+  },
+  {
+   "type": "rect",
+   "id": "b2_5",
+   "x": 740,
+   "y": 278,
+   "width": 98,
+   "height": 42,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 5700,
+     "end": 36000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "클럽",
+   "labelColor": "#0b1120",
+   "labelSize": 16
+  },
+  {
+   "type": "rect",
+   "id": "b2_6",
+   "x": 846,
+   "y": 278,
+   "width": 98,
+   "height": 42,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 5900,
+     "end": 36000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "럽␣",
+   "labelColor": "#0b1120",
+   "labelSize": 16
+  },
+  {
+   "type": "text",
+   "id": "bcount",
+   "x": 210,
+   "y": 350,
+   "content": "각각 7개 중 5개가 겹친다 (안 겹치는 것은 회색 두 칸)",
+   "fontSize": 16,
+   "color": "#60a5fa",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 6300,
+     "end": 36000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ],
+   "fontWeight": "600"
+  },
+  {
+   "type": "text",
+   "id": "tl",
+   "x": 210,
+   "y": 402,
+   "content": "pg_trgm — 3-gram",
+   "fontSize": 18,
+   "color": "#fb7185",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 8500,
+     "end": 36000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ],
+   "fontWeight": "700"
+  },
+  {
+   "type": "rect",
+   "id": "a3_0",
+   "x": 210,
+   "y": 422,
+   "width": 98,
+   "height": 42,
+   "fill": "#fb7185",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 8700,
+     "end": 36000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "␣␣클",
+   "labelColor": "#0b1120",
+   "labelSize": 15
+  },
+  {
+   "type": "rect",
+   "id": "a3_1",
+   "x": 316,
+   "y": 422,
+   "width": 98,
+   "height": 42,
+   "fill": "#fb7185",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 8900,
+     "end": 36000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "␣클라",
+   "labelColor": "#0b1120",
+   "labelSize": 15
+  },
+  {
+   "type": "rect",
+   "id": "a3_2",
+   "x": 422,
+   "y": 422,
+   "width": 98,
+   "height": 42,
+   "fill": "#334155",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 9100,
+     "end": 36000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "클라우",
+   "labelColor": "#e2e8f0",
+   "labelSize": 15
+  },
+  {
+   "type": "rect",
+   "id": "a3_3",
+   "x": 528,
+   "y": 422,
+   "width": 98,
+   "height": 42,
+   "fill": "#334155",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 9300,
+     "end": 36000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "라우드",
+   "labelColor": "#e2e8f0",
+   "labelSize": 15
+  },
+  {
+   "type": "rect",
+   "id": "a3_4",
+   "x": 634,
+   "y": 422,
+   "width": 98,
+   "height": 42,
+   "fill": "#334155",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 9500,
+     "end": 36000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "우드클",
+   "labelColor": "#e2e8f0",
+   "labelSize": 15
+  },
+  {
+   "type": "rect",
+   "id": "a3_5",
+   "x": 740,
+   "y": 422,
+   "width": 98,
+   "height": 42,
+   "fill": "#fb7185",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 9700,
+     "end": 36000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "드클럽",
+   "labelColor": "#0b1120",
+   "labelSize": 15
+  },
+  {
+   "type": "rect",
+   "id": "a3_6",
+   "x": 846,
+   "y": 422,
+   "width": 98,
+   "height": 42,
+   "fill": "#fb7185",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 9900,
+     "end": 36000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "클럽␣",
+   "labelColor": "#0b1120",
+   "labelSize": 15
+  },
+  {
+   "type": "rect",
+   "id": "b3_0",
+   "x": 210,
+   "y": 472,
+   "width": 98,
+   "height": 42,
+   "fill": "#fb7185",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 10200,
+     "end": 36000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "␣␣클",
+   "labelColor": "#0b1120",
+   "labelSize": 15
+  },
+  {
+   "type": "rect",
+   "id": "b3_1",
+   "x": 316,
+   "y": 472,
+   "width": 98,
+   "height": 42,
+   "fill": "#fb7185",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 10400,
+     "end": 36000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "␣클라",
+   "labelColor": "#0b1120",
+   "labelSize": 15
+  },
+  {
+   "type": "rect",
+   "id": "b3_2",
+   "x": 422,
+   "y": 472,
+   "width": 98,
+   "height": 42,
+   "fill": "#334155",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 10600,
+     "end": 36000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "클라으",
+   "labelColor": "#e2e8f0",
+   "labelSize": 15
+  },
+  {
+   "type": "rect",
+   "id": "b3_3",
+   "x": 528,
+   "y": 472,
+   "width": 98,
+   "height": 42,
+   "fill": "#334155",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 10800,
+     "end": 36000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "라으드",
+   "labelColor": "#e2e8f0",
+   "labelSize": 15
+  },
+  {
+   "type": "rect",
+   "id": "b3_4",
+   "x": 634,
+   "y": 472,
+   "width": 98,
+   "height": 42,
+   "fill": "#334155",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 11000,
+     "end": 36000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "으드클",
+   "labelColor": "#e2e8f0",
+   "labelSize": 15
+  },
+  {
+   "type": "rect",
+   "id": "b3_5",
+   "x": 740,
+   "y": 472,
+   "width": 98,
+   "height": 42,
+   "fill": "#fb7185",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 11200,
+     "end": 36000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "드클럽",
+   "labelColor": "#0b1120",
+   "labelSize": 15
+  },
+  {
+   "type": "rect",
+   "id": "b3_6",
+   "x": 846,
+   "y": 472,
+   "width": 98,
+   "height": 42,
+   "fill": "#fb7185",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 11400,
+     "end": 36000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "클럽␣",
+   "labelColor": "#0b1120",
+   "labelSize": 15
+  },
+  {
+   "type": "text",
+   "id": "tcount",
+   "x": 210,
+   "y": 544,
+   "content": "각각 7개 중 4개가 겹친다 — 오타 하나가 조각 3개를 깬다",
+   "fontSize": 16,
+   "color": "#fb7185",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 11800,
+     "end": 36000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ],
+   "fontWeight": "600"
+  },
+  {
+   "type": "text",
+   "id": "why",
+   "x": 210,
+   "y": 574,
+   "content": "한 글자가 틀어지면 2-gram 은 조각 2개, 3-gram 은 3개가 깨진다 — n 이 클수록 오타에 약하다.",
+   "fontSize": 15,
+   "color": "#fbbf24",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 12600,
+     "end": 36000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ],
+   "fontWeight": "600"
+  },
+  {
+   "type": "text",
+   "id": "c3",
+   "x": 210,
+   "y": 636,
+   "content": "그런데 진짜 차이는 분모다",
+   "fontSize": 19,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 15000,
+     "end": 36000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ],
+   "fontWeight": "700"
+  },
+  {
+   "type": "rect",
+   "id": "f1",
+   "x": 210,
+   "y": 658,
+   "width": 420,
+   "height": 52,
+   "fill": "#60a5fa",
+   "cornerRadius": 10,
+   "appearances": [
+    {
+     "start": 15400,
+     "end": 36000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "bigm:  겹친 수 / max(조각 수)",
+   "labelColor": "#0b1120",
+   "labelSize": 16
+  },
+  {
+   "type": "text",
+   "id": "f1n",
+   "x": 650,
+   "y": 678,
+   "content": "긴 쪽을 기준으로 몇 % 를 덮었나",
+   "fontSize": 15,
+   "color": "#94a3b8",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 16000,
+     "end": 36000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "f1v",
+   "x": 650,
+   "y": 702,
+   "content": "5 / 7 = 0.7143",
+   "fontSize": 18,
+   "color": "#60a5fa",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 16600,
+     "end": 36000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ],
+   "fontWeight": "700"
+  },
+  {
+   "type": "rect",
+   "id": "f2",
+   "x": 210,
+   "y": 724,
+   "width": 420,
+   "height": 52,
+   "fill": "#fb7185",
+   "cornerRadius": 10,
+   "appearances": [
+    {
+     "start": 18000,
+     "end": 36000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "trgm:  겹친 수 / 합집합 크기",
+   "labelColor": "#0b1120",
+   "labelSize": 16
+  },
+  {
+   "type": "text",
+   "id": "f2n",
+   "x": 650,
+   "y": 744,
+   "content": "자카드 — 안 겹친 조각까지 분모에",
+   "fontSize": 15,
+   "color": "#94a3b8",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 18600,
+     "end": 36000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "f2v",
+   "x": 650,
+   "y": 768,
+   "content": "4 / (7+7-4) = 0.4000",
+   "fontSize": 18,
+   "color": "#fb7185",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 19200,
+     "end": 36000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ],
+   "fontWeight": "700"
+  },
+  {
+   "type": "text",
+   "id": "c3b",
+   "x": 210,
+   "y": 812,
+   "content": "겹친 조각은 5 대 4 로 한 개 차이인데, 점수는 0.7143 대 0.4000 으로 벌어진다.",
+   "fontSize": 15,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 20400,
+     "end": 36000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ],
+   "fontWeight": "600"
+  },
+  {
+   "type": "text",
+   "id": "c3c",
+   "x": 210,
+   "y": 838,
+   "content": "조각 수가 아니라 분모가 만든 차이다 — 자카드는 안 겹친 6개를 전부 분모에 넣는다.",
+   "fontSize": 15,
+   "color": "#94a3b8",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 21200,
+     "end": 36000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "c4",
+   "x": 210,
+   "y": 902,
+   "content": "짧은 말에서는 그 차이가 임계값 선을 넘는다",
+   "fontSize": 19,
+   "color": "#fbbf24",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 24000,
+     "end": 36000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ],
+   "fontWeight": "700"
+  },
+  {
+   "type": "rect",
+   "id": "sp",
+   "x": 210,
+   "y": 926,
+   "width": 420,
+   "height": 44,
+   "fill": "#1e293b",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 24400,
+     "end": 36000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "'클둥이'  vs  '클동이'   (3글자, 한 글자 오타)",
+   "labelColor": "#e2e8f0",
+   "labelSize": 16,
+   "stroke": "#334155",
+   "strokeWidth": 2
+  },
+  {
+   "type": "rect",
+   "id": "th1",
+   "x": 210,
+   "y": 984,
+   "width": 420,
+   "height": 44,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 25400,
+     "end": 36000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "bigm  0.5000   ≥ 0.3  →  매칭된다",
+   "labelColor": "#0b1120",
+   "labelSize": 16
+  },
+  {
+   "type": "rect",
+   "id": "th2",
+   "x": 210,
+   "y": 1036,
+   "width": 420,
+   "height": 44,
+   "fill": "#fb7185",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 26400,
+     "end": 36000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "trgm  0.1429   < 0.3  →  탈락한다",
+   "labelColor": "#0b1120",
+   "labelSize": 16
+  },
+  {
+   "type": "text",
+   "id": "c4b",
+   "x": 650,
+   "y": 1012,
+   "content": "같은 오타, 같은 임계값,",
+   "fontSize": 17,
+   "color": "#fbbf24",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 27400,
+     "end": 36000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ],
+   "fontWeight": "700"
+  },
+  {
+   "type": "text",
+   "id": "c4b2",
+   "x": 650,
+   "y": 1036,
+   "content": "반대 결과",
+   "fontSize": 17,
+   "color": "#fbbf24",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 27600,
+     "end": 36000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ],
+   "fontWeight": "700"
+  },
+  {
+   "type": "text",
+   "id": "c4c",
+   "x": 210,
+   "y": 1108,
+   "content": "기본 임계값이 둘 다 0.3 인 것은 우연이다 — 재는 자가 다르므로 그대로 옮기면 안 된다.",
+   "fontSize": 15,
+   "color": "#fbbf24",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 28400,
+     "end": 36000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ],
+   "fontWeight": "600"
+  },
+  {
+   "type": "text",
+   "id": "c5",
+   "x": 210,
+   "y": 1176,
+   "content": "실측 (bigm-vs-trgm/experiments/03)",
+   "fontSize": 18,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 31000,
+     "end": 36000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ],
+   "fontWeight": "700"
+  },
+  {
+   "type": "text",
+   "id": "h1",
+   "x": 210,
+   "y": 1208,
+   "content": "입력",
+   "fontSize": 14,
+   "color": "#94a3b8",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 31200,
+     "end": 36000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ],
+   "fontWeight": "600"
+  },
+  {
+   "type": "text",
+   "id": "h2",
+   "x": 590,
+   "y": 1208,
+   "content": "bigm_similarity()",
+   "fontSize": 14,
+   "color": "#60a5fa",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 31200,
+     "end": 36000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ],
+   "fontWeight": "600"
+  },
+  {
+   "type": "text",
+   "id": "h3",
+   "x": 790,
+   "y": 1208,
+   "content": "similarity()",
+   "fontSize": 14,
+   "color": "#fb7185",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 31200,
+     "end": 36000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ],
+   "fontWeight": "600"
+  },
+  {
+   "type": "text",
+   "id": "t0a",
+   "x": 210,
+   "y": 1234,
+   "content": "신건 → 신컨",
+   "fontSize": 15,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 31500,
+     "end": 36000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "t0b",
+   "x": 590,
+   "y": 1234,
+   "content": "0.3333",
+   "fontSize": 15,
+   "color": "#60a5fa",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 31620,
+     "end": 36000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ],
+   "fontWeight": "700"
+  },
+  {
+   "type": "text",
+   "id": "t0c",
+   "x": 790,
+   "y": 1234,
+   "content": "0.2000",
+   "fontSize": 15,
+   "color": "#fb7185",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 31700,
+     "end": 36000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ],
+   "fontWeight": "700"
+  },
+  {
+   "type": "text",
+   "id": "t1a",
+   "x": 210,
+   "y": 1268,
+   "content": "김신건 → 김신컨",
+   "fontSize": 15,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 32000,
+     "end": 36000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "t1b",
+   "x": 590,
+   "y": 1268,
+   "content": "0.5000",
+   "fontSize": 15,
+   "color": "#60a5fa",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 32120,
+     "end": 36000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ],
+   "fontWeight": "700"
+  },
+  {
+   "type": "text",
+   "id": "t1c",
+   "x": 790,
+   "y": 1268,
+   "content": "0.3333",
+   "fontSize": 15,
+   "color": "#fb7185",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 32200,
+     "end": 36000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ],
+   "fontWeight": "700"
+  },
+  {
+   "type": "text",
+   "id": "t2a",
+   "x": 210,
+   "y": 1302,
+   "content": "클둥이 → 클동이",
+   "fontSize": 15,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 32500,
+     "end": 36000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "t2b",
+   "x": 590,
+   "y": 1302,
+   "content": "0.5000",
+   "fontSize": 15,
+   "color": "#60a5fa",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 32620,
+     "end": 36000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ],
+   "fontWeight": "700"
+  },
+  {
+   "type": "text",
+   "id": "t2c",
+   "x": 790,
+   "y": 1302,
+   "content": "0.1429",
+   "fontSize": 15,
+   "color": "#fb7185",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 32700,
+     "end": 36000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ],
+   "fontWeight": "700"
+  },
+  {
+   "type": "text",
+   "id": "t3a",
+   "x": 210,
+   "y": 1336,
+   "content": "클라우드클럽 → 클라으드클럽",
+   "fontSize": 15,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 33000,
+     "end": 36000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "t3b",
+   "x": 590,
+   "y": 1336,
+   "content": "0.7143",
+   "fontSize": 15,
+   "color": "#60a5fa",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 33120,
+     "end": 36000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ],
+   "fontWeight": "700"
+  },
+  {
+   "type": "text",
+   "id": "t3c",
+   "x": 790,
+   "y": 1336,
+   "content": "0.4000",
+   "fontSize": 15,
+   "color": "#fb7185",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 33200,
+     "end": 36000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ],
+   "fontWeight": "700"
+  },
+  {
+   "type": "text",
+   "id": "t4a",
+   "x": 210,
+   "y": 1370,
+   "content": "CloudClub → cloudclub",
+   "fontSize": 15,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 33500,
+     "end": 36000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "t4b",
+   "x": 590,
+   "y": 1370,
+   "content": "0.6667",
+   "fontSize": 15,
+   "color": "#60a5fa",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 33620,
+     "end": 36000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ],
+   "fontWeight": "700"
+  },
+  {
+   "type": "text",
+   "id": "t4c",
+   "x": 790,
+   "y": 1370,
+   "content": "1.0000",
+   "fontSize": 15,
+   "color": "#fb7185",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 33700,
+     "end": 36000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ],
+   "fontWeight": "700"
+  },
+  {
+   "type": "text",
+   "id": "c5b",
+   "x": 210,
+   "y": 1428,
+   "content": "마지막 줄만 반대다 — 대소문자만 다르면 trgm 은 1.0 이다(IGNORECASE).",
+   "fontSize": 15,
+   "color": "#94a3b8",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 34400,
+     "end": 36000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  }
+ ],
+ "chapters": [
+  {
+   "id": "m0",
+   "time": 0,
+   "label": "1. 같은 입력",
+   "subtitle": "6글자 중 한 글자만 다르다"
+  },
+  {
+   "id": "m1",
+   "time": 2900,
+   "label": "2. 조각을 낸다",
+   "subtitle": "오타 한 글자가 깨뜨리는 조각 수가 다르다"
+  },
+  {
+   "id": "m2",
+   "time": 14900,
+   "label": "3. 분모가 다르다",
+   "subtitle": "max 로 나누느냐, 합집합으로 나누느냐"
+  },
+  {
+   "id": "m3",
+   "time": 23900,
+   "label": "4. 임계값의 함정",
+   "subtitle": "우연히 둘 다 0.3 이지만 뜻이 다르다"
+  },
+  {
+   "id": "m4",
+   "time": 30900,
+   "label": "5. 실측",
+   "subtitle": "bigm 이 1.1~3.5배 높은 점수를 준다"
+  }
+ ],
+ "camera": {
+  "focus": [
+   {
+    "time": 300,
+    "duration": 800,
+    "elementIds": [
+     "cam0"
+    ],
+    "padding": 0,
+    "maxZoom": 8.0,
+    "ease": "easeInOut"
+   },
+   {
+    "time": 3150,
+    "duration": 800,
+    "elementIds": [
+     "cam1"
+    ],
+    "padding": 0,
+    "maxZoom": 8.0,
+    "ease": "easeInOut"
+   },
+   {
+    "time": 15150,
+    "duration": 800,
+    "elementIds": [
+     "cam2"
+    ],
+    "padding": 0,
+    "maxZoom": 8.0,
+    "ease": "easeInOut"
+   },
+   {
+    "time": 24150,
+    "duration": 800,
+    "elementIds": [
+     "cam3"
+    ],
+    "padding": 0,
+    "maxZoom": 8.0,
+    "ease": "easeInOut"
+   },
+   {
+    "time": 31150,
+    "duration": 800,
+    "elementIds": [
+     "cam4"
+    ],
+    "padding": 0,
+    "maxZoom": 8.0,
+    "ease": "easeInOut"
+   }
+  ],
+  "strokeScaling": "fixed"
+ },
+ "settings": {
+  "loop": false,
+  "autoplay": true,
+  "showChapterList": true
+ }
+}

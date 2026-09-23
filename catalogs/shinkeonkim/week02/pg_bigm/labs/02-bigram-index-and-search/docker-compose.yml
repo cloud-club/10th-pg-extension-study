@@ -1,0 +1,26 @@
+name: pg-study-catalog-shinkeonkim-pgbigm-02
+
+services:
+  postgres:
+    build: .
+    container_name: pg-study-catalog-shinkeonkim-pg-bigm-02
+    environment:
+      POSTGRES_DB: study
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "15941:5432"
+    volumes:
+      - ./sql:/lab/sql:ro
+    # 이 lab 의 주제(2-gram 인덱스로 LIKE 가속)는 preload 여부와 무관하다 -
+    # 그래도 다른 pg_bigm lab 들과 일관되게 preload 없이 시작한다.
+    # command:
+    #   - postgres
+    #   - -c
+    #   - shared_preload_libraries=pg_bigm
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -p 5432 -U postgres -d study"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+      start_period: 30s

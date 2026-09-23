@@ -1,0 +1,177 @@
+#!/usr/bin/env bash
+# ---------------------------------------------------------------------------
+# 한글 말뭉치 준비 스크립트 (실험용 공통 부품)
+#
+# 각 실험의 bench.sh 에서 `source corpus.sh` 로 불러 쓴다. 실험 디렉터리마다
+# 이 파일의 복사본이 들어있다 - 이 저장소의 lab/experiment 는 각자 독립적으로
+# 돌아가야 하므로 run.sh 와 마찬가지로 의도적으로 중복시킨다.
+#
+#   fetch_corpus            한글 말뭉치를 ./.corpus/nsmc-docs.txt 로 준비한다 (캐시됨)
+#   $CORPUS_FILE            준비된 파일 경로
+#   $CORPUS_SOURCE          "nsmc" 또는 "synthetic" - README 에 어느 쪽으로 쟀는지 적기 위해
+#
+#   fetch_corpus_en         영문 대조군 말뭉치를 ./.corpus/en-docs.txt 로 준비한다
+#   $CORPUS_FILE_EN         준비된 파일 경로
+#   $CORPUS_SOURCE_EN       "gutenberg" 또는 "synthetic"
+#
+# ---------------------------------------------------------------------------
+# 왜 NSMC 인가
+#
+#   Korpora(https://github.com/ko-nlp/Korpora)가 소개하는 한국어 말뭉치 중에서
+#   NSMC(Naver Sentiment Movie Corpus)를 골랐다. 이유는 두 가지다.
+#
+#     1) 라이선스가 CC0(퍼블릭 도메인)이다. 재배포·자동 다운로드에 제약이 없다.
+#        (Korpora 가 소개하는 다른 말뭉치 상당수는 별도 동의 절차나 로그인이 필요하다)
+#     2) raw URL 로 바로 받을 수 있어 컨테이너 빌드/벤치 스크립트에 그대로 넣을 수 있다.
+#
+#   출처: https://github.com/e9t/nsmc  (ratings_train 15만 + ratings_test 5만)
+#   실제로 받아서 확인한 규모: 199,993행, 평균 35.3글자, 최대 158글자.
+#
+#   말뭉치 파일 자체는 저장소에 커밋하지 않는다(.gitignore). 네트워크가 없으면
+#   합성 데이터로 폴백하므로 오프라인에서도 실험은 돈다 - 다만 그때는
+#   CORPUS_SOURCE 가 "synthetic" 이 되므로 결과를 적을 때 반드시 구분해야 한다.
+# ---------------------------------------------------------------------------
+
+CORPUS_DIR="${CORPUS_DIR:-.corpus}"
+CORPUS_FILE="$CORPUS_DIR/nsmc-docs.txt"
+CORPUS_SOURCE="unknown"
+
+NSMC_BASE="https://raw.githubusercontent.com/e9t/nsmc/master"
+
+_corpus_synthetic() {
+  # 네트워크가 없을 때의 폴백. 어휘 풀이 작으면 특정 키워드가 전체의 절반과
+  # 매치되는 식으로 선택도가 망가지므로(pg_bigm/experiments/02 가 겪은 문제),
+  # 폴백에서도 문장을 조합해 다양성을 확보한다.
+  local subj=(사람 영화 배우 감독 음악 각본 연출 편집 촬영 조명 미술 의상 분장 음향 특수효과)
+  local adj=(좋은 나쁜 훌륭한 어색한 담백한 과장된 섬세한 투박한 참신한 진부한)
+  local verb=(인상적이다 아쉽다 놀랍다 무난하다 지루하다 흥미롭다 어리둥절하다 만족스럽다)
+  local i j k n=0
+  : > "$CORPUS_FILE"
+  for i in "${subj[@]}"; do for j in "${adj[@]}"; do for k in "${verb[@]}"; do
+    echo "$j $i 의 표현이 $k 라고 느꼈다 (문장 $n)" >> "$CORPUS_FILE"
+    n=$((n + 1))
+  done; done; done
+  # 위 조합은 1,200줄이다. 실험이 요구하는 행 수는 seed 쪽에서 순환 참조로 채운다.
+  CORPUS_SOURCE="synthetic"
+}
+
+fetch_corpus() {
+  mkdir -p "$CORPUS_DIR"
+
+  if [ -s "$CORPUS_FILE" ]; then
+    CORPUS_SOURCE="nsmc(캐시)"
+    echo "  말뭉치 캐시 사용: $CORPUS_FILE ($(wc -l < "$CORPUS_FILE" | tr -d ' ')행)"
+    return 0
+  fi
+
+  echo "  한글 말뭉치(NSMC, CC0)를 내려받는다 - 최초 1회만 받고 이후엔 캐시를 쓴다"
+  local ok=1
+  for f in ratings_train ratings_test; do
+    if ! curl -sSL --max-time 120 -o "$CORPUS_DIR/$f.txt" "$NSMC_BASE/$f.txt"; then
+      ok=0; break
+    fi
+    [ -s "$CORPUS_DIR/$f.txt" ] || { ok=0; break; }
+  done
+
+  if [ "$ok" = 1 ]; then
+    # 원본은 "id \t document \t label" 탭 구분 + 헤더 1줄이다.
+    # 검색 대상이 되는 document 컬럼만 뽑고, 빈 문서는 버린다.
+    awk -F'\t' 'NR>1 && $2 != "" {print $2}' \
+      "$CORPUS_DIR/ratings_train.txt" "$CORPUS_DIR/ratings_test.txt" > "$CORPUS_FILE"
+    rm -f "$CORPUS_DIR/ratings_train.txt" "$CORPUS_DIR/ratings_test.txt"
+    CORPUS_SOURCE="nsmc"
+    echo "  ✔ NSMC $(wc -l < "$CORPUS_FILE" | tr -d ' ')행 준비 완료"
+  else
+    echo "  ✘ 말뭉치를 받지 못했습니다 (네트워크?). 합성 데이터로 폴백합니다."
+    echo "    -> 결과를 기록할 때 반드시 '합성 데이터'라고 명시할 것"
+    _corpus_synthetic
+  fi
+}
+
+# 컨테이너 안으로 말뭉치를 복사한다 (bind mount 대신 docker cp 를 쓰는 이유:
+# 실험마다 compose 파일에 volume 을 추가하지 않아도 되고, 캐시 디렉터리가
+# 컨테이너 권한 문제를 일으키지 않는다)
+copy_corpus_into() {  # $1 = 컨테이너 이름
+  docker cp "$CORPUS_FILE" "$1:/tmp/corpus.txt"
+}
+
+# ---------------------------------------------------------------------------
+# 영문 대조군 말뭉치
+#
+# 왜 필요한가: 이 카탈로그의 영문 수치는 원래 어휘 12개를 조합한 합성 데이터였다.
+# 반복도가 극단적으로 높아 유니크 조각 수(2-gram 294 / 3-gram 1,497)가 비현실적으로
+# 작게 나왔고, "영문 2-gram 은 선택도가 나쁘다"는 방향은 맞아도 배수는 믿을 수 없었다.
+#
+# 왜 Project Gutenberg 인가:
+#   1) 퍼블릭 도메인이라 재배포·자동 다운로드에 제약이 없다 (NSMC 를 고른 이유와 같다)
+#   2) plain text URL 로 바로 받을 수 있다
+#   3) 실제 산문이라 어휘 분포가 자연스럽다
+#
+# 세 권을 합쳐 어휘를 늘린다. 한 권만 쓰면 한 작가의 어휘에 치우친다.
+#   1342 Pride and Prejudice / 2701 Moby Dick / 84 Frankenstein
+#
+# 한국어 말뭉치(문장 단위, 평균 35자)와 맞추기 위해 문장 단위로 자르고
+# 너무 짧거나 긴 줄은 버린다.
+# ---------------------------------------------------------------------------
+CORPUS_FILE_EN="$CORPUS_DIR/en-docs.txt"
+CORPUS_SOURCE_EN="unknown"
+
+GUTENBERG_IDS="1342 2701 84"
+
+_corpus_en_synthetic() {
+  local subj=(system index query engine parser planner buffer tuple cluster replica)
+  local adj=(fast slow simple complex careful clever fragile robust)
+  local verb=(returns rejects caches rewrites scans merges splits validates)
+  local i j k n=0
+  : > "$CORPUS_FILE_EN"
+  for i in "${subj[@]}"; do for j in "${adj[@]}"; do for k in "${verb[@]}"; do
+    echo "the $j $i $k the incoming request in stage $n" >> "$CORPUS_FILE_EN"
+    n=$((n + 1))
+  done; done; done
+  CORPUS_SOURCE_EN="synthetic"
+}
+
+fetch_corpus_en() {
+  mkdir -p "$CORPUS_DIR"
+
+  if [ -s "$CORPUS_FILE_EN" ]; then
+    CORPUS_SOURCE_EN="gutenberg(캐시)"
+    echo "  영문 말뭉치 캐시 사용: $CORPUS_FILE_EN ($(wc -l < "$CORPUS_FILE_EN" | tr -d ' ')행)"
+    return 0
+  fi
+
+  echo "  영문 말뭉치(Project Gutenberg, 퍼블릭 도메인)를 내려받는다 - 최초 1회만"
+  local ok=1 id
+  : > "$CORPUS_DIR/_en_raw.txt"
+  for id in $GUTENBERG_IDS; do
+    if ! curl -sSL --max-time 120 \
+         -o "$CORPUS_DIR/_g$id.txt" "https://www.gutenberg.org/cache/epub/$id/pg$id.txt"; then
+      ok=0; break
+    fi
+    [ -s "$CORPUS_DIR/_g$id.txt" ] || { ok=0; break; }
+    cat "$CORPUS_DIR/_g$id.txt" >> "$CORPUS_DIR/_en_raw.txt"
+    rm -f "$CORPUS_DIR/_g$id.txt"
+  done
+
+  if [ "$ok" = 1 ]; then
+    # 문장 단위로 자르고(마침표/물음표/느낌표 뒤), 개행과 여러 공백을 하나로 접는다.
+    # 20~200자만 남긴다 - 한국어 말뭉치(평균 35자)와 대략 맞추고, 장절 제목이나
+    # 목차 같은 조각을 걸러내기 위해서다.
+    tr '\n' ' ' < "$CORPUS_DIR/_en_raw.txt" \
+      | sed -e 's/[[:space:]][[:space:]]*/ /g' -e 's/\([.!?]\) /\1\n/g' \
+      | awk 'length($0) >= 20 && length($0) <= 200' \
+      > "$CORPUS_FILE_EN"
+    rm -f "$CORPUS_DIR/_en_raw.txt"
+    CORPUS_SOURCE_EN="gutenberg"
+    echo "  ✔ Gutenberg $(wc -l < "$CORPUS_FILE_EN" | tr -d ' ')행 준비 완료"
+  else
+    echo "  ✘ 영문 말뭉치를 받지 못했습니다. 합성 데이터로 폴백합니다."
+    echo "    -> 결과를 기록할 때 반드시 '합성 데이터'라고 명시할 것"
+    rm -f "$CORPUS_DIR/_en_raw.txt"
+    _corpus_en_synthetic
+  fi
+}
+
+copy_corpus_en_into() {  # $1 = 컨테이너 이름
+  docker cp "$CORPUS_FILE_EN" "$1:/tmp/corpus_en.txt"
+}
