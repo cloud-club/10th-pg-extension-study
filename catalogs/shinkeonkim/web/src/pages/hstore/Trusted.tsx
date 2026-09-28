@@ -73,7 +73,34 @@ CREATE ROLE app_owner LOGIN;`}</CodeBlock>
       <p className="mt-3 text-[12.5px] leading-relaxed text-muted-foreground">근거: <code>doc/src/sgml/extend.sgml</code>의 “Security Considerations for Extensions” 절 (아래 참고 목록의 링크).</p>
     </Section>
 
-    <Section id="why-13" title="7. hstore가 trusted가 된 시점">
+    <Section id="origin" title="7. 왜 생겼나: pg_pltemplate이라는 특수 케이스를 없애려고">
+      <p><code>trusted</code>는 갑자기 나온 아이디어가 아니다. “슈퍼유저 없이도 설치할 수 있는 안전한 것”이라는 개념 자체는 확장보다 훨씬 오래됐고, PostgreSQL 13 이전까지는 <strong>프로시저 언어(PL)에만</strong> 허용된 특례였다. 그 특례를 모든 확장으로 넓히는 과정에서 지금의 <code>trusted</code> 플래그가 나왔다.</p>
+      <h3>7.1 오래된 특례: pg_pltemplate과 “trusted PL”</h3>
+      <p><code>CREATE LANGUAGE</code>에는 원래 <code>TRUSTED</code> 키워드가 있었다. plpgsql처럼 <em>trusted</em>로 등록된 PL은 DB 소유자가 슈퍼유저 없이 설치할 수 있었고, C나 plperlu처럼 <em>untrusted</em>인 언어는 슈퍼유저가 있어야 했다. 어떤 PL이 trusted인지는 <code>pg_pltemplate</code>이라는 시스템 카탈로그에 <strong>하드코딩</strong>돼 있었다 — 서버 소스 안에 미리 박아 둔 표였다.</p>
+      <p>문제는 <code>CREATE EXTENSION</code>이 PostgreSQL 9.1에 생긴 뒤에도 이 특례가 PL 바깥으로 퍼지지 않았다는 점이다. 확장 control 파일에는 이미 <code>superuser</code> 플래그가 있어 <code>false</code>로 두면 슈퍼유저 없이 설치할 수 있었지만(1절), 이건 설치 스크립트 안에 슈퍼유저 전용 명령이 <strong>하나도 없을 때만</strong> 통했다. hstore·pg_trgm처럼 C 함수를 만드는 확장은 그렇지 않다 — C는 “untrusted 언어”라서 <code>CREATE FUNCTION ... LANGUAGE C</code> 자체가 슈퍼유저를 요구한다(실제로 hstore 설치 스크립트에는 <code>CREATE FUNCTION hstore_in(cstring) ... LANGUAGE C</code> 같은 줄이 있다). <code>superuser = false</code>로 표시해도 스크립트가 그 줄에서 그대로 권한 오류로 막혔다는 뜻이다. 즉 <strong>“누가 설치를 요청할 수 있는가”</strong>와 <strong>“그 스크립트가 실제로 실행될 수 있는가”</strong>가 분리돼 있지 않았다 — PL만 예외였다.</p>
+      <h3>7.2 계기: Python 2 → 3 마이그레이션이 하드코딩에 걸렸다</h3>
+      <p>pg_pltemplate에는 <code>plpythonu</code>가 Python 2용이라는 값도 하드코딩돼 있었다. PL/Python을 Python 3으로 옮기려는 논의가 이 카탈로그에 발목이 잡히자, Tom Lane이 2019년 8월 pgsql-hackers 메일링리스트에 <strong>pg_pltemplate을 통째로 없애고, trusted PL이 누리던 특례를 모든 확장이 쓸 수 있는 일반 메커니즘으로 바꾸자</strong>고 제안했다. 초안은 GUC 두 개(<code>trusted_extensions_dba</code>·<code>trusted_extensions_anyone</code>)로 허용 범위를 더 세밀하게 조절하는 안이었는데, Peter Eisentraut·Stephen Frost 등의 리뷰를 거쳐 지금 형태 — control 파일의 <code>trusted</code> 플래그 하나 + 그 DB에 대한 일반 <code>CREATE</code> 권한(5절) — 로 단순해졌다.</p>
+      <CodeBlock language="text">{`Invent "trusted" extensions, and remove the pg_pltemplate catalog.
+
+This patch creates a new extension property, "trusted".  An extension
+that's marked that way in its control file can be installed by a
+non-superuser who has the CREATE privilege on the current database,
+even if the extension contains objects that normally would have to be
+created by a superuser. [...] This allows replicating the old
+behavior around trusted procedural languages, without all the
+special-case logic in CREATE LANGUAGE.  We have, however, chosen to
+loosen the rules slightly: formerly, only a database owner could take
+advantage of the special case [...], but now anyone who has CREATE
+privilege can do so.
+
+Patch by me, reviewed by Peter Eisentraut, Stephen Frost, and others.`}</CodeBlock>
+      <p className="mt-3 text-[12.5px] leading-relaxed text-muted-foreground">
+        커밋 <a className="text-primary underline-offset-4 hover:underline" href="https://github.com/postgres/postgres/commit/50fc694e43742ce3d04a5e9f708432cb022c5f0d" target="_blank" rel="noreferrer">50fc694e</a>(Tom Lane, 2020-01-29, PostgreSQL 13). 제안 시점 논의는 <a className="text-primary underline-offset-4 hover:underline" href="https://www.postgresql.org/message-id/5889.1566415762@sss.pgh.pa.us" target="_blank" rel="noreferrer">pgsql-hackers 스레드</a>에 있다.
+      </p>
+      <p>정리하면: <code>trusted</code>는 “hstore를 위해” 만든 게 아니라, <strong>PL에만 있던 낡은 특례(pg_pltemplate)를 없애면서 그 자리를 모든 확장이 쓸 수 있는 일반 규칙으로 대체</strong>한 결과다. 그 일반화 덕분에 hstore·pg_trgm·citext처럼 “쓰기엔 안전하지만 설치엔 슈퍼유저가 필요했던” 데이터 타입 확장들이, PL이 아닌데도 같은 셀프서비스 설치 혜택을 받게 됐다 — 이게 이 페이지 1~6절에서 실제로 확인한 동작이다.</p>
+    </Section>
+
+    <Section id="why-13" title="8. hstore가 trusted가 된 시점: control 파일로 보기">
       <p>이 파라미터 자체가 PostgreSQL 13에서 도입됐다. 실제로 hstore.control을 버전별로 비교하면 그 경계가 그대로 보인다.</p>
       <CodeBlock language="ini" caption={<>PostgreSQL 12 — <a className="text-primary underline-offset-4 hover:underline" href="https://github.com/postgres/postgres/blob/REL_12_0/contrib/hstore/hstore.control" target="_blank" rel="noreferrer">REL_12_0/contrib/hstore/hstore.control</a></>}>{`comment = 'data type for storing sets of (key, value) pairs'
 default_version = '1.6'
@@ -87,12 +114,15 @@ trusted = true`}</CodeBlock>
       <p>PostgreSQL 12 이하에서는 <code>trusted</code> 줄 자체가 없다(=false, 슈퍼유저 전용). 13에서 <code>trusted = true</code>가 추가됐고, 그 전까지는 DBA가 아니라면 hstore도 슈퍼유저에게 설치를 요청해야 했다. 관리형 DB가 hstore·pg_trgm 같은 확장을 “셀프서비스로” 열어 줄 수 있게 된 것도 이 변화 이후다 (<Ref to="/hstore/operations#managed">관리형 DB 지원 현황</Ref>).</p>
     </Section>
 
-    <Section id="refs" title="참고">
+    <Section id="refs" title="9. 참고">
       <ul>
         <li><a className="text-primary underline-offset-4 hover:underline" href="https://www.postgresql.org/docs/16/extend-extensions.html#EXTEND-EXTENSIONS-FILES" target="_blank" rel="noreferrer">PostgreSQL 16 문서 · Extension Files (trusted·superuser 파라미터)</a></li>
         <li><a className="text-primary underline-offset-4 hover:underline" href="https://www.postgresql.org/docs/16/sql-createextension.html" target="_blank" rel="noreferrer">PostgreSQL 16 문서 · CREATE EXTENSION</a></li>
         <li><a className="text-primary underline-offset-4 hover:underline" href="https://www.postgresql.org/docs/16/extend-extensions.html#EXTEND-EXTENSIONS-SECURITY" target="_blank" rel="noreferrer">PostgreSQL 16 문서 · Security Considerations for Extensions</a></li>
         <li><a className="text-primary underline-offset-4 hover:underline" href="https://www.postgresql.org/docs/16/ddl-priv.html" target="_blank" rel="noreferrer">PostgreSQL 16 문서 · Privileges (PUBLIC 기본 권한)</a></li>
+        <li><a className="text-primary underline-offset-4 hover:underline" href="https://github.com/postgres/postgres/commit/50fc694e43742ce3d04a5e9f708432cb022c5f0d" target="_blank" rel="noreferrer">postgres/postgres 커밋 50fc694e · "Invent trusted extensions, and remove the pg_pltemplate catalog"</a> (Tom Lane, 2020-01-29)</li>
+        <li><a className="text-primary underline-offset-4 hover:underline" href="https://www.postgresql.org/message-id/5889.1566415762@sss.pgh.pa.us" target="_blank" rel="noreferrer">pgsql-hackers · "Removing pg_pltemplate and creating 'trustable' extensions"</a> (초기 제안 스레드, 2019-08-21)</li>
+        <li><a className="text-primary underline-offset-4 hover:underline" href="https://www.postgresql.org/docs/16/sql-createfunction.html" target="_blank" rel="noreferrer">PostgreSQL 16 문서 · CREATE FUNCTION (C가 untrusted 언어인 이유)</a></li>
       </ul>
     </Section>
   </>
