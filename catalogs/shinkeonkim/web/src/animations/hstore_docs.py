@@ -279,6 +279,117 @@ def doc_gin_lookup(k):
 
 
 # ---------------------------------------------------------------------------
+# 3.5) GiST 조회: 키·값을 해시해 비트 서명에 찍는다 — 그래서 항상 recheck 가 필요하다
+#      GIN 조회(위)와 같은 4행을 쓴다. 비트 위치는 hstore 가 실제로 쓰는 CRC-32(표준
+#      다항식 — hstore_gist.c 의 INIT_TRADITIONAL_CRC32)로 계산한 실제 값이다.
+#      siglen 은 설명을 위해 2바이트(16비트)로 줄였다 — 실제 기본값은 16바이트(128비트).
+# ---------------------------------------------------------------------------
+def doc_gist_signature(k):
+    INK, MUTED, BIGM, OK, WARN, PANEL, DIM, ON_FILL, TRGM = (
+        k[n] for n in ("INK", "MUTED", "BIGM", "OK", "WARN", "PANEL", "DIM", "ON_FILL", "TRGM"))
+    s = Story(k, "hstore-gist-signature", "GiST: 키·값을 해시해 비트 서명에 찍는다",
+              "ghstore_compress 가 CRC-32 로 키·값을 siglen 비트짜리 서명에 찍고, ghstore_union 이 OR 로 합친다. "
+              "GIN 조회 페이지와 같은 4행을 쓴다 — 같은 decoy(행 3)가 왜 여기서도 후보가 되는지 본다.",
+              940, 600)
+    rows = ["color=>red, size=>M", "color=>red, size=>L", "color=>blue, shade=>red", "color=>blue, size=>M"]
+    NBITS = 16  # 실제 기본 siglen(16바이트=128비트)보다 훨씬 작게 줄인 예시
+    # 비트 위치 = CRC-32(문자열) % 16 — hstore_gist.c 의 HASHVAL 매크로와 같은 식으로 계산한 실제 값
+    BIT = {"color": 9, "red": 15, "size": 10, "M": 0, "L": 6, "blue": 4, "shade": 13}
+    row_bits = [
+        {BIT["color"], BIT["red"], BIT["size"], BIT["M"]},        # 행 1: color=>red, size=>M
+        {BIT["color"], BIT["red"], BIT["size"], BIT["L"]},        # 행 2: color=>red, size=>L
+        {BIT["color"], BIT["blue"], BIT["shade"], BIT["red"]},    # 행 3: color=>blue, shade=>red
+        {BIT["color"], BIT["blue"], BIT["size"], BIT["M"]},       # 행 4: color=>blue, size=>M
+    ]
+    CELL, GAP = 40, 4
+    PITCH = CELL + GAP
+
+    def strip(c, x, y, bits_on, delay=0, h=34, size=12):
+        """16칸 서명 한 줄. bits_on 에 들어 있는 칸만 켜진 채로 그린다."""
+        for i in range(NBITS):
+            on = i in bits_on
+            c.box(x + i * PITCH, y, CELL, h, OK if on else PANEL, str(i) if on else "",
+                  delay, size, ON_FILL if on else DIM, None if on else DIM)
+
+    def light(c, x, y, bit, delay, h=34, size=12):
+        """이미 그려진 칸 위에 켜진 칸을 겹쳐 그려 '지금 이 비트가 켜진다'를 보여준다."""
+        c.box(x + bit * PITCH, y, CELL, h, OK, str(bit), delay, size, ON_FILL)
+
+    c = s.chapter("1. 행 네 개", "GIN 조회 페이지와 같은 데이터 — 행 3 은 red 가 있지만 color 의 값이 아니다", 6000)
+    for i, r in enumerate(rows):
+        col = WARN if i == 2 else PANEL
+        c.text(40, 128 + i * 60, f"행 {i + 1}", 300 + i * 300, 16, MUTED)
+        c.box(110, 100 + i * 60, 420, 44, col, r, 300 + i * 300, 17, ON_FILL if i == 2 else INK, None if i == 2 else DIM)
+    c.text(40, 372, "이번에는 이 네 행을 GIN 이 아니라 GiST 로 색인하면 어떻게 되는지 본다.", 2200, 15, MUTED)
+
+    c = s.chapter("2. compress — 행 1 을 해시해 서명에 찍는다", "ghstore_compress: 키·값마다 CRC-32(문자열) % 16 자리에 비트를 켠다", 9000)
+    c.box(40, 96, 420, 44, PANEL, rows[0], 200, 16, INK, DIM)
+    c.text(40, 168, "서명 (16비트, 전부 꺼진 상태에서 시작)", 700, 14, MUTED)
+    strip(c, 40, 190, set(), 700)
+    steps = [("color", BIT["color"]), ("red", BIT["red"]), ("size", BIT["size"]), ("M", BIT["M"])]
+    for i, (word, bit) in enumerate(steps):
+        d = 1600 + i * 1500
+        c.text(40, 260 + i * 30, f"crc32('{word}') % 16 = {bit}  →  비트 {bit} 켬", d, 14, INK)
+        light(c, 40, 190, bit, d + 200)
+    c.text(40, 400, "값이 NULL 이 아닌 한 키·값 각각 한 비트씩 — 몇 개의 쌍이든 서명 길이는 그대로 16비트다.", 7600, 15, MUTED)
+    c.text(40, 432, "그래서 압축은 되지만 손실이다: 서로 다른 문자열이 같은 비트에 겹칠 수 있다.", 8200, 15, WARN)
+
+    c = s.chapter("3. 네 행 모두의 리프 서명", "행 1 과 행 3 은 내용이 다른데도 비트가 대부분 겹친다", 8500)
+    for i in range(4):
+        y = 100 + i * 84
+        c.text(40, y - 8, f"행 {i + 1}  {rows[i]}", 300 + i * 500, 13, WARN if i == 2 else MUTED)
+        strip(c, 40, y, row_bits[i], 500 + i * 500)
+    c.text(40, 452, "행 1(색=red)과 행 3(색=blue, 값 red 는 shade 의 것)이 비트 9·15 를 똑같이 켠다.", 3200, 15, WARN)
+    c.text(40, 484, "서명은 '이 비트들이 켜져 있다'까지만 안다 — 어느 키가 켰는지는 모른다.", 3900, 15, MUTED)
+
+    c = s.chapter("4. union — 부모는 자식 서명을 OR 로 합친다", "ghstore_union: 합칠수록 켜진 비트만 늘고 절대 줄지 않는다", 9500)
+    ab = row_bits[0] | row_bits[1]
+    cd = row_bits[2] | row_bits[3]
+    root = ab | cd
+    c.text(40, 90, "행 1", 200, 13, MUTED)
+    strip(c, 40, 108, row_bits[0], 300)
+    c.text(40, 158, "행 2", 300, 13, MUTED)
+    strip(c, 40, 176, row_bits[1], 300)
+    c.text(760, 140, "OR", 1400, 20, WARN, "700", anchor="middle")
+    c.text(40, 244, f"내부 노드 A = 행1 ∪ 행2  ({len(ab)}/16 비트)", 2200, 15, INK, "700")
+    strip(c, 40, 262, ab, 2200)
+    c.text(40, 330, "행 3", 2800, 13, MUTED)
+    strip(c, 40, 348, row_bits[2], 2800)
+    c.text(40, 398, "행 4", 2800, 13, MUTED)
+    strip(c, 40, 416, row_bits[3], 2800)
+    c.text(40, 484, f"내부 노드 B = 행3 ∪ 행4  ({len(cd)}/16 비트)", 3600, 15, INK, "700")
+    strip(c, 40, 502, cd, 3600)
+    c.text(40, 556, f"루트 = A ∪ B  →  {len(root)}/16 비트가 켜졌다 (행 네 개뿐인데 벌써 {round(len(root) / NBITS * 100)}%) — 다음 장에서 그린다", 4600, 15, WARN, "700")
+
+    c = s.chapter("5. 질의: color=>red 를 찾는다", "루트에서 비트 9·15 를 확인 → 둘 다 켜져 있으면 그 아래로 내려간다", 8500)
+    c.text(40, 90, "WHERE attrs @> 'color=>red'  →  비트 9, 15 를 확인한다", 200, 16, INK)
+    c.text(40, 122, "루트 서명", 800, 13, MUTED)
+    strip(c, 40, 140, root, 800)
+    c.text(40, 192, "비트 9·15 모두 켜져 있다 → 이 아래에 답이 있을 수 있다 (내려간다)", 2200, 15, OK, "700")
+    labels = ["행 1", "행 2", "행 3 (decoy)", "행 4"]
+    for i in range(4):
+        y = 240 + i * 64
+        ok = BIT["color"] in row_bits[i] and BIT["red"] in row_bits[i]
+        c.text(40, y - 6, labels[i], 3200 + i * 900, 13, WARN if i == 2 else MUTED)
+        strip(c, 40, y, row_bits[i], 3200 + i * 900, h=28, size=10)
+        c.text(760, y + 18, "후보 (recheck 대상)" if ok else "제외 — 비트 15 꺼짐", 3600 + i * 900, 14,
+               OK if ok else TRGM, "700")
+    c.text(40, 508, "행 4 는 서명만으로 이미 걸러졌다 — 'red' 문자열이 어디에도 없기 때문이다.", 7300, 15, MUTED)
+
+    c = s.chapter("6. recheck — 힙에서 다시 확인, 행 3 만 탈락", "ghstore_consistent 는 모든 전략에서 recheck = true 를 고정으로 건다", 8000)
+    for i in range(3):
+        ok = i != 2
+        c.text(40, 130 + i * 70, f"행 {i + 1}", 200 + i * 700, 16, MUTED)
+        c.box(110, 102 + i * 70, 420, 46, OK if ok else TRGM, rows[i], 300 + i * 700, 17, ON_FILL)
+        c.text(550, 132 + i * 70, "color=>red 쌍이 있다 ✔" if ok else "color 는 blue, red 는 shade 의 값 ✘", 700 + i * 700, 15,
+               OK if ok else TRGM, "700")
+    c.text(40, 356, "결과: 행 1, 2. GIN 의 decoy 와 같은 행(행 3)이 같은 이유로 걸러진다 — 키와 값이 따로 저장돼서다.", 3400, 16, INK, "700")
+    c.text(40, 392, "다른 점은: GIN 은 ? (키 존재)에서 recheck 가 없지만, hstore GiST 는 ? 조차 recheck 다.", 4400, 15, WARN)
+    c.text(40, 424, "ghstore_consistent 의 주석 그대로 \"All cases served by this function are inexact\".", 5200, 14, MUTED)
+    return s.build()
+
+
+# ---------------------------------------------------------------------------
 # 4) 동시성: 읽고-계산하고-쓰기(RMW)는 유실, 원자적 ||는 안전 (실험 04)
 # ---------------------------------------------------------------------------
 def doc_lost_update(k, st):
@@ -471,6 +582,7 @@ def docs(kit):
         "hstore-storage-layout": doc_storage_layout(kit),
         "hstore-update-rewrite": doc_update_rewrite(kit, st),
         "hstore-gin-lookup": doc_gin_lookup(kit),
+        "hstore-gist-signature": doc_gist_signature(kit),
         "hstore-lost-update": doc_lost_update(kit, st),
         "hstore-redis-path": doc_redis_path(kit, st),
         "hstore-offsets-vs-lengths": doc_offsets_vs_lengths(kit, st),

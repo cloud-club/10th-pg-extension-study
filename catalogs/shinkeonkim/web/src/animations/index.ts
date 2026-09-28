@@ -13,6 +13,7 @@ import similarityCompare from './similarity-compare.json'
 import hstoreStorageLayout from './hstore-storage-layout.json'
 import hstoreUpdateRewrite from './hstore-update-rewrite.json'
 import hstoreGinLookup from './hstore-gin-lookup.json'
+import hstoreGistSignature from './hstore-gist-signature.json'
 import hstoreLostUpdate from './hstore-lost-update.json'
 import hstoreRedisPath from './hstore-redis-path.json'
 import hstoreOffsetsVsLengths from './hstore-offsets-vs-lengths.json'
@@ -33,6 +34,7 @@ export const ANIMATIONS = {
   'hstore-storage-layout': parseDocumentOrThrow(hstoreStorageLayout),
   'hstore-update-rewrite': parseDocumentOrThrow(hstoreUpdateRewrite),
   'hstore-gin-lookup': parseDocumentOrThrow(hstoreGinLookup),
+  'hstore-gist-signature': parseDocumentOrThrow(hstoreGistSignature),
   'hstore-lost-update': parseDocumentOrThrow(hstoreLostUpdate),
   'hstore-redis-path': parseDocumentOrThrow(hstoreRedisPath),
   'hstore-offsets-vs-lengths': parseDocumentOrThrow(hstoreOffsetsVsLengths),

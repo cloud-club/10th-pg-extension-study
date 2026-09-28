@@ -866,8 +866,8 @@ def _hstore(name):
     return _HSTORE[name]
 
 
-for _name in ("hstore-storage-layout", "hstore-update-rewrite", "hstore-gin-lookup", "hstore-lost-update",
-              "hstore-redis-path", "hstore-offsets-vs-lengths", "hstore-vs-jsonb-types"):
+for _name in ("hstore-storage-layout", "hstore-update-rewrite", "hstore-gin-lookup", "hstore-gist-signature",
+              "hstore-lost-update", "hstore-redis-path", "hstore-offsets-vs-lengths", "hstore-vs-jsonb-types"):
     DOCS[_name] = (lambda n=_name: _hstore(n))
 
 

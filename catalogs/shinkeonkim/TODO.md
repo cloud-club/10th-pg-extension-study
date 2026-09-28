@@ -694,3 +694,10 @@
 - [x] typecheck·`bun run check`(애니메이션 17개·내비게이션 69페이지·cron/hstore 데이터)·build·SSR 스모크 17페이지·`<Ref>`(hstore·foundations 교차 링크 포함) 앵커 전수 검증 모두 통과
 - [ ] 새 mermaid 다이어그램 2개(GiST 트리·GIN 역색인)는 문법을 기존 통과 사례와 대조해 검토했지만, 로컬 mermaid 파서 실행이 DOMPurify(브라우저 전용 API) 의존성 때문에 이 환경에서 막혀 실제 렌더는 못 봄 — 브라우저 접근 불가는 이전 회차와 동일한 제약
 - [ ] jsonb에 GiST 연산자 클래스가 없는 "이유"는 core에 없다는 사실만 확인했고, 왜 아무도 구현하지 않았는지의 공식 근거는 못 찾음 — 페이지에도 추정임을 명시
+
+## Week 04 · GiST 서명 애니메이션 · 2026-09-28
+
+- [x] "본문만으로는 이해가 안 간다"는 피드백에 새 Clotho 애니메이션(`hstore-gist-signature`, 6장·49.5초) 추가: hstore GiST가 실제로 쓰는 CRC-32(`hstore_gist.c`의 `INIT_TRADITIONAL_CRC32`)로 계산한 진짜 비트 위치로 compress(해시→비트)·union(OR 병합)·질의(비트 매칭)·recheck(행 3 decoy 탈락)를 16비트 서명 스트립으로 시각화. GIN 조회 애니메이션과 같은 4행을 써서 같은 decoy가 두 구조 모두에서 왜 후보가 되는지 직접 비교되게 만듦
+- [x] `hstore-gist-signature.json`은 `bun scripts/check-animations.mjs`의 글자-겹침 검사에서 처음 실패(질의 후보 라벨이 마지막 비트 칸과 겹침) → 좌표 수정 후 재검증 통과
+- [x] GistGinInternals 페이지의 추상적인 mermaid 다이어그램 2개를 이 새 애니메이션과 기존 `hstore-gin-lookup` 애니메이션으로 교체 — 정적 도식보다 단계별로 실제 계산 과정을 보여주는 쪽을 택함
+- [x] typecheck·`bun run check`(애니메이션 18개 전부 페이지에서 사용됨·내비게이션 69페이지)·build·SSR 스모크 통과

@@ -2,7 +2,7 @@ import { PageHeader, Section } from '@/components/layout/PageHeader'
 import { Callout } from '@/components/layout/Callout'
 import { CodeBlock } from '@/components/common/Code'
 import { Ref } from '@/components/common/Ref'
-import { Diagram } from '@/components/viz/Diagram'
+import { Clotho } from '@/components/viz/Clotho'
 import src from '@/data/hstore-source.json'
 import { exp, fmtBytes, fmtMs, fmtNum, ratio } from './stats'
 
@@ -41,17 +41,9 @@ export default function GistGinInternals() {
     </Section>
 
     <Section id="gist" title="2. GiST: 겹칠 수 있는 '경계 술어'의 트리">
-      <p>GiST는 R-tree를 일반화한 구조다. 내부 노드마다 <strong>그 아래 모든 자식을 포함하는 술어(predicate) 하나</strong>를 저장한다 — B-tree처럼 “이 범위 안”이 아니라 “이 조건을 만족할 수도 있는 것들”이다. 그래서 형제 노드끼리 겹칠 수 있다.</p>
-      <Diagram chart={`flowchart TD
-        root["루트<br/>술어 = union(A, B)"]
-        root --> A["내부 노드 A<br/>술어 = union(리프1, 리프2)"]
-        root --> B["내부 노드 B<br/>술어 = union(리프3, 리프4)"]
-        A --> L1["리프: 서명 0010 1101 …<br/>(행 1의 비트 서명)"]
-        A --> L2["리프: 서명 0010 1111 …<br/>(행 2의 비트 서명)"]
-        B --> L3["리프: 서명 1001 0100 …<br/>(행 3의 비트 서명)"]
-        B --> L4["리프: 서명 1001 1100 …<br/>(행 4의 비트 서명)"]
-      `} caption="내부 노드의 술어는 union 함수가 자식들을 합쳐 만든다. hstore GiST에서 술어는 siglen바이트 비트 서명이고, union은 그 비트들을 OR로 합친 것이다(아래)." />
-      <p>탐색은 루트에서 시작해 <code>consistent</code> 함수로 “이 노드 아래에 답이 있을 수 있는가”를 위에서 아래로 확인한다. 손실 압축을 허용하는 게 GiST의 핵심 특징이다 — 공식 문서: “When the result is true, a recheck flag must also be returned … This convention allows GiST to support <strong>both lossless and lossy index structures</strong>.” hstore GiST는 <code>compress</code> 단계에서 키·값을 각각 crc32로 해시해 서명 비트를 켠다:</p>
+      <p>GiST는 R-tree를 일반화한 구조다. 내부 노드마다 <strong>그 아래 모든 자식을 포함하는 술어(predicate) 하나</strong>를 저장한다 — B-tree처럼 “이 범위 안”이 아니라 “이 조건을 만족할 수도 있는 것들”이다. 그래서 형제 노드끼리 겹칠 수 있다. hstore GiST에서 그 술어는 <strong>비트 서명</strong>이다 — 아래 애니메이션은 실제 hstore가 쓰는 CRC-32(<code>hstore_gist.c</code>의 <code>INIT_TRADITIONAL_CRC32</code>)로 계산한 진짜 비트 위치로, 행 네 개가 서명에 찍히고 부모 노드로 OR 합쳐지는 과정과, 그 결과 decoy 행(행 3)이 왜 후보로 걸리는지를 그대로 따라간다(설명을 위해 서명 길이는 16비트로 줄였다 — 실제 기본값은 128비트).</p>
+      <Clotho id="hstore-gist-signature" />
+      <p>탐색은 루트에서 시작해 <code>consistent</code> 함수로 “이 노드 아래에 답이 있을 수 있는가”를 위에서 아래로 확인한다. 손실 압축을 허용하는 게 GiST의 핵심 특징이다 — 공식 문서: “When the result is true, a recheck flag must also be returned … This convention allows GiST to support <strong>both lossless and lossy index structures</strong>.” hstore GiST는 <code>compress</code> 단계에서 키·값을 각각 crc32로 해시해 서명 비트를 켠다(위 애니메이션 2장):</p>
       <Excerpt id="gist_compress" />
       <p>서로 다른 키·값이라도 같은 비트에 해시될 수 있다(해시 충돌) — 이게 손실의 원인이다. 실제로 hstore GiST의 <code>consistent</code>는 <strong>진입하자마자 무조건 손실로 취급한다</strong>:</p>
       <Excerpt id="gist_consistent" />
@@ -66,17 +58,9 @@ export default function GistGinInternals() {
     </Section>
 
     <Section id="gin" title="3. GIN: 값을 키 집합으로 쪼개는 역색인">
-      <p>GIN(Generalized Inverted Index)은 접근이 정반대다. 공식 문서: “A GIN index stores a set of (key, posting list) pairs, where a <strong>posting list</strong> is a set of row IDs in which the key occurs … Each key value is stored only once.”</p>
-      <Diagram chart={`flowchart LR
-        bt["키 B-tree<br/>(서로 다른 키만, 정렬됨)"]
-        bt --> k1["'K'color"]
-        bt --> k2["'V'red"]
-        bt --> k3["'K'brand"]
-        k1 --> p1["posting list<br/>행 1, 4, 9, 102, …"]
-        k2 --> p2["posting list<br/>행 1, 55, 210, …"]
-        k3 --> p3["posting tree<br/>(너무 커서 B-tree로 분리)<br/>행 3, 7, 88, …"]
-      `} caption={<>키가 같으면 값이 아무리 많이 반복돼도 키 자체는 한 번만 저장된다. hstore GIN은 쌍 하나를 'K'+키, 'V'+값(또는 NULL이면 'N') 두 항목으로 쪼갠다(<code>gin_extract_hstore</code>, 아래). 엔트리 트리·포스팅 리스트·포스팅 트리·펜딩 리스트라는 층 구조 자체의 일반적인 설명은 <Ref to="/foundations/gin#structure">GIN 인덱스 · 1절</Ref>에 있다.</>} />
-      <p>hstore가 실제로 쪼개는 방식은 이미 <Ref to="/hstore/source#gin">소스 지도</Ref>에서 봤다 — 쌍 하나가 <code>K</code>(키)·<code>V</code>(값) 항목 두 개가 된다. GIN의 구조적 특징 두 가지가 여기서 바로 나온다.</p>
+      <p>GIN(Generalized Inverted Index)은 접근이 정반대다. 공식 문서: “A GIN index stores a set of (key, posting list) pairs, where a <strong>posting list</strong> is a set of row IDs in which the key occurs … Each key value is stored only once.” hstore GIN은 쌍 하나를 <code>K</code>(키)·<code>V</code>(값, NULL이면 <code>N</code>) 두 항목으로 쪼갠다(<code>gin_extract_hstore</code>) — 위 GiST와 <strong>같은 네 행</strong>을 이번엔 이 방식으로 색인하면 어떻게 되는지 본다.</p>
+      <Clotho id="hstore-gin-lookup" />
+      <p>엔트리 트리(정렬된 키의 B-tree)·포스팅 리스트/트리·펜딩 리스트라는 층 구조 자체의 일반적인 설명은 <Ref to="/foundations/gin#structure">GIN 인덱스 · 1절</Ref>에 있다. GIN의 구조적 특징 두 가지가 여기서 바로 나온다.</p>
       <ol>
         <li><strong>값의 종류가 적을수록 작다.</strong> 키 값 자체는 딱 한 번만 저장되고, 그 키를 가진 행이 몇 개든 posting list에 TID만 늘어난다. <Ref to="/hstore/indexes#gist">실험 03</Ref>에서 값의 종류가 적은 데이터(색 8종·사이즈 5종 등)는 GIN이 GiST(16)보다도 작았던 이유가 이것이다 — GiST는 행마다 서명을 새로 만들어야 하니 값이 겹쳐도 이득이 없다.</li>
         <li><strong>쓰기 하나가 인덱스 항목 여러 개를 건드린다.</strong> 공식 문서: “inserting or updating one heap row can cause <strong>many inserts into the index</strong> (one for each key extracted from the indexed item).” hstore는 쌍 하나당 항목이 <strong>둘</strong>이니, 키 500개짜리 hstore 하나를 바꾸면 최대 1,000개의 인덱스 항목이 다시 등록될 수 있다 — <Ref to="/hstore/updates#gin">갱신 비용 3절</Ref>에서 GIN이 있는 UPDATE가 {ratio(exp.update.cases['500'].hstore_concat_gin.wal_bytes_per_update.median, exp.update.cases['500'].hstore_concat.wal_bytes_per_update.median)} 비싼 이유가 이 구조다.</li>
