@@ -684,3 +684,13 @@
 - [x] 차트 5개(Storage 저장크기·Indexes 쿼리시간·Updates WAL·Concurrency 유실키수/TPS·VsRedis 쓰기처리량)에 `ChartNotes` 컴포넌트로 "이 막대/선이 옆보다 왜 크거나 작거나 비슷한지"를 원본 실험 수치로 설명하는 문단 추가
 - [x] typecheck·`bun run check`(애니메이션 17개·내비게이션 68페이지·cron/hstore 데이터)·build·SSR 스모크 16페이지·`<Ref>` 앵커 전수 검증 모두 통과
 - [ ] 브라우저 실제 렌더 확인은 이번에도 못 함(로컬 서버 접근 불가는 동일) — typecheck·build·SSR 스모크·내비게이션 검사로 대체
+
+## Week 04 · trusted 확장의 유래 · GiST·GIN 내부 구조 · 카탈로그 재정리 · 2026-09-28
+
+- [x] "trusted 확장이 왜 생겼나" 조사: PL만 `pg_pltemplate`(하드코딩된 카탈로그)으로 누리던 "슈퍼유저 없이 설치" 특례가, `CREATE EXTENSION`(PG 9.1)이 생긴 뒤에도 C 함수를 만드는 확장(hstore 등)에는 퍼지지 않았던 이유(`superuser=false`는 스크립트에 슈퍼유저 전용 명령이 없을 때만 통함)를 실제 커밋(`50fc694e`, Tom Lane, 2020-01-29)과 제안 스레드(pgsql-hackers, 2019-08-21)로 확인 → Trusted 페이지에 "7. 왜 생겼나" 절 신규(기존 7절은 8절로 밀림)
+- [x] GiST·GIN 인덱스 구조 자체를 다루는 신규 페이지(`#/hstore/gist-gin-internals`): 공식 문서(GiST/GIN Extensibility·Implementation)의 지원 함수 정의 + hstore의 실제 구현(`ghstore_compress`·`ghstore_union`·`ghstore_penalty`·`ghstore_consistent`, PostgreSQL REL_16_15 소스에서 직접 발췌)로 GiST(경계 술어 트리·손실 가능)와 GIN(역색인·posting list)이 왜 다른 것을 저장하는지, hstore GiST가 왜 모든 전략에서 무조건 recheck인지(`ghstore_consistent`의 "All cases served by this function are inexact" 주석), jsonb에는 왜 아직 GiST가 없는지(확인된 사실과 추정을 구분)까지 정리. WhenToUse·Source 페이지에서 교차 링크, foundations/gin·recheck 페이지와도 상호 참조
+- [x] `extract-hstore-source.py`에 GiST 지원 함수 발췌 4개 추가(8→12개), `hstore-source.json` 재생성
+- [x] 카탈로그 문서(`hstore.md`) 전면 재정리: "실무에서 쓰는 곳"(3절) 신규 추가, "설치" 절에 trusted 유래 요약, "내부 동작 원리" 절에 GiST·GIN 지원 함수 내용 보강, 참고 링크에 커밋·메일링리스트·공식 GiST/GIN 문서·신규 페이지 링크 추가
+- [x] typecheck·`bun run check`(애니메이션 17개·내비게이션 69페이지·cron/hstore 데이터)·build·SSR 스모크 17페이지·`<Ref>`(hstore·foundations 교차 링크 포함) 앵커 전수 검증 모두 통과
+- [ ] 새 mermaid 다이어그램 2개(GiST 트리·GIN 역색인)는 문법을 기존 통과 사례와 대조해 검토했지만, 로컬 mermaid 파서 실행이 DOMPurify(브라우저 전용 API) 의존성 때문에 이 환경에서 막혀 실제 렌더는 못 봄 — 브라우저 접근 불가는 이전 회차와 동일한 제약
+- [ ] jsonb에 GiST 연산자 클래스가 없는 "이유"는 core에 없다는 사실만 확인했고, 왜 아무도 구현하지 않았는지의 공식 근거는 못 찾음 — 페이지에도 추정임을 명시
