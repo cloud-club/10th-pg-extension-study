@@ -77,12 +77,17 @@ export default function Source() {
       <p><code>||</code>는 두 hstore를 <strong>정렬된 두 배열의 병합</strong>으로 합친다. 같은 키는 오른쪽(s2)이 이기고, 결과는 새 <code>palloc</code> 공간에 <strong>모든 쌍</strong>이 다시 복사된다. 왼쪽에서 바뀌지 않은 쌍도 복사되므로, 키 하나를 바꿔도 결과가 값 전체 크기인 이유가 이 루프다 (<Ref to="/hstore/updates">갱신 비용</Ref>).</p>
     </Section>
 
-    <Section id="gin" title="5. GIN: hstore_gin.c">
+    <Section id="gin" title="5. GIN·GiST: hstore_gin.c · hstore_gist.c">
       <Excerpt id="gin_extract" />
       <p><code>KEYFLAG 'K'</code>·<code>VALFLAG 'V'</code>·<code>NULLFLAG 'N'</code>이 20~22행에 정의돼 있다. 쌍 하나가 항목 두 개(키용, 값용)가 되어 <code>*nentries = 2 * count</code>다. 값이 NULL이면 <code>N</code> 항목이다.</p>
       <Excerpt id="gin_consistent" />
       <p><code>@&gt;</code>(<code>HStoreContainsStrategyNumber</code>)에서만 <code>*recheck = true</code>다. 인덱스가 ‘키 항목과 값 항목이 다 있다’까지만 알기 때문이다. <code>?</code>·<code>?|</code>는 키 항목 하나면 충분하고 <code>?&amp;</code>는 모든 키 항목이 있으면 정확하므로 recheck가 없다. 그래서 <Ref to="/hstore/indexes#gin">decoy 행 실험</Ref>에서 재검사 탈락이 <code>@&gt;</code>에서만 나타난다.</p>
-      <p>GiST(<code>hstore_gist.c</code>)는 키·값의 해시를 비트 서명에 찍는다. 기본 <code>siglen</code>은 <code>sizeof(int32) * 4</code> = 16바이트(22행)이고 최대는 <code>GISTMaxIndexKeySize</code>다. 서명이 짧을수록 서로 다른 값의 비트가 겹쳐 후보가 넘치고 재검사가 늘어난다 (<Ref to="/hstore/indexes#benchmark">실측</Ref>).</p>
+      <p>GiST(<code>hstore_gist.c</code>)는 키·값의 해시를 비트 서명에 찍는다. 기본 <code>siglen</code>은 <code>sizeof(int32) * 4</code> = 16바이트(22행)이고 최대는 <code>GISTMaxIndexKeySize</code>다.</p>
+      <Excerpt id="gist_compress" />
+      <Excerpt id="gist_consistent" />
+      <p><code>ghstore_consistent</code>는 진입하자마자 <code>*recheck = true</code>를 고정으로 건다(주석 그대로 “All cases served by this function are inexact”) — GIN과 달리 hstore의 GiST는 <code>?</code>(키 존재)조차 정확하지 않고 <strong>모든 전략이 손실</strong>이다. 서명이 짧을수록 서로 다른 값의 비트가 겹쳐 후보가 넘치고 재검사가 늘어난다. 왜 손실인지, GIN과 근본적으로 무엇이 다른지는 <Ref to="/hstore/gist-gin-internals">GiST·GIN 내부 구조</Ref>에서 <code>ghstore_union</code>·<code>ghstore_penalty</code>(아래)까지 포함해 정리했다 (<Ref to="/hstore/indexes#benchmark">실측</Ref>).</p>
+      <Excerpt id="gist_union" />
+      <Excerpt id="gist_penalty" />
     </Section>
 
     <Section id="subs" title="6. 첨자와 호환: hstore_subs.c · hstore_compat.c">

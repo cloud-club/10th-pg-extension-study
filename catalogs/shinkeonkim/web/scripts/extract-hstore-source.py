@@ -26,6 +26,10 @@ EXCERPTS = {
     'gin_extract': ('contrib/hstore/hstore_gin.c', 44, 78, 'gin_extract_hstore: K/V/N 항목'),
     'gin_consistent': ('contrib/hstore/hstore_gin.c', 151, 181, 'gin_consistent_hstore: @> 는 recheck = true'),
     'subs_handler': ('contrib/hstore/hstore_subs.c', 286, 297, 'hstore_subscript_handler'),
+    'gist_compress': ('contrib/hstore/hstore_gist.c', 146, 176, 'ghstore_compress: 키·값을 crc32 해시해 siglen바이트 비트 서명에 찍는다'),
+    'gist_union': ('contrib/hstore/hstore_gist.c', 295, 332, 'unionkey · ghstore_union: 자식 서명들을 비트 OR로 합친다'),
+    'gist_penalty': ('contrib/hstore/hstore_gist.c', 335, 347, 'ghstore_penalty: 두 서명의 해밍 거리(다른 비트 수)가 삽입 비용이다'),
+    'gist_consistent': ('contrib/hstore/hstore_gist.c', 506, 522, 'ghstore_consistent: 이 함수가 다루는 모든 전략은 손실이라 recheck = true가 고정이다'),
 }
 
 out = {'tag': TAG, 'commit': COMMIT, 'files': {}, 'excerpts': {}}

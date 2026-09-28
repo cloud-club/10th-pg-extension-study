@@ -6,7 +6,8 @@
     "contrib/hstore/hstore_io.c": "b6157699af143c00a91ad8e44345cf1145d97219",
     "contrib/hstore/hstore_op.c": "0d4ec16d1e5401ebbbd9d414798dc667e078e83e",
     "contrib/hstore/hstore_gin.c": "766c00bb6a7352378061b703dbbff7b63e945230",
-    "contrib/hstore/hstore_subs.c": "6ac91e01935260ddf2883bfc4e0346bf6dd00e04"
+    "contrib/hstore/hstore_subs.c": "6ac91e01935260ddf2883bfc4e0346bf6dd00e04",
+    "contrib/hstore/hstore_gist.c": "3df00493e8172ca16d2316a159830e027b6a1716"
   },
   "excerpts": {
     "entry": {
@@ -72,6 +73,38 @@
       "note": "hstore_subscript_handler",
       "code": "hstore_subscript_handler(PG_FUNCTION_ARGS)\n{\n\tstatic const SubscriptRoutines sbsroutines = {\n\t\t.transform = hstore_subscript_transform,\n\t\t.exec_setup = hstore_exec_setup,\n\t\t.fetch_strict = true,\t/* fetch returns NULL for NULL inputs */\n\t\t.fetch_leakproof = true,\t/* fetch returns NULL for bad subscript */\n\t\t.store_leakproof = false\t/* ... but assignment throws error */\n\t};\n\n\tPG_RETURN_POINTER(&sbsroutines);\n}",
       "url": "https://github.com/postgres/postgres/blob/REL_16_15/contrib/hstore/hstore_subs.c#L286-L297"
+    },
+    "gist_compress": {
+      "file": "contrib/hstore/hstore_gist.c",
+      "start": 146,
+      "end": 176,
+      "note": "ghstore_compress: 키·값을 crc32 해시해 siglen바이트 비트 서명에 찍는다",
+      "code": "Datum\nghstore_compress(PG_FUNCTION_ARGS)\n{\n\tGISTENTRY  *entry = (GISTENTRY *) PG_GETARG_POINTER(0);\n\tint\t\t\tsiglen = GET_SIGLEN();\n\tGISTENTRY  *retval = entry;\n\n\tif (entry->leafkey)\n\t{\n\t\tGISTTYPE   *res = ghstore_alloc(false, siglen, NULL);\n\t\tHStore\t   *val = DatumGetHStoreP(entry->key);\n\t\tHEntry\t   *hsent = ARRPTR(val);\n\t\tchar\t   *ptr = STRPTR(val);\n\t\tint\t\t\tcount = HS_COUNT(val);\n\t\tint\t\t\ti;\n\n\t\tfor (i = 0; i < count; ++i)\n\t\t{\n\t\t\tint\t\t\th;\n\n\t\t\th = crc32_sz((char *) HSTORE_KEY(hsent, ptr, i),\n\t\t\t\t\t\t HSTORE_KEYLEN(hsent, i));\n\t\t\tHASH(GETSIGN(res), h, siglen);\n\t\t\tif (!HSTORE_VALISNULL(hsent, i))\n\t\t\t{\n\t\t\t\th = crc32_sz((char *) HSTORE_VAL(hsent, ptr, i),\n\t\t\t\t\t\t\t HSTORE_VALLEN(hsent, i));\n\t\t\t\tHASH(GETSIGN(res), h, siglen);\n\t\t\t}\n\t\t}\n",
+      "url": "https://github.com/postgres/postgres/blob/REL_16_15/contrib/hstore/hstore_gist.c#L146-L176"
+    },
+    "gist_union": {
+      "file": "contrib/hstore/hstore_gist.c",
+      "start": 295,
+      "end": 332,
+      "note": "unionkey · ghstore_union: 자식 서명들을 비트 OR로 합친다",
+      "code": "static int32\nunionkey(BITVECP sbase, GISTTYPE *add, int siglen)\n{\n\tint32\t\ti;\n\tBITVECP\t\tsadd = GETSIGN(add);\n\n\tif (ISALLTRUE(add))\n\t\treturn 1;\n\tLOOPBYTE(siglen)\n\t\tsbase[i] |= sadd[i];\n\treturn 0;\n}\n\nDatum\nghstore_union(PG_FUNCTION_ARGS)\n{\n\tGistEntryVector *entryvec = (GistEntryVector *) PG_GETARG_POINTER(0);\n\tint32\t\tlen = entryvec->n;\n\n\tint\t\t   *size = (int *) PG_GETARG_POINTER(1);\n\tint\t\t\tsiglen = GET_SIGLEN();\n\tint32\t\ti;\n\tGISTTYPE   *result = ghstore_alloc(false, siglen, NULL);\n\tBITVECP\t\tbase = GETSIGN(result);\n\n\tfor (i = 0; i < len; i++)\n\t{\n\t\tif (unionkey(base, GETENTRY(entryvec, i), siglen))\n\t\t{\n\t\t\tresult->flag |= ALLISTRUE;\n\t\t\tSET_VARSIZE(result, CALCGTSIZE(ALLISTRUE, siglen));\n\t\t\tbreak;\n\t\t}\n\t}\n\n\t*size = VARSIZE(result);\n\n\tPG_RETURN_POINTER(result);",
+      "url": "https://github.com/postgres/postgres/blob/REL_16_15/contrib/hstore/hstore_gist.c#L295-L332"
+    },
+    "gist_penalty": {
+      "file": "contrib/hstore/hstore_gist.c",
+      "start": 335,
+      "end": 347,
+      "note": "ghstore_penalty: 두 서명의 해밍 거리(다른 비트 수)가 삽입 비용이다",
+      "code": "Datum\nghstore_penalty(PG_FUNCTION_ARGS)\n{\n\tGISTENTRY  *origentry = (GISTENTRY *) PG_GETARG_POINTER(0); /* always ISSIGNKEY */\n\tGISTENTRY  *newentry = (GISTENTRY *) PG_GETARG_POINTER(1);\n\tfloat\t   *penalty = (float *) PG_GETARG_POINTER(2);\n\tint\t\t\tsiglen = GET_SIGLEN();\n\tGISTTYPE   *origval = (GISTTYPE *) DatumGetPointer(origentry->key);\n\tGISTTYPE   *newval = (GISTTYPE *) DatumGetPointer(newentry->key);\n\n\t*penalty = hemdist(origval, newval, siglen);\n\tPG_RETURN_POINTER(penalty);\n}",
+      "url": "https://github.com/postgres/postgres/blob/REL_16_15/contrib/hstore/hstore_gist.c#L335-L347"
+    },
+    "gist_consistent": {
+      "file": "contrib/hstore/hstore_gist.c",
+      "start": 506,
+      "end": 522,
+      "note": "ghstore_consistent: 이 함수가 다루는 모든 전략은 손실이라 recheck = true가 고정이다",
+      "code": "Datum\nghstore_consistent(PG_FUNCTION_ARGS)\n{\n\tGISTTYPE   *entry = (GISTTYPE *) DatumGetPointer(((GISTENTRY *) PG_GETARG_POINTER(0))->key);\n\tStrategyNumber strategy = (StrategyNumber) PG_GETARG_UINT16(2);\n\n\t/* Oid\t\tsubtype = PG_GETARG_OID(3); */\n\tbool\t   *recheck = (bool *) PG_GETARG_POINTER(4);\n\tint\t\t\tsiglen = GET_SIGLEN();\n\tbool\t\tres = true;\n\tBITVECP\t\tsign;\n\n\t/* All cases served by this function are inexact */\n\t*recheck = true;\n\n\tif (ISALLTRUE(entry))\n\t\tPG_RETURN_BOOL(true);",
+      "url": "https://github.com/postgres/postgres/blob/REL_16_15/contrib/hstore/hstore_gist.c#L506-L522"
     }
   }
 }

@@ -186,6 +186,7 @@ export const SECTIONS: SectionDef[] = [
     pages: [
       { slug: 'storage', title: '저장 방식', hint: '정렬된 쌍·HEntry·TOAST·압축', view: lazy(() => import('@/pages/hstore/Storage')) },
       { slug: 'vs-jsonb', title: 'jsonb와의 차이', hint: '타입·중첩·크기·연산자', view: lazy(() => import('@/pages/hstore/VsJsonb')) },
+      { slug: 'gist-gin-internals', title: 'GiST·GIN 내부 구조', hint: '왜 hstore에만 GiST가 있는가', view: lazy(() => import('@/pages/hstore/GistGinInternals')) },
       { slug: 'indexes', title: '인덱스', hint: 'GIN·GiST·btree 식 인덱스', view: lazy(() => import('@/pages/hstore/Indexes')) },
     ],
   },
