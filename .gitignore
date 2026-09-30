@@ -23,3 +23,6 @@ intro/labs/*/ext/regression.out
 Thumbs.db
 .vscode/
 .idea/
+
+# 벤치마크용 한글 말뭉치 캐시 (bench.sh 가 실행 시 내려받는다 - 커밋하지 않는다)
+catalogs/*/**/.corpus/

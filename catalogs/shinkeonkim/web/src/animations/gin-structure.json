@@ -1,0 +1,1046 @@
+{
+ "clothoVersion": 1,
+ "id": "gin-structure",
+ "title": "GIN 인덱스의 내부 구조",
+ "description": "엔트리 트리 · 포스팅 리스트/트리 · 펜딩 리스트, 그리고 검색 경로.",
+ "duration": 30000,
+ "canvas": {
+  "width": 1280,
+  "height": 940,
+  "background": "#0b1120"
+ },
+ "elements": [
+  {
+   "type": "rect",
+   "id": "cam0",
+   "x": 146,
+   "y": 30,
+   "width": 988,
+   "height": 233,
+   "fill": "#0b1120",
+   "stroke": "#0b1120",
+   "strokeWidth": 0,
+   "cornerRadius": 0,
+   "appearances": [
+    {
+     "start": 0,
+     "end": 30000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "cam1",
+   "x": 146,
+   "y": 192,
+   "width": 988,
+   "height": 233,
+   "fill": "#0b1120",
+   "stroke": "#0b1120",
+   "strokeWidth": 0,
+   "cornerRadius": 0,
+   "appearances": [
+    {
+     "start": 0,
+     "end": 30000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "cam2",
+   "x": 146,
+   "y": 392,
+   "width": 988,
+   "height": 233,
+   "fill": "#0b1120",
+   "stroke": "#0b1120",
+   "strokeWidth": 0,
+   "cornerRadius": 0,
+   "appearances": [
+    {
+     "start": 0,
+     "end": 30000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "cam3",
+   "x": 146,
+   "y": 577,
+   "width": 988,
+   "height": 233,
+   "fill": "#0b1120",
+   "stroke": "#0b1120",
+   "strokeWidth": 0,
+   "cornerRadius": 0,
+   "appearances": [
+    {
+     "start": 0,
+     "end": 30000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "cam4",
+   "x": 146,
+   "y": 707,
+   "width": 988,
+   "height": 233,
+   "fill": "#0b1120",
+   "stroke": "#0b1120",
+   "strokeWidth": 0,
+   "cornerRadius": 0,
+   "appearances": [
+    {
+     "start": 0,
+     "end": 30000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "t",
+   "x": 210,
+   "y": 42,
+   "content": "GIN 인덱스의 내부 구조",
+   "fontSize": 22,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 0,
+     "end": 30000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ],
+   "fontWeight": "700"
+  },
+  {
+   "type": "text",
+   "id": "t2",
+   "x": 210,
+   "y": 70,
+   "content": "GIN = Generalized Inverted iNdex — '하나의 값이 여러 키를 만든다'는 상황을 위한 인덱스",
+   "fontSize": 15,
+   "color": "#94a3b8",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 200,
+     "end": 30000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "row",
+   "x": 210,
+   "y": 100,
+   "width": 400,
+   "height": 46,
+   "fill": "#1e293b",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 600,
+     "end": 30000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "행 #7:  '클라우드클럽 스터디'",
+   "labelColor": "#e2e8f0",
+   "labelSize": 17,
+   "stroke": "#334155",
+   "strokeWidth": 2
+  },
+  {
+   "type": "rect",
+   "id": "k0",
+   "x": 210,
+   "y": 162,
+   "width": 84,
+   "height": 38,
+   "fill": "#60a5fa",
+   "cornerRadius": 6,
+   "appearances": [
+    {
+     "start": 1200,
+     "end": 30000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "␣클",
+   "labelColor": "#0b1120",
+   "labelSize": 15
+  },
+  {
+   "type": "rect",
+   "id": "k1",
+   "x": 302,
+   "y": 162,
+   "width": 84,
+   "height": 38,
+   "fill": "#60a5fa",
+   "cornerRadius": 6,
+   "appearances": [
+    {
+     "start": 1420,
+     "end": 30000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "클라",
+   "labelColor": "#0b1120",
+   "labelSize": 15
+  },
+  {
+   "type": "rect",
+   "id": "k2",
+   "x": 394,
+   "y": 162,
+   "width": 84,
+   "height": 38,
+   "fill": "#60a5fa",
+   "cornerRadius": 6,
+   "appearances": [
+    {
+     "start": 1640,
+     "end": 30000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "라우",
+   "labelColor": "#0b1120",
+   "labelSize": 15
+  },
+  {
+   "type": "rect",
+   "id": "k3",
+   "x": 486,
+   "y": 162,
+   "width": 84,
+   "height": 38,
+   "fill": "#60a5fa",
+   "cornerRadius": 6,
+   "appearances": [
+    {
+     "start": 1860,
+     "end": 30000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "우드",
+   "labelColor": "#0b1120",
+   "labelSize": 15
+  },
+  {
+   "type": "rect",
+   "id": "k4",
+   "x": 578,
+   "y": 162,
+   "width": 84,
+   "height": 38,
+   "fill": "#60a5fa",
+   "cornerRadius": 6,
+   "appearances": [
+    {
+     "start": 2080,
+     "end": 30000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "드클",
+   "labelColor": "#0b1120",
+   "labelSize": 15
+  },
+  {
+   "type": "rect",
+   "id": "k5",
+   "x": 670,
+   "y": 162,
+   "width": 84,
+   "height": 38,
+   "fill": "#60a5fa",
+   "cornerRadius": 6,
+   "appearances": [
+    {
+     "start": 2300,
+     "end": 30000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "클럽",
+   "labelColor": "#0b1120",
+   "labelSize": 15
+  },
+  {
+   "type": "text",
+   "id": "n1",
+   "x": 750,
+   "y": 130,
+   "content": "B-tree 는 행 하나 → 키 하나",
+   "fontSize": 15,
+   "color": "#94a3b8",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 2600,
+     "end": 30000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "n1b",
+   "x": 750,
+   "y": 156,
+   "content": "GIN 은 행 하나 → 키 여러 개",
+   "fontSize": 15,
+   "color": "#60a5fa",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 3000,
+     "end": 30000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ],
+   "fontWeight": "700"
+  },
+  {
+   "type": "text",
+   "id": "c2",
+   "x": 210,
+   "y": 244,
+   "content": "① 엔트리 트리 — 키를 정렬해 담는 B-tree",
+   "fontSize": 18,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 5000,
+     "end": 30000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ],
+   "fontWeight": "700"
+  },
+  {
+   "type": "rect",
+   "id": "root",
+   "x": 500,
+   "y": 266,
+   "width": 200,
+   "height": 40,
+   "fill": "#1e293b",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 5400,
+     "end": 30000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "루트",
+   "labelColor": "#e2e8f0",
+   "labelSize": 15,
+   "stroke": "#60a5fa",
+   "strokeWidth": 2
+  },
+  {
+   "type": "rect",
+   "id": "e0",
+   "x": 210,
+   "y": 330,
+   "width": 160,
+   "height": 40,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 6000,
+     "end": 30000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "␣클",
+   "labelColor": "#0b1120",
+   "labelSize": 16
+  },
+  {
+   "type": "rect",
+   "id": "e1",
+   "x": 382,
+   "y": 330,
+   "width": 160,
+   "height": 40,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 6300,
+     "end": 30000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "드클",
+   "labelColor": "#0b1120",
+   "labelSize": 16
+  },
+  {
+   "type": "rect",
+   "id": "e2",
+   "x": 554,
+   "y": 330,
+   "width": 160,
+   "height": 40,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 6600,
+     "end": 30000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "라우",
+   "labelColor": "#0b1120",
+   "labelSize": 16
+  },
+  {
+   "type": "rect",
+   "id": "e3",
+   "x": 726,
+   "y": 330,
+   "width": 160,
+   "height": 40,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 6900,
+     "end": 30000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "클라",
+   "labelColor": "#0b1120",
+   "labelSize": 16
+  },
+  {
+   "type": "rect",
+   "id": "e4",
+   "x": 898,
+   "y": 330,
+   "width": 160,
+   "height": 40,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 7200,
+     "end": 30000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "클럽",
+   "labelColor": "#0b1120",
+   "labelSize": 16
+  },
+  {
+   "type": "text",
+   "id": "c2b",
+   "x": 210,
+   "y": 392,
+   "content": "키가 정렬돼 있다 = 접두어 구간 탐색이 가능하다. pg_bigm 이 1글자 검색을 하는 근거가 여기다.",
+   "fontSize": 15,
+   "color": "#94a3b8",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 7800,
+     "end": 30000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "c3",
+   "x": 210,
+   "y": 440,
+   "content": "② 각 키가 가리키는 것 — 그 키를 가진 행들의 TID",
+   "fontSize": 18,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 11000,
+     "end": 30000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ],
+   "fontWeight": "700"
+  },
+  {
+   "type": "rect",
+   "id": "pl",
+   "x": 210,
+   "y": 462,
+   "width": 300,
+   "height": 44,
+   "fill": "#34d399",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 11400,
+     "end": 30000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "포스팅 리스트 (압축 저장)",
+   "labelColor": "#0b1120",
+   "labelSize": 15
+  },
+  {
+   "type": "text",
+   "id": "pln",
+   "x": 526,
+   "y": 478,
+   "content": "행이 적을 때 — 엔트리 옆에 바로 붙여 둔다",
+   "fontSize": 14,
+   "color": "#94a3b8",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 11800,
+     "end": 30000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "pln2",
+   "x": 526,
+   "y": 500,
+   "content": "TID 를 varbyte 로 델타 압축한다 (PG 9.4+)",
+   "fontSize": 14,
+   "color": "#94a3b8",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 12200,
+     "end": 30000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "pt",
+   "x": 210,
+   "y": 520,
+   "width": 300,
+   "height": 44,
+   "fill": "#fbbf24",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 13200,
+     "end": 30000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "포스팅 트리 (별도 B-tree)",
+   "labelColor": "#0b1120",
+   "labelSize": 15
+  },
+  {
+   "type": "text",
+   "id": "ptn",
+   "x": 526,
+   "y": 536,
+   "content": "키가 너무 흔해 한 페이지에 안 들어갈 때 승격된다",
+   "fontSize": 14,
+   "color": "#94a3b8",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 13600,
+     "end": 30000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "ptn2",
+   "x": 526,
+   "y": 558,
+   "content": "'영화' 같은 흔한 조각이 여기로 간다",
+   "fontSize": 14,
+   "color": "#fbbf24",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 14000,
+     "end": 30000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "c3b",
+   "x": 210,
+   "y": 596,
+   "content": "인덱스 용량이 두 부분으로 나뉜다: 엔트리 트리 = 유니크 조각 수(고정비), 포스팅 = 총 조각 수(압축된 변동비)",
+   "fontSize": 15,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 15200,
+     "end": 30000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ],
+   "fontWeight": "600"
+  },
+  {
+   "type": "text",
+   "id": "c4",
+   "x": 210,
+   "y": 644,
+   "content": "③ 펜딩 리스트 — GIN 의 쓰기가 느린 문제에 대한 답",
+   "fontSize": 18,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 18000,
+     "end": 30000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ],
+   "fontWeight": "700"
+  },
+  {
+   "type": "rect",
+   "id": "ins",
+   "x": 210,
+   "y": 666,
+   "width": 200,
+   "height": 42,
+   "fill": "#1e293b",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 18400,
+     "end": 30000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "INSERT 1건",
+   "labelColor": "#e2e8f0",
+   "labelSize": 15,
+   "stroke": "#334155",
+   "strokeWidth": 2
+  },
+  {
+   "type": "text",
+   "id": "ar1",
+   "x": 424,
+   "y": 692,
+   "content": "→",
+   "fontSize": 20,
+   "color": "#94a3b8",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 18800,
+     "end": 30000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "pend",
+   "x": 456,
+   "y": 666,
+   "width": 240,
+   "height": 42,
+   "fill": "#fbbf24",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 19000,
+     "end": 30000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "펜딩 리스트에 append",
+   "labelColor": "#0b1120",
+   "labelSize": 15
+  },
+  {
+   "type": "text",
+   "id": "ar2",
+   "x": 710,
+   "y": 692,
+   "content": "→",
+   "fontSize": 20,
+   "color": "#94a3b8",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 19600,
+     "end": 30000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "flush",
+   "x": 742,
+   "y": 666,
+   "width": 300,
+   "height": 42,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 19800,
+     "end": 30000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "나중에 한꺼번에 본체로 병합",
+   "labelColor": "#0b1120",
+   "labelSize": 15
+  },
+  {
+   "type": "text",
+   "id": "c4b",
+   "x": 210,
+   "y": 736,
+   "content": "행 하나가 키 수십 개를 만드니, 곧이곧대로 넣으면 트리를 수십 번 건드려야 한다 — 그래서 미뤄 모은다.",
+   "fontSize": 15,
+   "color": "#94a3b8",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 20800,
+     "end": 30000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "c4c",
+   "x": 210,
+   "y": 762,
+   "content": "대가: 검색할 때 펜딩 리스트는 순차 스캔된다. 실측 — FASTUPDATE 를 끄면 쓰기가 3~4배 느려진다.",
+   "fontSize": 15,
+   "color": "#fbbf24",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 21600,
+     "end": 30000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ],
+   "fontWeight": "600"
+  },
+  {
+   "type": "text",
+   "id": "c5",
+   "x": 210,
+   "y": 810,
+   "content": "④ 그래서 검색은 이렇게 흐른다",
+   "fontSize": 18,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 24000,
+     "end": 30000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ],
+   "fontWeight": "700"
+  },
+  {
+   "type": "rect",
+   "id": "p0",
+   "x": 210,
+   "y": 834,
+   "width": 168,
+   "height": 44,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 24400,
+     "end": 30000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "질의를 키로 분해",
+   "labelColor": "#0b1120",
+   "labelSize": 13
+  },
+  {
+   "type": "rect",
+   "id": "p1",
+   "x": 390,
+   "y": 834,
+   "width": 168,
+   "height": 44,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 25300,
+     "end": 30000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "엔트리 트리에서 각 키 찾기",
+   "labelColor": "#0b1120",
+   "labelSize": 13
+  },
+  {
+   "type": "rect",
+   "id": "p2",
+   "x": 570,
+   "y": 834,
+   "width": 168,
+   "height": 44,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 26200,
+     "end": 30000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "포스팅들을 비트맵으로 AND/OR",
+   "labelColor": "#0b1120",
+   "labelSize": 13
+  },
+  {
+   "type": "rect",
+   "id": "p3",
+   "x": 750,
+   "y": 834,
+   "width": 168,
+   "height": 44,
+   "fill": "#fbbf24",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 27100,
+     "end": 30000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "힙에서 원문 읽기",
+   "labelColor": "#0b1120",
+   "labelSize": 13
+  },
+  {
+   "type": "rect",
+   "id": "p4",
+   "x": 930,
+   "y": 834,
+   "width": 168,
+   "height": 44,
+   "fill": "#fbbf24",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 28000,
+     "end": 30000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "Recheck",
+   "labelColor": "#0b1120",
+   "labelSize": 13
+  },
+  {
+   "type": "text",
+   "id": "c5b",
+   "x": 210,
+   "y": 906,
+   "content": "GIN 은 '어느 행이 후보인지'까지만 답한다. 정확한 판정은 힙에서 다시 한다 — 그게 Recheck 이다.",
+   "fontSize": 15,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 28800,
+     "end": 30000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ],
+   "fontWeight": "600"
+  }
+ ],
+ "chapters": [
+  {
+   "id": "s1",
+   "time": 0,
+   "label": "1. 행 하나가 키 여러 개",
+   "subtitle": "이 성질이 GIN 이 존재하는 이유다"
+  },
+  {
+   "id": "s2",
+   "time": 4900,
+   "label": "2. 엔트리 트리",
+   "subtitle": "키(조각)를 정렬해 담는 B-tree"
+  },
+  {
+   "id": "s3",
+   "time": 10900,
+   "label": "3. 포스팅 리스트 / 트리",
+   "subtitle": "키 → 행 목록. 흔한 키는 트리로 승격된다"
+  },
+  {
+   "id": "s4",
+   "time": 17900,
+   "label": "4. 펜딩 리스트",
+   "subtitle": "FASTUPDATE — 쓰기를 모아서 미룬다"
+  },
+  {
+   "id": "s5",
+   "time": 23900,
+   "label": "5. 검색 경로",
+   "subtitle": "GIN 은 후보까지, 판정은 힙에서"
+  }
+ ],
+ "camera": {
+  "focus": [
+   {
+    "time": 600,
+    "duration": 800,
+    "elementIds": [
+     "cam0"
+    ],
+    "padding": 0,
+    "maxZoom": 8.0,
+    "ease": "easeInOut"
+   },
+   {
+    "time": 5150,
+    "duration": 800,
+    "elementIds": [
+     "cam1"
+    ],
+    "padding": 0,
+    "maxZoom": 8.0,
+    "ease": "easeInOut"
+   },
+   {
+    "time": 11150,
+    "duration": 800,
+    "elementIds": [
+     "cam2"
+    ],
+    "padding": 0,
+    "maxZoom": 8.0,
+    "ease": "easeInOut"
+   },
+   {
+    "time": 18150,
+    "duration": 800,
+    "elementIds": [
+     "cam3"
+    ],
+    "padding": 0,
+    "maxZoom": 8.0,
+    "ease": "easeInOut"
+   },
+   {
+    "time": 24150,
+    "duration": 800,
+    "elementIds": [
+     "cam4"
+    ],
+    "padding": 0,
+    "maxZoom": 8.0,
+    "ease": "easeInOut"
+   }
+  ],
+  "strokeScaling": "fixed"
+ },
+ "settings": {
+  "loop": false,
+  "autoplay": true,
+  "showChapterList": true
+ }
+}
