@@ -13,3 +13,12 @@
 | *(첫 번째 항목을 기다리는 중)* | | | | |
 
 <sub>매니지드 지원 열은 `RDS ○ / Supabase ○ / Neon ✕` 처럼 짧게 적습니다.</sub>
+
+## 참여자별 학습 자료
+
+특정 익스텐션의 사용법과 구분해, PostgreSQL의 배경과 내부 동작을 공부한 자료도 함께 모읍니다.
+
+| 참여자 | 주차 | 주제 | 자료 |
+| --- | --- | --- | --- |
+| [신웅비 (@kungbi)](kungbi/) | 2주차 | PostgreSQL의 기원·확장 철학과 MySQL 기술 계보 | [조사 문서·PPT·PDF·발표 대본](kungbi/2주차/) |
+| [신웅비 (@kungbi)](kungbi/) | 3주차 | PostgreSQL과 InnoDB의 MVCC — VACUUM과 Undo/Purge | [조사 문서·HTML 발표자료·발표 대본](kungbi/3주차/) |

@@ -6,7 +6,7 @@
 
 ## 🧭 역사·설계 배경
 
-신웅비의 [`2주차 자료`](../kungbi/2주차/)에는 관계형 모델과 INGRES부터 POSTGRES·Postgres95·PostgreSQL까지의 계보, PostgreSQL의 확장 철학, MySQL·MyISAM·InnoDB·MariaDB의 별도 계보를 정리했습니다. 27장 PowerPoint·PDF·발표 대본과 상세 조사 문서를 함께 제공합니다.
+신웅비의 [`2주차 자료`](../catalogs/kungbi/2주차/)에는 관계형 모델과 INGRES부터 POSTGRES·Postgres95·PostgreSQL까지의 계보, PostgreSQL의 확장 철학, MySQL·MyISAM·InnoDB·MariaDB의 별도 계보를 정리했습니다. 27장 PowerPoint·PDF·발표 대본과 상세 조사 문서를 함께 제공합니다.
 
 ## 📑 발표 자료
 

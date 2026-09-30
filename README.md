@@ -44,7 +44,7 @@
 | 회차 | 주제 | 추천 카테고리 |
 | --- | --- | --- |
 | 1 | **킥오프 + 익스텐션 시스템 이해** | `CREATE EXTENSION` 내부 동작 · contrib vs 서드파티 · Docker 실습 환경 → [`intro/`](intro/) |
-| 2 | 운영·성능 진단 | [신웅비의 PostgreSQL 역사·설계 조사](kungbi/2주차/) · pg_stat_statements, auto_explain, pg_hint_plan, HypoPG |
+| 2 | 운영·성능 진단 | [신웅비의 PostgreSQL 역사·설계 조사](catalogs/kungbi/2주차/) · pg_stat_statements, auto_explain, pg_hint_plan, HypoPG |
 | 3 | 자동화·파티셔닝 | pg_cron, pg_partman, pg_repack |
 | 4 | 검색·텍스트 | pg_trgm, unaccent, ParadeDB pg_search |
 | 5 | AI·벡터 검색 | pgvector, pgvectorscale |
@@ -72,7 +72,6 @@
 | 출결 | 지각·결석은 사전 공유. 결석 3회 = 10기 미이수(클럽 규정) |
 | 소통 · 질문 | 카카오톡 채팅방 / Discord |
 
-
 ## 발표 템플릿
 
 무엇을 파든 아래 항목만 채우면 카탈로그 품질이 균일하게 유지됩니다. 전체 양식은 [`catalogs/TEMPLATE.md`](catalogs/TEMPLATE.md) 에 있습니다.
@@ -90,7 +89,7 @@
 
 | 경로 | 내용 |
 | --- | --- |
-| [`kungbi/`](kungbi/) | **신웅비 주차별 자료.** 2주차 PostgreSQL의 기원·확장 철학과 MySQL 기술 계보 |
+| [`catalogs/kungbi/`](catalogs/kungbi/) | **신웅비 (@kungbi) 주차별 자료.** 2주차 역사·설계 계보, 3주차 MVCC와 VACUUM·Undo/Purge 비교 |
 | [`catalogs/`](catalogs/) | **핵심 산출물.** 익스텐션 한 개 = 문서 한 장 |
 | [`issues/`](issues/) | 트러블슈팅 기록 - 한 명의 에러가 모두의 학습 자료 |
 
