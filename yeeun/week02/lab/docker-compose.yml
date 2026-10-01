@@ -1,0 +1,33 @@
+name: yeeun-week02-pgss
+
+services:
+  postgres:
+    build: .
+    container_name: yeeun-week02-pgss
+    environment:
+      POSTGRES_DB: study
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      # 다른 lab 포트(15400~)와 안 겹치게
+      - "15502:5432"
+    volumes:
+      - ./sql:/lab/sql:ro
+    # pg_stat_statements 는 Shared Memory 가 필요해서
+    # 서버 시작 옵션으로 preload 한다. (CREATE EXTENSION 만으로는 부족)
+    command:
+      - postgres
+      - -c
+      - shared_preload_libraries=pg_stat_statements
+      - -c
+      - compute_query_id=on
+      - -c
+      - pg_stat_statements.track=all
+      - -c
+      - pg_stat_statements.max=10000
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -p 5432 -U postgres -d study"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+      start_period: 30s
