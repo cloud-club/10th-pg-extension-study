@@ -1,0 +1,39 @@
+name: hstore-week04-research
+services:
+  postgres:
+    build: .
+    environment:
+      POSTGRES_DB: study
+      POSTGRES_PASSWORD: experiment-only
+    command:
+      - postgres
+      - -c
+      - shared_buffers=256MB
+      # 실험 중 체크포인트가 끼어들어 WAL 측정이 흔들리지 않도록 크게 잡는다.
+      - -c
+      - max_wal_size=8GB
+      - -c
+      - checkpoint_timeout=1h
+      - -c
+      - track_io_timing=on
+      - -c
+      - synchronous_commit=${PG_SYNC_COMMIT:-on}
+    healthcheck:
+      test: [CMD-SHELL, 'pg_isready -h 127.0.0.1 -U postgres -d study']
+      interval: 1s
+      timeout: 3s
+      retries: 60
+    # fsync 경로가 실제로 동작하도록 tmpfs가 아닌 볼륨을 쓴다. 호스트 포트는 공개하지 않는다.
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+  redis:
+    image: redis:7.4
+    profiles: [redis]
+    command: ["redis-server", "--save", "", "--appendonly", "${REDIS_AOF:-no}", "--appendfsync", "${REDIS_FSYNC:-everysec}"]
+    healthcheck:
+      test: [CMD, redis-cli, ping]
+      interval: 1s
+      timeout: 3s
+      retries: 60
+volumes:
+  pgdata: {}

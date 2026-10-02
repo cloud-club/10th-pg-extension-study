@@ -3,17 +3,19 @@ import { ChartBox } from '@/components/charts/ChartBox'
 import { SourceNote } from '@/components/common/SourceNote'
 import { CodeBlock } from '@/components/common/Code'
 import { Ref } from '@/components/common/Ref'
+import { Diagram } from '@/components/viz/Diagram'
 import data from '@/data/cron-experiments.json'
 
 const cases = ['one-job', 'four-jobs-cap4', 'four-jobs-cap2']
 const labels = ['잡 1 · 한도 4', '잡 4 · 한도 4', '잡 4 · 한도 2']
-const meanings = ['같은 잡은 한 번에 하나씩 실행됐다.', '서로 다른 잡은 최대 4개가 함께 실행됐다.', '한도는 지켰지만 진행이 정체됐다. 추가 진단이 필요했다.']
+const meanings = ['같은 잡은 한 번에 하나씩 실행됐다.', '서로 다른 잡은 최대 4개가 함께 실행됐다.', '한도는 지켰지만 폴링 대상 선택 문제로 진행이 정체됐다.']
 const values = (name: string, key: 'completed_admitted_runs' | 'peak_overlap') => data.capacity.filter(row => row.case === name).map(row => row[key])
 const rangeMean = (items: number[]) => {
   const mean = items.reduce((sum, value) => sum + value, 0) / items.length
   const variance = items.length > 1 ? items.reduce((sum, value) => sum + (value - mean) ** 2, 0) / (items.length - 1) : 0
   return `${Math.min(...items)}–${Math.max(...items)} · 평균 ${mean.toFixed(1)} · 표준편차 ${Math.sqrt(variance).toFixed(1)}`
 }
+const mean = (items: number[]) => items.reduce((sum, value) => sum + value, 0) / items.length
 const repetitions = Math.min(...cases.map(name => data.capacity.filter(row => row.case === name).length))
 
 export default function Experiments() {
@@ -22,7 +24,7 @@ export default function Experiments() {
     <Section title="무엇을 확인했나?">
       <table><thead><tr><th>궁금한 점</th><th>확인한 결과</th><th>이어서 읽기</th></tr></thead><tbody>
         <tr><td>같은 잡도 동시에 여러 번 실행될까?</td><td>같은 잡의 회차는 겹치지 않았다. 다른 잡은 함께 실행됐다.</td><td><Ref to="/pg-cron/experiments#capacity">동시 실행 비교</Ref></td></tr>
-        <tr><td>잡 4개의 한도를 2로 줄이면 차례대로 진행할까?</td><td>이 환경에서는 진행이 정체됐다. 단순히 느려진 것으로 볼 수 없었다.</td><td><Ref to="/pg-cron/experiments#stall">정체 진단</Ref></td></tr>
+        <tr><td>잡 4개의 한도를 2로 줄이면 차례대로 진행할까?</td><td>v1.6.8 libpq 모드에서는 WAITING 작업이 폴링 자리를 차지해 진행이 정체됐다.</td><td><Ref to="/pg-cron/experiments#stall">원인 확인</Ref></td></tr>
         <tr><td>두 잡의 중복 처리와 실패한 INSERT는 어떻게 될까?</td><td>40개 항목을 처리했고, 강제로 실패시킨 INSERT는 남지 않았다.</td><td><Ref to="/pg-cron/experiments#queue">큐·실패 실험</Ref></td></tr>
       </tbody></table>
       <p>실험 03의 세 조건과 실험 04를 각각 {repetitions}회 새 컨테이너에서 실행했다. 회차별 상세 JSON과 서버 로그는 재현할 때 로컬 <code>results/</code>에 생성되며 Git에는 넣지 않는다. 웹에는 검토에 필요한 반복별 요약만 게시한다.</p>
@@ -58,7 +60,7 @@ export default function Experiments() {
       <SourceNote path="week03/pg_cron/experiments/03-capacity-and-serialization/bench.py">실험을 재현하면 회차별 상세 JSON을 로컬에 생성한다.</SourceNote>
     </Section>
     <Section id="stall" title="2. 한도를 2로 줄였는데 왜 단일 잡보다도 적게 끝났을까?">
-      <p><strong>확인된 것은 정체 현상이고, 정확한 내부 원인은 아직 확정하지 않았다.</strong> 단순히 잡을 두 개씩 처리했다면 결과가 계속 늘어야 한다. 실제로는 한동안 결과가 늘지 않았다.</p>
+      <p><strong>같은 잡의 직렬 실행 때문이 아니다.</strong> v1.6.8의 기본 libpq 모드에서 아직 시작하지 못한 WAITING 작업이 실제 연결과 같은 폴링 대상 한도를 차지했기 때문이다.</p>
       <table><thead><tr><th>추가 진단에서 한 일</th><th>목적</th></tr></thead><tbody>
         <tr><td>잡 네 개를 한 트랜잭션으로 한 번에 등록</td><td>하나씩 등록하는 과정 때문인지 확인</td></tr>
         <tr><td>업무 함수의 12초 접수 제한 제거</td><td>접수 종료 때문에 결과가 멈춘 것인지 구분</td></tr>
@@ -69,17 +71,70 @@ export default function Experiments() {
         <tr><td>12초</td><td>{rangeMean(data.diagnostics.map(row=>row.committed[1]))}</td><td>다음 관찰까지 완료 수가 얼마나 늘었는지 본다.</td></tr>
         <tr><td>18초</td><td>{rangeMean(data.diagnostics.map(row=>row.committed[2]))}</td><td>시작 시간 초과 뒤 일부 작업이 다시 진행되는지 본다.</td></tr>
       </tbody></table>
+      <h3>실측 타임라인: 원본만 6~12초 사이가 평평하다</h3>
+      <ChartBox type="line" title="6·12·18초 누적 완료 작업 수 · 10회 평균" data={{
+        labels:['6초','12초','18초'],
+        datasets:[
+          {label:'v1.6.8 원본',borderColor:'#f59e0b',backgroundColor:'#f59e0b',pointRadius:5,borderWidth:3,data:[0,1,2].map(index=>mean(data.causal_comparison.map(row=>row.original[index])))},
+          {label:'WAITING 제외',borderColor:'#34d399',backgroundColor:'#34d399',pointRadius:5,borderWidth:3,data:[0,1,2].map(index=>mean(data.causal_comparison.map(row=>row.fixed[index])))},
+        ],
+      }} options={{plugins:{legend:{position:'bottom'}},scales:{y:{beginAtZero:true,title:{display:true,text:'누적 완료 작업 수'}},x:{title:{display:true,text:'잡 등록 후 관찰 시점'}}}}} caption="원본 평균은 2.5→2.5→4.3건으로, 6~12초 사이 완료가 한 건도 늘지 않았다. 조건 변경 빌드는 4→10→16건으로 계속 진행했다. 선은 세 관찰점을 연결한 것이며 그 사이를 연속 측정한 값은 아니다." />
       <ul><li>마지막 스냅샷의 <code>job startup timeout</code> 수는 {rangeMean(data.diagnostics.map(row=>row.startup_timeouts))}였다. 작업 시작 준비를 정해진 시간 안에 마치지 못했다는 뜻이다.</li><li>30번의 시점 조회 중 실행용 client backend가 보인 시점은 {data.diagnostics.reduce((sum,row)=>sum+row.client_backend_snapshots,0)}번이었다. 나머지 시점에는 launcher만 보였지만 이력에는 connecting이 남았다.</li><li>한 번에 등록해도 정체가 남았다. 따라서 순차 등록만으로 현상을 설명할 수 없었다.</li></ul>
-      <details className="my-6 rounded-xl border border-border p-4"><summary className="cursor-pointer font-semibold">코드에서 세운 원인 가설과 남은 검증</summary>
-        <table><thead><tr><th>구분</th><th>내용</th></tr></thead><tbody>
-          <tr><td>원인 가설</td><td>아직 시작하지 못한 대기 잡이 상태 확인 대상 수에 포함되어, 실제 연결 중인 잡을 확인하는 순서가 밀릴 수 있다.</td></tr>
-          <tr><td>분석 위치</td><td>PollForTasks에서 pending이 있는 WAITING task를 fd=-1로 포함하는 경로</td></tr>
-          <tr><td>다음에 확인할 것</td><td>대상 목록과 카운트를 기록하고 해당 경로를 바꾼 패치 전후를 비교</td></tr>
-          <tr><td>미실시</td><td>패치 효과 검증, 다른 버전·TCP·worker 모드 비교</td></tr>
-        </tbody></table>
-        <p><a href="https://github.com/citusdata/pg_cron/blob/v1.6.8/src/pg_cron.c#L1116-L1214">분석 대상 원문</a>. 관찰 쿼리에도 시간이 걸리므로 위 시점은 정확히 6·12·18초는 아니다.</p>
+      <h3>코드에서는 어떤 일이 일어났나?</h3>
+      <ol>
+        <li>실행 중인 두 작업 때문에 <code>RunningTaskCount</code>가 한도 2에 도달한다.</li>
+        <li>다음 예약 시각이 되어 다른 작업들의 <code>pendingRunCount</code>가 생기지만 실행 자리는 없다.</li>
+        <li><code>PollForTasks()</code>가 이 WAITING 작업을 fd=-1인 폴링 대상으로 세고 <code>activeTaskCount</code>를 올린다.</li>
+        <li>대기 작업 두 개가 폴링 한도를 채우면 뒤쪽의 실제 연결 소켓은 검사 목록에 들어가지 못한다.</li>
+        <li>완료 응답을 읽지 못해 실행 자리가 반환되지 않고, 약 10초 뒤 <code>job startup timeout</code> 처리 후에야 일부 진행이 재개된다.</li>
+      </ol>
+      <p>즉, 대기열이 <code>[잡1, 잡1, 잡2]</code>처럼 구성되어 잡1이 잡2를 의도적으로 막은 것이 아니다. 각 jobid는 상태 하나와 <code>pendingRunCount</code>를 갖는다. 문제는 실행 대기 상태를 소켓 폴링 자리로도 계산한 데 있다.</p>
+      <h3>내부 상태 타임라인: 정체가 만들어지는 한 루프</h3>
+      <p>아래의 <code>T</code>는 실제 연결 두 개가 실행 한도를 사용하고, 해시 순회에서 pending이 있는 WAITING 작업 두 개가 그 연결보다 먼저 나온 시점이다. PostgreSQL 해시 순회 순서이므로 잡 등록 순서의 FIFO 큐가 아니다.</p>
+      <Diagram chart={`sequenceDiagram
+        participant L as launcher · PollForTasks
+        participant W1 as WAITING 작업 C
+        participant W2 as WAITING 작업 D
+        participant C as 실제 연결 A·B
+        Note over L,C: T · RunningTaskCount=2, MaxRunningTasks=2
+        L->>W1: CanStartTask? false · 빈 실행 슬롯 없음
+        W1-->>L: fd=-1 · activeTaskCount=1
+        L->>W2: CanStartTask? false · 빈 실행 슬롯 없음
+        W2-->>L: fd=-1 · activeTaskCount=2
+        Note over L: 폴링 한도 도달 · 순회 중단
+        Note over C: 실제 연결 소켓은 pollFDs에 들어가지 못함
+        loop T부터 시작 제한 시간까지
+          L->>L: fd=-1 두 개를 poll · 유효한 소켓 이벤트 없음
+          L->>C: isSocketReady=false · 상태 진행 못함
+        end
+        Note over L,C: 약 T+10초 · job startup timeout
+        L->>C: ERROR → DONE · RunningTaskCount 감소
+        L->>W1: 다음 루프에서 CanStartTask=true
+        Note over L,W2: 대기 작업이 시작되며 일부 진행 재개
+      `} caption="WAITING 작업이 SQL을 실행한 것이 아니라, fd=-1인 상태로 폴링 목록 두 자리를 채운다. 그 결과 실제 연결 A·B의 준비·완료 이벤트를 launcher가 처리하지 못한다." />
+      <table><thead><tr><th>상대 시점</th><th>launcher가 보는 상태</th><th>처리량에 생기는 결과</th></tr></thead><tbody>
+        <tr><td><code>T</code></td><td>실행 수 2, 대기 작업에도 pending 회차 존재</td><td>새 회차를 시작할 자리가 없음</td></tr>
+        <tr><td><code>T + 한 루프</code></td><td>WAITING 두 개가 fd=-1로 <code>pollFDs[0..1]</code>을 채움</td><td>뒤쪽 실제 연결 소켓을 검사하지 않음</td></tr>
+        <tr><td><code>T ~ T+10초</code></td><td>연결 이벤트를 읽지 못해 상태와 실행 수가 그대로 남음</td><td>완료 수가 증가하지 않는 평평한 구간</td></tr>
+        <tr><td><code>약 T+10초</code></td><td><code>jobStartupTimeout()</code>이 연결 작업을 ERROR와 DONE으로 정리</td><td>실행 수가 줄어 다음 대기 작업이 시작됨</td></tr>
+      </tbody></table>
+      <h3>한 조건만 바꾼 인과 비교</h3>
+      <p>v1.6.8 원본과 WAITING 작업을 폴링 목록에서 제외한 빌드를 같은 조건으로 각각 {data.causal_comparison.length}회 실행했다. 그 밖의 코드와 실행 조건은 같게 유지했다.</p>
+      <CodeBlock language="c">{`// v1.6.8 원본
+if (task->state == CRON_TASK_WAITING && task->pendingRunCount == 0)
+
+// 인과 확인용 변경
+if (task->state == CRON_TASK_WAITING)`}</CodeBlock>
+      <table><thead><tr><th>빌드</th><th>6초 누적 완료</th><th>12초 누적 완료</th><th>18초 누적 완료</th><th>startup timeout</th></tr></thead><tbody>
+        <tr><td>v1.6.8 원본</td><td>{rangeMean(data.causal_comparison.map(row=>row.original[0]))}</td><td>{rangeMean(data.causal_comparison.map(row=>row.original[1]))}</td><td>{rangeMean(data.causal_comparison.map(row=>row.original[2]))}</td><td>{rangeMean(data.causal_comparison.map(row=>row.original_timeouts))}</td></tr>
+        <tr><td>조건 변경</td><td>{rangeMean(data.causal_comparison.map(row=>row.fixed[0]))}</td><td>{rangeMean(data.causal_comparison.map(row=>row.fixed[1]))}</td><td>{rangeMean(data.causal_comparison.map(row=>row.fixed[2]))}</td><td>{rangeMean(data.causal_comparison.map(row=>row.fixed_timeouts))}</td></tr>
+      </tbody></table>
+      <p>원본은 10회 모두 6초와 12초 사이 완료 수가 늘지 않았고 timeout이 2건씩 발생했다. 조건 변경 빌드는 10회 모두 4→10→16건으로 진행했고 timeout은 없었다. 따라서 <strong>이 실험 환경의 정체는 pending이 있는 WAITING 작업을 폴링 대상으로 센 경로가 원인</strong>이라고 판단할 수 있다.</p>
+      <details className="my-6 rounded-xl border border-border p-4"><summary className="cursor-pointer font-semibold">어디까지 확인한 결론인가?</summary>
+        <p>PostgreSQL 16.15, pg_cron v1.6.8, 기본 libpq·유닉스 소켓 모드에서 확인했다. 이 한 줄 변경은 인과관계를 분리하기 위한 실험 패치이며 검토된 운영 패치가 아니다. worker 모드와 다른 버전은 이 결과만으로 단정할 수 없다.</p>
+        <p><a href="https://github.com/citusdata/pg_cron/blob/v1.6.8/src/pg_cron.c#L1116-L1214">분석한 v1.6.8 원문</a> · <a href="https://github.com/citusdata/pg_cron/issues/63">같은 fd=-1 정체를 보고한 upstream issue #63</a></p>
       </details>
-      <SourceNote path="week03/pg_cron/experiments/03-capacity-and-serialization/diagnose.py">시점별 activity·이력·서버 로그를 로컬 results에 생성</SourceNote>
+      <SourceNote path="week03/pg_cron/experiments/03-capacity-and-serialization/confirm_cause.py">v1.6.8 원본과 한 조건 변경 빌드를 각각 10회 비교</SourceNote>
     </Section>
     <Section id="queue" title="3. 두 잡이 같은 일을 집어 가거나, 실패한 데이터가 남지는 않을까?">
       <p>큐는 아직 처리하지 않은 항목을 모아 둔 테이블이고, 소비자는 그 항목을 가져와 처리하는 잡이다. 실험 04는 정상 처리와 강제 실패를 따로 확인한다.</p>
@@ -105,6 +160,7 @@ export default function Experiments() {
       <p>저장소 루트에서 Docker와 Python 3을 준비하고 아래 명령을 하나씩 실행한다. 전용 임시 DB를 공유하므로 동시에 실행하지 않는다. 결과 파일은 Git에서 제외된 각 실험의 <code>results/</code>에 생성되며 다시 실행하면 덮어쓴다.</p>
       <CodeBlock language="bash">{`python3 catalogs/shinkeonkim/week03/pg_cron/experiments/03-capacity-and-serialization/bench.py`}</CodeBlock>
       <CodeBlock language="bash">{`python3 catalogs/shinkeonkim/week03/pg_cron/experiments/03-capacity-and-serialization/diagnose.py`}</CodeBlock>
+      <CodeBlock language="bash">{`python3 catalogs/shinkeonkim/week03/pg_cron/experiments/03-capacity-and-serialization/confirm_cause.py`}</CodeBlock>
       <CodeBlock language="bash">{`python3 catalogs/shinkeonkim/week03/pg_cron/experiments/04-queue-and-rollback/bench.py`}</CodeBlock>
       <p>각 스크립트가 실행 뒤 실습 컨테이너를 정리한다. 과거 1.6.7 측정이나 문헌으로만 조사한 pg_net·pg_partman 사례와 이 수치를 혼합하지 않는다.</p>
     </Section>

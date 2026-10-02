@@ -6,9 +6,10 @@ import bash from 'highlight.js/lib/languages/bash'
 import ini from 'highlight.js/lib/languages/ini'
 import python from 'highlight.js/lib/languages/python'
 import json from 'highlight.js/lib/languages/json'
+import ruby from 'highlight.js/lib/languages/ruby'
 import { cn } from '@/lib/utils'
 
-const languages = { sql, c, bash, ini, python, json }
+const languages = { sql, c, bash, ini, python, json, ruby }
 for (const [name, grammar] of Object.entries(languages)) hljs.registerLanguage(name, grammar)
 type Language = keyof typeof languages | 'text' | 'auto'
 

@@ -654,6 +654,18 @@
       "client_backend_snapshots": 0
     }
   ],
+  "causal_comparison": [
+    {"repetition": 1, "original": [3, 3, 5], "fixed": [4, 10, 16], "original_timeouts": 2, "fixed_timeouts": 0},
+    {"repetition": 2, "original": [3, 3, 4], "fixed": [4, 10, 16], "original_timeouts": 2, "fixed_timeouts": 0},
+    {"repetition": 3, "original": [2, 2, 4], "fixed": [4, 10, 16], "original_timeouts": 2, "fixed_timeouts": 0},
+    {"repetition": 4, "original": [2, 2, 4], "fixed": [4, 10, 16], "original_timeouts": 2, "fixed_timeouts": 0},
+    {"repetition": 5, "original": [2, 2, 4], "fixed": [4, 10, 16], "original_timeouts": 2, "fixed_timeouts": 0},
+    {"repetition": 6, "original": [3, 3, 5], "fixed": [4, 10, 16], "original_timeouts": 2, "fixed_timeouts": 0},
+    {"repetition": 7, "original": [3, 3, 4], "fixed": [4, 10, 16], "original_timeouts": 2, "fixed_timeouts": 0},
+    {"repetition": 8, "original": [2, 2, 4], "fixed": [4, 10, 16], "original_timeouts": 2, "fixed_timeouts": 0},
+    {"repetition": 9, "original": [3, 3, 5], "fixed": [4, 10, 16], "original_timeouts": 2, "fixed_timeouts": 0},
+    {"repetition": 10, "original": [2, 2, 4], "fixed": [4, 10, 16], "original_timeouts": 2, "fixed_timeouts": 0}
+  ],
   "failure_example": {
     "jobid": 3,
     "runid": 9,

@@ -1,0 +1,32 @@
+# 참고용 기본 설정 (config 4 "full" 에 해당) - 실제 스윕은 bench.sh 가
+# `docker run`으로 설정마다 새 데이터 디렉터리와 컨테이너를 만든다.
+# Compose의 여러 서비스나 override로도 표현할 수 있으나 여기서는 스크립트를 사용한다.
+# `docker compose up` 은 이 파일 하나만 수동으로 확인하고 싶을 때 쓴다.
+name: pg-study-pgss-exp01
+
+services:
+  postgres:
+    build: .
+    container_name: pg-study-pgss-exp01
+    environment:
+      POSTGRES_DB: bench
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "15950:5432"
+    command:
+      - postgres
+      - -c
+      - shared_preload_libraries=pg_stat_statements
+      - -c
+      - pg_stat_statements.track=all
+      - -c
+      - pg_stat_statements.track_planning=on
+      - -c
+      - track_io_timing=on
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -p 5432 -U postgres -d bench"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+      start_period: 30s

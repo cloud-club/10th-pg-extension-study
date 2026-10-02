@@ -1,0 +1,1025 @@
+{
+ "clothoVersion": 1,
+ "id": "hstore-gin-lookup",
+ "title": "GIN 은 키와 값을 따로 색인한다 — 그래서 recheck 가 필요하다",
+ "description": "gin_extract_hstore: 항목 'K키' 와 'V값' 을 만든다. 짝은 모르므로 @> 는 힙에서 다시 확인한다.",
+ "duration": 36500,
+ "canvas": {
+  "width": 940,
+  "height": 560,
+  "background": "#0b1120"
+ },
+ "elements": [
+  {
+   "type": "text",
+   "id": "title",
+   "x": 40,
+   "y": 42,
+   "content": "GIN 은 키와 값을 따로 색인한다 — 그래서 recheck 가 필요하다",
+   "fontSize": 22,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 0,
+     "end": 36500,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ],
+   "fontWeight": "700"
+  },
+  {
+   "type": "text",
+   "id": "e1",
+   "x": 40,
+   "y": 128,
+   "content": "행 1",
+   "fontSize": 16,
+   "color": "#94a3b8",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 300,
+     "end": 6000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "e2",
+   "x": 110,
+   "y": 100,
+   "width": 420,
+   "height": 44,
+   "fill": "#1e293b",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 300,
+     "end": 6000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "color=>red, size=>M",
+   "labelColor": "#e2e8f0",
+   "labelSize": 17,
+   "stroke": "#334155",
+   "strokeWidth": 2
+  },
+  {
+   "type": "text",
+   "id": "e3",
+   "x": 40,
+   "y": 188,
+   "content": "행 2",
+   "fontSize": 16,
+   "color": "#94a3b8",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 600,
+     "end": 6000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "e4",
+   "x": 110,
+   "y": 160,
+   "width": 420,
+   "height": 44,
+   "fill": "#1e293b",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 600,
+     "end": 6000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "color=>red, size=>L",
+   "labelColor": "#e2e8f0",
+   "labelSize": 17,
+   "stroke": "#334155",
+   "strokeWidth": 2
+  },
+  {
+   "type": "text",
+   "id": "e5",
+   "x": 40,
+   "y": 248,
+   "content": "행 3",
+   "fontSize": 16,
+   "color": "#94a3b8",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 900,
+     "end": 6000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "e6",
+   "x": 110,
+   "y": 220,
+   "width": 420,
+   "height": 44,
+   "fill": "#fbbf24",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 900,
+     "end": 6000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "color=>blue, shade=>red",
+   "labelColor": "#0b1120",
+   "labelSize": 17
+  },
+  {
+   "type": "text",
+   "id": "e7",
+   "x": 40,
+   "y": 308,
+   "content": "행 4",
+   "fontSize": 16,
+   "color": "#94a3b8",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 1200,
+     "end": 6000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "e8",
+   "x": 110,
+   "y": 280,
+   "width": 420,
+   "height": 44,
+   "fill": "#1e293b",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 1200,
+     "end": 6000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "color=>blue, size=>M",
+   "labelColor": "#e2e8f0",
+   "labelSize": 17,
+   "stroke": "#334155",
+   "strokeWidth": 2
+  },
+  {
+   "type": "text",
+   "id": "e9",
+   "x": 40,
+   "y": 372,
+   "content": "행 3 은 'shade=>red' 다. 값 red 는 있지만 'color=>red' 쌍은 없다.",
+   "fontSize": 15,
+   "color": "#fbbf24",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 2200,
+     "end": 6000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "e10",
+   "x": 40,
+   "y": 96,
+   "content": "인덱스 항목 → 그 항목을 가진 행 번호 (포스팅 리스트)",
+   "fontSize": 15,
+   "color": "#94a3b8",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 6100,
+     "end": 14500,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "e11",
+   "x": 40,
+   "y": 116,
+   "width": 160,
+   "height": 40,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 6300,
+     "end": 14500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "K color",
+   "labelColor": "#0b1120",
+   "labelSize": 16
+  },
+  {
+   "type": "text",
+   "id": "e12",
+   "x": 220,
+   "y": 143,
+   "content": "→ 1 2 3 4",
+   "fontSize": 16,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 6500,
+     "end": 14500,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "e13",
+   "x": 40,
+   "y": 168,
+   "width": 160,
+   "height": 40,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 6650,
+     "end": 14500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "K size",
+   "labelColor": "#0b1120",
+   "labelSize": 16
+  },
+  {
+   "type": "text",
+   "id": "e14",
+   "x": 220,
+   "y": 195,
+   "content": "→ 1 2 4",
+   "fontSize": 16,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 6850,
+     "end": 14500,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "e15",
+   "x": 40,
+   "y": 220,
+   "width": 160,
+   "height": 40,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 7000,
+     "end": 14500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "K shade",
+   "labelColor": "#0b1120",
+   "labelSize": 16
+  },
+  {
+   "type": "text",
+   "id": "e16",
+   "x": 220,
+   "y": 247,
+   "content": "→ 3",
+   "fontSize": 16,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 7200,
+     "end": 14500,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "e17",
+   "x": 40,
+   "y": 272,
+   "width": 160,
+   "height": 40,
+   "fill": "#34d399",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 7350,
+     "end": 14500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "V red",
+   "labelColor": "#0b1120",
+   "labelSize": 16
+  },
+  {
+   "type": "text",
+   "id": "e18",
+   "x": 220,
+   "y": 299,
+   "content": "→ 1 2 3",
+   "fontSize": 16,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 7550,
+     "end": 14500,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "e19",
+   "x": 40,
+   "y": 324,
+   "width": 160,
+   "height": 40,
+   "fill": "#34d399",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 7700,
+     "end": 14500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "V blue",
+   "labelColor": "#0b1120",
+   "labelSize": 16
+  },
+  {
+   "type": "text",
+   "id": "e20",
+   "x": 220,
+   "y": 351,
+   "content": "→ 3 4",
+   "fontSize": 16,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 7900,
+     "end": 14500,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "e21",
+   "x": 40,
+   "y": 376,
+   "width": 160,
+   "height": 40,
+   "fill": "#34d399",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 8050,
+     "end": 14500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "V M",
+   "labelColor": "#0b1120",
+   "labelSize": 16
+  },
+  {
+   "type": "text",
+   "id": "e22",
+   "x": 220,
+   "y": 403,
+   "content": "→ 1 4",
+   "fontSize": 16,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 8250,
+     "end": 14500,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "e23",
+   "x": 40,
+   "y": 428,
+   "width": 160,
+   "height": 40,
+   "fill": "#34d399",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 8400,
+     "end": 14500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "V L",
+   "labelColor": "#0b1120",
+   "labelSize": 16
+  },
+  {
+   "type": "text",
+   "id": "e24",
+   "x": 220,
+   "y": 455,
+   "content": "→ 2",
+   "fontSize": 16,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 8600,
+     "end": 14500,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "e25",
+   "x": 40,
+   "y": 500,
+   "content": "키와 값은 서로 다른 항목이다. 'red' 가 어느 키의 값인지는 인덱스가 모른다.",
+   "fontSize": 15,
+   "color": "#fbbf24",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 9400,
+     "end": 14500,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "e26",
+   "x": 40,
+   "y": 100,
+   "width": 480,
+   "height": 48,
+   "fill": "#1e293b",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 14700,
+     "end": 22500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "WHERE attrs @> 'color=>red'",
+   "labelColor": "#e2e8f0",
+   "labelSize": 18,
+   "stroke": "#334155",
+   "strokeWidth": 2
+  },
+  {
+   "type": "rect",
+   "id": "e27",
+   "x": 40,
+   "y": 190,
+   "width": 160,
+   "height": 40,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 15400,
+     "end": 22500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "K color",
+   "labelColor": "#0b1120",
+   "labelSize": 16
+  },
+  {
+   "type": "text",
+   "id": "e28",
+   "x": 220,
+   "y": 217,
+   "content": "→ 1 2 3 4",
+   "fontSize": 16,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 15500,
+     "end": 22500,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "e29",
+   "x": 40,
+   "y": 246,
+   "width": 160,
+   "height": 40,
+   "fill": "#34d399",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 16000,
+     "end": 22500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "V red",
+   "labelColor": "#0b1120",
+   "labelSize": 16
+  },
+  {
+   "type": "text",
+   "id": "e30",
+   "x": 220,
+   "y": 273,
+   "content": "→ 1 2 3",
+   "fontSize": 16,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 16100,
+     "end": 22500,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "e31",
+   "x": 40,
+   "y": 336,
+   "content": "교집합 = 행 1, 2, 3  (후보)",
+   "fontSize": 18,
+   "color": "#a78bfa",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 17100,
+     "end": 22500,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ],
+   "fontWeight": "700"
+  },
+  {
+   "type": "text",
+   "id": "e32",
+   "x": 40,
+   "y": 374,
+   "content": "gin_consistent_hstore 는 @> 에서 recheck = true 를 돌려준다.",
+   "fontSize": 15,
+   "color": "#94a3b8",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 18100,
+     "end": 22500,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "e33",
+   "x": 40,
+   "y": 404,
+   "content": "인덱스는 '두 항목이 다 있다' 까지만 안다.",
+   "fontSize": 15,
+   "color": "#94a3b8",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 18700,
+     "end": 22500,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "e34",
+   "x": 40,
+   "y": 130,
+   "content": "행 1",
+   "fontSize": 16,
+   "color": "#94a3b8",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 22700,
+     "end": 30500,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "e35",
+   "x": 110,
+   "y": 102,
+   "width": 420,
+   "height": 46,
+   "fill": "#34d399",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 22800,
+     "end": 30500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "color=>red, size=>M",
+   "labelColor": "#0b1120",
+   "labelSize": 17
+  },
+  {
+   "type": "text",
+   "id": "e36",
+   "x": 550,
+   "y": 132,
+   "content": "color=>red 쌍이 있다 ✔",
+   "fontSize": 15,
+   "color": "#34d399",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 23200,
+     "end": 30500,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ],
+   "fontWeight": "700"
+  },
+  {
+   "type": "text",
+   "id": "e37",
+   "x": 40,
+   "y": 200,
+   "content": "행 2",
+   "fontSize": 16,
+   "color": "#94a3b8",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 23400,
+     "end": 30500,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "e38",
+   "x": 110,
+   "y": 172,
+   "width": 420,
+   "height": 46,
+   "fill": "#34d399",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 23500,
+     "end": 30500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "color=>red, size=>L",
+   "labelColor": "#0b1120",
+   "labelSize": 17
+  },
+  {
+   "type": "text",
+   "id": "e39",
+   "x": 550,
+   "y": 202,
+   "content": "color=>red 쌍이 있다 ✔",
+   "fontSize": 15,
+   "color": "#34d399",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 23900,
+     "end": 30500,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ],
+   "fontWeight": "700"
+  },
+  {
+   "type": "text",
+   "id": "e40",
+   "x": 40,
+   "y": 270,
+   "content": "행 3",
+   "fontSize": 16,
+   "color": "#94a3b8",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 24100,
+     "end": 30500,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "e41",
+   "x": 110,
+   "y": 242,
+   "width": 420,
+   "height": 46,
+   "fill": "#fb7185",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 24200,
+     "end": 30500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "color=>blue, shade=>red",
+   "labelColor": "#0b1120",
+   "labelSize": 17
+  },
+  {
+   "type": "text",
+   "id": "e42",
+   "x": 550,
+   "y": 272,
+   "content": "color 는 blue, red 는 shade 의 값 ✘",
+   "fontSize": 15,
+   "color": "#fb7185",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 24600,
+     "end": 30500,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ],
+   "fontWeight": "700"
+  },
+  {
+   "type": "text",
+   "id": "e43",
+   "x": 40,
+   "y": 356,
+   "content": "결과: 행 1, 2.  'Rows Removed by Index Recheck' 가 탈락한 후보 수다.",
+   "fontSize": 16,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 25900,
+     "end": 30500,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ],
+   "fontWeight": "700"
+  },
+  {
+   "type": "text",
+   "id": "e44",
+   "x": 40,
+   "y": 392,
+   "content": "lab 03 에서 decoy 500행으로 이 숫자를 직접 본다.",
+   "fontSize": 15,
+   "color": "#94a3b8",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 26700,
+     "end": 30500,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "e45",
+   "x": 40,
+   "y": 100,
+   "width": 480,
+   "height": 48,
+   "fill": "#1e293b",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 30700,
+     "end": 36500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "WHERE attrs ? 'shade'",
+   "labelColor": "#e2e8f0",
+   "labelSize": 18,
+   "stroke": "#334155",
+   "strokeWidth": 2
+  },
+  {
+   "type": "rect",
+   "id": "e46",
+   "x": 40,
+   "y": 190,
+   "width": 160,
+   "height": 40,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 31300,
+     "end": 36500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "K shade",
+   "labelColor": "#0b1120",
+   "labelSize": 16
+  },
+  {
+   "type": "text",
+   "id": "e47",
+   "x": 220,
+   "y": 217,
+   "content": "→ 3",
+   "fontSize": 16,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 31400,
+     "end": 36500,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "e48",
+   "x": 40,
+   "y": 290,
+   "content": "결과: 행 3. 키 항목 하나가 곧 답이라 gin_consistent_hstore 도 recheck = false.",
+   "fontSize": 16,
+   "color": "#34d399",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 32300,
+     "end": 36500,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ],
+   "fontWeight": "700"
+  },
+  {
+   "type": "text",
+   "id": "e49",
+   "x": 40,
+   "y": 328,
+   "content": "?& (전부 존재) 도 정확하다. ?| (하나라도) 도 recheck 가 없다.",
+   "fontSize": 15,
+   "color": "#94a3b8",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 33300,
+     "end": 36500,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  }
+ ],
+ "chapters": [
+  {
+   "id": "ch0",
+   "time": 0,
+   "label": "1. 행 네 개",
+   "subtitle": "행 3 은 red 가 있지만 color 의 값이 아니다"
+  },
+  {
+   "id": "ch1",
+   "time": 6000,
+   "label": "2. 항목으로 쪼갠다",
+   "subtitle": "각 키는 K 항목, 각 값은 V 항목(NULL 은 N)으로 들어간다"
+  },
+  {
+   "id": "ch2",
+   "time": 14500,
+   "label": "3. 질의를 항목으로",
+   "subtitle": "attrs @> 'color=>red' → K color 와 V red 를 모두 가진 행"
+  },
+  {
+   "id": "ch3",
+   "time": 22500,
+   "label": "4. 힙에서 다시 확인 (Recheck)",
+   "subtitle": "후보 3행 중 행 3 이 탈락한다"
+  },
+  {
+   "id": "ch4",
+   "time": 30500,
+   "label": "5. 키 존재는 정확하다",
+   "subtitle": "attrs ? 'shade' → K shade 하나면 충분해 recheck 가 없다"
+  }
+ ],
+ "settings": {
+  "loop": false,
+  "autoplay": true,
+  "showChapterList": true
+ }
+}

@@ -1,0 +1,47 @@
+name: pg-study-catalog-shinkeonkim-pgss-03
+
+services:
+  postgres:
+    build: .
+    container_name: pg-study-catalog-shinkeonkim-pgss-03
+    environment:
+      POSTGRES_DB: study
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "127.0.0.1:15922:5432"
+    volumes:
+      - ./sql:/lab/sql:ro
+    # ---------------------------------------------------------------------
+    # pg_stat_statements 는 shared_preload_libraries 없이는 존재할 수 없다.
+    # (../../docs/02-internals-and-source.md 에서 왜 그런지 코드 레벨로 설명한다)
+    #
+    #   track          = all   함수/트리거 안에서 도는 쿼리까지 잡는다 (기본은 top)
+    #   track_utility  = on    DDL 같은 유틸리티 문도 잡는다 (기본값이 on)
+    #   track_planning = on    계획(Plan) 단계 시간까지 잡는다 (PG13+, 기본은 off -
+    #                          오버헤드가 있어 기본은 꺼져 있지만 이 lab 에서는 직접 보기 위해 켠다)
+    #   max            = 1000  이 실습에서는 작게 잡아 eviction(usage 점수 기반) 을 직접 재현한다
+    #
+    #   track_io_timing = on   블록 I/O 에 걸린 실제 시간(ms)을 재게 한다.
+    #                          이게 꺼져 있으면 blk_read_time/blk_write_time 이 항상 0 이다.
+    #                          (pg_stat_statements 옵션이 아니라 PostgreSQL 코어 GUC)
+    command:
+      - postgres
+      - -c
+      - shared_preload_libraries=pg_stat_statements
+      - -c
+      - pg_stat_statements.track=all
+      - -c
+      - pg_stat_statements.track_utility=on
+      - -c
+      - pg_stat_statements.track_planning=on
+      - -c
+      - pg_stat_statements.max=1000
+      - -c
+      - track_io_timing=on
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -p 5432 -U postgres -d study"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+      start_period: 30s

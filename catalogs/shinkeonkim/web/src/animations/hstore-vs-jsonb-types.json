@@ -1,0 +1,457 @@
+{
+ "clothoVersion": 1,
+ "id": "hstore-vs-jsonb-types",
+ "title": "jsonb 를 hstore 로 옮기면 타입과 중첩이 사라진다",
+ "description": "jsonb_each_text 로 펼쳐 hstore 로 만든 결과. 값은 전부 text 이고 배열·객체는 JSON 문자열이 된다.",
+ "duration": 22500,
+ "canvas": {
+  "width": 940,
+  "height": 500,
+  "background": "#0b1120"
+ },
+ "elements": [
+  {
+   "type": "text",
+   "id": "title",
+   "x": 40,
+   "y": 42,
+   "content": "jsonb 를 hstore 로 옮기면 타입과 중첩이 사라진다",
+   "fontSize": 22,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 0,
+     "end": 22500,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ],
+   "fontWeight": "700"
+  },
+  {
+   "type": "rect",
+   "id": "e1",
+   "x": 40,
+   "y": 110,
+   "width": 860,
+   "height": 56,
+   "fill": "#1e293b",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 300,
+     "end": 5500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "{\"a\": 1, \"b\": true, \"c\": [1, 2], \"d\": {\"x\": 1}}",
+   "labelColor": "#e2e8f0",
+   "labelSize": 20,
+   "stroke": "#334155",
+   "strokeWidth": 2
+  },
+  {
+   "type": "rect",
+   "id": "e2",
+   "x": 40,
+   "y": 214,
+   "width": 200,
+   "height": 40,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 1200,
+     "end": 5500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "숫자",
+   "labelColor": "#0b1120",
+   "labelSize": 17
+  },
+  {
+   "type": "rect",
+   "id": "e3",
+   "x": 260,
+   "y": 214,
+   "width": 200,
+   "height": 40,
+   "fill": "#34d399",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 1550,
+     "end": 5500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "불리언",
+   "labelColor": "#0b1120",
+   "labelSize": 17
+  },
+  {
+   "type": "rect",
+   "id": "e4",
+   "x": 480,
+   "y": 214,
+   "width": 200,
+   "height": 40,
+   "fill": "#fbbf24",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 1900,
+     "end": 5500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "배열",
+   "labelColor": "#0b1120",
+   "labelSize": 17
+  },
+  {
+   "type": "rect",
+   "id": "e5",
+   "x": 700,
+   "y": 214,
+   "width": 200,
+   "height": 40,
+   "fill": "#fb7185",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 2250,
+     "end": 5500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "객체",
+   "labelColor": "#0b1120",
+   "labelSize": 17
+  },
+  {
+   "type": "text",
+   "id": "e6",
+   "x": 40,
+   "y": 310,
+   "content": "jsonb 는 값마다 타입이 있고 중첩할 수 있다.",
+   "fontSize": 15,
+   "color": "#94a3b8",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 2800,
+     "end": 5500,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "e7",
+   "x": 40,
+   "y": 106,
+   "width": 300,
+   "height": 46,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 5800,
+     "end": 14000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "\"a\" => \"1\"",
+   "labelColor": "#0b1120",
+   "labelSize": 18
+  },
+  {
+   "type": "text",
+   "id": "e8",
+   "x": 360,
+   "y": 136,
+   "content": "숫자 → 문자열 '1'",
+   "fontSize": 16,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 6000,
+     "end": 14000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "e9",
+   "x": 40,
+   "y": 176,
+   "width": 300,
+   "height": 46,
+   "fill": "#34d399",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 6300,
+     "end": 14000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "\"b\" => \"true\"",
+   "labelColor": "#0b1120",
+   "labelSize": 18
+  },
+  {
+   "type": "text",
+   "id": "e10",
+   "x": 360,
+   "y": 206,
+   "content": "불리언 → 문자열 'true'",
+   "fontSize": 16,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 6500,
+     "end": 14000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "e11",
+   "x": 40,
+   "y": 246,
+   "width": 300,
+   "height": 46,
+   "fill": "#fbbf24",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 6800,
+     "end": 14000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "\"c\" => \"[1, 2]\"",
+   "labelColor": "#0b1120",
+   "labelSize": 18
+  },
+  {
+   "type": "text",
+   "id": "e12",
+   "x": 360,
+   "y": 276,
+   "content": "배열 → 텍스트 '[1, 2]'",
+   "fontSize": 16,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 7000,
+     "end": 14000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "e13",
+   "x": 40,
+   "y": 316,
+   "width": 300,
+   "height": 46,
+   "fill": "#fb7185",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 7300,
+     "end": 14000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "\"d\" => \"{\"x\": 1}\"",
+   "labelColor": "#0b1120",
+   "labelSize": 18
+  },
+  {
+   "type": "text",
+   "id": "e14",
+   "x": 360,
+   "y": 346,
+   "content": "객체 → 텍스트 '{\"x\": 1}'",
+   "fontSize": 16,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 7500,
+     "end": 14000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "e15",
+   "x": 40,
+   "y": 410,
+   "content": "안쪽 x 는 더 이상 키가 아니다 — d 의 값(문자열)을 쿼리하려면 다시 jsonb 로 파싱해야 한다.",
+   "fontSize": 15,
+   "color": "#fbbf24",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 8300,
+     "end": 14000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "e16",
+   "x": 40,
+   "y": 106,
+   "width": 860,
+   "height": 46,
+   "fill": "#1e293b",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 14200,
+     "end": 22500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "hstore_to_jsonb('n=>42, flag=>t')",
+   "labelColor": "#e2e8f0",
+   "labelSize": 17,
+   "stroke": "#334155",
+   "strokeWidth": 2
+  },
+  {
+   "type": "text",
+   "id": "e17",
+   "x": 40,
+   "y": 190,
+   "content": "→ {\"n\": \"42\", \"flag\": \"t\"}   전부 문자열",
+   "fontSize": 16,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 14700,
+     "end": 22500,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "e18",
+   "x": 40,
+   "y": 232,
+   "width": 860,
+   "height": 46,
+   "fill": "#1e293b",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 15400,
+     "end": 22500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "hstore_to_jsonb_loose('n=>42, flag=>t, word=>true')",
+   "labelColor": "#e2e8f0",
+   "labelSize": 17,
+   "stroke": "#334155",
+   "strokeWidth": 2
+  },
+  {
+   "type": "text",
+   "id": "e19",
+   "x": 40,
+   "y": 316,
+   "content": "→ {\"n\": 42, \"flag\": true, \"word\": \"true\"}   숫자는 숫자로, t·f 만 불리언으로",
+   "fontSize": 16,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 15900,
+     "end": 22500,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "e20",
+   "x": 40,
+   "y": 368,
+   "content": "'true' 는 문자열로 남고 1.10 은 숫자가 되며 007 은 문자열로 남는다 — 모양으로 추측하는 변환이다.",
+   "fontSize": 15,
+   "color": "#fbbf24",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 17400,
+     "end": 22500,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  }
+ ],
+ "chapters": [
+  {
+   "id": "ch0",
+   "time": 0,
+   "label": "1. jsonb 문서",
+   "subtitle": "숫자 · 불리언 · 배열 · 중첩 객체"
+  },
+  {
+   "id": "ch1",
+   "time": 5500,
+   "label": "2. hstore 로 옮긴다",
+   "subtitle": "각 값이 text 한 덩어리가 된다"
+  },
+  {
+   "id": "ch2",
+   "time": 14000,
+   "label": "3. 돌아올 때",
+   "subtitle": "hstore_to_jsonb 는 전부 문자열, _loose 는 모양으로 추측한다"
+  }
+ ],
+ "settings": {
+  "loop": false,
+  "autoplay": true,
+  "showChapterList": true
+ }
+}

@@ -1,0 +1,2584 @@
+{
+  "environment": {
+    "postgres": "PostgreSQL 16.15 (Debian 16.15-1.pgdg13+2) on aarch64-unknown-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit",
+    "hstore_version": "1.8",
+    "synchronous_commit": "on",
+    "shared_buffers": "256MB",
+    "cpu_count": "3",
+    "toast_compression": "pglz",
+    "redis": "Redis server v=7.4.11 sha=00000000:0 malloc=jemalloc-5.3.0 bits=64 build=30ac2daf18bf8899",
+    "note": "Docker Desktop(macOS) 위의 Linux VM, 공유 CPU 3개. 절대 수치는 이 환경에서만 의미가 있다."
+  },
+  "storage": {
+    "runs": 3,
+    "deterministic": true,
+    "cells": [
+      {
+        "hs": {
+          "avg_column_bytes": 110,
+          "max_column_bytes": 111,
+          "avg_text_bytes": 103,
+          "compressed_rows": 0,
+          "heap_bytes": 745472,
+          "toast_bytes": 0,
+          "total_bytes": 966656
+        },
+        "jb": {
+          "avg_column_bytes": 110,
+          "max_column_bytes": 111,
+          "avg_text_bytes": 105,
+          "compressed_rows": 0,
+          "heap_bytes": 745472,
+          "toast_bytes": 0,
+          "total_bytes": 958464
+        },
+        "eav": {
+          "heap_bytes": 1310720,
+          "toast_bytes": 0,
+          "total_bytes": 2465792,
+          "rows": 25000
+        },
+        "formula": {
+          "actual": 108,
+          "compression": null,
+          "raw": 111,
+          "form": "inline-short-header"
+        },
+        "rows": 5000,
+        "keys": 5,
+        "profile": "low"
+      },
+      {
+        "hs": {
+          "avg_column_bytes": 148,
+          "max_column_bytes": 148,
+          "avg_text_bytes": 138,
+          "compressed_rows": 0,
+          "heap_bytes": 917504,
+          "toast_bytes": 0,
+          "total_bytes": 1138688
+        },
+        "jb": {
+          "avg_column_bytes": 148,
+          "max_column_bytes": 148,
+          "avg_text_bytes": 140,
+          "compressed_rows": 0,
+          "heap_bytes": 917504,
+          "toast_bytes": 0,
+          "total_bytes": 1130496
+        },
+        "eav": {
+          "heap_bytes": 1507328,
+          "toast_bytes": 0,
+          "total_bytes": 2662400,
+          "rows": 25000
+        },
+        "formula": {
+          "actual": 148,
+          "compression": null,
+          "raw": 148,
+          "form": "inline"
+        },
+        "rows": 5000,
+        "keys": 5,
+        "profile": "high"
+      },
+      {
+        "hs": {
+          "avg_column_bytes": 426,
+          "max_column_bytes": 426,
+          "avg_text_bytes": 416,
+          "compressed_rows": 0,
+          "heap_bytes": 2416640,
+          "toast_bytes": 0,
+          "total_bytes": 2637824
+        },
+        "jb": {
+          "avg_column_bytes": 426,
+          "max_column_bytes": 426,
+          "avg_text_bytes": 418,
+          "compressed_rows": 0,
+          "heap_bytes": 2416640,
+          "toast_bytes": 0,
+          "total_bytes": 2629632
+        },
+        "eav": {
+          "heap_bytes": 5218304,
+          "toast_bytes": 0,
+          "total_bytes": 9691136,
+          "rows": 100000
+        },
+        "formula": {
+          "actual": 426,
+          "compression": null,
+          "raw": 426,
+          "form": "inline"
+        },
+        "rows": 5000,
+        "keys": 20,
+        "profile": "low"
+      },
+      {
+        "hs": {
+          "avg_column_bytes": 568,
+          "max_column_bytes": 568,
+          "avg_text_bytes": 558,
+          "compressed_rows": 0,
+          "heap_bytes": 3153920,
+          "toast_bytes": 0,
+          "total_bytes": 3375104
+        },
+        "jb": {
+          "avg_column_bytes": 568,
+          "max_column_bytes": 568,
+          "avg_text_bytes": 560,
+          "compressed_rows": 0,
+          "heap_bytes": 3153920,
+          "toast_bytes": 0,
+          "total_bytes": 3366912
+        },
+        "eav": {
+          "heap_bytes": 6029312,
+          "toast_bytes": 0,
+          "total_bytes": 10502144,
+          "rows": 100000
+        },
+        "formula": {
+          "actual": 568,
+          "compression": null,
+          "raw": 568,
+          "form": "inline"
+        },
+        "rows": 5000,
+        "keys": 20,
+        "profile": "high"
+      },
+      {
+        "hs": {
+          "avg_column_bytes": 1298,
+          "max_column_bytes": 1299,
+          "avg_text_bytes": 2088,
+          "compressed_rows": 5000,
+          "heap_bytes": 6832128,
+          "toast_bytes": 0,
+          "total_bytes": 7028736
+        },
+        "jb": {
+          "avg_column_bytes": 478,
+          "max_column_bytes": 481,
+          "avg_text_bytes": 2090,
+          "compressed_rows": 5000,
+          "heap_bytes": 2736128,
+          "toast_bytes": 0,
+          "total_bytes": 2932736
+        },
+        "eav": {
+          "heap_bytes": 26091520,
+          "toast_bytes": 0,
+          "total_bytes": 46317568,
+          "rows": 500000
+        },
+        "formula": {
+          "actual": 1298,
+          "compression": "pglz",
+          "raw": 2098,
+          "form": "compressed"
+        },
+        "compression_probe": {
+          "lz4_hstore_avg": 1298,
+          "lz4_jsonb_avg": 478,
+          "layout_offsets_pglz_avg": 1294,
+          "layout_lengths_pglz_avg": 427,
+          "layout_offsets_lz4_avg": 1294,
+          "layout_lengths_lz4_avg": 427,
+          "layout_raw_avg": 2090
+        },
+        "rows": 5000,
+        "keys": 100,
+        "profile": "low"
+      },
+      {
+        "hs": {
+          "avg_column_bytes": 2804,
+          "max_column_bytes": 2804,
+          "avg_text_bytes": 2798,
+          "compressed_rows": 0,
+          "heap_bytes": 262144,
+          "toast_bytes": 15360000,
+          "total_bytes": 16089088
+        },
+        "jb": {
+          "avg_column_bytes": 1717,
+          "max_column_bytes": 1741,
+          "avg_text_bytes": 2800,
+          "compressed_rows": 5000,
+          "heap_bytes": 10240000,
+          "toast_bytes": 0,
+          "total_bytes": 10436608
+        },
+        "eav": {
+          "heap_bytes": 30121984,
+          "toast_bytes": 0,
+          "total_bytes": 50348032,
+          "rows": 500000
+        },
+        "formula": {
+          "actual": 2804,
+          "compression": null,
+          "raw": 2808,
+          "form": "external-uncompressed"
+        },
+        "compression_probe": {
+          "lz4_hstore_avg": 2384,
+          "lz4_jsonb_avg": 1717,
+          "layout_offsets_pglz_avg": 2800,
+          "layout_lengths_pglz_avg": 1644,
+          "layout_offsets_lz4_avg": 2380,
+          "layout_lengths_lz4_avg": 1644,
+          "layout_raw_avg": 2800
+        },
+        "rows": 5000,
+        "keys": 100,
+        "profile": "high"
+      },
+      {
+        "hs": {
+          "avg_column_bytes": 10027,
+          "max_column_bytes": 10454,
+          "avg_text_bytes": 10448,
+          "compressed_rows": 200,
+          "heap_bytes": 106496,
+          "toast_bytes": 23756800,
+          "total_bytes": 24281088
+        },
+        "jb": {
+          "avg_column_bytes": 1943,
+          "max_column_bytes": 1951,
+          "avg_text_bytes": 10450,
+          "compressed_rows": 2000,
+          "heap_bytes": 4096000,
+          "toast_bytes": 0,
+          "total_bytes": 4218880
+        },
+        "eav": {
+          "heap_bytes": 52183040,
+          "toast_bytes": 0,
+          "total_bytes": 91570176,
+          "rows": 1000000
+        },
+        "formula": {
+          "actual": 10454,
+          "compression": null,
+          "raw": 10458,
+          "form": "external-uncompressed"
+        },
+        "compression_probe": {
+          "lz4_hstore_avg": 6124,
+          "lz4_jsonb_avg": 1943,
+          "layout_offsets_pglz_avg": 10450,
+          "layout_lengths_pglz_avg": 1764,
+          "layout_offsets_lz4_avg": 6140,
+          "layout_lengths_lz4_avg": 1764,
+          "layout_raw_avg": 10450
+        },
+        "rows": 2000,
+        "keys": 500,
+        "profile": "low"
+      },
+      {
+        "hs": {
+          "avg_column_bytes": 14004,
+          "max_column_bytes": 14004,
+          "avg_text_bytes": 13998,
+          "compressed_rows": 0,
+          "heap_bytes": 106496,
+          "toast_bytes": 32768000,
+          "total_bytes": 33390592
+        },
+        "jb": {
+          "avg_column_bytes": 8030,
+          "max_column_bytes": 8130,
+          "avg_text_bytes": 14000,
+          "compressed_rows": 2000,
+          "heap_bytes": 106496,
+          "toast_bytes": 16564224,
+          "total_bytes": 17055744
+        },
+        "eav": {
+          "heap_bytes": 60235776,
+          "toast_bytes": 0,
+          "total_bytes": 99622912,
+          "rows": 1000000
+        },
+        "formula": {
+          "actual": 14004,
+          "compression": null,
+          "raw": 14008,
+          "form": "external-uncompressed"
+        },
+        "compression_probe": {
+          "lz4_hstore_avg": 11818,
+          "lz4_jsonb_avg": 8030,
+          "layout_offsets_pglz_avg": 14000,
+          "layout_lengths_pglz_avg": 7897,
+          "layout_offsets_lz4_avg": 11809,
+          "layout_lengths_lz4_avg": 7897,
+          "layout_raw_avg": 14000
+        },
+        "rows": 2000,
+        "keys": 500,
+        "profile": "high"
+      }
+    ]
+  },
+  "update": {
+    "runs": 5,
+    "rows": 1000,
+    "cases": {
+      "5": {
+        "read_ms_1000_rows": {
+          "hstore": {
+            "median": 0.243,
+            "min": 0.228,
+            "max": 0.283
+          },
+          "jsonb": {
+            "median": 0.083,
+            "min": 0.081,
+            "max": 0.096
+          },
+          "plain_column": {
+            "median": 0.064,
+            "min": 0.062,
+            "max": 0.068
+          },
+          "eav_row": {
+            "median": 0.221,
+            "min": 0.218,
+            "max": 0.229
+          }
+        },
+        "hstore_concat": {
+          "wal_bytes_per_update": {
+            "median": 176.16,
+            "min": 176.16,
+            "max": 176.16
+          },
+          "heap_growth_bytes": {
+            "median": 0,
+            "min": 0,
+            "max": 0
+          },
+          "toast_growth_bytes": {
+            "median": 0,
+            "min": 0,
+            "max": 0
+          },
+          "hot_ratio": {
+            "median": 0.999,
+            "min": 0.999,
+            "max": 0.999
+          },
+          "seconds_per_1000_updates": {
+            "median": 0.21115391585044563,
+            "min": 0.19645420787855983,
+            "max": 0.2668427089229226
+          }
+        },
+        "hstore_subscript": {
+          "wal_bytes_per_update": {
+            "median": 175.968,
+            "min": 175.968,
+            "max": 175.968
+          },
+          "heap_growth_bytes": {
+            "median": 0,
+            "min": 0,
+            "max": 0
+          },
+          "toast_growth_bytes": {
+            "median": 0,
+            "min": 0,
+            "max": 0
+          },
+          "hot_ratio": {
+            "median": 1.0,
+            "min": 1.0,
+            "max": 1.0
+          },
+          "seconds_per_1000_updates": {
+            "median": 0.20548016601242125,
+            "min": 0.19285104214213789,
+            "max": 0.24411474983207881
+          }
+        },
+        "hstore_concat_gin": {
+          "wal_bytes_per_update": {
+            "median": 634.792,
+            "min": 634.792,
+            "max": 634.936
+          },
+          "heap_growth_bytes": {
+            "median": 0,
+            "min": 0,
+            "max": 0
+          },
+          "toast_growth_bytes": {
+            "median": 0,
+            "min": 0,
+            "max": 0
+          },
+          "hot_ratio": {
+            "median": 0.0,
+            "min": 0.0,
+            "max": 0.0
+          },
+          "seconds_per_1000_updates": {
+            "median": 0.2081167500000447,
+            "min": 0.2006744579412043,
+            "max": 0.2951419160235673
+          }
+        },
+        "jsonb_set": {
+          "wal_bytes_per_update": {
+            "median": 175.736,
+            "min": 175.736,
+            "max": 175.736
+          },
+          "heap_growth_bytes": {
+            "median": 0,
+            "min": 0,
+            "max": 0
+          },
+          "toast_growth_bytes": {
+            "median": 0,
+            "min": 0,
+            "max": 0
+          },
+          "hot_ratio": {
+            "median": 1.0,
+            "min": 1.0,
+            "max": 1.0
+          },
+          "seconds_per_1000_updates": {
+            "median": 0.22620579204522073,
+            "min": 0.1979097919538617,
+            "max": 0.2757414588704705
+          }
+        },
+        "plain_column": {
+          "wal_bytes_per_update": {
+            "median": 176.504,
+            "min": 176.504,
+            "max": 176.504
+          },
+          "heap_growth_bytes": {
+            "median": 0,
+            "min": 0,
+            "max": 0
+          },
+          "toast_growth_bytes": {
+            "median": 0,
+            "min": 0,
+            "max": 0
+          },
+          "hot_ratio": {
+            "median": 1.0,
+            "min": 1.0,
+            "max": 1.0
+          },
+          "seconds_per_1000_updates": {
+            "median": 0.2080504579935223,
+            "min": 0.18911633314564824,
+            "max": 0.22192633291706443
+          }
+        },
+        "eav_row": {
+          "wal_bytes_per_update": {
+            "median": 176.016,
+            "min": 175.96,
+            "max": 176.016
+          },
+          "heap_growth_bytes": {
+            "median": 0,
+            "min": 0,
+            "max": 0
+          },
+          "toast_growth_bytes": {
+            "median": 0,
+            "min": 0,
+            "max": 0
+          },
+          "hot_ratio": {
+            "median": 1.0,
+            "min": 1.0,
+            "max": 1.0
+          },
+          "seconds_per_1000_updates": {
+            "median": 0.2082417500205338,
+            "min": 0.1990412501618266,
+            "max": 0.33233720785938203
+          }
+        },
+        "hstore_avg_column_bytes": 146
+      },
+      "50": {
+        "read_ms_1000_rows": {
+          "hstore": {
+            "median": 0.531,
+            "min": 0.526,
+            "max": 0.624
+          },
+          "jsonb": {
+            "median": 0.36,
+            "min": 0.334,
+            "max": 0.39
+          },
+          "plain_column": {
+            "median": 0.226,
+            "min": 0.201,
+            "max": 0.265
+          },
+          "eav_row": {
+            "median": 1.864,
+            "min": 1.858,
+            "max": 2.037
+          }
+        },
+        "hstore_concat": {
+          "wal_bytes_per_update": {
+            "median": 692.384,
+            "min": 692.384,
+            "max": 692.384
+          },
+          "heap_growth_bytes": {
+            "median": 589824,
+            "min": 589824,
+            "max": 589824
+          },
+          "toast_growth_bytes": {
+            "median": 0,
+            "min": 0,
+            "max": 0
+          },
+          "hot_ratio": {
+            "median": 0.64,
+            "min": 0.64,
+            "max": 0.64
+          },
+          "seconds_per_1000_updates": {
+            "median": 0.20427058404311538,
+            "min": 0.196673332946375,
+            "max": 0.21211062488146126
+          }
+        },
+        "hstore_subscript": {
+          "wal_bytes_per_update": {
+            "median": 639.424,
+            "min": 639.424,
+            "max": 893.56
+          },
+          "heap_growth_bytes": {
+            "median": 532480,
+            "min": 532480,
+            "max": 532480
+          },
+          "toast_growth_bytes": {
+            "median": 0,
+            "min": 0,
+            "max": 0
+          },
+          "hot_ratio": {
+            "median": 0.678,
+            "min": 0.678,
+            "max": 0.678
+          },
+          "seconds_per_1000_updates": {
+            "median": 0.2138467498589307,
+            "min": 0.20527391717769206,
+            "max": 0.2812057500705123
+          }
+        },
+        "hstore_concat_gin": {
+          "wal_bytes_per_update": {
+            "median": 10488.92,
+            "min": 10488.92,
+            "max": 10488.92
+          },
+          "heap_growth_bytes": {
+            "median": 589824,
+            "min": 589824,
+            "max": 589824
+          },
+          "toast_growth_bytes": {
+            "median": 0,
+            "min": 0,
+            "max": 0
+          },
+          "hot_ratio": {
+            "median": 0.0,
+            "min": 0.0,
+            "max": 0.0
+          },
+          "seconds_per_1000_updates": {
+            "median": 0.415338542079553,
+            "min": 0.4020637501962483,
+            "max": 0.4830966249573976
+          }
+        },
+        "jsonb_set": {
+          "wal_bytes_per_update": {
+            "median": 692.32,
+            "min": 692.296,
+            "max": 692.32
+          },
+          "heap_growth_bytes": {
+            "median": 589824,
+            "min": 589824,
+            "max": 589824
+          },
+          "toast_growth_bytes": {
+            "median": 0,
+            "min": 0,
+            "max": 0
+          },
+          "hot_ratio": {
+            "median": 0.64,
+            "min": 0.64,
+            "max": 0.64
+          },
+          "seconds_per_1000_updates": {
+            "median": 0.22462120885029435,
+            "min": 0.21322133298963308,
+            "max": 0.26128508313558996
+          }
+        },
+        "plain_column": {
+          "wal_bytes_per_update": {
+            "median": 182.16,
+            "min": 182.16,
+            "max": 182.16
+          },
+          "heap_growth_bytes": {
+            "median": 0,
+            "min": 0,
+            "max": 0
+          },
+          "toast_growth_bytes": {
+            "median": 0,
+            "min": 0,
+            "max": 0
+          },
+          "hot_ratio": {
+            "median": 0.992,
+            "min": 0.992,
+            "max": 0.992
+          },
+          "seconds_per_1000_updates": {
+            "median": 0.2029834589920938,
+            "min": 0.19588154111988842,
+            "max": 0.22266224981285632
+          }
+        },
+        "eav_row": {
+          "wal_bytes_per_update": {
+            "median": 175.992,
+            "min": 175.96,
+            "max": 175.992
+          },
+          "heap_growth_bytes": {
+            "median": 0,
+            "min": 0,
+            "max": 0
+          },
+          "toast_growth_bytes": {
+            "median": 0,
+            "min": 0,
+            "max": 0
+          },
+          "hot_ratio": {
+            "median": 1.0,
+            "min": 1.0,
+            "max": 1.0
+          },
+          "seconds_per_1000_updates": {
+            "median": 0.2028368329629302,
+            "min": 0.19312137505039573,
+            "max": 0.2218658342026174
+          }
+        },
+        "hstore_avg_column_bytes": 1406
+      },
+      "500": {
+        "read_ms_1000_rows": {
+          "hstore": {
+            "median": 2.753,
+            "min": 2.534,
+            "max": 2.802
+          },
+          "jsonb": {
+            "median": 10.283,
+            "min": 9.814,
+            "max": 10.33
+          },
+          "plain_column": {
+            "median": 1.177,
+            "min": 1.108,
+            "max": 1.215
+          },
+          "eav_row": {
+            "median": 9.362,
+            "min": 8.569,
+            "max": 10.045
+          }
+        },
+        "hstore_concat": {
+          "wal_bytes_per_update": {
+            "median": 15806.264,
+            "min": 15805.616,
+            "max": 15806.264
+          },
+          "heap_growth_bytes": {
+            "median": 0,
+            "min": 0,
+            "max": 0
+          },
+          "toast_growth_bytes": {
+            "median": 16384000,
+            "min": 16384000,
+            "max": 16384000
+          },
+          "hot_ratio": {
+            "median": 0.98,
+            "min": 0.98,
+            "max": 0.98
+          },
+          "seconds_per_1000_updates": {
+            "median": 0.28027816698886454,
+            "min": 0.254269165918231,
+            "max": 0.43517616600729525
+          }
+        },
+        "hstore_subscript": {
+          "wal_bytes_per_update": {
+            "median": 15802.632,
+            "min": 15802.632,
+            "max": 15802.632
+          },
+          "heap_growth_bytes": {
+            "median": 0,
+            "min": 0,
+            "max": 0
+          },
+          "toast_growth_bytes": {
+            "median": 16384000,
+            "min": 16384000,
+            "max": 16384000
+          },
+          "hot_ratio": {
+            "median": 1.0,
+            "min": 1.0,
+            "max": 1.0
+          },
+          "seconds_per_1000_updates": {
+            "median": 0.2893702909350395,
+            "min": 0.27438824996352196,
+            "max": 0.37259154208004475
+          }
+        },
+        "hstore_concat_gin": {
+          "wal_bytes_per_update": {
+            "median": 113609.408,
+            "min": 113609.344,
+            "max": 113609.408
+          },
+          "heap_growth_bytes": {
+            "median": 40960,
+            "min": 40960,
+            "max": 40960
+          },
+          "toast_growth_bytes": {
+            "median": 16384000,
+            "min": 16384000,
+            "max": 16384000
+          },
+          "hot_ratio": {
+            "median": 0.0,
+            "min": 0.0,
+            "max": 0.0
+          },
+          "seconds_per_1000_updates": {
+            "median": 2.7438552090898156,
+            "min": 2.723474374972284,
+            "max": 2.856102291960269
+          }
+        },
+        "jsonb_set": {
+          "wal_bytes_per_update": {
+            "median": 9240.752,
+            "min": 9240.752,
+            "max": 9240.752
+          },
+          "heap_growth_bytes": {
+            "median": 0,
+            "min": 0,
+            "max": 0
+          },
+          "toast_growth_bytes": {
+            "median": 8282112,
+            "min": 8282112,
+            "max": 8282112
+          },
+          "hot_ratio": {
+            "median": 0.982,
+            "min": 0.982,
+            "max": 0.982
+          },
+          "seconds_per_1000_updates": {
+            "median": 0.4180963330436498,
+            "min": 0.4001798750832677,
+            "max": 0.4302632079925388
+          }
+        },
+        "plain_column": {
+          "wal_bytes_per_update": {
+            "median": 6783.928,
+            "min": 6783.928,
+            "max": 6783.928
+          },
+          "heap_growth_bytes": {
+            "median": 8192000,
+            "min": 8192000,
+            "max": 8192000
+          },
+          "toast_growth_bytes": {
+            "median": 0,
+            "min": 0,
+            "max": 0
+          },
+          "hot_ratio": {
+            "median": 0.0,
+            "min": 0.0,
+            "max": 0.0
+          },
+          "seconds_per_1000_updates": {
+            "median": 0.3303939171601087,
+            "min": 0.30909570795483887,
+            "max": 0.3881631251424551
+          }
+        },
+        "eav_row": {
+          "wal_bytes_per_update": {
+            "median": 176.016,
+            "min": 175.96,
+            "max": 176.016
+          },
+          "heap_growth_bytes": {
+            "median": 0,
+            "min": 0,
+            "max": 0
+          },
+          "toast_growth_bytes": {
+            "median": 0,
+            "min": 0,
+            "max": 0
+          },
+          "hot_ratio": {
+            "median": 1.0,
+            "min": 1.0,
+            "max": 1.0
+          },
+          "seconds_per_1000_updates": {
+            "median": 0.20263187494128942,
+            "min": 0.19613833306357265,
+            "max": 0.20885462500154972
+          }
+        },
+        "hstore_avg_column_bytes": 14002
+      }
+    }
+  },
+  "index": {
+    "runs": 5,
+    "rows": 200000,
+    "insert_rows": 20000,
+    "base": {
+      "heap": 142368768,
+      "hstore_col": 207,
+      "jsonb_col": 207
+    },
+    "queries": {
+      "contain_2keys_common": "color=red & size=M (약 2.5%)",
+      "contain_2keys_narrow": "brand=brand07 & material=steel (약 0.25%)",
+      "contain_rare_value": "sku_grp=g0123 (약 0.1%)",
+      "key_exists_rare": "키 'promo' 존재 (약 0.1%)",
+      "equal_expression": "attrs->'brand' = 'brand07' (약 2.5%)"
+    },
+    "configs": {
+      "none": {
+        "index_bytes": {
+          "median": 0,
+          "min": 0,
+          "max": 0
+        },
+        "build_seconds": {
+          "median": 0.0,
+          "min": 0.0,
+          "max": 0.0
+        },
+        "insert_seconds": {
+          "median": 0.17516166693530977,
+          "min": 0.14802600000984967,
+          "max": 0.28830579086206853
+        },
+        "insert_wal_bytes": {
+          "median": 9631696,
+          "min": 9631696,
+          "max": 9631696
+        },
+        "queries": {
+          "contain_2keys_common": {
+            "rows": 5000,
+            "ms": {
+              "median": 14.38,
+              "min": 12.342,
+              "max": 15.257
+            },
+            "recheck_removed": {
+              "median": 0,
+              "min": 0,
+              "max": 0
+            },
+            "plans": [
+              "Aggregate > Gather > Aggregate > Seq Scan"
+            ]
+          },
+          "contain_2keys_narrow": {
+            "rows": 500,
+            "ms": {
+              "median": 13.272,
+              "min": 12.607,
+              "max": 18.737
+            },
+            "recheck_removed": {
+              "median": 0,
+              "min": 0,
+              "max": 0
+            },
+            "plans": [
+              "Aggregate > Gather > Aggregate > Seq Scan"
+            ]
+          },
+          "contain_rare_value": {
+            "rows": 200,
+            "ms": {
+              "median": 13.512,
+              "min": 12.5,
+              "max": 22.076
+            },
+            "recheck_removed": {
+              "median": 0,
+              "min": 0,
+              "max": 0
+            },
+            "plans": [
+              "Aggregate > Gather > Aggregate > Seq Scan"
+            ]
+          },
+          "key_exists_rare": {
+            "rows": 200,
+            "ms": {
+              "median": 12.906,
+              "min": 12.574,
+              "max": 15.129
+            },
+            "recheck_removed": {
+              "median": 0,
+              "min": 0,
+              "max": 0
+            },
+            "plans": [
+              "Aggregate > Gather > Aggregate > Seq Scan"
+            ]
+          },
+          "equal_expression": {
+            "rows": 5000,
+            "ms": {
+              "median": 15.548,
+              "min": 14.612,
+              "max": 17.913
+            },
+            "recheck_removed": {
+              "median": 0,
+              "min": 0,
+              "max": 0
+            },
+            "plans": [
+              "Aggregate > Gather > Aggregate > Seq Scan"
+            ]
+          }
+        }
+      },
+      "hstore_gin": {
+        "index_bytes": {
+          "median": 71942144,
+          "min": 71942144,
+          "max": 71942144
+        },
+        "build_seconds": {
+          "median": 6.3623017920181155,
+          "min": 6.18472870788537,
+          "max": 6.518797458149493
+        },
+        "insert_seconds": {
+          "median": 0.6461307092104107,
+          "min": 0.6195957500021905,
+          "max": 0.6858812919817865
+        },
+        "insert_wal_bytes": {
+          "median": 33443152,
+          "min": 33443152,
+          "max": 33443152
+        },
+        "queries": {
+          "contain_2keys_common": {
+            "rows": 5000,
+            "ms": {
+              "median": 6.229,
+              "min": 6.09,
+              "max": 6.871
+            },
+            "recheck_removed": {
+              "median": 0,
+              "min": 0,
+              "max": 0
+            },
+            "plans": [
+              "Aggregate > Bitmap Heap Scan > Bitmap Index Scan (ix)"
+            ]
+          },
+          "contain_2keys_narrow": {
+            "rows": 500,
+            "ms": {
+              "median": 2.312,
+              "min": 2.121,
+              "max": 2.656
+            },
+            "recheck_removed": {
+              "median": 0,
+              "min": 0,
+              "max": 0
+            },
+            "plans": [
+              "Aggregate > Bitmap Heap Scan > Bitmap Index Scan (ix)"
+            ]
+          },
+          "contain_rare_value": {
+            "rows": 200,
+            "ms": {
+              "median": 0.879,
+              "min": 0.858,
+              "max": 0.912
+            },
+            "recheck_removed": {
+              "median": 0,
+              "min": 0,
+              "max": 0
+            },
+            "plans": [
+              "Aggregate > Bitmap Heap Scan > Bitmap Index Scan (ix)"
+            ]
+          },
+          "key_exists_rare": {
+            "rows": 200,
+            "ms": {
+              "median": 0.557,
+              "min": 0.539,
+              "max": 0.563
+            },
+            "recheck_removed": {
+              "median": 0,
+              "min": 0,
+              "max": 0
+            },
+            "plans": [
+              "Aggregate > Bitmap Heap Scan > Bitmap Index Scan (ix)"
+            ]
+          },
+          "equal_expression": {
+            "rows": 5000,
+            "ms": {
+              "median": 16.641,
+              "min": 15.974,
+              "max": 21.927
+            },
+            "recheck_removed": {
+              "median": 0,
+              "min": 0,
+              "max": 0
+            },
+            "plans": [
+              "Aggregate > Gather > Aggregate > Seq Scan"
+            ]
+          }
+        }
+      },
+      "hstore_gist16": {
+        "index_bytes": {
+          "median": 10436608,
+          "min": 10412032,
+          "max": 10461184
+        },
+        "build_seconds": {
+          "median": 4.2692229161038995,
+          "min": 4.152662958018482,
+          "max": 4.397015916882083
+        },
+        "insert_seconds": {
+          "median": 0.5646564580965787,
+          "min": 0.5490607090760022,
+          "max": 0.5920091660227627
+        },
+        "insert_wal_bytes": {
+          "median": 12073264,
+          "min": 12069656,
+          "max": 12147336
+        },
+        "queries": {
+          "contain_2keys_common": {
+            "rows": 5000,
+            "ms": {
+              "median": 11.173,
+              "min": 10.898,
+              "max": 12.049
+            },
+            "recheck_removed": {
+              "median": 3360,
+              "min": 3360,
+              "max": 3360
+            },
+            "plans": [
+              "Aggregate > Bitmap Heap Scan > Bitmap Index Scan (ix)"
+            ]
+          },
+          "contain_2keys_narrow": {
+            "rows": 500,
+            "ms": {
+              "median": 13.973,
+              "min": 13.128,
+              "max": 14.363
+            },
+            "recheck_removed": {
+              "median": 14844,
+              "min": 14844,
+              "max": 14844
+            },
+            "plans": [
+              "Aggregate > Bitmap Heap Scan > Bitmap Index Scan (ix)"
+            ]
+          },
+          "contain_rare_value": {
+            "rows": 200,
+            "ms": {
+              "median": 20.152,
+              "min": 18.795,
+              "max": 20.621
+            },
+            "recheck_removed": {
+              "median": 38933,
+              "min": 38933,
+              "max": 38933
+            },
+            "plans": [
+              "Aggregate > Bitmap Heap Scan > Bitmap Index Scan (ix)"
+            ]
+          },
+          "key_exists_rare": {
+            "rows": 200,
+            "ms": {
+              "median": 12.498,
+              "min": 12.157,
+              "max": 13.121
+            },
+            "recheck_removed": {
+              "median": 15418,
+              "min": 15418,
+              "max": 15418
+            },
+            "plans": [
+              "Aggregate > Bitmap Heap Scan > Bitmap Index Scan (ix)"
+            ]
+          },
+          "equal_expression": {
+            "rows": 5000,
+            "ms": {
+              "median": 17.463,
+              "min": 16.386,
+              "max": 18.584
+            },
+            "recheck_removed": {
+              "median": 0,
+              "min": 0,
+              "max": 0
+            },
+            "plans": [
+              "Aggregate > Gather > Aggregate > Seq Scan"
+            ]
+          }
+        }
+      },
+      "hstore_gist128": {
+        "index_bytes": {
+          "median": 35422208,
+          "min": 35373056,
+          "max": 35471360
+        },
+        "build_seconds": {
+          "median": 9.599036416970193,
+          "min": 9.419899750035256,
+          "max": 9.689220374915749
+        },
+        "insert_seconds": {
+          "median": 1.1600025841034949,
+          "min": 1.1169416659977287,
+          "max": 1.3555489999707788
+        },
+        "insert_wal_bytes": {
+          "median": 20382456,
+          "min": 20245840,
+          "max": 20718912
+        },
+        "queries": {
+          "contain_2keys_common": {
+            "rows": 5000,
+            "ms": {
+              "median": 12.985,
+              "min": 11.869,
+              "max": 18.072
+            },
+            "recheck_removed": {
+              "median": 368,
+              "min": 368,
+              "max": 368
+            },
+            "plans": [
+              "Aggregate > Bitmap Heap Scan > Bitmap Index Scan (ix)"
+            ]
+          },
+          "contain_2keys_narrow": {
+            "rows": 500,
+            "ms": {
+              "median": 7.42,
+              "min": 6.647,
+              "max": 8.473
+            },
+            "recheck_removed": {
+              "median": 153,
+              "min": 153,
+              "max": 153
+            },
+            "plans": [
+              "Aggregate > Bitmap Heap Scan > Bitmap Index Scan (ix)"
+            ]
+          },
+          "contain_rare_value": {
+            "rows": 200,
+            "ms": {
+              "median": 21.419,
+              "min": 19.1,
+              "max": 25.292
+            },
+            "recheck_removed": {
+              "median": 26050,
+              "min": 26050,
+              "max": 26050
+            },
+            "plans": [
+              "Aggregate > Bitmap Heap Scan > Bitmap Index Scan (ix)"
+            ]
+          },
+          "key_exists_rare": {
+            "rows": 200,
+            "ms": {
+              "median": 5.746,
+              "min": 5.491,
+              "max": 6.436
+            },
+            "recheck_removed": {
+              "median": 1512,
+              "min": 1512,
+              "max": 1512
+            },
+            "plans": [
+              "Aggregate > Bitmap Heap Scan > Bitmap Index Scan (ix)"
+            ]
+          },
+          "equal_expression": {
+            "rows": 5000,
+            "ms": {
+              "median": 18.036,
+              "min": 16.603,
+              "max": 19.681
+            },
+            "recheck_removed": {
+              "median": 0,
+              "min": 0,
+              "max": 0
+            },
+            "plans": [
+              "Aggregate > Gather > Aggregate > Seq Scan"
+            ]
+          }
+        }
+      },
+      "btree_brand": {
+        "index_bytes": {
+          "median": 1400832,
+          "min": 1400832,
+          "max": 1400832
+        },
+        "build_seconds": {
+          "median": 0.23078495799563825,
+          "min": 0.21495508286170661,
+          "max": 0.2555029159411788
+        },
+        "insert_seconds": {
+          "median": 0.21902291709557176,
+          "min": 0.20108279190026224,
+          "max": 0.23693250003270805
+        },
+        "insert_wal_bytes": {
+          "median": 11085456,
+          "min": 11085424,
+          "max": 11085456
+        },
+        "queries": {
+          "contain_2keys_common": {
+            "rows": 5000,
+            "ms": {
+              "median": 14.141,
+              "min": 12.045,
+              "max": 22.708
+            },
+            "recheck_removed": {
+              "median": 0,
+              "min": 0,
+              "max": 0
+            },
+            "plans": [
+              "Aggregate > Gather > Aggregate > Seq Scan"
+            ]
+          },
+          "contain_2keys_narrow": {
+            "rows": 500,
+            "ms": {
+              "median": 17.926,
+              "min": 12.701,
+              "max": 31.622
+            },
+            "recheck_removed": {
+              "median": 0,
+              "min": 0,
+              "max": 0
+            },
+            "plans": [
+              "Aggregate > Gather > Aggregate > Seq Scan"
+            ]
+          },
+          "contain_rare_value": {
+            "rows": 200,
+            "ms": {
+              "median": 16.444,
+              "min": 13.078,
+              "max": 28.689
+            },
+            "recheck_removed": {
+              "median": 0,
+              "min": 0,
+              "max": 0
+            },
+            "plans": [
+              "Aggregate > Gather > Aggregate > Seq Scan"
+            ]
+          },
+          "key_exists_rare": {
+            "rows": 200,
+            "ms": {
+              "median": 15.645,
+              "min": 13.825,
+              "max": 19.631
+            },
+            "recheck_removed": {
+              "median": 0,
+              "min": 0,
+              "max": 0
+            },
+            "plans": [
+              "Aggregate > Gather > Aggregate > Seq Scan"
+            ]
+          },
+          "equal_expression": {
+            "rows": 5000,
+            "ms": {
+              "median": 5.959,
+              "min": 5.566,
+              "max": 7.528
+            },
+            "recheck_removed": {
+              "median": 0,
+              "min": 0,
+              "max": 0
+            },
+            "plans": [
+              "Aggregate > Bitmap Heap Scan > Bitmap Index Scan (ix)"
+            ]
+          }
+        }
+      },
+      "jsonb_gin": {
+        "index_bytes": {
+          "median": 71917568,
+          "min": 71917568,
+          "max": 71917568
+        },
+        "build_seconds": {
+          "median": 3.5308462500106543,
+          "min": 3.3456699999514967,
+          "max": 5.00474666710943
+        },
+        "insert_seconds": {
+          "median": 0.587767125107348,
+          "min": 0.4990355831105262,
+          "max": 0.6450161668471992
+        },
+        "insert_wal_bytes": {
+          "median": 33468064,
+          "min": 33468064,
+          "max": 33468088
+        },
+        "queries": {
+          "contain_2keys_common": {
+            "rows": 5000,
+            "ms": {
+              "median": 6.684,
+              "min": 6.515,
+              "max": 10.584
+            },
+            "recheck_removed": {
+              "median": 0,
+              "min": 0,
+              "max": 0
+            },
+            "plans": [
+              "Aggregate > Bitmap Heap Scan > Bitmap Index Scan (ix)"
+            ]
+          },
+          "contain_2keys_narrow": {
+            "rows": 500,
+            "ms": {
+              "median": 2.374,
+              "min": 2.254,
+              "max": 3.02
+            },
+            "recheck_removed": {
+              "median": 0,
+              "min": 0,
+              "max": 0
+            },
+            "plans": [
+              "Aggregate > Bitmap Heap Scan > Bitmap Index Scan (ix)"
+            ]
+          },
+          "contain_rare_value": {
+            "rows": 200,
+            "ms": {
+              "median": 0.915,
+              "min": 0.844,
+              "max": 1.021
+            },
+            "recheck_removed": {
+              "median": 0,
+              "min": 0,
+              "max": 0
+            },
+            "plans": [
+              "Aggregate > Bitmap Heap Scan > Bitmap Index Scan (ix)"
+            ]
+          },
+          "key_exists_rare": {
+            "rows": 200,
+            "ms": {
+              "median": 0.678,
+              "min": 0.594,
+              "max": 0.814
+            },
+            "recheck_removed": {
+              "median": 0,
+              "min": 0,
+              "max": 0
+            },
+            "plans": [
+              "Aggregate > Bitmap Heap Scan > Bitmap Index Scan (ix)"
+            ]
+          },
+          "equal_expression": {
+            "rows": 5000,
+            "ms": {
+              "median": 17.874,
+              "min": 14.453,
+              "max": 21.896
+            },
+            "recheck_removed": {
+              "median": 0,
+              "min": 0,
+              "max": 0
+            },
+            "plans": [
+              "Aggregate > Gather > Aggregate > Seq Scan"
+            ]
+          }
+        }
+      },
+      "jsonb_gin_path": {
+        "index_bytes": {
+          "median": 52543488,
+          "min": 52543488,
+          "max": 52543488
+        },
+        "build_seconds": {
+          "median": 1.8115913330111653,
+          "min": 1.7575705421622843,
+          "max": 2.4807018749415874
+        },
+        "insert_seconds": {
+          "median": 0.5213093750644475,
+          "min": 0.4706312499474734,
+          "max": 0.5683695410843939
+        },
+        "insert_wal_bytes": {
+          "median": 36354568,
+          "min": 36354544,
+          "max": 36354568
+        },
+        "queries": {
+          "contain_2keys_common": {
+            "rows": 5000,
+            "ms": {
+              "median": 5.693,
+              "min": 5.272,
+              "max": 6.842
+            },
+            "recheck_removed": {
+              "median": 0,
+              "min": 0,
+              "max": 0
+            },
+            "plans": [
+              "Aggregate > Bitmap Heap Scan > Bitmap Index Scan (ix)"
+            ]
+          },
+          "contain_2keys_narrow": {
+            "rows": 500,
+            "ms": {
+              "median": 1.523,
+              "min": 1.462,
+              "max": 1.553
+            },
+            "recheck_removed": {
+              "median": 0,
+              "min": 0,
+              "max": 0
+            },
+            "plans": [
+              "Aggregate > Bitmap Heap Scan > Bitmap Index Scan (ix)"
+            ]
+          },
+          "contain_rare_value": {
+            "rows": 200,
+            "ms": {
+              "median": 0.49,
+              "min": 0.473,
+              "max": 0.564
+            },
+            "recheck_removed": {
+              "median": 0,
+              "min": 0,
+              "max": 0
+            },
+            "plans": [
+              "Aggregate > Bitmap Heap Scan > Bitmap Index Scan (ix)"
+            ]
+          },
+          "key_exists_rare": {
+            "rows": 200,
+            "ms": {
+              "median": 14.923,
+              "min": 14.081,
+              "max": 20.869
+            },
+            "recheck_removed": {
+              "median": 0,
+              "min": 0,
+              "max": 0
+            },
+            "plans": [
+              "Aggregate > Gather > Aggregate > Seq Scan"
+            ]
+          },
+          "equal_expression": {
+            "rows": 5000,
+            "ms": {
+              "median": 15.566,
+              "min": 13.921,
+              "max": 31.962
+            },
+            "recheck_removed": {
+              "median": 0,
+              "min": 0,
+              "max": 0
+            },
+            "plans": [
+              "Aggregate > Gather > Aggregate > Seq Scan"
+            ]
+          }
+        }
+      }
+    }
+  },
+  "concurrency": {
+    "runs": 10,
+    "clients": 8,
+    "per_client": 50,
+    "key_add": {
+      "rmw_autocommit": {
+        "attempted": 400,
+        "succeeded": {
+          "median": 400.0,
+          "min": 400,
+          "max": 400
+        },
+        "failed": {
+          "median": 0.0,
+          "min": 0,
+          "max": 0
+        },
+        "keys_present": {
+          "median": 62.5,
+          "min": 51,
+          "max": 70
+        },
+        "lost_updates": {
+          "median": 337.5,
+          "min": 330,
+          "max": 349
+        },
+        "runs_with_loss": 10,
+        "tps": {
+          "median": 8444.804077,
+          "min": 5471.207769,
+          "max": 9572.355039
+        }
+      },
+      "rmw_read_committed": {
+        "attempted": 400,
+        "succeeded": {
+          "median": 400.0,
+          "min": 400,
+          "max": 400
+        },
+        "failed": {
+          "median": 0.0,
+          "min": 0,
+          "max": 0
+        },
+        "keys_present": {
+          "median": 64.0,
+          "min": 55,
+          "max": 76
+        },
+        "lost_updates": {
+          "median": 336.0,
+          "min": 324,
+          "max": 345
+        },
+        "runs_with_loss": 10,
+        "tps": {
+          "median": 7155.975711,
+          "min": 4763.492593,
+          "max": 8819.897689
+        }
+      },
+      "rmw_for_update": {
+        "attempted": 400,
+        "succeeded": {
+          "median": 400.0,
+          "min": 400,
+          "max": 400
+        },
+        "failed": {
+          "median": 0.0,
+          "min": 0,
+          "max": 0
+        },
+        "keys_present": {
+          "median": 400.0,
+          "min": 400,
+          "max": 400
+        },
+        "lost_updates": {
+          "median": 0.0,
+          "min": 0,
+          "max": 0
+        },
+        "runs_with_loss": 0,
+        "tps": {
+          "median": 4835.1655325,
+          "min": 2326.149409,
+          "max": 5334.400213
+        }
+      },
+      "atomic_concat": {
+        "attempted": 400,
+        "succeeded": {
+          "median": 400.0,
+          "min": 400,
+          "max": 400
+        },
+        "failed": {
+          "median": 0.0,
+          "min": 0,
+          "max": 0
+        },
+        "keys_present": {
+          "median": 400.0,
+          "min": 400,
+          "max": 400
+        },
+        "lost_updates": {
+          "median": 0.0,
+          "min": 0,
+          "max": 0
+        },
+        "runs_with_loss": 0,
+        "tps": {
+          "median": 8251.2345585,
+          "min": 5490.583649,
+          "max": 8923.392674
+        }
+      },
+      "atomic_repeatable_read": {
+        "attempted": 400,
+        "succeeded": {
+          "median": 92.5,
+          "min": 76,
+          "max": 108
+        },
+        "failed": {
+          "median": 307.5,
+          "min": 292,
+          "max": 324
+        },
+        "keys_present": {
+          "median": 92.5,
+          "min": 76,
+          "max": 108
+        },
+        "lost_updates": {
+          "median": 0.0,
+          "min": 0,
+          "max": 0
+        },
+        "runs_with_loss": 0,
+        "tps": {
+          "median": 3702.036319,
+          "min": 2499.681163,
+          "max": 4802.779481
+        }
+      }
+    },
+    "counter": {
+      "counter_rmw": {
+        "attempted": 400,
+        "succeeded": {
+          "median": 400.0,
+          "min": 400,
+          "max": 400
+        },
+        "failed": {
+          "median": 0.0,
+          "min": 0,
+          "max": 0
+        },
+        "final_value": {
+          "median": 59.0,
+          "min": 50,
+          "max": 75
+        },
+        "lost_increments": {
+          "median": 341.0,
+          "min": 325,
+          "max": 350
+        },
+        "runs_with_loss": 10,
+        "tps": {
+          "median": 9604.137212,
+          "min": 5776.673791,
+          "max": 10796.804146
+        }
+      },
+      "counter_atomic": {
+        "attempted": 400,
+        "succeeded": {
+          "median": 400.0,
+          "min": 400,
+          "max": 400
+        },
+        "failed": {
+          "median": 0.0,
+          "min": 0,
+          "max": 0
+        },
+        "final_value": {
+          "median": 400.0,
+          "min": 400,
+          "max": 400
+        },
+        "lost_increments": {
+          "median": 0.0,
+          "min": 0,
+          "max": 0
+        },
+        "runs_with_loss": 0,
+        "tps": {
+          "median": 10503.2857195,
+          "min": 3198.183432,
+          "max": 11641.443539
+        }
+      },
+      "counter_for_update": {
+        "attempted": 400,
+        "succeeded": {
+          "median": 400.0,
+          "min": 400,
+          "max": 400
+        },
+        "failed": {
+          "median": 0.0,
+          "min": 0,
+          "max": 0
+        },
+        "final_value": {
+          "median": 400.0,
+          "min": 400,
+          "max": 400
+        },
+        "lost_increments": {
+          "median": 0.0,
+          "min": 0,
+          "max": 0
+        },
+        "runs_with_loss": 0,
+        "tps": {
+          "median": 5667.411509,
+          "min": 4091.778594,
+          "max": 7182.747042
+        }
+      },
+      "counter_atomic_repeatable_read": {
+        "attempted": 400,
+        "succeeded": {
+          "median": 82.0,
+          "min": 68,
+          "max": 114
+        },
+        "failed": {
+          "median": 318.0,
+          "min": 286,
+          "max": 332
+        },
+        "final_value": {
+          "median": 82.0,
+          "min": 68,
+          "max": 114
+        },
+        "lost_increments": {
+          "median": 0.0,
+          "min": 0,
+          "max": 0
+        },
+        "runs_with_loss": 0,
+        "tps": {
+          "median": 3807.0853495,
+          "min": 2467.866324,
+          "max": 4393.577783
+        }
+      }
+    },
+    "contention": {
+      "rows1_clients1": {
+        "tps": {
+          "median": 9097.1469785,
+          "min": 7596.306565,
+          "max": 9850.891573
+        },
+        "latency_ms": {
+          "median": 0.11,
+          "min": 0.102,
+          "max": 0.132
+        }
+      },
+      "rows1_clients2": {
+        "tps": {
+          "median": 11720.155433,
+          "min": 11326.548425,
+          "max": 12609.196123
+        },
+        "latency_ms": {
+          "median": 0.17099999999999999,
+          "min": 0.159,
+          "max": 0.177
+        }
+      },
+      "rows1_clients4": {
+        "tps": {
+          "median": 10936.1436655,
+          "min": 9988.416437,
+          "max": 11782.610425
+        },
+        "latency_ms": {
+          "median": 0.366,
+          "min": 0.339,
+          "max": 0.4
+        }
+      },
+      "rows1_clients8": {
+        "tps": {
+          "median": 10638.481734500001,
+          "min": 6698.030779,
+          "max": 10965.322938
+        },
+        "latency_ms": {
+          "median": 0.752,
+          "min": 0.73,
+          "max": 1.194
+        }
+      },
+      "rows1_clients16": {
+        "tps": {
+          "median": 8257.6617635,
+          "min": 5108.24702,
+          "max": 9364.911465
+        },
+        "latency_ms": {
+          "median": 1.9375,
+          "min": 1.709,
+          "max": 3.132
+        }
+      },
+      "rows1000_clients1": {
+        "tps": {
+          "median": 9073.250223,
+          "min": 1313.748029,
+          "max": 9637.534672
+        },
+        "latency_ms": {
+          "median": 0.11,
+          "min": 0.104,
+          "max": 0.761
+        }
+      },
+      "rows1000_clients2": {
+        "tps": {
+          "median": 12544.5118935,
+          "min": 5178.146591,
+          "max": 13760.336943
+        },
+        "latency_ms": {
+          "median": 0.1595,
+          "min": 0.145,
+          "max": 0.386
+        }
+      },
+      "rows1000_clients4": {
+        "tps": {
+          "median": 21925.345288,
+          "min": 19317.521338,
+          "max": 23316.222138
+        },
+        "latency_ms": {
+          "median": 0.1825,
+          "min": 0.172,
+          "max": 0.207
+        }
+      },
+      "rows1000_clients8": {
+        "tps": {
+          "median": 36095.139869,
+          "min": 31144.724426,
+          "max": 38849.234676
+        },
+        "latency_ms": {
+          "median": 0.2215,
+          "min": 0.206,
+          "max": 0.257
+        }
+      },
+      "rows1000_clients16": {
+        "tps": {
+          "median": 42981.813712999996,
+          "min": 34663.079747,
+          "max": 45694.124777
+        },
+        "latency_ms": {
+          "median": 0.3725,
+          "min": 0.35,
+          "max": 0.462
+        }
+      }
+    }
+  },
+  "redis": {
+    "runs": 5,
+    "objects": 50000,
+    "fields": 20,
+    "configs": {
+      "none": {
+        "environment": {
+          "postgres": "PostgreSQL 16.15 (Debian 16.15-1.pgdg13+2) on aarch64-unknown-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit",
+          "hstore_version": "1.8",
+          "synchronous_commit": "on",
+          "shared_buffers": "256MB",
+          "cpu_count": "3",
+          "toast_compression": "pglz",
+          "redis": "Redis server v=7.4.11 sha=00000000:0 malloc=jemalloc-5.3.0 bits=64 build=30ac2daf18bf8899",
+          "redis_appendonly": "no",
+          "redis_appendfsync": "everysec",
+          "redis_save": ""
+        },
+        "postgres": {
+          "write_one_field_c1": {
+            "ops_per_sec": {
+              "median": 18749.259197,
+              "min": 17511.32741,
+              "max": 20452.46615
+            },
+            "avg_ms": {
+              "median": 0.053,
+              "min": 0.049,
+              "max": 0.057
+            }
+          },
+          "write_one_field_c8": {
+            "ops_per_sec": {
+              "median": 106012.152942,
+              "min": 82642.50752,
+              "max": 155716.440347
+            },
+            "avg_ms": {
+              "median": 0.075,
+              "min": 0.051,
+              "max": 0.097
+            }
+          },
+          "read_one_field_c1": {
+            "ops_per_sec": {
+              "median": 39106.722137,
+              "min": 29199.598764,
+              "max": 40927.265949
+            },
+            "avg_ms": {
+              "median": 0.026,
+              "min": 0.024,
+              "max": 0.034
+            }
+          },
+          "read_one_field_c8": {
+            "ops_per_sec": {
+              "median": 191990.825171,
+              "min": 165509.27861,
+              "max": 233133.426911
+            },
+            "avg_ms": {
+              "median": 0.042,
+              "min": 0.034,
+              "max": 0.048
+            }
+          },
+          "increment_counter_c1": {
+            "ops_per_sec": {
+              "median": 19873.664189,
+              "min": 19358.948588,
+              "max": 20558.993013
+            },
+            "avg_ms": {
+              "median": 0.05,
+              "min": 0.049,
+              "max": 0.052
+            }
+          },
+          "increment_counter_c8": {
+            "ops_per_sec": {
+              "median": 133866.821079,
+              "min": 107420.684858,
+              "max": 153732.579702
+            },
+            "avg_ms": {
+              "median": 0.06,
+              "min": 0.052,
+              "max": 0.074
+            }
+          }
+        },
+        "redis": {
+          "write_one_field_c1": {
+            "ops_per_sec": {
+              "median": 31397.18,
+              "min": 28157.12,
+              "max": 42698.55
+            },
+            "avg_ms": {
+              "median": 0.03,
+              "min": 0.021,
+              "max": 0.034
+            }
+          },
+          "write_one_field_c8": {
+            "ops_per_sec": {
+              "median": 256410.27,
+              "min": 223463.69,
+              "max": 257731.95
+            },
+            "avg_ms": {
+              "median": 0.021,
+              "min": 0.02,
+              "max": 0.024
+            }
+          },
+          "read_one_field_c1": {
+            "ops_per_sec": {
+              "median": 33411.29,
+              "min": 29048.66,
+              "max": 42489.91
+            },
+            "avg_ms": {
+              "median": 0.028,
+              "min": 0.021,
+              "max": 0.032
+            }
+          },
+          "read_one_field_c8": {
+            "ops_per_sec": {
+              "median": 229621.12,
+              "min": 190839.7,
+              "max": 258397.94
+            },
+            "avg_ms": {
+              "median": 0.023,
+              "min": 0.02,
+              "max": 0.03
+            }
+          },
+          "increment_counter_c1": {
+            "ops_per_sec": {
+              "median": 30859.44,
+              "min": 29647.2,
+              "max": 38439.36
+            },
+            "avg_ms": {
+              "median": 0.03,
+              "min": 0.024,
+              "max": 0.031
+            }
+          },
+          "increment_counter_c8": {
+            "ops_per_sec": {
+              "median": 256739.42,
+              "min": 218340.61,
+              "max": 275103.16
+            },
+            "avg_ms": {
+              "median": 0.021,
+              "min": 0.018,
+              "max": 0.026
+            }
+          }
+        },
+        "memory": {
+          "redis_dataset_bytes": {
+            "median": 25623104,
+            "min": 25623104,
+            "max": 25623104
+          },
+          "postgres_total_bytes": {
+            "median": 26796032,
+            "min": 26796032,
+            "max": 26796032
+          },
+          "postgres_avg_hstore_bytes": {
+            "median": 478,
+            "min": 478,
+            "max": 478
+          }
+        }
+      },
+      "relaxed": {
+        "environment": {
+          "postgres": "PostgreSQL 16.15 (Debian 16.15-1.pgdg13+2) on aarch64-unknown-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit",
+          "hstore_version": "1.8",
+          "synchronous_commit": "off",
+          "shared_buffers": "256MB",
+          "cpu_count": "3",
+          "toast_compression": "pglz",
+          "redis": "Redis server v=7.4.11 sha=00000000:0 malloc=jemalloc-5.3.0 bits=64 build=30ac2daf18bf8899",
+          "redis_appendonly": "yes",
+          "redis_appendfsync": "everysec",
+          "redis_save": ""
+        },
+        "postgres": {
+          "write_one_field_c1": {
+            "ops_per_sec": {
+              "median": 19012.602888,
+              "min": 17926.088045,
+              "max": 21755.391581
+            },
+            "avg_ms": {
+              "median": 0.053,
+              "min": 0.046,
+              "max": 0.056
+            }
+          },
+          "write_one_field_c8": {
+            "ops_per_sec": {
+              "median": 133667.240022,
+              "min": 109860.33364,
+              "max": 141122.725563
+            },
+            "avg_ms": {
+              "median": 0.06,
+              "min": 0.057,
+              "max": 0.073
+            }
+          },
+          "read_one_field_c1": {
+            "ops_per_sec": {
+              "median": 28374.570028,
+              "min": 22577.159151,
+              "max": 33048.474797
+            },
+            "avg_ms": {
+              "median": 0.035,
+              "min": 0.03,
+              "max": 0.044
+            }
+          },
+          "read_one_field_c8": {
+            "ops_per_sec": {
+              "median": 168498.435312,
+              "min": 157064.139851,
+              "max": 180004.785925
+            },
+            "avg_ms": {
+              "median": 0.047,
+              "min": 0.044,
+              "max": 0.051
+            }
+          },
+          "increment_counter_c1": {
+            "ops_per_sec": {
+              "median": 19066.678868,
+              "min": 17000.764973,
+              "max": 19577.859514
+            },
+            "avg_ms": {
+              "median": 0.052,
+              "min": 0.051,
+              "max": 0.059
+            }
+          },
+          "increment_counter_c8": {
+            "ops_per_sec": {
+              "median": 117710.486072,
+              "min": 107994.768373,
+              "max": 139117.833009
+            },
+            "avg_ms": {
+              "median": 0.068,
+              "min": 0.058,
+              "max": 0.074
+            }
+          }
+        },
+        "redis": {
+          "write_one_field_c1": {
+            "ops_per_sec": {
+              "median": 31357.79,
+              "min": 27472.53,
+              "max": 32144.0
+            },
+            "avg_ms": {
+              "median": 0.029,
+              "min": 0.028,
+              "max": 0.034
+            }
+          },
+          "write_one_field_c8": {
+            "ops_per_sec": {
+              "median": 273597.81,
+              "min": 257731.95,
+              "max": 278940.03
+            },
+            "avg_ms": {
+              "median": 0.02,
+              "min": 0.019,
+              "max": 0.022
+            }
+          },
+          "read_one_field_c1": {
+            "ops_per_sec": {
+              "median": 32819.17,
+              "min": 31730.92,
+              "max": 36975.41
+            },
+            "avg_ms": {
+              "median": 0.028,
+              "min": 0.025,
+              "max": 0.029
+            }
+          },
+          "read_one_field_c8": {
+            "ops_per_sec": {
+              "median": 250941.03,
+              "min": 166944.92,
+              "max": 263157.91
+            },
+            "avg_ms": {
+              "median": 0.021,
+              "min": 0.02,
+              "max": 0.034
+            }
+          },
+          "increment_counter_c1": {
+            "ops_per_sec": {
+              "median": 36516.34,
+              "min": 28698.52,
+              "max": 40217.17
+            },
+            "avg_ms": {
+              "median": 0.025,
+              "min": 0.022,
+              "max": 0.032
+            }
+          },
+          "increment_counter_c8": {
+            "ops_per_sec": {
+              "median": 137741.05,
+              "min": 109170.3,
+              "max": 264200.78
+            },
+            "avg_ms": {
+              "median": 0.046,
+              "min": 0.024,
+              "max": 0.056
+            }
+          }
+        },
+        "memory": {
+          "redis_dataset_bytes": {
+            "median": 25623016,
+            "min": 25623016,
+            "max": 25623016
+          },
+          "postgres_total_bytes": {
+            "median": 26779648,
+            "min": 26779648,
+            "max": 26779648
+          },
+          "postgres_avg_hstore_bytes": {
+            "median": 478,
+            "min": 478,
+            "max": 478
+          }
+        }
+      },
+      "strict": {
+        "environment": {
+          "postgres": "PostgreSQL 16.15 (Debian 16.15-1.pgdg13+2) on aarch64-unknown-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit",
+          "hstore_version": "1.8",
+          "synchronous_commit": "on",
+          "shared_buffers": "256MB",
+          "cpu_count": "3",
+          "toast_compression": "pglz",
+          "redis": "Redis server v=7.4.11 sha=00000000:0 malloc=jemalloc-5.3.0 bits=64 build=30ac2daf18bf8899",
+          "redis_appendonly": "yes",
+          "redis_appendfsync": "always",
+          "redis_save": ""
+        },
+        "postgres": {
+          "write_one_field_c1": {
+            "ops_per_sec": {
+              "median": 9485.323553,
+              "min": 9435.370338,
+              "max": 9665.667012
+            },
+            "avg_ms": {
+              "median": 0.105,
+              "min": 0.103,
+              "max": 0.106
+            }
+          },
+          "write_one_field_c8": {
+            "ops_per_sec": {
+              "median": 38999.417568,
+              "min": 35610.27621,
+              "max": 41278.933074
+            },
+            "avg_ms": {
+              "median": 0.205,
+              "min": 0.194,
+              "max": 0.225
+            }
+          },
+          "read_one_field_c1": {
+            "ops_per_sec": {
+              "median": 26644.734622,
+              "min": 23133.093238,
+              "max": 37469.266276
+            },
+            "avg_ms": {
+              "median": 0.038,
+              "min": 0.027,
+              "max": 0.043
+            }
+          },
+          "read_one_field_c8": {
+            "ops_per_sec": {
+              "median": 194626.695022,
+              "min": 181016.702683,
+              "max": 215042.58217
+            },
+            "avg_ms": {
+              "median": 0.041,
+              "min": 0.037,
+              "max": 0.044
+            }
+          },
+          "increment_counter_c1": {
+            "ops_per_sec": {
+              "median": 9180.916156,
+              "min": 8937.978972,
+              "max": 10478.643726
+            },
+            "avg_ms": {
+              "median": 0.109,
+              "min": 0.095,
+              "max": 0.112
+            }
+          },
+          "increment_counter_c8": {
+            "ops_per_sec": {
+              "median": 40144.604786,
+              "min": 33825.936126,
+              "max": 42996.793798
+            },
+            "avg_ms": {
+              "median": 0.199,
+              "min": 0.186,
+              "max": 0.237
+            }
+          }
+        },
+        "redis": {
+          "write_one_field_c1": {
+            "ops_per_sec": {
+              "median": 3125.64,
+              "min": 2285.64,
+              "max": 3216.36
+            },
+            "avg_ms": {
+              "median": 0.318,
+              "min": 0.309,
+              "max": 0.435
+            }
+          },
+          "write_one_field_c8": {
+            "ops_per_sec": {
+              "median": 12346.44,
+              "min": 10224.95,
+              "max": 13707.08
+            },
+            "avg_ms": {
+              "median": 0.639,
+              "min": 0.575,
+              "max": 0.773
+            }
+          },
+          "read_one_field_c1": {
+            "ops_per_sec": {
+              "median": 43516.1,
+              "min": 29949.09,
+              "max": 48379.3
+            },
+            "avg_ms": {
+              "median": 0.021,
+              "min": 0.019,
+              "max": 0.032
+            }
+          },
+          "read_one_field_c8": {
+            "ops_per_sec": {
+              "median": 238948.62,
+              "min": 172860.86,
+              "max": 249687.89
+            },
+            "avg_ms": {
+              "median": 0.022,
+              "min": 0.021,
+              "max": 0.033
+            }
+          },
+          "increment_counter_c1": {
+            "ops_per_sec": {
+              "median": 2784.2,
+              "min": 2300.81,
+              "max": 3212.8
+            },
+            "avg_ms": {
+              "median": 0.357,
+              "min": 0.309,
+              "max": 0.432
+            }
+          },
+          "increment_counter_c8": {
+            "ops_per_sec": {
+              "median": 12335.02,
+              "min": 9046.5,
+              "max": 13103.58
+            },
+            "avg_ms": {
+              "median": 0.639,
+              "min": 0.602,
+              "max": 0.875
+            }
+          }
+        },
+        "memory": {
+          "redis_dataset_bytes": {
+            "median": 25623016,
+            "min": 25623016,
+            "max": 25626592
+          },
+          "postgres_total_bytes": {
+            "median": 26779648,
+            "min": 26779648,
+            "max": 26779648
+          },
+          "postgres_avg_hstore_bytes": {
+            "median": 477,
+            "min": 477,
+            "max": 477
+          }
+        }
+      }
+    }
+  }
+}

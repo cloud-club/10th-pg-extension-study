@@ -1,0 +1,676 @@
+{
+ "clothoVersion": 1,
+ "id": "hstore-redis-path",
+ "title": "필드 하나를 올릴 때 지나가는 길 — Redis 해시 vs hstore 행",
+ "description": "실험 05: 같은 일(카운터 +1)을 클라이언트 8개로. 내구성 수준을 맞춘 세 쌍으로 비교했다.",
+ "duration": 26000,
+ "canvas": {
+  "width": 940,
+  "height": 520,
+  "background": "#0b1120"
+ },
+ "elements": [
+  {
+   "type": "text",
+   "id": "title",
+   "x": 40,
+   "y": 42,
+   "content": "필드 하나를 올릴 때 지나가는 길 — Redis 해시 vs hstore 행",
+   "fontSize": 22,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 0,
+     "end": 26000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ],
+   "fontWeight": "700"
+  },
+  {
+   "type": "rect",
+   "id": "e1",
+   "x": 40,
+   "y": 110,
+   "width": 170,
+   "height": 54,
+   "fill": "#1e293b",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 200,
+     "end": 7000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "클라이언트",
+   "labelColor": "#e2e8f0",
+   "labelSize": 16,
+   "stroke": "#334155",
+   "strokeWidth": 2
+  },
+  {
+   "type": "rect",
+   "id": "e2",
+   "x": 240,
+   "y": 110,
+   "width": 190,
+   "height": 54,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 700,
+     "end": 7000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "이벤트 루프",
+   "labelColor": "#0b1120",
+   "labelSize": 16
+  },
+  {
+   "type": "rect",
+   "id": "e3",
+   "x": 460,
+   "y": 110,
+   "width": 190,
+   "height": 54,
+   "fill": "#34d399",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 1200,
+     "end": 7000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "메모리 해시",
+   "labelColor": "#0b1120",
+   "labelSize": 16
+  },
+  {
+   "type": "rect",
+   "id": "e4",
+   "x": 680,
+   "y": 110,
+   "width": 220,
+   "height": 54,
+   "fill": "#1e293b",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 1700,
+     "end": 7000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "AOF (선택)",
+   "labelColor": "#e2e8f0",
+   "labelSize": 16,
+   "stroke": "#334155",
+   "strokeWidth": 2
+  },
+  {
+   "type": "text",
+   "id": "e5",
+   "x": 40,
+   "y": 230,
+   "content": "HINCRBY h:1 cnt 1 — 명령 하나가 곧 원자적 연산이다. 잠금·버전·파싱된 계획이 없다.",
+   "fontSize": 15,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 2400,
+     "end": 7000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "e6",
+   "x": 40,
+   "y": 264,
+   "content": "명령은 한 번에 하나씩만 실행되므로 서로 겹치지 않는다.",
+   "fontSize": 15,
+   "color": "#94a3b8",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 3300,
+     "end": 7000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "e7",
+   "x": 40,
+   "y": 310,
+   "content": "영속화(AOF)는 설정에 따라 없음 / 1초마다 fsync / 매 쓰기 fsync.",
+   "fontSize": 15,
+   "color": "#94a3b8",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 4200,
+     "end": 7000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "e8",
+   "x": 40,
+   "y": 110,
+   "width": 130,
+   "height": 54,
+   "fill": "#1e293b",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 7200,
+     "end": 16000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "클라이언트",
+   "labelColor": "#e2e8f0",
+   "labelSize": 15,
+   "stroke": "#334155",
+   "strokeWidth": 2
+  },
+  {
+   "type": "rect",
+   "id": "e9",
+   "x": 190,
+   "y": 110,
+   "width": 130,
+   "height": 54,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 7500,
+     "end": 16000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "백엔드",
+   "labelColor": "#0b1120",
+   "labelSize": 15
+  },
+  {
+   "type": "rect",
+   "id": "e10",
+   "x": 340,
+   "y": 110,
+   "width": 130,
+   "height": 54,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 7800,
+     "end": 16000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "행 잠금",
+   "labelColor": "#0b1120",
+   "labelSize": 15
+  },
+  {
+   "type": "rect",
+   "id": "e11",
+   "x": 490,
+   "y": 110,
+   "width": 130,
+   "height": 54,
+   "fill": "#34d399",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 8100,
+     "end": 16000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "새 튜플",
+   "labelColor": "#0b1120",
+   "labelSize": 15
+  },
+  {
+   "type": "rect",
+   "id": "e12",
+   "x": 640,
+   "y": 110,
+   "width": 120,
+   "height": 54,
+   "fill": "#fbbf24",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 8400,
+     "end": 16000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "WAL",
+   "labelColor": "#0b1120",
+   "labelSize": 15
+  },
+  {
+   "type": "rect",
+   "id": "e13",
+   "x": 780,
+   "y": 110,
+   "width": 120,
+   "height": 54,
+   "fill": "#fbbf24",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 8700,
+     "end": 16000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "fsync",
+   "labelColor": "#0b1120",
+   "labelSize": 15
+  },
+  {
+   "type": "text",
+   "id": "e14",
+   "x": 40,
+   "y": 230,
+   "content": "attrs || hstore('cnt', …) — 식은 최신 행 기준으로 계산되고, 값 전체가 새 튜플로 쓰인다.",
+   "fontSize": 15,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 9400,
+     "end": 16000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "e15",
+   "x": 40,
+   "y": 264,
+   "content": "같은 행을 노리는 쓰기는 행 잠금에서 줄을 선다. 서로 다른 행이면 병렬로 진행한다.",
+   "fontSize": 15,
+   "color": "#94a3b8",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 10300,
+     "end": 16000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "e16",
+   "x": 40,
+   "y": 298,
+   "content": "synchronous_commit=on 이면 커밋이 WAL fsync 를 기다린다.",
+   "fontSize": 15,
+   "color": "#94a3b8",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 11200,
+     "end": 16000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "e17",
+   "x": 40,
+   "y": 124,
+   "content": "영속화 없음 · UNLOGGED",
+   "fontSize": 15,
+   "color": "#94a3b8",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 16300,
+     "end": 26000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "e18",
+   "x": 40,
+   "y": 134,
+   "width": 520,
+   "height": 26,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 16500,
+     "end": 26000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "e19",
+   "x": 572,
+   "y": 154,
+   "content": "Redis 256,739/s",
+   "fontSize": 15,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 16700,
+     "end": 26000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ],
+   "fontWeight": "700"
+  },
+  {
+   "type": "rect",
+   "id": "e20",
+   "x": 40,
+   "y": 166,
+   "width": 271,
+   "height": 26,
+   "fill": "#34d399",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 16900,
+     "end": 26000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "e21",
+   "x": 323,
+   "y": 186,
+   "content": "hstore 133,867/s",
+   "fontSize": 15,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 17100,
+     "end": 26000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ],
+   "fontWeight": "700"
+  },
+  {
+   "type": "text",
+   "id": "e22",
+   "x": 40,
+   "y": 234,
+   "content": "everysec · sync=off",
+   "fontSize": 15,
+   "color": "#94a3b8",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 17200,
+     "end": 26000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "e23",
+   "x": 40,
+   "y": 244,
+   "width": 278,
+   "height": 26,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 17400,
+     "end": 26000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "e24",
+   "x": 330,
+   "y": 264,
+   "content": "Redis 137,741/s",
+   "fontSize": 15,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 17600,
+     "end": 26000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ],
+   "fontWeight": "700"
+  },
+  {
+   "type": "rect",
+   "id": "e25",
+   "x": 40,
+   "y": 276,
+   "width": 238,
+   "height": 26,
+   "fill": "#34d399",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 17800,
+     "end": 26000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "e26",
+   "x": 290,
+   "y": 296,
+   "content": "hstore 117,710/s",
+   "fontSize": 15,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 18000,
+     "end": 26000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ],
+   "fontWeight": "700"
+  },
+  {
+   "type": "text",
+   "id": "e27",
+   "x": 40,
+   "y": 344,
+   "content": "always · sync=on(기본)",
+   "fontSize": 15,
+   "color": "#94a3b8",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 18100,
+     "end": 26000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "e28",
+   "x": 40,
+   "y": 354,
+   "width": 24,
+   "height": 26,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 18300,
+     "end": 26000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "e29",
+   "x": 76,
+   "y": 374,
+   "content": "Redis 12,335/s",
+   "fontSize": 15,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 18500,
+     "end": 26000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ],
+   "fontWeight": "700"
+  },
+  {
+   "type": "rect",
+   "id": "e30",
+   "x": 40,
+   "y": 386,
+   "width": 81,
+   "height": 26,
+   "fill": "#34d399",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 18700,
+     "end": 26000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "e31",
+   "x": 133,
+   "y": 406,
+   "content": "hstore 40,145/s",
+   "fontSize": 15,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 18900,
+     "end": 26000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ],
+   "fontWeight": "700"
+  },
+  {
+   "type": "text",
+   "id": "e32",
+   "x": 40,
+   "y": 452,
+   "content": "같은 행이 아닌 객체 5만 개에 무작위로 — 경합이 없을 때의 수치다. 쌍마다 영속 보장이 같은 수준일 때만 비교할 수 있다.",
+   "fontSize": 14,
+   "color": "#94a3b8",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 21600,
+     "end": 26000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  }
+ ],
+ "chapters": [
+  {
+   "id": "ch0",
+   "time": 0,
+   "label": "1. Redis: HINCRBY",
+   "subtitle": "단일 스레드가 메모리의 해시를 바로 고친다"
+  },
+  {
+   "id": "ch1",
+   "time": 7000,
+   "label": "2. hstore: UPDATE",
+   "subtitle": "행 잠금 → 새 튜플 → WAL → 커밋"
+  },
+  {
+   "id": "ch2",
+   "time": 16000,
+   "label": "3. 실측: 카운터 +1",
+   "subtitle": "클라이언트 8개, 객체 5만 개(필드 20개) 무작위"
+  }
+ ],
+ "settings": {
+  "loop": false,
+  "autoplay": true,
+  "showChapterList": true
+ }
+}

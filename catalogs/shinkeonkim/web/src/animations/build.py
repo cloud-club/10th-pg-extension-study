@@ -853,6 +853,24 @@ DOCS = {
 }
 
 
+# hstore(week04) 문서는 hstore_docs.py 에 있다. 수치를 실험 요약(JSON)에서 읽으므로 만드는 시점에 만든다.
+_HSTORE = {}
+
+
+def _hstore(name):
+    if not _HSTORE:
+        import hstore_docs
+        kit = dict(txt=txt, box=box, BG=BG, PANEL=PANEL, INK=INK, ON_FILL=ON_FILL, MUTED=MUTED, BIGM=BIGM,
+                   TRGM=TRGM, TSV=TSV, PAD=PAD, OK=OK, WARN=WARN, DIM=DIM)
+        _HSTORE.update(hstore_docs.docs(kit))
+    return _HSTORE[name]
+
+
+for _name in ("hstore-storage-layout", "hstore-update-rewrite", "hstore-gin-lookup", "hstore-lost-update",
+              "hstore-redis-path", "hstore-offsets-vs-lengths", "hstore-vs-jsonb-types"):
+    DOCS[_name] = (lambda n=_name: _hstore(n))
+
+
 def load_schema():
     if os.path.exists(SCHEMA_CACHE):
         return json.load(open(SCHEMA_CACHE))
