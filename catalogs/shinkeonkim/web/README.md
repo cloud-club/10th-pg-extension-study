@@ -88,6 +88,9 @@ src/
 | `hstore-experiments.json` | Week 04 hstore 실험 01~05 요약(중앙값·범위·반복 수). `scripts/sync-hstore-results.py` 가 로컬 결과에서 만든다 |
 | `hstore-demo.json` | hstore 페이지의 SQL 예제와 **실제 출력**. `scripts/capture-hstore-demo.py` 가 임시 DB에서 실행해 저장한다 |
 | `hstore-source.json` | `contrib/hstore`(PostgreSQL REL_16_15)의 발췌·행 범위·blob 해시. `scripts/extract-hstore-source.py` |
+| `pgvector-experiments.json` | Week 05 pgvector·pgvectorscale 실험 01~07 요약. `scripts/sync-pgvector-results.py` 가 `week05/experiments/*/results` 에서 만든다 |
+| `pgvector-demo.json` | pgvector 페이지의 SQL 예제와 **실제 출력**. `scripts/capture-pgvector-demo.py` 가 임시 DB에서 실행해 저장한다 |
+| `pgvector-index-demo.json` | IVFFlat·HNSW 페이지의 측정(lists×probes, m·ef_construction·ef_search, 분포 변화 후 REINDEX, 삭제 후 VACUUM, maintenance_work_mem NOTICE). `scripts/capture-pgvector-index-demo.py` 가 임시 DB에서 설정마다 2회 빌드해 저장한다 |
 
 각 파일 머리에 **측정 환경과 재현 경로**를 주석으로 적어 둔다. 페이지에서는 `<SourceNote path="…" />` 로
 그 경로를 화면에도 노출한다 — 출처 없는 숫자가 화면에 올라가지 않게 하는 장치다.
@@ -156,7 +159,7 @@ bun run check                              # typecheck + 위 검사
 
 ## 주차별 탐색
 
-사이드바의 주차 선택으로 Week 02(검색), Week 03(pg_cron), Week 04(hstore)를 전환한다.
+사이드바의 주차 선택으로 Week 02(검색), Week 03(pg_cron), Week 04(hstore), Week 05(pgvector·pgvectorscale)를 전환한다.
 각 섹션의 `week`가 소속 주차를 정하며, 이전/다음 이동도 같은 주차 안에서만 이어진다.
 새 주차는 `registry.ts`의 `WEEKS`와 `SECTIONS`에 등록한다.
 기존 `#/start/overview`, `#/foundations/gin` 등 링크는 유지한다. 섹션 slug는 주차 전체에서 유일해야 한다.
@@ -236,3 +239,84 @@ python3 src/animations/build.py                  # 애니메이션(수치는 hst
 실험 원본은 `../week04/hstore/experiments/*/results/`에 생성되며 Git에서 제외한다. 실험 다섯 개는 같은 Compose 프로젝트를 쓰므로 동시에 실행하지 않는다.
 
 Clotho 문서 7개는 `src/animations/hstore_docs.py`에 있고 `build.py`가 함께 만든다. `hstore-storage-layout`, `hstore-gin-lookup`, `hstore-vs-jsonb-types`는 소스와 실습 출력 기반의 개념 모형이고, `hstore-update-rewrite`, `hstore-lost-update`, `hstore-redis-path`, `hstore-offsets-vs-lengths`는 실험 결과 요약의 수치를 읽어 그린다. 재생 시간은 실제 실행 시간과 무관하다.
+
+## Week 05 · pgvector · pgvectorscale
+
+진입점은 `#/pgvector/about`이다. 모든 목록은 URL 접두사 `#/pgvector/...`를 공유한다.
+
+기본 학습은 `private/pgvector-pgvectorscale-guide`의 문단·예시·설명 순서를 그대로 옮긴 10장이다.
+
+1. 벡터 검색과 ANN
+2. pgvector 전체 구조
+3. IVFFlat
+4. HNSW
+5. RAM, SSD와 Random Access
+6. StreamingDiskANN
+7. SBQ
+8. Filtered Vector Search
+9. 기술 비교와 선택 기준
+10. 용어집과 복습
+
+실습과 실험은 기본 학습 아래 별도 목록에 둔다. `Lab 목록과 실행 순서`는 실습 3개를 안내하고,
+`설치와 SQL 실습`에는 실제 출력, `실험 질문과 결과`에는 실험 7개와 정정 이력을 모은다.
+기존의 상세 설명·튜닝 그래프·빌드 비용·필터 검색 실측은 하단 `심화 · 구현과 실측` 목록에서 읽는다.
+기본 학습에 같은 내용을 다시 끼워 넣지 않는다. 기존 `#/pgvector/first` 링크는 01장으로 이동한다.
+
+`src/pages/pgvector/reading/*.tsx`는 다음 명령으로 생성한다. 직접 수정하지 않고 원문을 고친 뒤 다시 생성한다.
+코드 블록은 `CodeBlock`, Mermaid는 `Diagram`, 문단·목록·표는 정적 JSX로 옮긴다.
+앱 실행이나 빌드에 private 디렉터리가 필요하지 않다. 동기화 검증에는 원문이 필요하다.
+
+```sh
+python3 scripts/sync-pgvector-guide.py
+python3 scripts/sync-pgvector-guide.py --check
+```
+
+심화 페이지는 기존 `guide.tsx`의 요약·질문·심화·퀴즈 컴포넌트를 사용한다.
+퀴즈 문항은 `quizzes.tsx`, 실측 데이터 접근자는 `stats.ts`와 `indexStats.ts`에 있다.
+
+페이지의 숫자와 SQL 출력은 세 파일에서만 온다. 페이지 공용 접근자는 `src/pages/pgvector/stats.ts`(실험·데모)와 `indexStats.ts`(IVFFlat·HNSW 측정, 실행 평균·범위)다.
+
+```sh
+python3 scripts/sync-pgvector-results.py          # week05 실험 결과 → src/data/pgvector-experiments.json
+python3 scripts/sync-pgvector-results.py --check  # 구조와 실험 07 데이터(서로 다른 벡터 수) 검사
+python3 scripts/capture-pgvector-demo.py          # 임시 DB(Compose 프로젝트 pgvector-demo-capture)에서 예제 실행 → src/data/pgvector-demo.json
+python3 scripts/capture-pgvector-index-demo.py    # 임시 DB(pgvector-index-demo-capture)에서 인덱스 파라미터 측정 → src/data/pgvector-index-demo.json (약 2분)
+python3 src/animations/build.py                   # 애니메이션(수치는 두 JSON 에서 읽는다)
+```
+
+week05 실험 결과(`../week05/experiments/*/results/`)는 week04와 달리 Git에 함께 둔다 — 정정 이력(실험 03→04, 실험 07 첫 판)을 원본으로 남기기 위해서다.
+
+Clotho 문서 4개는 `src/animations/pgvector_docs.py`에 있다. `pgv-exact-vs-ann`, `pgv-hnsw-search`, `pgv-ivfflat-probes`는 개념 모형이고, `pgv-filtered-search`는 실험 07의 버퍼·지연시간을 읽어 그린다. 재생 시간은 실제 실행 시간과 무관하다.
+
+기본 학습의 그래프 애니메이션 4개는 `src/animations/pgvector_graphs.py`에서 만든다.
+IVFFlat의 동네 경계와 probes, HNSW의 층 이동, DiskANN의 후보 목록과 지름길,
+StreamingDiskANN의 필터 통과 과정을 시각화한다. 이 문서들의 좌표·거리·재생 시간은 개념 예시이며 실측값이 아니다.
+`sync-pgvector-guide.py`의 `VISUALS`가 해당 설명 절 끝에 플레이어를 삽입하므로 원문을 다시 동기화해도 유지된다.
+노드는 한 번 선언하고 속성 트랙으로 갱신한다. Clotho 0.4.0의 discrete 보간은 구간 중간에서 바뀌므로,
+상태 변경 직전에도 키프레임을 두어 실제 방문 시각까지 기존 상태를 유지한다.
+작성 기준: [Clotho 애니메이션 작성 스킬](https://clotho-docs.shinkeonkim.com/docs/skill/overview/).
+
+`src/pages/pgvector/implementation/`은 기본 학습에서 이어 읽는 구체적인 구현 설명이다.
+IVFFlat의 표본·중심·목록 저장, HNSW의 층 배정·이웃 선택·후보 큐,
+pgvectorscale의 그래프 삽입·prune·시작 노드·streaming 재정렬을 의사 코드와 함께 설명한다.
+`sync-pgvector-guide.py`의 `IMPLEMENTATIONS`가 본문의 해당 절에 연결한다.
+원문 가이드가 다른 곳에 있다면 `--source-dir /path/to/guide`로 지정한다.
+
+## Cloudflare Worker · 로컬 배포
+
+공개 주소: [pg-study.shinkeonkim.com](https://pg-study.shinkeonkim.com/#/pgvector/about).
+`wrangler.jsonc`의 Worker 이름은 `pg-study`이며 `dist/`만 정적 자산으로 업로드한다.
+`pg-study.shinkeonkim.com`은 Custom Domain으로 연결한다. 원문·실험 스크립트는 웹 배포에 포함되지 않는다.
+
+Wrangler CLI를 설치하고 대상 Cloudflare 계정으로 `wrangler login`한 로컬 머신에서 실행한다.
+현재 확인한 CLI 버전은 4.71.0이다.
+
+```sh
+cd catalogs/shinkeonkim/web
+bun install
+bun run deploy:cloudflare
+```
+
+이 명령은 전체 검사 → 빌드 → `wrangler deploy` 순서로 실행한다.
+GitHub Actions나 Cloudflare의 Git 자동 배포는 구성하지 않는다.
+로그인 토큰은 Wrangler가 로컬에서 관리하며 저장소에 넣지 않는다.

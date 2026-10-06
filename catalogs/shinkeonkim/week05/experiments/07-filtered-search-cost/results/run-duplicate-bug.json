@@ -1,0 +1,59 @@
+{
+  "environment": {
+    "postgres": "PostgreSQL 16.15 (Ubuntu 16.15-1.pgdg22.04+2) on aarch64-unknown-linux-gnu, compiled by gcc (Ubuntu 11.4.0-1ubuntu1~22.04.3) 11.4.0, 64-bit",
+    "vector_version": "0.8.6",
+    "vectorscale_version": "0.9.1",
+    "shared_buffers": "512MB",
+    "maintenance_work_mem": "1GB",
+    "cpu_count": "3",
+    "mem_total": "MemTotal:        4014168 kB"
+  },
+  "dim": 32,
+  "n_labels": 10,
+  "rows_per_label": 5000,
+  "k": 10,
+  "n_queries": 20,
+  "target_label": 10,
+  "configs": [
+    {
+      "config": "diskann_native_label_filter",
+      "index": "diskann",
+      "rows_returned_for_qid1": 10,
+      "wrong_label_rows_for_qid1": 0,
+      "median_ms_for_20_queries": 3.566,
+      "ms_per_query": 0.1783,
+      "buffers_per_query": 870.1,
+      "build_ms": 6822.024
+    },
+    {
+      "config": "hnsw_where_iterative_scan_off",
+      "index": "hnsw",
+      "rows_returned_for_qid1": 0,
+      "wrong_label_rows_for_qid1": 0,
+      "median_ms_for_20_queries": 2.231,
+      "ms_per_query": 0.1115,
+      "buffers_per_query": 263.2,
+      "build_ms": 1077.082
+    },
+    {
+      "config": "hnsw_where_iterative_scan_relaxed_order",
+      "index": "hnsw",
+      "rows_returned_for_qid1": 0,
+      "wrong_label_rows_for_qid1": 0,
+      "median_ms_for_20_queries": 2.732,
+      "ms_per_query": 0.1366,
+      "buffers_per_query": 318.2,
+      "build_ms": 1077.082
+    },
+    {
+      "config": "hnsw_where_iterative_scan_strict_order",
+      "index": "hnsw",
+      "rows_returned_for_qid1": 0,
+      "wrong_label_rows_for_qid1": 0,
+      "median_ms_for_20_queries": 2.891,
+      "ms_per_query": 0.1446,
+      "buffers_per_query": 318.2,
+      "build_ms": 1077.082
+    }
+  ]
+}

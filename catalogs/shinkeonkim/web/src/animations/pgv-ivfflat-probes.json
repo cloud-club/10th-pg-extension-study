@@ -1,0 +1,688 @@
+{
+ "clothoVersion": 1,
+ "id": "pgv-ivfflat-probes",
+ "title": "IVFFlat 은 군집 몇 개만 골라 훑는다",
+ "description": "빌드 때 k-means 로 lists 개 군집을 만들고, 질의 때 가까운 probes 개 군집만 읽는다. 수치는 실험 01 과 데모 캡처.",
+ "duration": 30500,
+ "canvas": {
+  "width": 940,
+  "height": 500,
+  "background": "#0b1120"
+ },
+ "elements": [
+  {
+   "type": "text",
+   "id": "title",
+   "x": 40,
+   "y": 42,
+   "content": "IVFFlat 은 군집 몇 개만 골라 훑는다",
+   "fontSize": 22,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 0,
+     "end": 30500,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ],
+   "fontWeight": "700"
+  },
+  {
+   "type": "text",
+   "id": "e1",
+   "x": 40,
+   "y": 96,
+   "content": "lists = 5 라면: 모든 행이 가장 가까운 중심의 목록에 들어간다",
+   "fontSize": 15,
+   "color": "#94a3b8",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 200,
+     "end": 7000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "e2",
+   "x": 40,
+   "y": 116,
+   "width": 160,
+   "height": 100,
+   "fill": "#1e293b",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 600,
+     "end": 7000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "목록 1",
+   "labelColor": "#e2e8f0",
+   "labelSize": 17,
+   "stroke": "#334155",
+   "strokeWidth": 2
+  },
+  {
+   "type": "rect",
+   "id": "e3",
+   "x": 216,
+   "y": 116,
+   "width": 160,
+   "height": 100,
+   "fill": "#1e293b",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 850,
+     "end": 7000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "목록 2",
+   "labelColor": "#e2e8f0",
+   "labelSize": 17,
+   "stroke": "#334155",
+   "strokeWidth": 2
+  },
+  {
+   "type": "rect",
+   "id": "e4",
+   "x": 392,
+   "y": 116,
+   "width": 160,
+   "height": 100,
+   "fill": "#1e293b",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 1100,
+     "end": 7000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "목록 3",
+   "labelColor": "#e2e8f0",
+   "labelSize": 17,
+   "stroke": "#334155",
+   "strokeWidth": 2
+  },
+  {
+   "type": "rect",
+   "id": "e5",
+   "x": 568,
+   "y": 116,
+   "width": 160,
+   "height": 100,
+   "fill": "#1e293b",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 1350,
+     "end": 7000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "목록 4",
+   "labelColor": "#e2e8f0",
+   "labelSize": 17,
+   "stroke": "#334155",
+   "strokeWidth": 2
+  },
+  {
+   "type": "rect",
+   "id": "e6",
+   "x": 744,
+   "y": 116,
+   "width": 160,
+   "height": 100,
+   "fill": "#1e293b",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 1600,
+     "end": 7000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "목록 5",
+   "labelColor": "#e2e8f0",
+   "labelSize": 17,
+   "stroke": "#334155",
+   "strokeWidth": 2
+  },
+  {
+   "type": "text",
+   "id": "e7",
+   "x": 40,
+   "y": 270,
+   "content": "중심은 빌드할 때 한 번 정해지고, 나중에 들어온 행은 기존 목록에 덧붙는다.",
+   "fontSize": 15,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 2600,
+     "end": 7000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "e8",
+   "x": 40,
+   "y": 306,
+   "content": "데이터 분포가 바뀌면 REINDEX 해야 중심이 다시 학습된다.",
+   "fontSize": 15,
+   "color": "#94a3b8",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 3800,
+     "end": 7000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "e9",
+   "x": 40,
+   "y": 96,
+   "content": "질의 q 가 목록 2 와 3 의 경계 근처에 있다고 하자",
+   "fontSize": 15,
+   "color": "#94a3b8",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 7200,
+     "end": 14500,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "e10",
+   "x": 40,
+   "y": 116,
+   "width": 160,
+   "height": 100,
+   "fill": "#334155",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 7400,
+     "end": 14500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "목록 1",
+   "labelColor": "#94a3b8",
+   "labelSize": 17
+  },
+  {
+   "type": "rect",
+   "id": "e11",
+   "x": 216,
+   "y": 116,
+   "width": 160,
+   "height": 100,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 7400,
+     "end": 14500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "목록 2",
+   "labelColor": "#0b1120",
+   "labelSize": 17
+  },
+  {
+   "type": "rect",
+   "id": "e12",
+   "x": 392,
+   "y": 116,
+   "width": 160,
+   "height": 100,
+   "fill": "#334155",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 7400,
+     "end": 14500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "목록 3",
+   "labelColor": "#94a3b8",
+   "labelSize": 17
+  },
+  {
+   "type": "rect",
+   "id": "e13",
+   "x": 568,
+   "y": 116,
+   "width": 160,
+   "height": 100,
+   "fill": "#334155",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 7400,
+     "end": 14500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "목록 4",
+   "labelColor": "#94a3b8",
+   "labelSize": 17
+  },
+  {
+   "type": "rect",
+   "id": "e14",
+   "x": 744,
+   "y": 116,
+   "width": 160,
+   "height": 100,
+   "fill": "#334155",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 7400,
+     "end": 14500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "목록 5",
+   "labelColor": "#94a3b8",
+   "labelSize": 17
+  },
+  {
+   "type": "text",
+   "id": "e15",
+   "x": 40,
+   "y": 270,
+   "content": "목록 2 만 읽는다. 목록 3 에 있는 진짜 이웃은 보지도 못한다.",
+   "fontSize": 15,
+   "color": "#fbbf24",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 8600,
+     "end": 14500,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "e16",
+   "x": 40,
+   "y": 306,
+   "content": "실험 01 (lists=50): probes=1 → recall 0.56, 질의당 버퍼 79",
+   "fontSize": 15,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 9800,
+     "end": 14500,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "e17",
+   "x": 40,
+   "y": 116,
+   "width": 160,
+   "height": 100,
+   "fill": "#334155",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 14800,
+     "end": 22500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "목록 1",
+   "labelColor": "#94a3b8",
+   "labelSize": 17
+  },
+  {
+   "type": "rect",
+   "id": "e18",
+   "x": 216,
+   "y": 116,
+   "width": 160,
+   "height": 100,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 14800,
+     "end": 22500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "목록 2",
+   "labelColor": "#0b1120",
+   "labelSize": 17
+  },
+  {
+   "type": "rect",
+   "id": "e19",
+   "x": 392,
+   "y": 116,
+   "width": 160,
+   "height": 100,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 14800,
+     "end": 22500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "목록 3",
+   "labelColor": "#0b1120",
+   "labelSize": 17
+  },
+  {
+   "type": "rect",
+   "id": "e20",
+   "x": 568,
+   "y": 116,
+   "width": 160,
+   "height": 100,
+   "fill": "#334155",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 14800,
+     "end": 22500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "목록 4",
+   "labelColor": "#94a3b8",
+   "labelSize": 17
+  },
+  {
+   "type": "rect",
+   "id": "e21",
+   "x": 744,
+   "y": 116,
+   "width": 160,
+   "height": 100,
+   "fill": "#334155",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 14800,
+     "end": 22500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "목록 5",
+   "labelColor": "#94a3b8",
+   "labelSize": 17
+  },
+  {
+   "type": "text",
+   "id": "e22",
+   "x": 40,
+   "y": 270,
+   "content": "probes=10 → recall 0.95, 버퍼 744",
+   "fontSize": 16,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 15900,
+     "end": 22500,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "e23",
+   "x": 40,
+   "y": 306,
+   "content": "probes=50(전체) → recall 1.00, 버퍼 3,437",
+   "fontSize": 16,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 17100,
+     "end": 22500,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "e24",
+   "x": 40,
+   "y": 352,
+   "content": "다 읽으면 정확해지지만, 그건 인덱스 없이 다 읽는 것과 거의 같다.",
+   "fontSize": 15,
+   "color": "#fbbf24",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 18300,
+     "end": 22500,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "e25",
+   "x": 40,
+   "y": 112,
+   "width": 860,
+   "height": 46,
+   "fill": "#1e293b",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 22800,
+     "end": 30500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "NOTICE: ivfflat index created with little data",
+   "labelColor": "#fbbf24",
+   "labelSize": 17,
+   "stroke": "#334155",
+   "strokeWidth": 2
+  },
+  {
+   "type": "text",
+   "id": "e26",
+   "x": 40,
+   "y": 206,
+   "content": "pgvector 가 직접 경고한다: 'This will cause low recall.'",
+   "fontSize": 15,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 23900,
+     "end": 30500,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "e27",
+   "x": 40,
+   "y": 252,
+   "content": "5,000행·8차원·lists=10·probes=1, 질의 100개의 recall@10",
+   "fontSize": 15,
+   "color": "#94a3b8",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 24900,
+     "end": 30500,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "e28",
+   "x": 40,
+   "y": 270,
+   "width": 400,
+   "height": 50,
+   "fill": "#fbbf24",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 25300,
+     "end": 30500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "빈 테이블에 먼저 · 0.655",
+   "labelColor": "#0b1120",
+   "labelSize": 17
+  },
+  {
+   "type": "rect",
+   "id": "e29",
+   "x": 480,
+   "y": 270,
+   "width": 420,
+   "height": 50,
+   "fill": "#34d399",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 25900,
+     "end": 30500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "데이터 먼저 · 0.712",
+   "labelColor": "#0b1120",
+   "labelSize": 17
+  },
+  {
+   "type": "text",
+   "id": "e30",
+   "x": 40,
+   "y": 376,
+   "content": "방향은 경고대로 낮았지만, 이 작은 데이터에서 차이는 크지 않았다.",
+   "fontSize": 15,
+   "color": "#94a3b8",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 27100,
+     "end": 30500,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "e31",
+   "x": 40,
+   "y": 410,
+   "content": "인덱스 크기는 두 경우가 같다 - 크기로는 이 문제가 안 보인다.",
+   "fontSize": 15,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 28100,
+     "end": 30500,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  }
+ ],
+ "chapters": [
+  {
+   "id": "ch0",
+   "time": 0,
+   "label": "1. lists 개 군집",
+   "subtitle": "CREATE INDEX 시점의 데이터로 k-means 를 돌려 중심을 정한다"
+  },
+  {
+   "id": "ch1",
+   "time": 7000,
+   "label": "2. probes = 1",
+   "subtitle": "질의에서 가장 가까운 중심 하나의 목록만 읽는다"
+  },
+  {
+   "id": "ch2",
+   "time": 14500,
+   "label": "3. probes 를 늘리면",
+   "subtitle": "가까운 목록 여러 개를 읽는다 - probes = lists 면 전체 스캔"
+  },
+  {
+   "id": "ch3",
+   "time": 22500,
+   "label": "4. 빈 테이블에 먼저 만들면",
+   "subtitle": "학습할 데이터가 없어 중심이 엉터리로 정해진다"
+  }
+ ],
+ "settings": {
+  "loop": false,
+  "autoplay": true,
+  "showChapterList": true
+ }
+}

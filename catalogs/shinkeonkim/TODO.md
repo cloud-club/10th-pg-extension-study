@@ -701,3 +701,196 @@
 - [x] `hstore-gist-signature.json`은 `bun scripts/check-animations.mjs`의 글자-겹침 검사에서 처음 실패(질의 후보 라벨이 마지막 비트 칸과 겹침) → 좌표 수정 후 재검증 통과
 - [x] GistGinInternals 페이지의 추상적인 mermaid 다이어그램 2개를 이 새 애니메이션과 기존 `hstore-gin-lookup` 애니메이션으로 교체 — 정적 도식보다 단계별로 실제 계산 과정을 보여주는 쪽을 택함
 - [x] typecheck·`bun run check`(애니메이션 18개 전부 페이지에서 사용됨·내비게이션 69페이지)·build·SSR 스모크 통과
+
+## Q. 17회차 — week05 pgvector·pgvectorscale 기본 자료 · 2026-10-02
+
+요청: "기본적인 자료부터 만들어주세요" — `TEMPLATE.md` 형식의 기본 카탈로그 문서 작성 단계 (labs·experiments·web 은 이후 회차)
+
+- [x] `catalogs/shinkeonkim/pgvector.md` 작성 — `pgvector/pgvector:pg16`(0.8.7), `timescale/timescaledb-ha:pg16` 번들(0.8.6) 두 이미지를 직접 Docker로 띄워 거리 연산자(`<->`/`<#>`/`<=>`/`<+>`) 실행 결과·HNSW 인덱스 생성·`pg_opclass` 타입별 연산자 클래스 목록을 실제로 확인
+- [x] `catalogs/shinkeonkim/pgvectorscale.md` 작성 — `timescaledb-ha:pg16`에서 vectorscale 0.9.1 확인, DiskANN 인덱스 생성(`NOTICE`로 `num_neighbors`/`search_list_size`/`max_alpha`/`SbqCompression` 직접 확인), `pg_opclass`로 `vector_smallint_label_ops`(라벨 필터링용) 존재 확인
+- [x] **trusted 여부를 직접 재현** — `vector.control`·`vectorscale.control` 모두 `trusted` 선언이 없어 기본값 false. 별도 DB에 비슈퍼유저 role을 만들어 `CREATE EXTENSION vector;`가 `permission denied... Must be superuser`로 거절되는 것을 확인 (hstore trusted 조사와 같은 방식)
+- [x] 매니지드 DB 지원 여부를 웹 검색(2026-10 기준)으로 조사 — pgvector는 RDS/Aurora/Supabase/Neon/Cloud SQL 모두 지원, **pgvectorscale은 Timescale Cloud 외 전부 미지원**(RDS·Aurora·Supabase·Neon·Cloud SQL 확장 목록에 없음). 콘솔에서 직접 설치해 재현하지는 않았다고 문서에 명시
+- [x] `catalogs/README.md`·`catalogs/shinkeonkim/README.md` 목록에 반영 (week05)
+- [x] week05 Docker 실습(`labs/`)·성능 실험(`experiments/`) 완료 (아래 R절 참고). 웹 자료는 여전히 다음 회차 과제
+
+**작업 중 생긴 일(환경)**
+
+- Docker 데스크톱 디스크가 일시적으로 꽉 차 데몬이 죽었다(호스트 디스크가 순간 100%까지 찼다가 자동으로 회복, 460GB 중 가용 121Mi → 48Gi → 151Gi로 변동). `open -a Docker`로 재기동해 복구하고 검증을 이어갔다 — 재현 조건은 특정하지 못했다
+
+## R. 18회차 — week05 실험·실습·개요 · 2026-10-04
+
+요청: (1) 자료 검증 및 실험이 필요한 부분을 찾아 lab 구성 (2) 가설 검증·실측 전부 기록 (3) pgvector·pgvectorscale이 왜 필요한지, 장단점, 실무 케이스를 리서치해 정리 (4) 개요 페이지로 큰 그림 제공
+
+### R-1. 실험 인프라
+
+- [x] `week05/experiments/runtime/`(compose.yaml + harness.py) 신설 — week04 hstore 실험과 같은 패턴. `timescale/timescaledb-ha:pg16`(vector 0.8.6 + vectorscale 0.9.1 + timescaledb 2.30.2, digest 고정) 하나로 두 확장을 동시에 실험
+- [x] `hnsw.ef_search`·`ivfflat.probes`·`diskann.query_search_list_size`·`diskann.query_rescore` 등 런타임 GUC가 **확장 라이브러리가 그 세션에 로드된 뒤에만** `pg_settings`에 나타난다는 것 확인 (`LOAD 'vector'`/`LOAD 'vectorscale-0.9.1'` 필요 — pgrx 빌드라 `.so` 파일명에 버전이 붙는다)
+
+### R-2. 실험 3종 (가설 검증 + 실측)
+
+- [x] **실험 01 · recall vs 튜닝** — HNSW/IVFFlat/DiskANN 질의 시점 파라미터 스윕, ground truth 전수 대조로 recall@10 직접 계산, 2회 반복
+  - **버그 둘을 겪고 고쳤다**: ① 128차원 균등분포 난수만 쓰면 "차원의 저주"로 모든 거리가 수렴해 최근접 이웃이 정의되지 않음(recall이 0.0/1.0으로 "너무 깔끔하게" 나온 게 신호였다) → 질의마다 진짜 근접점을 주입해 해결. ② 스칼라 서브쿼리 `(SELECT array_agg(random())...)`가 InitPlan으로 한 번만 평가돼 5만 행이 전부 같은 벡터가 됨(HNSW 자기 자신 질의로 발견) → cross join + GROUP BY로 해결
+  - 결과: HNSW·IVFFlat은 파라미터↑ → recall↑·비용↑ 가설대로. **DiskANN은 가장 싼 설정에서도 이미 recall@10=1.0**(이 규모에서는)
+- [x] **실험 02 · 빌드 비용·크기** — 20,000/100,000/300,000행에서 세 인덱스 빌드 시간·크기(테이블 대비 비율)
+  - 크기 비율은 행 수 15배 구간에서 거의 고정(HNSW 1.37×, IVFFlat 0.91×, **DiskANN 0.79×로 항상 최소**)
+  - 빌드 시간은 DiskANN이 압도적으로 느리고 격차가 행 수와 함께 벌어짐(HNSW 대비 11.4배→17.4배, IVFFlat 대비 110배→411배) — 65,536행 병렬 빌드 전환점을 넘겨도 개선 안 됨
+- [x] **실험 03 · SBQ 압축(memory_optimized vs plain)** — `storage_layout=plain`(압축 끄기) 빌드가 **이 환경(RAM 3.8GiB)에서 서버 프로세스를 죽였다**(OOM 추정, dmesg로 직접 확인은 못함). 직전 같은 규모의 기본값 빌드는 정상 완료했다. 가설(recall/버퍼 트레이드오프)을 검증하기 전에 더 강한 결과(빌드 자체가 안 됨)를 얻었다 — `bench.py`에 중간 저장을 추가해 크래시해도 결과가 남게 고쳤다
+- [x] 옵션 이름(`storage_layout = plain/memory_optimized`)과 빌드 로그 표시 이름(`Plain`/`SbqCompression`)이 다르다는 것 발견 — 로그만 보고 옵션값을 추측하다 `ERROR: Invalid storage type`을 직접 겪었다
+
+### R-3. Docker 실습 3개
+
+- [x] `week05/pgvector/labs/01-install-and-distance-ops` — trusted 여부(`pg_available_extension_versions`), vector/halfvec/sparsevec/bit 4타입, 거리 연산자 6종, HNSW/IVFFlat 생성과 `pg_opclass`
+- [x] `week05/pgvector/labs/02-hnsw-vs-ivfflat` — IVFFlat을 빈 테이블에 먼저 만드는 함정 재현(공식 문서 경고) — **크기로는 안 드러나고 recall만 나빠진다**는 것을 직접 확인(두 경우 인덱스 크기가 같게 나옴)
+- [x] `week05/pgvectorscale/labs/01-install-and-diskann` — vector·vectorscale 모두 trusted 아님 확인, DiskANN 빌드 NOTICE 해석, **라벨 기반 필터링**(`vector_smallint_label_ops`, pgvector HNSW/IVFFlat에는 없는 기능)을 실제로 실행 — 전역 최근접 이웃이 다른 라벨에 몰려 있어도 지정 라벨만 정확히 반환하는 것 확인
+- [x] 포트 16000·16001·16010 신규 할당, 전수 충돌 검사(0건), 모든 `run.sh`/`bench.py` 구문 검사 통과, 상대 링크 17개 파일 전수 검증(깨진 링크 0개 — 처음엔 상대 경로 깊이를 여러 번 잘못 세서 고쳤다)
+
+### R-4. 리서치 (왜 필요한가·장단점·실무 케이스)
+
+- [x] AWS 공식 블로그("Running pgvector in production on Amazon Aurora PostgreSQL")에서 HNSW/IVFFlat 선택 기준, `hnsw.iterative_scan`(필터링 검색 시 후보 부족 문제와 해법), 메모리·인스턴스 가이드 추출
+- [x] Timescale(TigerData) 자사 블로그의 pgvector vs Qdrant 벤치마크(5천만 행·768차원) 확인 — 수치와 함께 **벤더 자체 벤치마크라는 한계**(파라미터 튜닝 비대칭, 수평확장 평가 제외)를 명시해서 인용
+- [x] 매니지드 DB 지원 현황 재확인: pgvector는 RDS/Aurora/Supabase/Neon/Cloud SQL 전부, **pgvectorscale은 Timescale Cloud 외 전부 미지원**(2026-10 기준)
+- [x] SEO 블로그 집계(markaicode, bigdataboutique 등)의 구체적 수치(예: "Ring 사가 1~2천억 임베딩 운영")는 출처를 검증할 수 없어 인용하지 않기로 결정 — 1차 출처(AWS, 제작사 블로그)만 수치로 인용
+
+### R-5. 개요 페이지
+
+- [x] `week05/README.md` 신설 — Before/After, pgvector vs pgvectorscale 비교표, 장단점(실측+1차출처 구분), 실무 결정 기준, 실험 3종 요약표, lab 3개 목록, 한계
+- [x] `pgvector.md`·`pgvectorscale.md`의 "6. 벤치마크" 절을 실측값으로 교체, 트레이드오프 절에 `hnsw.iterative_scan`·IVFFlat 빌드 순서·SBQ 크래시 반영, 참고 링크에 week05 연결
+- [x] `catalogs/shinkeonkim/README.md` 실습과 실험 표에 week05 개요 링크 추가
+
+## S. 19회차 — week05 실험 문서 구조 보강 · 후속 실험 2종 · 2026-10-04
+
+요청: (1) 각 실험 문서에 "왜 이 실험이 필요했는가"(당위성)를 명시하고 가설·검증 결과를 정확히 구분해서 밝힐 것 (2) 추가로 파볼 만한 주제 제안 후 진행
+
+### S-1. 실험 01~03 문서 구조 보강
+
+- [x] 세 실험 README 모두에 **"왜 이 실험이 필요했는가"** 절 신설 - 카탈로그 문서의 어떤 미실측/추정 서술을 검증하려는 것인지 구체적으로 명시
+- [x] 가설을 H1/H2 형식으로 정확한 문장으로 다시 쓰고, 결과 표 다음에 **"가설 검증"** 절을 신설해 채택/기각/부분채택/검증불가를 표나 명시적 문장으로 밝힘 (예: 실험 01 - HNSW·IVFFlat 채택, DiskANN은 천장 효과로 기각)
+- [x] "해석" 절에서 "가설 검증"과 중복되는 서술을 정리해 같은 내용을 두 번 말하지 않게 함
+- [x] `week05/README.md`의 실험 요약표에 "왜 필요했나"·"가설 검증" 열 추가
+
+### S-2. 실험 04 — 실험 03 크래시의 재현성 (제안한 후속 주제 중 1번)
+
+- [x] 행 수 bisection(30,000/40,000/45,000/48,000/51,000) + `maintenance_work_mem` 스윕(1/2/3GB) + 실험 03과 동일한 빌드 순서 재현, 총 9회 시도, `docker stats`로 피크 메모리 직접 폴링
+- [x] **9번 전부 성공 — 크래시가 재현되지 않았다.** 피크 메모리도 최대 402MB로 한도(1~3GB, 3.8GiB)에 전혀 못 미쳤다
+- [x] **정정**: 실험 03·`pgvectorscale.md`·`week05/README.md`에 적었던 "SBQ 압축이 없으면 이 환경에서 빌드 자체가 안 될 수 있다"는 결론을 전부 철회하고, "그 순간의 단발성 사건으로 추정, 원인 미특정"으로 되돌림 - pg_trgm의 "siglen 48→64 반등 철회"와 같은 종류의 정정
+- [x] 세 문서(실험 03 README 상단에 정정 박스, `pgvectorscale.md` 6절·내부 동작 원리절, `week05/README.md` 장단점·실험 표) 모두 동기화해서 고침
+
+### S-3. 실험 05 — halfvec vs SBQ 압축 (제안한 후속 주제 중 3번)
+
+- [x] 같은 데이터(실험 01과 동일 시드)에서 `vector`+HNSW / `halfvec`+HNSW / `vector`(SBQ)+DiskANN 세 설정을 직접 비교
+- [x] H1(크기: SBQ < halfvec) **채택** - SBQ 23.5MB < halfvec 27.8MB < float4 40.5MB, halfvec이 이미 압축 격차의 약 2/3을 커버
+- [x] H2(recall: halfvec 손실이 SBQ보다 적을 것) **기각** - 오히려 DiskANN이 recall 1.000으로 가장 높았다. HNSW 빌드 비결정성 + DiskANN의 기존 확인된 천장 효과가 뒤섞여 "압축이 recall에 주는 순수한 영향"을 이 설계로는 분리 못 한다는 것까지 명시
+- [x] H3(halfvec 빌드가 float4만큼 빠를 것) **기각** - 오히려 84% 더 느렸다(원인 미확인)
+- [x] `pgvector.md`·`pgvectorscale.md`·`week05/README.md`에 halfvec 비교 수치와 "메모리를 줄이려면 halfvec부터" 가이드 반영
+
+### S-4. 보류했던 후속 주제 — 전부 진행
+
+- [x] pgvectorscale GUC `short_desc` 깨짐(`\x13` 등) - lab README에 한 줄로 기록 (실험까지는 안 함)
+
+## T. 20회차 — 보류 주제 마무리: 규모·필터링 실험 2종 · 2026-10-05
+
+요청: "잔여 작업 진행" - S-4에 보류해둔 두 후속 주제를 마무리
+
+### T-1. 실험 06 — DiskANN recall 우위는 300,000행에서도 보이는가
+
+- [x] 실험 01과 같은 생성 방식(배경 + 질의당 근접점 20개)을 300,000행으로 확장, 빌드 비용 때문에 파라미터는 "가장 싼 값"·"중간값" 2단계로 줄여 1회만 실행
+- [x] **H1(DiskANN도 규모가 커지면 recall<1.0으로 떨어질 것) 기각** - `query_search_list_size=10`에서도 recall@10=1.000, 51,000행과 완전히 동일
+- [x] **H2(그래도 DiskANN의 싼 설정이 HNSW·IVFFlat의 싼 설정보다 나을 것) 채택, 격차가 두 배 넘게 벌어짐** - HNSW `ef_search=10`은 0.63→**0.216**, IVFFlat `probes=1`은 0.54→**0.286**으로 떨어졌는데 DiskANN은 그대로 1.000
+- [x] 빌드 시간·크기가 실험 02(같은 300,000행)와 거의 정확히 일치(597.4초 vs 583.2초, 138.3MB vs 137.9MB) - 서로 다른 실행 간 교차 확인
+- [x] `pgvector.md`·`pgvectorscale.md`·`week05/README.md`에 반영 - "51,000행의 포화가 작은 규모의 착시가 아니라, 규모가 커질수록 더 뚜렷해지는 패턴"으로 결론 수정
+
+### T-2. 실험 07 — 라벨 필터링의 비용(과 정확성)
+
+- [x] 10개 라벨 × 5,000행(50,000행, 32차원), 질의는 라벨 1 근처인데 필터는 가장 먼 라벨 10으로 거는 가혹한 시나리오 설계
+- [x] DiskANN 네이티브 라벨 필터링 vs HNSW + `WHERE` + `hnsw.iterative_scan ∈ {off, relaxed_order, strict_order}` 비교
+- [x] **가설(둘 다 정확하고 DiskANN이 더 싸다)이 전제부터 깨짐** - HNSW는 **모든 iterative_scan 설정에서 0/10**(추가로 `hnsw.max_scan_tuples`를 기본값 10배인 200,000까지 올려도 여전히 0/10 - 직접 재확인), DiskANN은 10/10. `enable_indexscan=off` 강제 Seq Scan으로 정답(10행)이 실제로 존재함을 확인
+- [x] 해석: AWS 가이드의 `iterative_scan` 권장은 "후보가 근처에는 있지만 부족한" 상황을 겨냥한 것이고, "필터를 통과하는 후보가 그리디 탐색 경로 바깥의 완전히 분리된 영역에 있는" 더 가혹한 상황에는 안 통한다는 것을 직접 확인·명시
+- [x] `pgvector.md`(필터링 주의 문단)·`pgvectorscale.md`(트레이드오프 "이럴 때 쓴다", 6절)·`week05/README.md`(장단점, 실무 결정 기준)에 전부 반영
+
+### T-3. 문서 동기화
+
+- [x] `week05/experiments/README.md`·`week05/README.md` 실험 요약표에 06·07 추가, 01↔06·03↔04 관계처럼 서로 참조하게 링크
+- [x] 상대 링크 21개 파일 전수 재검증(깨진 링크 0개), 모든 `bench.py` 구문 검사, 컨테이너·볼륨 정리 확인
+
+## U. 21회차 — week05 전체 검수(어색한 문구·맥락 단절·갱신 누락) · 2026-10-05
+
+요청: "week05에 대해서만 보강할 요소가 있는지, 문구가 어색하게 쓰인 것은 없는지, 설명이 부족한 부분이나 맥락의 연결 없이 막 쓰인 문단은 없는지 검수" - 21개 markdown 파일(카탈로그 2개 + week05 전체) 전수 재독
+
+- [x] **pgvectorscale lab의 README·HANDS-ON이 실험 04의 철회 이전 서술을 그대로 두고 있었다** - "이 환경에서는 서버가 죽을 수 있다"고 **단정**한 채였다(실제로는 9번 재현해 9번 다 성공). 둘 다 "9번 재현했지만 죽지 않았다"로 교체 - 되돌리는 패스에서 놓쳤던 것을 이번에 잡았다
+- [x] **실험 01의 "DiskANN이 왜 이렇게 좋은가" 질문이 실험 02를 가리키고 있었다** - 하지만 02는 빌드 비용·크기만 재고 recall은 재지 않는다. 실제로 그 질문에 답한 것은 이후에 만든 실험 06이다 - 참조를 06으로 교체
+- [x] **`week05/README.md`가 "세 실험 모두"라고 적어뒀는데 표에는 일곱 개가 있었다** - 01~03만 있던 시점에 쓴 문장을 04~07을 추가하면서 갱신하지 않은 것. "일곱 실험 모두"로 고치고, 실험마다 당위성이 다르다는 것(1차 출처 메우기 vs 앞선 실험의 공백 메우기)도 구분해서 적음
+- [x] 같은 문서의 "각 실험 README의 '측정 중 겪은 함정'"도 과장이었다 - 그 절은 실험 01에만 있다. 01을 지목하고 "이후 실험은 한계 절에 적었다"로 정정
+- [x] **lab 02의 HANDS-ON.md가 자동 스크립트에서만 만들어지는 테이블(`proper_ivfflat`)을 수동 실습에서 그대로 참조하고 있었다** - 수동 실습만 따라가면 그 테이블이 없다. 수동 실습이 직접 만든 테이블(`t`)을 쓰도록 교체, 정확한 비교가 필요하면 자동 스크립트를 먼저 돌리라고 안내 추가
+- [x] 상대 경로 깊이를 고치는 sed 작업에서 **링크의 표시 텍스트와 실제 href가 어긋난 자리 3곳**(lab 3개의 HANDS-ON.md "종합 문서" 링크) 발견 - href만 고쳐지고 표시 텍스트는 옛 경로로 남아있었다. 표시 텍스트도 맞춰 고침
+- [x] 실험 06의 "수색 공간" → "탐색 공간" (오타성 단어 선택)
+- [x] 실험 03·04의 "크래시가 재현되지 않았다"는 같은 내용이 결과·가설검증·해석 세 절에서 거의 그대로 세 번씩 반복되고 있었다 - 가설검증은 H1/H2 판정으로, 해석은 왜 그런지의 설명으로 역할을 나눠 중복 제거. 실험 03은 "자세한 내용은 실험 04를 본다"로 한 곳만 가리키게 정리
+- [x] `pgvector.md` 6절(벤치마크) 서두가 "51,000행 기준"이라고 했지만 표에는 20,000~300,000행 구간·50,000행 등 다른 규모 행도 있었다 - "기본 규모 + 바뀐 조건은 행마다 표시"로 교체. 참고 조건 목록에 실험 05·06·07이 빠져 있던 것도 추가
+- [x] `pgvector.md` 3절에서 "iterative_scan 권장이 안 통하는 경우"와 "IVFFlat 빌드 순서 문제"가 서로 다른 주제인데 한 문단에 붙어 있던 것을 분리
+- [x] `pgvectorscale.md` 6절의 중복 인용(본문에 "(실험 04)"를 적어놓고 문서 맨 아래 참고 조건 목록에는 실험 04·05가 빠져 있던 불일치) 정리 - 인라인 인용 제거, 목록에 04·05 추가
+- [x] 위 수정 전부 반영 후 상대 링크 21개 파일 재검증(깨진 링크 0개)
+
+## V. 22회차 — week05 웹 자료 · 실험 07 데이터 정정 · 2026-10-05
+
+요청: "web05에 대한 내용을 web/ 내에서 다른 주차와 마찬가지로 자료를 구성" - week02~04와 같은 형식(registry 섹션·페이지·실측 JSON·Clotho·차트·검사)
+
+- [x] **실험 07 첫 판의 데이터가 5만 행 중 서로 다른 벡터 10개였다** - 실험 01에서 기록해 둔 InitPlan 함정(스칼라 서브쿼리 1회 평가)을 생성 SQL에서 다시 밟았다. 웹으로 옮기며 데모 출력을 보다가 HNSW가 필터 없이도 약 480행에만 닿는 것을 보고 발견. cross join 생성으로 다시 재고 결론 교체: 기본값 0행(유지) · `relaxed_order`는 10행을 채움(첫 판은 "어떤 설정도 0행") · DiskANN 라벨 인덱스가 같은 10행을 약 9배 싸게, 결과는 조금 덜 가깝게. 첫 판 결과는 `results/run-duplicate-bug.json`으로 보존, `bench.py`에 서로 다른 벡터 수 assert 추가
+- [x] 위 정정을 `pgvector.md`·`pgvectorscale.md`·`week05/README.md`·`experiments/README.md`·pgvectorscale lab 01(`sql/03-label-filtering.sql`)에 반영
+- [x] **"IVFFlat을 빈 테이블에 만들면 recall이 나빠진다(직접 재현)"는 크기만 재고 recall은 재지 않은 서술이었다** - 질의 100개로 실제로 재서 0.655 vs 0.712로 교체(방향은 맞고 차이는 작다)
+- [x] `web/scripts/sync-pgvector-results.py`(실험 요약 → `src/data/pgvector-experiments.json`, `--check`), `web/scripts/capture-pgvector-demo.py`(임시 DB 실행 출력 → `src/data/pgvector-demo.json`)
+- [x] 페이지 11개(`src/pages/pgvector/`): 개요·설치·언제 쓰나 / ANN·HNSW와 IVFFlat·튜닝 / DiskANN·비용·필터 / 실험·참고 자료. 수치는 전부 `stats.ts`를 거쳐 두 JSON에서 읽는다
+- [x] Clotho 4개(`src/animations/pgvector_docs.py`): 정확 vs 근사, HNSW 탐색, IVFFlat probes, 필터 검색(첫 판의 실수 장 포함)
+- [x] "언제 쓰나" 페이지의 AWS 체크리스트를 원문과 대조 - `<#>`가 "더 싸다", `maintenance_work_mem` 부족 시 "NOTICE" 등 원문에 없는 표현을 원문대로 교체
+- [x] `registry.ts`에 week05 섹션 4개·`WEEKS` 등록, `package.json`의 `check`에 `check:pgvector-data` 추가
+- [x] `bun run check`(typecheck · 애니메이션 22개 · 4개 주차 80개 페이지 탐색 · 데이터 검사 3종) · `bun run build` 통과, 프로덕션 빌드에서 11개 페이지 렌더 오류 없음 확인
+- [x] `web/README.md`·`README.md`·`week05/README.md`(웹 미작성 한계 줄 교체) 갱신
+
+## W. 23회차 — week05 웹 자료를 초심자 발표용으로 재구성 · 2026-10-05
+
+요청: "좀더 설명이 친절하게 주어지면 좋겠습니다. 처음 postgresql을 접하고, DB 지식이 약간 있는 사람들을 대상으로 발표해도 순차적으로 이해할 수 있게요"
+
+- [x] 페이지 공통 장치 `web/src/pages/pgvector/guide.tsx`: `Goal`(답할 질문 · 전제) · `Recap`(정리 · 다음 페이지와 이유) · `Deep`(접는 심화) · `Term`(첫 등장 용어 풀이)
+- [x] 새 페이지: `처음이라면: 일곱 단계`(임베딩→거리→ORDER BY LIMIT→B-tree가 안 되는 이유→ANN→recall, 실제 3차원 예제 출력), `용어 사전`(35개, 비유 포함)
+- [x] `개요`를 발표 오프닝으로 재작성: 전제 지식, 페이지별 "답하는 질문" 표, 용어 없는 결론 미리보기. 핵심 수치 StatGrid는 `언제 무엇을 쓰나`로 옮기고 설명을 쉬운 말로
+- [x] `설치와 기본 문법`에 **EXPLAIN 읽는 법** 절 추가(Index Scan · Order By · Buffers = 8KB 페이지 · InitPlan) — 이후 페이지가 전부 버퍼 수로 비용을 말하므로
+- [x] 모든 페이지에 비유 문단(EasyFirst), 원문 출력·숫자 표·소스 해설·정정 경위는 `Deep`으로 접고 본문에는 결론만
+- [x] 튜닝 곡선이 DiskANN을 소개 전에 보여 주던 순서 문제 → 안내 상자로 연결. 사이드바를 "정리와 검증" 섹션으로 재배치(언제 쓰나 → 실험 → 자료)
+- [x] 손으로 적힌 숫자 정리: 거리 집중 비율(0.8%·70%)을 출력에서 파싱, 재현 횟수·크기 비율·질의 수를 데이터에서 읽게 변경
+- [x] **"같은 비용이면 HNSW가 IVFFlat보다 정확하다"는 실측과 반대였다** — 비교표를 다시 쓰며 숫자와 대조하다 발견. 실험 01(51,000행)에서 IVFFlat `probes=10`이 recall 0.95를 버퍼 730·1.37ms에, HNSW `ef_search=200`이 0.94를 버퍼 5,059·1.21ms에 냈다. 웹 비교표·튜닝 차트 노트·`pgvector.md` 91행을 실측으로 교체하고 해석의 한계(버퍼는 두 구조 사이에서 같은 잣대가 아님, 근접점을 몰아 넣은 데이터가 IVFFlat에 유리했을 수 있음)를 함께 적음. HNSW를 기본으로 권하는 근거는 운영(삽입 순서·재빌드 불필요)으로 정리
+- [x] 확인 못 한 서술 제거: "0.7.0부터 병렬 빌드"(버전 불확실), "0.9가 실무 목표 수준", SBQ "차원마다 비트 몇 개"
+- [x] `bun run check`(4개 주차 82개 페이지) · `bun run build` 통과, 13개 페이지 프로덕션 렌더 확인
+
+## X. 24회차 — IVFFlat·HNSW 설명 보강 · 2026-10-05
+
+요청: "IVFFLat, HNSW 에 대해서 더 설명을 보강해주세요"
+
+- [x] 한 페이지였던 "HNSW와 IVFFlat"을 **IVFFlat → HNSW → HNSW vs IVFFlat** 세 페이지로 분리(원리가 단순한 IVFFlat 먼저)
+- [x] IVFFlat: 이름 풀이(Inverted File + Flat=무압축), 만들기(표본 max(lists×50, 10,000)행 → k-means → 최근접 중심 배정, `ivfbuild.c` 확인), 찾기(중심 비교 + probes개 목록 전수 비교 → 비용 식), lists×probes 실측, 빈 테이블 함정, **분포 변화 후 REINDEX** 실측, 삭제·iterative_scan
+- [x] HNSW: 이름 풀이(Small World·Navigable·Hierarchical, 탐욕적 이동), 층 배정 규칙(mL=1/ln m → 한 층 올라갈 확률 1/m, 0층 이웃 2m — `hnsw.h` 확인, 표는 계산값으로 표시), 삽입 과정, 검색 과정과 국소 최적, ef_search ≥ 2×LIMIT 권장(README), m·ef_construction·ef_search 실측, **삭제 후 VACUUM 비용**, **maintenance_work_mem 부족 NOTICE** 실측
+- [x] 새 측정 스크립트 `web/scripts/capture-pgvector-index-demo.py` → `src/data/pgvector-index-demo.json`. 32차원·20,000행·무리 100개, 테이블에 없는 질문 100개, 설정마다 2회 빌드. 기존 `pgvector-demo.json`은 건드리지 않음. `sync-pgvector-results.py --check`에 구조·반복 수 검사 추가
+- [x] 측정에서 얻은 것: lists↑ → probes=1 recall 1.00→0.87→0.43, lists=500은 중심 비교 몫 때문에 오히려 더 읽음 · m 4→32 크기 2.2배·빌드 약 8배 · **ef_construction=32는 ef_search=200에서도 0.986 천장**(64는 ef_search=40에서 1.000) · 무리 절반으로 만든 뒤 나머지를 넣으면 IVFFlat recall 0.80(REINDEX 후 1.00), HNSW는 1.00 그대로 · 20% 삭제 후 VACUUM HNSW 약 300ms vs IVFFlat 약 7ms · maintenance_work_mem=1MB면 약 1,245행에서 NOTICE, 빌드 2.8배
+- [x] 실측 중 발견: pgvector는 `ef_construction < 2*m`을 오류로 거절한다 — 페이지에 실제 오류로 실음
+- [x] 비교 페이지는 두 데이터셋(이번 무리 데이터, 실험 01)의 숫자를 나란히 두고 "HNSW가 같은 비용에서 더 정확하다"가 재현되지 않았다는 점과 해석 한계를 유지. HNSW 기본 권장 근거는 운영으로 정리
+- [x] 링크·용어 사전·개요의 발표 순서 표·사이드바 갱신. `bun run check`(84개 페이지)·`bun run build` 통과, 프로덕션 렌더 확인
+
+## Y. 25회차 — 개념 페이지에 핵심 3줄 요약 · 마무리 퀴즈 · 2026-10-05
+
+요청: "각 개념 설명에 대한 페이지 상단에는 핵심 3줄 요약, 하단에는 마무리 퀴즈 섹션을 만들어서 이해하게 해주세요"
+
+- [x] `guide.tsx`에 `Summary`(상단 핵심 3줄), `Quiz`(보기 클릭 → 즉시 정답·풀이·다시 읽을 절 링크, 점수, 다시 풀기), `Next` 추가. 점수는 화면 상태로만 두고 저장하지 않음
+- [x] 개념 페이지 10개(처음이라면 · 설치와 기본 문법 · 근사 검색과 recall · IVFFlat · HNSW · HNSW vs IVFFlat · 튜닝 곡선 · DiskANN · 빌드 비용과 크기 · 필터가 붙은 검색): 하단 정리 상자를 상단 3줄 요약으로 옮기고, 하단은 퀴즈 → 다음 페이지
+- [x] 문항 42개를 `quizzes.tsx`에 모음. 측정값이 들어가는 문항(lists별 recall, ef_construction 천장, VACUUM 시간, 빌드 배수, halfvec 감소율, 필터 비용, 재현 횟수 등)은 페이지와 같은 JSON에서 읽음
+- [x] 보기 순서를 문제마다 정해진 규칙으로 돌려 정답 위치 분산(작성 시 정답이 대부분 ②였음 — 전부 첫 보기를 누르면 페이지당 1~2문제만 맞는 것 확인)
+- [x] `bun run check`(84개 페이지)·`bun run build` 통과, 10개 페이지에서 요약·퀴즈 렌더와 채점 동작 확인
+
+## Z. 26회차 — week05 기본 학습·그래프 시각화·구현 설명·Worker 배포 · 2026-10-06
+
+- [x] 기본 학습을 가이드의 10장 순서로 재구성. RAM·SSD와 SBQ를 독립 페이지로 추가하고 실습·실험과 구현·실측 심화를 하단 목록으로 분리
+- [x] 기본 학습용 Clotho 그래프 모형 4개 추가: IVFFlat 경계와 probes, HNSW 층별 탐색, DiskANN 후보 큐와 지름길, StreamingDiskANN 필터 결과 공급
+- [x] Clotho 작성 스킬과 설치된 0.4.0 스키마를 확인. 노드 ID와 anchored connector, 절대 시간의 상태 트랙을 사용하고 discrete 보간의 조기 상태 변경을 수정
+- [x] IVFFlat·HNSW·DiskANN 구현 설명을 `web/src/pages/pgvector/implementation/`에 보강. 생성·삽입·검색 의사 코드와 pgvector v0.8.0 / pgvectorscale 0.9.1 소스 연결 추가
+- [x] 원 DiskANN의 medoid 설명과 pgvectorscale의 시작 노드 관리 차이, 후보 큐·원본 거리 재평가·추가 탐색의 한계를 구체화
+- [x] `wrangler.jsonc`와 로컬 전용 `deploy:cloudflare` 명령 구성. Worker `pg-study`, Custom Domain `pg-study.shinkeonkim.com`, 정적 자산은 `dist/`만 배포
+- [x] 로컬 Wrangler 4.71.0의 기존 로그인으로 배포 완료. 배포 버전 `5c54095a-db8c-4715-8434-5293311448c2`. Git/CI 자동 배포는 구성하지 않음
+- [x] typecheck·애니메이션 26개 렌더·93개 페이지 내비게이션·실험 데이터 검사·프로덕션 빌드 통과
+- [x] 공개 도메인에서 IVFFlat·HNSW·DiskANN의 구현 설명과 Clotho 구간 탐색을 1280px·390px 브라우저로 검증. 렌더 오류·실패한 웹 자산·페이지 가로 넘침 없음
+- [x] 가이드 원본 디렉터리가 비어 있는 현재 상태를 확인. 이미 생성한 웹 본문은 유지하고 동기화 스크립트에 `--source-dir`와 원본 누락 안내 추가. 웹 빌드·배포는 원본에 의존하지 않음

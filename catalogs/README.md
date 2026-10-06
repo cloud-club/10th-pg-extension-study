@@ -10,6 +10,8 @@
 
 | 익스텐션 | 한 줄 요약 | 카테고리 | 매니지드 지원 | 정리 |
 | --- | --- | --- | --- | --- |
+| [pgvector](shinkeonkim/pgvector.md) | 벡터 타입과 거리 연산자, HNSW·IVFFlat ANN 인덱스를 추가 | 벡터 검색 | RDS ○ / Aurora ○ / Supabase ○ / Neon ○ / Cloud SQL ○ | shinkeonkim (week05) |
+| [pgvectorscale](shinkeonkim/pgvectorscale.md) | pgvector 위에 DiskANN 인덱스(SBQ 압축)로 대규모 벡터 검색 확장 | 벡터 검색 | RDS ✕ / Aurora ✕ / Supabase ✕ / Neon ✕ / Cloud SQL ✕ / Timescale Cloud ○ | shinkeonkim (week05) |
 | [pg_stat_statements](shinkeonkim/etc/pg_stat_statements/README.md) | 실행된 SQL 을 정규화해 서버 전역 누적 통계로 추적 | 성능 진단 | RDS ○ / Aurora ○ / Supabase ○ / Neon ○ / Cloud SQL ○ / Azure ○ | shinkeonkim (etc) |
 | [hstore](shinkeonkim/hstore.md) | 한 컬럼에 문자열 키-값 묶음을 저장하고 연산자·GIN으로 조회 - jsonb·Redis 해시와의 차이와 동시성을 실측 | 데이터 타입 · 키-값 | RDS ○ / Azure ○ / Cloud SQL ○ / Neon ○ / Supabase 확인 필요 | shinkeonkim (week04) |
 | [pg_cron](shinkeonkim/pg_cron.md) | DB 안에서 cron 문법으로 주기적인 SQL 을 예약 실행 | 자동화 (스케줄러) | RDS ○ / Supabase ○ / Neon ○ / Cloud SQL ○ / Azure ○ / Heroku ✕ | shinkeonkim (week03) |

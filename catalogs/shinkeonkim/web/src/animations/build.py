@@ -871,6 +871,40 @@ for _name in ("hstore-storage-layout", "hstore-update-rewrite", "hstore-gin-look
     DOCS[_name] = (lambda n=_name: _hstore(n))
 
 
+# pgvector·pgvectorscale(week05) 문서는 pgvector_docs.py 에 있다. 실험 요약·데모 캡처 JSON 에서 수치를 읽는다.
+_PGV = {}
+
+
+def _pgv(name):
+    if not _PGV:
+        import pgvector_docs
+        kit = dict(txt=txt, box=box, BG=BG, PANEL=PANEL, INK=INK, ON_FILL=ON_FILL, MUTED=MUTED, BIGM=BIGM,
+                   TRGM=TRGM, TSV=TSV, PAD=PAD, OK=OK, WARN=WARN, DIM=DIM)
+        _PGV.update(pgvector_docs.docs(kit))
+    return _PGV[name]
+
+
+for _name in ("pgv-exact-vs-ann", "pgv-hnsw-search", "pgv-ivfflat-probes", "pgv-filtered-search"):
+    DOCS[_name] = (lambda n=_name: _pgv(n))
+
+
+# 기본 학습의 그래프 모형은 실측 수치와 분리한다.
+_PGV_GRAPHS = {}
+
+
+def _pgv_graph(name):
+    if not _PGV_GRAPHS:
+        import pgvector_graphs
+        kit = dict(BG=BG, PANEL=PANEL, INK=INK, ON_FILL=ON_FILL, MUTED=MUTED,
+                   BIGM=BIGM, TRGM=TRGM, TSV=TSV, PAD=PAD, OK=OK, WARN=WARN, DIM=DIM)
+        _PGV_GRAPHS.update(pgvector_graphs.docs(kit))
+    return _PGV_GRAPHS[name]
+
+
+for _name in ("pgv-ivfflat-graph", "pgv-hnsw-graph", "pgv-diskann-graph", "pgv-diskann-stream"):
+    DOCS[_name] = (lambda n=_name: _pgv_graph(n))
+
+
 def load_schema():
     if os.path.exists(SCHEMA_CACHE):
         return json.load(open(SCHEMA_CACHE))

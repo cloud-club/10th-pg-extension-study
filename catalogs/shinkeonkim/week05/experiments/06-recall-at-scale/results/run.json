@@ -1,0 +1,91 @@
+{
+  "environment": {
+    "postgres": "PostgreSQL 16.15 (Ubuntu 16.15-1.pgdg22.04+2) on aarch64-unknown-linux-gnu, compiled by gcc (Ubuntu 11.4.0-1ubuntu1~22.04.3) 11.4.0, 64-bit",
+    "vector_version": "0.8.6",
+    "vectorscale_version": "0.9.1",
+    "shared_buffers": "512MB",
+    "maintenance_work_mem": "1GB",
+    "cpu_count": "3",
+    "mem_total": "MemTotal:        4014168 kB"
+  },
+  "n_vectors": 300000,
+  "dim": 128,
+  "n_queries": 50,
+  "k": 10,
+  "configs": [
+    {
+      "config": "hnsw_ef10",
+      "recall_at_10": 0.216,
+      "buffers_per_query": 590.2,
+      "ms_per_50_queries": 19.803,
+      "ms_per_query": 0.396,
+      "index": "hnsw",
+      "param": "ef_search",
+      "value": 10,
+      "build_ms": 33789.228,
+      "index_mb": 238.94
+    },
+    {
+      "config": "hnsw_ef100",
+      "recall_at_10": 0.496,
+      "buffers_per_query": 3321.1,
+      "ms_per_50_queries": 78.714,
+      "ms_per_query": 1.574,
+      "index": "hnsw",
+      "param": "ef_search",
+      "value": 100,
+      "build_ms": 33789.228,
+      "index_mb": 238.94
+    },
+    {
+      "config": "ivfflat_probes1",
+      "recall_at_10": 0.286,
+      "buffers_per_query": 111.0,
+      "ms_per_50_queries": 9.726,
+      "ms_per_query": 0.195,
+      "index": "ivfflat",
+      "param": "probes",
+      "value": 1,
+      "build_ms": 1567.814,
+      "index_mb": 158.06,
+      "lists": 300
+    },
+    {
+      "config": "ivfflat_probes30",
+      "recall_at_10": 0.886,
+      "buffers_per_query": 2679.0,
+      "ms_per_50_queries": 298.21,
+      "ms_per_query": 5.964,
+      "index": "ivfflat",
+      "param": "probes",
+      "value": 30,
+      "build_ms": 1567.814,
+      "index_mb": 158.06,
+      "lists": 300
+    },
+    {
+      "config": "diskann_sls10",
+      "recall_at_10": 1.0,
+      "buffers_per_query": 3572.6,
+      "ms_per_50_queries": 85.35,
+      "ms_per_query": 1.707,
+      "index": "diskann",
+      "param": "query_search_list_size",
+      "value": 10,
+      "build_ms": 597413.183,
+      "index_mb": 138.34
+    },
+    {
+      "config": "diskann_sls100",
+      "recall_at_10": 1.0,
+      "buffers_per_query": 7593.0,
+      "ms_per_50_queries": 181.03,
+      "ms_per_query": 3.621,
+      "index": "diskann",
+      "param": "query_search_list_size",
+      "value": 100,
+      "build_ms": 597413.183,
+      "index_mb": 138.34
+    }
+  ]
+}

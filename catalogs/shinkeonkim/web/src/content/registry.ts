@@ -209,6 +209,50 @@ export const SECTIONS: SectionDef[] = [
       { slug: 'resources', title: '참고 자료', hint: '공식 문서·GitHub·글', view: lazy(() => import('@/pages/hstore/Resources')) },
     ],
   },
+  {
+    week: 'week05', slug: 'pgv-start', routeSlug: 'pgvector', title: '학습 안내', accent: 'tsv',
+    pages: [
+      { slug: 'about', title: '개요와 학습 순서', hint: '기본 학습 10장 · 실습 · 심화', view: lazy(() => import('@/pages/pgvector/About')) },
+    ],
+  },
+  {
+    week: 'week05', slug: 'pgv-reading', routeSlug: 'pgvector', title: '기본 학습 · 01–10', accent: 'ok',
+    pages: [
+      { slug: 'ann', title: '01. 벡터 검색과 ANN', hint: '의미를 숫자로 · 정확도와 속도', view: lazy(() => import('@/pages/pgvector/reading/Ann')) },
+      { slug: 'overview', title: '02. pgvector 전체 구조', hint: '벡터 저장 · 인덱스 · 확장의 관계', view: lazy(() => import('@/pages/pgvector/reading/Overview')) },
+      { slug: 'ivfflat', title: '03. IVFFlat', hint: '동네를 나누고 가까운 동네만', view: lazy(() => import('@/pages/pgvector/reading/Ivfflat')) },
+      { slug: 'hnsw', title: '04. HNSW', hint: '여러 층의 도로망과 지름길', view: lazy(() => import('@/pages/pgvector/reading/Hnsw')) },
+      { slug: 'storage', title: '05. RAM, SSD와 Random Access', hint: '캐시 · working set · I/O', view: lazy(() => import('@/pages/pgvector/reading/Storage')) },
+      { slug: 'diskann', title: '06. StreamingDiskANN', hint: 'SSD를 고려한 그래프 · 후보 공급', view: lazy(() => import('@/pages/pgvector/reading/Diskann')) },
+      { slug: 'sbq', title: '07. SBQ', hint: '통계로 벡터를 작게 표현하기', view: lazy(() => import('@/pages/pgvector/reading/Sbq')) },
+      { slug: 'filtering', title: '08. Filtered Vector Search', hint: '일반 WHERE · 라벨 필터링', view: lazy(() => import('@/pages/pgvector/reading/Filtering')) },
+      { slug: 'when-to-use', title: '09. 기술 비교와 선택 기준', hint: '규모 · 정확도 · 비용을 함께', view: lazy(() => import('@/pages/pgvector/reading/Comparison')) },
+      { slug: 'glossary', title: '10. 용어집과 복습', hint: '핵심 용어와 열 가지 질문', view: lazy(() => import('@/pages/pgvector/reading/Glossary')) },
+    ],
+  },
+  {
+    week: 'week05', slug: 'pgv-practice', routeSlug: 'pgvector', title: '실습과 실험 · 더 해보기', accent: 'warn',
+    pages: [
+      { slug: 'labs', title: 'Lab 목록과 실행 순서', hint: '설치 · 거리 연산자 · 인덱스', view: lazy(() => import('@/pages/pgvector/Labs')) },
+      { slug: 'install', title: '설치와 SQL 실습', hint: '권한 · 타입 · 실제 출력 · EXPLAIN', view: lazy(() => import('@/pages/pgvector/Install')) },
+      { slug: 'experiments', title: '실험 질문과 결과', hint: '7개 실험 · 재현 절차 · 정정 이력', view: lazy(() => import('@/pages/pgvector/Experiments')) },
+    ],
+  },
+  {
+    week: 'week05', slug: 'pgv-advanced', routeSlug: 'pgvector', title: '심화 · 구현과 실측', accent: 'bigm',
+    pages: [
+      { slug: 'ann-details', title: 'Recall 측정과 실행 계획', hint: '정답 집합 · 버퍼 · 퀴즈', view: lazy(() => import('@/pages/pgvector/Ann')) },
+      { slug: 'ivfflat-details', title: 'IVFFlat 구현과 실측', hint: 'lists × probes · 분포 변화', view: lazy(() => import('@/pages/pgvector/Ivfflat')) },
+      { slug: 'hnsw-details', title: 'HNSW 구현과 실측', hint: '연결 수 · 빌드 메모리 · VACUUM', view: lazy(() => import('@/pages/pgvector/Hnsw')) },
+      { slug: 'hnsw-ivfflat', title: 'HNSW vs IVFFlat 실측', hint: '같은 환경에서 인덱스 비교', view: lazy(() => import('@/pages/pgvector/HnswIvfflat')) },
+      { slug: 'tuning', title: '튜닝 곡선과 규모', hint: 'recall · 지연시간 · 데이터 크기', view: lazy(() => import('@/pages/pgvector/Tuning')) },
+      { slug: 'diskann-details', title: 'DiskANN 구현과 벤치마크', hint: '파라미터 · 압축 · 외부 벤치마크', view: lazy(() => import('@/pages/pgvector/Diskann')) },
+      { slug: 'cost', title: '빌드 비용과 크기', hint: 'halfvec · SBQ · 압축 해제', view: lazy(() => import('@/pages/pgvector/Cost')) },
+      { slug: 'filtering-details', title: '필터 검색 실측', hint: 'iterative_scan · 라벨 인덱스', view: lazy(() => import('@/pages/pgvector/Filtering')) },
+      { slug: 'selection-details', title: '실측으로 보는 선택 기준', hint: '이 저장소의 수치와 환경 한계', view: lazy(() => import('@/pages/pgvector/WhenToUse')) },
+      { slug: 'resources', title: '참고 자료', hint: '공식 문서 · 논문 · 저장소', view: lazy(() => import('@/pages/pgvector/Resources')) },
+    ],
+  },
 ]
 
 export const HOME = `/${SECTIONS[0].slug}/${SECTIONS[0].pages[0].slug}`
@@ -242,6 +286,7 @@ export const WEEKS = [
   { slug: 'week02', title: 'Week 02 · 텍스트 검색' },
   { slug: 'week03', title: 'Week 03 · 작업 예약' },
   { slug: 'week04', title: 'Week 04 · hstore' },
+  { slug: 'week05', title: 'Week 05 · pgvector · pgvectorscale' },
 ]
 export function weekHome(week: string) {
   const section = SECTIONS.find((s) => s.week === week)

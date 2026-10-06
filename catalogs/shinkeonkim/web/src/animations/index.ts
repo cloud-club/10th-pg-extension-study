@@ -18,6 +18,14 @@ import hstoreLostUpdate from './hstore-lost-update.json'
 import hstoreRedisPath from './hstore-redis-path.json'
 import hstoreOffsetsVsLengths from './hstore-offsets-vs-lengths.json'
 import hstoreVsJsonbTypes from './hstore-vs-jsonb-types.json'
+import pgvExactVsAnn from './pgv-exact-vs-ann.json'
+import pgvHnswSearch from './pgv-hnsw-search.json'
+import pgvIvfflatProbes from './pgv-ivfflat-probes.json'
+import pgvFilteredSearch from './pgv-filtered-search.json'
+import pgvIvfflatGraph from './pgv-ivfflat-graph.json'
+import pgvHnswGraph from './pgv-hnsw-graph.json'
+import pgvDiskannGraph from './pgv-diskann-graph.json'
+import pgvDiskannStream from './pgv-diskann-stream.json'
 
 /** 애니메이션 id → 파싱된 clotho 문서. 새 문서는 build.py 에 등록하면 여기에 자동으로 실린다. */
 export const ANIMATIONS = {
@@ -39,6 +47,14 @@ export const ANIMATIONS = {
   'hstore-redis-path': parseDocumentOrThrow(hstoreRedisPath),
   'hstore-offsets-vs-lengths': parseDocumentOrThrow(hstoreOffsetsVsLengths),
   'hstore-vs-jsonb-types': parseDocumentOrThrow(hstoreVsJsonbTypes),
+  'pgv-exact-vs-ann': parseDocumentOrThrow(pgvExactVsAnn),
+  'pgv-hnsw-search': parseDocumentOrThrow(pgvHnswSearch),
+  'pgv-ivfflat-probes': parseDocumentOrThrow(pgvIvfflatProbes),
+  'pgv-filtered-search': parseDocumentOrThrow(pgvFilteredSearch),
+  'pgv-ivfflat-graph': parseDocumentOrThrow(pgvIvfflatGraph),
+  'pgv-hnsw-graph': parseDocumentOrThrow(pgvHnswGraph),
+  'pgv-diskann-graph': parseDocumentOrThrow(pgvDiskannGraph),
+  'pgv-diskann-stream': parseDocumentOrThrow(pgvDiskannStream),
 } as const
 
 export type AnimationId = keyof typeof ANIMATIONS
