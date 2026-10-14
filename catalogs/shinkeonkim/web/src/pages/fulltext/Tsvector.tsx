@@ -53,13 +53,13 @@ export default function Tsvector() {
         <div className="not-prose my-4 grid gap-3 sm:grid-cols-2">
           <div className="rounded-xl border border-border bg-card p-4">
             <p className="mb-2 text-[13px] font-semibold"><Badge>확장이 필요한 쪽</Badge></p>
-            <pre className="overflow-x-auto rounded-lg bg-[hsl(222_60%_5%)] p-3 text-[12.5px]"><code>{`CREATE EXTENSION pg_bigm;
+            <pre className="overflow-x-auto rounded-lg bg-code p-3 text-[12.5px]"><code>{`CREATE EXTENSION pg_bigm;
 CREATE EXTENSION pg_trgm;
 -- 없으면 연산자 클래스도 없다`}</code></pre>
           </div>
           <div className="rounded-xl border border-tsv/30 bg-tsv/[0.06] p-4">
             <p className="mb-2 text-[13px] font-semibold"><Badge variant="tsv">그냥 되는 쪽</Badge></p>
-            <pre className="overflow-x-auto rounded-lg bg-[hsl(222_60%_5%)] p-3 text-[12.5px]"><code>{`SELECT to_tsvector('simple', '클라우드클럽 스터디');
+            <pre className="overflow-x-auto rounded-lg bg-code p-3 text-[12.5px]"><code>{`SELECT to_tsvector('simple', '클라우드클럽 스터디');
 -- 아무 설치 없이 동작한다`}</code></pre>
           </div>
         </div>
@@ -138,7 +138,7 @@ SELECT to_tsvector('simple',  'running runs ran runner databases');
         <div className="not-prose my-4 grid gap-3 sm:grid-cols-2">
           <div className="rounded-xl border border-tsv/30 bg-tsv/[0.06] p-4">
             <p className="mb-2 text-[13px] font-semibold"><Badge variant="tsv">tsvector 만</Badge> 구절 검색</p>
-            <pre className="overflow-x-auto rounded-lg bg-[hsl(222_60%_5%)] p-3 text-[12.5px] leading-relaxed"><code>{`phraseto_tsquery('simple','영화 연기')  -- 인접
+            <pre className="overflow-x-auto rounded-lg bg-code p-3 text-[12.5px] leading-relaxed"><code>{`phraseto_tsquery('simple','영화 연기')  -- 인접
 to_tsquery('simple','영화 & 연기')      -- 같은 문서`}</code></pre>
             <div className="mt-3 flex gap-4 text-[13px]">
               <span><strong className="text-tsv">{nf(E6.phrase.adjacent)}</strong> <span className="text-muted-foreground">인접</span></span>
@@ -151,7 +151,7 @@ to_tsquery('simple','영화 & 연기')      -- 같은 문서`}</code></pre>
           </div>
           <div className="rounded-xl border border-bigm/30 bg-bigm/[0.06] p-4">
             <p className="mb-2 text-[13px] font-semibold"><Badge variant="bigm">n-gram 만</Badge> 어휘 경계를 가로지르는 부분 문자열</p>
-            <pre className="overflow-x-auto rounded-lg bg-[hsl(222_60%_5%)] p-3 text-[12.5px] leading-relaxed"><code>{`doc LIKE '%화가%'                     -- '영화가' 안의 '화가'
+            <pre className="overflow-x-auto rounded-lg bg-code p-3 text-[12.5px] leading-relaxed"><code>{`doc LIKE '%화가%'                     -- '영화가' 안의 '화가'
 tsv @@ to_tsquery('simple','화가')`}</code></pre>
             <div className="mt-3 flex gap-4 text-[13px]">
               <span><strong className="text-bigm">{nf(E6.crossLexeme.like)}</strong> <span className="text-muted-foreground">LIKE</span></span>

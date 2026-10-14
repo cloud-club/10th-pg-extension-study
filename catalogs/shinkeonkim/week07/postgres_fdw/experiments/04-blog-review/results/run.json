@@ -1,0 +1,736 @@
+{
+  "environment": {
+    "postgresql": "PostgreSQL 18.6 (Debian 18.6-1.pgdg13+2) on aarch64-unknown-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit",
+    "remote_rows": 100000
+  },
+  "cases": {
+    "plain-filter": {
+      "rows": 10.0,
+      "foreign_scans": [
+        {
+          "remote_sql": "SELECT id FROM public.books WHERE ((id <= 10))",
+          "rows": 10.0,
+          "loops": 1
+        }
+      ],
+      "plan": {
+        "Plan": {
+          "Node Type": "Foreign Scan",
+          "Operation": "Select",
+          "Parallel Aware": false,
+          "Async Capable": false,
+          "Relation Name": "books",
+          "Schema": "remote_school",
+          "Alias": "books",
+          "Startup Cost": 100.0,
+          "Total Cost": 351.31,
+          "Plan Rows": 975,
+          "Plan Width": 4,
+          "Actual Startup Time": 0.86,
+          "Actual Total Time": 0.863,
+          "Actual Rows": 10.0,
+          "Actual Loops": 1,
+          "Disabled": false,
+          "Output": [
+            "id"
+          ],
+          "Remote SQL": "SELECT id FROM public.books WHERE ((id <= 10))",
+          "Shared Hit Blocks": 0,
+          "Shared Read Blocks": 0,
+          "Shared Dirtied Blocks": 0,
+          "Shared Written Blocks": 0,
+          "Local Hit Blocks": 0,
+          "Local Read Blocks": 0,
+          "Local Dirtied Blocks": 0,
+          "Local Written Blocks": 0,
+          "Temp Read Blocks": 0,
+          "Temp Written Blocks": 0
+        },
+        "Query Identifier": -934356686349500375,
+        "Planning": {
+          "Shared Hit Blocks": 37,
+          "Shared Read Blocks": 0,
+          "Shared Dirtied Blocks": 0,
+          "Shared Written Blocks": 0,
+          "Local Hit Blocks": 0,
+          "Local Read Blocks": 0,
+          "Local Dirtied Blocks": 0,
+          "Local Written Blocks": 0,
+          "Temp Read Blocks": 0,
+          "Temp Written Blocks": 0
+        },
+        "Planning Time": 0.534,
+        "Triggers": [],
+        "Execution Time": 8.02
+      }
+    },
+    "inline-cte": {
+      "rows": 10.0,
+      "foreign_scans": [
+        {
+          "remote_sql": "SELECT id FROM public.books WHERE ((id <= 10))",
+          "rows": 10.0,
+          "loops": 1
+        }
+      ],
+      "plan": {
+        "Plan": {
+          "Node Type": "Foreign Scan",
+          "Operation": "Select",
+          "Parallel Aware": false,
+          "Async Capable": false,
+          "Relation Name": "books",
+          "Schema": "remote_school",
+          "Alias": "books",
+          "Startup Cost": 100.0,
+          "Total Cost": 351.31,
+          "Plan Rows": 975,
+          "Plan Width": 4,
+          "Actual Startup Time": 0.549,
+          "Actual Total Time": 0.552,
+          "Actual Rows": 10.0,
+          "Actual Loops": 1,
+          "Disabled": false,
+          "Output": [
+            "books.id"
+          ],
+          "Remote SQL": "SELECT id FROM public.books WHERE ((id <= 10))",
+          "Shared Hit Blocks": 0,
+          "Shared Read Blocks": 0,
+          "Shared Dirtied Blocks": 0,
+          "Shared Written Blocks": 0,
+          "Local Hit Blocks": 0,
+          "Local Read Blocks": 0,
+          "Local Dirtied Blocks": 0,
+          "Local Written Blocks": 0,
+          "Temp Read Blocks": 0,
+          "Temp Written Blocks": 0
+        },
+        "Query Identifier": 513635326992556081,
+        "Planning": {
+          "Shared Hit Blocks": 40,
+          "Shared Read Blocks": 0,
+          "Shared Dirtied Blocks": 0,
+          "Shared Written Blocks": 0,
+          "Local Hit Blocks": 0,
+          "Local Read Blocks": 0,
+          "Local Dirtied Blocks": 0,
+          "Local Written Blocks": 0,
+          "Temp Read Blocks": 0,
+          "Temp Written Blocks": 0
+        },
+        "Planning Time": 0.576,
+        "Triggers": [],
+        "Execution Time": 6.009
+      }
+    },
+    "materialized-outer-filter": {
+      "rows": 10.0,
+      "foreign_scans": [
+        {
+          "remote_sql": "SELECT id FROM public.books",
+          "rows": 100000.0,
+          "loops": 1
+        }
+      ],
+      "plan": {
+        "Plan": {
+          "Node Type": "CTE Scan",
+          "Parallel Aware": false,
+          "Async Capable": false,
+          "CTE Name": "r",
+          "Alias": "r",
+          "Startup Cost": 753.5,
+          "Total Cost": 819.31,
+          "Plan Rows": 975,
+          "Plan Width": 4,
+          "Actual Startup Time": 0.51,
+          "Actual Total Time": 95.882,
+          "Actual Rows": 10.0,
+          "Actual Loops": 1,
+          "Disabled": false,
+          "Output": [
+            "r.id"
+          ],
+          "Filter": "(r.id <= 10)",
+          "Rows Removed by Filter": 99990,
+          "Storage": "Memory",
+          "Maximum Storage": 3945,
+          "Shared Hit Blocks": 0,
+          "Shared Read Blocks": 0,
+          "Shared Dirtied Blocks": 0,
+          "Shared Written Blocks": 0,
+          "Local Hit Blocks": 0,
+          "Local Read Blocks": 0,
+          "Local Dirtied Blocks": 0,
+          "Local Written Blocks": 0,
+          "Temp Read Blocks": 0,
+          "Temp Written Blocks": 0,
+          "Plans": [
+            {
+              "Node Type": "Foreign Scan",
+              "Operation": "Select",
+              "Parent Relationship": "InitPlan",
+              "Subplan Name": "CTE r",
+              "Parallel Aware": false,
+              "Async Capable": false,
+              "Relation Name": "books",
+              "Schema": "remote_school",
+              "Alias": "books",
+              "Startup Cost": 100.0,
+              "Total Cost": 753.5,
+              "Plan Rows": 2925,
+              "Plan Width": 4,
+              "Actual Startup Time": 0.508,
+              "Actual Total Time": 85.409,
+              "Actual Rows": 100000.0,
+              "Actual Loops": 1,
+              "Disabled": false,
+              "Output": [
+                "books.id"
+              ],
+              "Remote SQL": "SELECT id FROM public.books",
+              "Shared Hit Blocks": 0,
+              "Shared Read Blocks": 0,
+              "Shared Dirtied Blocks": 0,
+              "Shared Written Blocks": 0,
+              "Local Hit Blocks": 0,
+              "Local Read Blocks": 0,
+              "Local Dirtied Blocks": 0,
+              "Local Written Blocks": 0,
+              "Temp Read Blocks": 0,
+              "Temp Written Blocks": 0
+            }
+          ]
+        },
+        "Query Identifier": -9068302768051848454,
+        "Planning": {
+          "Shared Hit Blocks": 37,
+          "Shared Read Blocks": 0,
+          "Shared Dirtied Blocks": 0,
+          "Shared Written Blocks": 0,
+          "Local Hit Blocks": 0,
+          "Local Read Blocks": 0,
+          "Local Dirtied Blocks": 0,
+          "Local Written Blocks": 0,
+          "Temp Read Blocks": 0,
+          "Temp Written Blocks": 0
+        },
+        "Planning Time": 0.559,
+        "Triggers": [],
+        "Execution Time": 101.513
+      }
+    },
+    "materialized-inner-filter": {
+      "rows": 10.0,
+      "foreign_scans": [
+        {
+          "remote_sql": "SELECT id FROM public.books WHERE ((id <= 10))",
+          "rows": 10.0,
+          "loops": 1
+        }
+      ],
+      "plan": {
+        "Plan": {
+          "Node Type": "CTE Scan",
+          "Parallel Aware": false,
+          "Async Capable": false,
+          "CTE Name": "r",
+          "Alias": "r",
+          "Startup Cost": 351.31,
+          "Total Cost": 370.81,
+          "Plan Rows": 975,
+          "Plan Width": 4,
+          "Actual Startup Time": 0.64,
+          "Actual Total Time": 0.645,
+          "Actual Rows": 10.0,
+          "Actual Loops": 1,
+          "Disabled": false,
+          "Output": [
+            "r.id"
+          ],
+          "Storage": "Memory",
+          "Maximum Storage": 17,
+          "Shared Hit Blocks": 0,
+          "Shared Read Blocks": 0,
+          "Shared Dirtied Blocks": 0,
+          "Shared Written Blocks": 0,
+          "Local Hit Blocks": 0,
+          "Local Read Blocks": 0,
+          "Local Dirtied Blocks": 0,
+          "Local Written Blocks": 0,
+          "Temp Read Blocks": 0,
+          "Temp Written Blocks": 0,
+          "Plans": [
+            {
+              "Node Type": "Foreign Scan",
+              "Operation": "Select",
+              "Parent Relationship": "InitPlan",
+              "Subplan Name": "CTE r",
+              "Parallel Aware": false,
+              "Async Capable": false,
+              "Relation Name": "books",
+              "Schema": "remote_school",
+              "Alias": "books",
+              "Startup Cost": 100.0,
+              "Total Cost": 351.31,
+              "Plan Rows": 975,
+              "Plan Width": 4,
+              "Actual Startup Time": 0.639,
+              "Actual Total Time": 0.64,
+              "Actual Rows": 10.0,
+              "Actual Loops": 1,
+              "Disabled": false,
+              "Output": [
+                "books.id"
+              ],
+              "Remote SQL": "SELECT id FROM public.books WHERE ((id <= 10))",
+              "Shared Hit Blocks": 0,
+              "Shared Read Blocks": 0,
+              "Shared Dirtied Blocks": 0,
+              "Shared Written Blocks": 0,
+              "Local Hit Blocks": 0,
+              "Local Read Blocks": 0,
+              "Local Dirtied Blocks": 0,
+              "Local Written Blocks": 0,
+              "Temp Read Blocks": 0,
+              "Temp Written Blocks": 0
+            }
+          ]
+        },
+        "Query Identifier": 7788169166186161255,
+        "Planning": {
+          "Shared Hit Blocks": 37,
+          "Shared Read Blocks": 0,
+          "Shared Dirtied Blocks": 0,
+          "Shared Written Blocks": 0,
+          "Local Hit Blocks": 0,
+          "Local Read Blocks": 0,
+          "Local Dirtied Blocks": 0,
+          "Local Written Blocks": 0,
+          "Temp Read Blocks": 0,
+          "Temp Written Blocks": 0
+        },
+        "Planning Time": 0.628,
+        "Triggers": [],
+        "Execution Time": 6.464
+      }
+    },
+    "local-join": {
+      "rows": 3.0,
+      "foreign_scans": [
+        {
+          "remote_sql": "SELECT id FROM public.books",
+          "rows": 100000.0,
+          "loops": 1
+        }
+      ],
+      "plan": {
+        "Plan": {
+          "Node Type": "Hash Join",
+          "Parallel Aware": false,
+          "Async Capable": false,
+          "Join Type": "Inner",
+          "Startup Cost": 101.07,
+          "Total Cost": 762.41,
+          "Plan Rows": 44,
+          "Plan Width": 4,
+          "Actual Startup Time": 0.53,
+          "Actual Total Time": 86.752,
+          "Actual Rows": 3.0,
+          "Actual Loops": 1,
+          "Disabled": false,
+          "Output": [
+            "b.id"
+          ],
+          "Inner Unique": true,
+          "Hash Cond": "(b.id = f.book_id)",
+          "Shared Hit Blocks": 1,
+          "Shared Read Blocks": 0,
+          "Shared Dirtied Blocks": 0,
+          "Shared Written Blocks": 0,
+          "Local Hit Blocks": 0,
+          "Local Read Blocks": 0,
+          "Local Dirtied Blocks": 0,
+          "Local Written Blocks": 0,
+          "Temp Read Blocks": 0,
+          "Temp Written Blocks": 0,
+          "Plans": [
+            {
+              "Node Type": "Foreign Scan",
+              "Operation": "Select",
+              "Parent Relationship": "Outer",
+              "Parallel Aware": false,
+              "Async Capable": false,
+              "Relation Name": "books",
+              "Schema": "remote_school",
+              "Alias": "b",
+              "Startup Cost": 100.0,
+              "Total Cost": 753.5,
+              "Plan Rows": 2925,
+              "Plan Width": 4,
+              "Actual Startup Time": 0.507,
+              "Actual Total Time": 81.282,
+              "Actual Rows": 100000.0,
+              "Actual Loops": 1,
+              "Disabled": false,
+              "Output": [
+                "b.id",
+                "b.title",
+                "b.category",
+                "b.publisher_id",
+                "b.payload"
+              ],
+              "Remote SQL": "SELECT id FROM public.books",
+              "Shared Hit Blocks": 0,
+              "Shared Read Blocks": 0,
+              "Shared Dirtied Blocks": 0,
+              "Shared Written Blocks": 0,
+              "Local Hit Blocks": 0,
+              "Local Read Blocks": 0,
+              "Local Dirtied Blocks": 0,
+              "Local Written Blocks": 0,
+              "Temp Read Blocks": 0,
+              "Temp Written Blocks": 0
+            },
+            {
+              "Node Type": "Hash",
+              "Parent Relationship": "Inner",
+              "Parallel Aware": false,
+              "Async Capable": false,
+              "Startup Cost": 1.03,
+              "Total Cost": 1.03,
+              "Plan Rows": 3,
+              "Plan Width": 4,
+              "Actual Startup Time": 0.013,
+              "Actual Total Time": 0.014,
+              "Actual Rows": 3.0,
+              "Actual Loops": 1,
+              "Disabled": false,
+              "Output": [
+                "f.book_id"
+              ],
+              "Hash Buckets": 1024,
+              "Original Hash Buckets": 1024,
+              "Hash Batches": 1,
+              "Original Hash Batches": 1,
+              "Peak Memory Usage": 9,
+              "Shared Hit Blocks": 1,
+              "Shared Read Blocks": 0,
+              "Shared Dirtied Blocks": 0,
+              "Shared Written Blocks": 0,
+              "Local Hit Blocks": 0,
+              "Local Read Blocks": 0,
+              "Local Dirtied Blocks": 0,
+              "Local Written Blocks": 0,
+              "Temp Read Blocks": 0,
+              "Temp Written Blocks": 0,
+              "Plans": [
+                {
+                  "Node Type": "Seq Scan",
+                  "Parent Relationship": "Outer",
+                  "Parallel Aware": false,
+                  "Async Capable": false,
+                  "Relation Name": "favorite_books",
+                  "Schema": "public",
+                  "Alias": "f",
+                  "Startup Cost": 0.0,
+                  "Total Cost": 1.03,
+                  "Plan Rows": 3,
+                  "Plan Width": 4,
+                  "Actual Startup Time": 0.007,
+                  "Actual Total Time": 0.008,
+                  "Actual Rows": 3.0,
+                  "Actual Loops": 1,
+                  "Disabled": false,
+                  "Output": [
+                    "f.book_id"
+                  ],
+                  "Shared Hit Blocks": 1,
+                  "Shared Read Blocks": 0,
+                  "Shared Dirtied Blocks": 0,
+                  "Shared Written Blocks": 0,
+                  "Local Hit Blocks": 0,
+                  "Local Read Blocks": 0,
+                  "Local Dirtied Blocks": 0,
+                  "Local Written Blocks": 0,
+                  "Temp Read Blocks": 0,
+                  "Temp Written Blocks": 0
+                }
+              ]
+            }
+          ]
+        },
+        "Query Identifier": 2058602001541407948,
+        "Planning": {
+          "Shared Hit Blocks": 171,
+          "Shared Read Blocks": 0,
+          "Shared Dirtied Blocks": 0,
+          "Shared Written Blocks": 0,
+          "Local Hit Blocks": 0,
+          "Local Read Blocks": 0,
+          "Local Dirtied Blocks": 0,
+          "Local Written Blocks": 0,
+          "Temp Read Blocks": 0,
+          "Temp Written Blocks": 0
+        },
+        "Planning Time": 0.778,
+        "Triggers": [],
+        "Execution Time": 92.116
+      }
+    },
+    "array-filter-join": {
+      "rows": 3.0,
+      "foreign_scans": [
+        {
+          "remote_sql": "SELECT id FROM public.books WHERE ((id = ANY ($1::integer[])))",
+          "rows": 3.0,
+          "loops": 1
+        }
+      ],
+      "plan": {
+        "Plan": {
+          "Node Type": "Hash Join",
+          "Parallel Aware": false,
+          "Async Capable": false,
+          "Join Type": "Inner",
+          "Startup Cost": 102.12,
+          "Total Cost": 208.35,
+          "Plan Rows": 2,
+          "Plan Width": 4,
+          "Actual Startup Time": 0.655,
+          "Actual Total Time": 0.659,
+          "Actual Rows": 3.0,
+          "Actual Loops": 1,
+          "Disabled": false,
+          "Output": [
+            "b.id"
+          ],
+          "Inner Unique": true,
+          "Hash Cond": "(b.id = f.book_id)",
+          "Shared Hit Blocks": 2,
+          "Shared Read Blocks": 0,
+          "Shared Dirtied Blocks": 0,
+          "Shared Written Blocks": 0,
+          "Local Hit Blocks": 0,
+          "Local Read Blocks": 0,
+          "Local Dirtied Blocks": 0,
+          "Local Written Blocks": 0,
+          "Temp Read Blocks": 0,
+          "Temp Written Blocks": 0,
+          "Plans": [
+            {
+              "Node Type": "Aggregate",
+              "Strategy": "Plain",
+              "Partial Mode": "Simple",
+              "Parent Relationship": "InitPlan",
+              "Subplan Name": "InitPlan 1",
+              "Parallel Aware": false,
+              "Async Capable": false,
+              "Startup Cost": 1.04,
+              "Total Cost": 1.05,
+              "Plan Rows": 1,
+              "Plan Width": 32,
+              "Actual Startup Time": 0.016,
+              "Actual Total Time": 0.016,
+              "Actual Rows": 1.0,
+              "Actual Loops": 1,
+              "Disabled": false,
+              "Output": [
+                "array_agg(favorite_books.book_id)"
+              ],
+              "Shared Hit Blocks": 1,
+              "Shared Read Blocks": 0,
+              "Shared Dirtied Blocks": 0,
+              "Shared Written Blocks": 0,
+              "Local Hit Blocks": 0,
+              "Local Read Blocks": 0,
+              "Local Dirtied Blocks": 0,
+              "Local Written Blocks": 0,
+              "Temp Read Blocks": 0,
+              "Temp Written Blocks": 0,
+              "Plans": [
+                {
+                  "Node Type": "Seq Scan",
+                  "Parent Relationship": "Outer",
+                  "Parallel Aware": false,
+                  "Async Capable": false,
+                  "Relation Name": "favorite_books",
+                  "Schema": "public",
+                  "Alias": "favorite_books",
+                  "Startup Cost": 0.0,
+                  "Total Cost": 1.03,
+                  "Plan Rows": 3,
+                  "Plan Width": 4,
+                  "Actual Startup Time": 0.002,
+                  "Actual Total Time": 0.002,
+                  "Actual Rows": 3.0,
+                  "Actual Loops": 1,
+                  "Disabled": false,
+                  "Output": [
+                    "favorite_books.book_id",
+                    "favorite_books.reader_name"
+                  ],
+                  "Shared Hit Blocks": 1,
+                  "Shared Read Blocks": 0,
+                  "Shared Dirtied Blocks": 0,
+                  "Shared Written Blocks": 0,
+                  "Local Hit Blocks": 0,
+                  "Local Read Blocks": 0,
+                  "Local Dirtied Blocks": 0,
+                  "Local Written Blocks": 0,
+                  "Temp Read Blocks": 0,
+                  "Temp Written Blocks": 0
+                }
+              ]
+            },
+            {
+              "Node Type": "Foreign Scan",
+              "Operation": "Select",
+              "Parent Relationship": "Outer",
+              "Parallel Aware": false,
+              "Async Capable": false,
+              "Relation Name": "books",
+              "Schema": "remote_school",
+              "Alias": "b",
+              "Startup Cost": 100.0,
+              "Total Cost": 205.84,
+              "Plan Rows": 143,
+              "Plan Width": 4,
+              "Actual Startup Time": 0.627,
+              "Actual Total Time": 0.628,
+              "Actual Rows": 3.0,
+              "Actual Loops": 1,
+              "Disabled": false,
+              "Output": [
+                "b.id",
+                "b.title",
+                "b.category",
+                "b.publisher_id",
+                "b.payload"
+              ],
+              "Remote SQL": "SELECT id FROM public.books WHERE ((id = ANY ($1::integer[])))",
+              "Shared Hit Blocks": 1,
+              "Shared Read Blocks": 0,
+              "Shared Dirtied Blocks": 0,
+              "Shared Written Blocks": 0,
+              "Local Hit Blocks": 0,
+              "Local Read Blocks": 0,
+              "Local Dirtied Blocks": 0,
+              "Local Written Blocks": 0,
+              "Temp Read Blocks": 0,
+              "Temp Written Blocks": 0
+            },
+            {
+              "Node Type": "Hash",
+              "Parent Relationship": "Inner",
+              "Parallel Aware": false,
+              "Async Capable": false,
+              "Startup Cost": 1.03,
+              "Total Cost": 1.03,
+              "Plan Rows": 3,
+              "Plan Width": 4,
+              "Actual Startup Time": 0.012,
+              "Actual Total Time": 0.012,
+              "Actual Rows": 3.0,
+              "Actual Loops": 1,
+              "Disabled": false,
+              "Output": [
+                "f.book_id"
+              ],
+              "Hash Buckets": 1024,
+              "Original Hash Buckets": 1024,
+              "Hash Batches": 1,
+              "Original Hash Batches": 1,
+              "Peak Memory Usage": 9,
+              "Shared Hit Blocks": 1,
+              "Shared Read Blocks": 0,
+              "Shared Dirtied Blocks": 0,
+              "Shared Written Blocks": 0,
+              "Local Hit Blocks": 0,
+              "Local Read Blocks": 0,
+              "Local Dirtied Blocks": 0,
+              "Local Written Blocks": 0,
+              "Temp Read Blocks": 0,
+              "Temp Written Blocks": 0,
+              "Plans": [
+                {
+                  "Node Type": "Seq Scan",
+                  "Parent Relationship": "Outer",
+                  "Parallel Aware": false,
+                  "Async Capable": false,
+                  "Relation Name": "favorite_books",
+                  "Schema": "public",
+                  "Alias": "f",
+                  "Startup Cost": 0.0,
+                  "Total Cost": 1.03,
+                  "Plan Rows": 3,
+                  "Plan Width": 4,
+                  "Actual Startup Time": 0.008,
+                  "Actual Total Time": 0.009,
+                  "Actual Rows": 3.0,
+                  "Actual Loops": 1,
+                  "Disabled": false,
+                  "Output": [
+                    "f.book_id"
+                  ],
+                  "Shared Hit Blocks": 1,
+                  "Shared Read Blocks": 0,
+                  "Shared Dirtied Blocks": 0,
+                  "Shared Written Blocks": 0,
+                  "Local Hit Blocks": 0,
+                  "Local Read Blocks": 0,
+                  "Local Dirtied Blocks": 0,
+                  "Local Written Blocks": 0,
+                  "Temp Read Blocks": 0,
+                  "Temp Written Blocks": 0
+                }
+              ]
+            }
+          ]
+        },
+        "Query Identifier": 2707617446029065808,
+        "Planning": {
+          "Shared Hit Blocks": 177,
+          "Shared Read Blocks": 0,
+          "Shared Dirtied Blocks": 0,
+          "Shared Written Blocks": 0,
+          "Local Hit Blocks": 0,
+          "Local Read Blocks": 0,
+          "Local Dirtied Blocks": 0,
+          "Local Written Blocks": 0,
+          "Temp Read Blocks": 0,
+          "Temp Written Blocks": 0
+        },
+        "Planning Time": 0.82,
+        "Triggers": [],
+        "Execution Time": 6.041
+      }
+    }
+  },
+  "join_ids": {
+    "local-join": [
+      1,
+      1000,
+      2000
+    ],
+    "array-filter-join": [
+      1,
+      1000,
+      2000
+    ]
+  },
+  "guard_errors": {
+    "updatable-false": "ERROR:  foreign table \"tx_probe\" does not allow updates",
+    "truncatable-false": "ERROR:  foreign table \"tx_probe\" does not allow truncates"
+  },
+  "table_override_explain": "Update on writable_school.tx_probe  (cost=100.00..122.42 rows=0 width=0)\n  ->  Foreign Update on writable_school.tx_probe  (cost=100.00..122.42 rows=5 width=98)\n        Remote SQL: UPDATE public.tx_probe SET value = 'unchanged'::text WHERE ((id = 1))\nQuery Identifier: -8352910435029058320",
+  "connections": {
+    "before_query": 0,
+    "after_query_transaction": 1,
+    "after_disconnect": 0,
+    "foreign_table_remains": true
+  },
+  "drop_foreign_table_remote_unchanged": true,
+  "scope": "단일 실행의 계획·결과·차단·연결 검증. WAN 성능과 커밋 장애는 미검증."
+}

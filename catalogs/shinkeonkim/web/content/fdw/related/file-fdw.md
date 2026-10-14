@@ -1,0 +1,35 @@
+# file_fdw · 파일을 표로 읽는 것과 적재하는 것
+
+## 처음 이해하기: 외부 파일에 붙인 표지판
+foreign table을 파일 위에 붙인 표지판이라고 생각합니다. 조회 시 파일 내용을 읽어 SQL 행으로 해석합니다. postgres_fdw처럼 다른 PostgreSQL에 SQL을 보내지 않고, COPY처럼 일반 표에 영구 적재하지도 않습니다.
+
+## 서버 경로와 데이터 계약
+```sql
+CREATE FOREIGN TABLE public.import_books(id integer,title text)
+SERVER csv_files
+OPTIONS(filename '/lab/books.csv',format 'csv',header 'true');
+SELECT * FROM public.import_books ORDER BY id;
+```
+공유 Lab의 csv_files server가 준비된 상태에서 별도 이름으로 생성하는 예제입니다. /lab/books.csv는 local PostgreSQL 컨테이너의 경로입니다. 호스트 경로·컨테이너 마운트·OS 권한·DB 권한을 각각 확인합니다. 이 선언만으로 CSV가 복사되거나 원격 표가 만들어지지 않습니다.
+파일 열 순서·인코딩·구분자·인용·NULL 표현·타입을 계약으로 관리합니다. header=true는 첫 줄 처리 옵션이지 이름이 같은 컬럼끼리 자동 재배치하는 기능으로 가르치지 않습니다. [COPY 형식](https://www.postgresql.org/docs/18/sql-copy.html)
+
+## 심화: WHERE와 LIMIT이 파일 접근 비용을 없애지는 않는다
+특정 id를 조회해도 일반 heap table의 B-tree 인덱스를 파일에 적용하는 것은 아닙니다. 필터에 맞는 행을 찾으려면 파일 스캔·파싱이 필요할 수 있습니다. LIMIT으로 중단할 수 있는 계획과 정렬·집계 때문에 입력을 더 읽는 계획을 구분합니다.
+파일 변경에 대해서도 DB heap table과 같은 MVCC snapshot을 가정하지 않습니다. 생성 중인 파일을 직접 노출하는 대신 완성본 검증·교체 시점·체크섬과 원본 버전을 관리합니다. 이는 운영 설계 제안이며 모든 파일 시스템에서의 원자적 교체 보장을 뜻하지 않습니다.
+
+## 읽기 전용, program과 권한
+file_fdw는 읽기 전용입니다. filename과 program 중 하나를 선택하며 program은 서버에서 명령을 실행해 출력을 읽습니다. 파일·프로그램 지정 권한은 일반 SELECT 권한과 다릅니다. program 문자열을 셸이 처리하므로 사용자 입력을 그대로 넣지 않습니다. [file_fdw 옵션과 권한](https://www.postgresql.org/docs/18/file-fdw.html)
+이 자료의 Lab은 고정 CSV만 사용하며 program 실행은 검증하지 않았습니다. 관리형 DB에서는 설치 가능 여부와 실제 서버 파일 접근 가능 여부를 따로 확인합니다.
+
+## file_fdw와 COPY 중 무엇을 고를까?
+| 요구 | 먼저 비교 | 비용과 수명 |
+| --- | --- | --- |
+| 소규모 완성 CSV를 간헐적 조회 | file_fdw | 조회마다 파일 접근·파싱 |
+| 큰 파일을 반복 JOIN·검색 | staging 표에 COPY | 초기 적재·인덱스·저장 공간 |
+| 잘못된 입력을 추적하는 이관 | 원본 보존 + 검증 + staging | 거부 건수·재처리·출처 관리 |
+
+오류 무시 옵션을 쓰면 성공 실행과 전체 입력 반영이 같은 의미가 아닙니다. PostgreSQL 18의 on_error·reject_limit 같은 옵션은 해당 버전에서 지원 범위와 제외 건수를 확인합니다. 정합성이 중요한 이관은 누락된 행을 결과 검증에 포함합니다.
+
+## Lab과 확인 질문
+[Lab 05](../labs/05-connections-and-related/HANDS-ON.md)는 기존 csv_books의 세 행을 검증했습니다. 추가 수동 비교는 EXPLAIN (ANALYZE, BUFFERS)로 필터·정렬·집계 계획을 보고 같은 파일을 COPY한 일반 표의 결과와 대조합니다. 입력 파일 버전을 기록해야 비교가 성립합니다.
+복습: 파일에 인덱스를 만든다는 말과 COPY한 일반 표에 인덱스를 만든다는 말의 차이를 설명합니다. [관련 확장 학습 지도](../docs/basic/09-related-and-architecture.md)로 돌아갑니다.

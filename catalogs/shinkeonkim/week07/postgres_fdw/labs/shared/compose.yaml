@@ -1,0 +1,26 @@
+name: shinkeonkim-week07-fdw-labs
+services:
+  local:
+    image: postgres:18.6
+    command: ["postgres", "-c", "shared_preload_libraries=pg_stat_statements"]
+    environment:
+      POSTGRES_PASSWORD: study_local_only
+      POSTGRES_DB: study
+    volumes:
+      - ./books.csv:/lab/books.csv:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U postgres -d study"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+  remote:
+    image: postgres:18.6
+    command: ["postgres", "-c", "shared_preload_libraries=pg_stat_statements", "-c", "log_line_prefix=%m [%p] %a "]
+    environment:
+      POSTGRES_PASSWORD: study_remote_only
+      POSTGRES_DB: school
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U postgres -d school"]
+      interval: 2s
+      timeout: 3s
+      retries: 30

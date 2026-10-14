@@ -25,7 +25,7 @@ export function CodeBlock({
     : hljs.highlight(children, { language }).value, [children, language])
   return (
     <figure className={cn('my-4 min-w-0', className)}>
-      <pre className="overflow-x-auto rounded-xl border border-border bg-[hsl(222_60%_5%)] p-4 text-[12.5px] leading-relaxed">
+      <pre className="overflow-x-auto rounded-xl border border-border bg-code p-4 text-[12.5px] leading-relaxed">
         {highlighted === null ? <code>{children}</code> : <code className={`hljs language-${language}`} dangerouslySetInnerHTML={{ __html: highlighted }} />}
       </pre>
       {caption && <figcaption className="mt-2 text-[12px] text-muted-foreground">{caption}</figcaption>}

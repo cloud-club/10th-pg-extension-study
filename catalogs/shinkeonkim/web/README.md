@@ -320,3 +320,64 @@ bun run deploy:cloudflare
 이 명령은 전체 검사 → 빌드 → `wrangler deploy` 순서로 실행한다.
 GitHub Actions나 Cloudflare의 Git 자동 배포는 구성하지 않는다.
 로그인 토큰은 Wrangler가 로컬에서 관리하며 저장소에 넣지 않는다.
+
+
+## Week 07 · postgres_fdw
+
+진입은 `#/postgres-fdw/about`이다. `시작하기`·`기본 학습`·`실습과 검증`·`심화 · 구현과 운영` 목록을 같은 URL 접두사로 제공한다. 기본 10장, Lab 수동 해설 5개, 실측 실험 페이지, 심화 6장이 연결된다. Week 06은 hll을 별도 학습 묶음으로 제공한다.
+
+카탈로그를 제외한 Week 07 설명 원문은 모두 `web/content/fdw/`에 둔다. `docs/basic`·`docs/advanced`·`labs`·`experiments`는 웹 문서 소스이며 week07 디렉터리는 SQL·스크립트·실측 원본만 보관한다. Markdown을 수정하면 아래 명령으로 정적 JSX를 생성한다. 런타임 Markdown 파서를 추가하지 않으며 페이지는 레지스트리의 lazy import로 로드한다.
+
+```sh
+python3 scripts/sync-fdw-guide.py
+python3 scripts/sync-fdw-guide.py --check
+python3 scripts/sync-fdw-results.py
+python3 scripts/sync-fdw-results.py --check
+```
+
+`src/pages/fdw/reading`은 원문에서 생성한 페이지다. 직접 수정하지 않는다. 학습 지도·가정 계산기·실측 표는 `About.tsx`·`Network.tsx`·`Experiments.tsx`다. 실측은 `src/data/fdw-results.json`에서 읽으며 Lab 5개와 실험 3개의 원본·정답·반복 횟수를 검증한다. 두 동기화 검사는 `check`에 포함된다.
+
+실행은 저장소 루트에서 각 `week07/postgres_fdw/labs/<Lab>/run.sh`를 사용한다. 공유 환경은 PostgreSQL 18.6 두 컨테이너이며 호스트 포트를 공개하지 않는다. 스냅샷·권한·정상 롤백·잠금·FETCH·연결을 assert로 확인한다. EXPLAIN 반복 측정은 서버 시간이고 앱 풀·WAN·wire bytes·RSS·서비스 p99와 구분한다.
+
+질문을 반영할 때 원문 개념·Lab·실험 해석을 함께 수정한다. 설명 순서가 맞지 않으면 원문과 레지스트리부터 재구성한다. 가정 계산값을 실측 JSON에 넣지 않는다.
+
+
+Week 07 개요에는 국내 기업 사례에서 도출한 조사 질문을 먼저 제시한다. `#/postgres-fdw/industry-cases`는 우아한형제들 실제 마이그레이션, 네이버·카카오클라우드 공식 사용 절차, 매드업의 dblink 비교 사례를 원문 링크·확인일·전제와 함께 설명한다. 원문은 `content/fdw/industry-cases.md`이며 공식 가이드와 내부 적용 경험을 구분한다. 기업의 성능 수치는 로컬 실측 JSON에 넣지 않는다.
+
+
+## 번외 · PostgreSQL JOIN
+
+`#/pg-joins/about`에서 시작하며 주차 선택의 `번외 · PostgreSQL JOIN`으로 이동한다. Week 번호를 추가하지 않는다. 학습 지도, 기본 5장, 심화, Lab 총 8페이지를 제공한다. 설명 원문은 `content/joins/`, 생성 페이지는 `src/pages/joins/`다. 원문 수정 후 `python3 scripts/sync-joins-guide.py`를 실행하며 `--check`는 전체 검사에 포함된다. 기존 FDW Markdown 렌더러를 재사용한다.
+
+실행 SQL·Docker 구성·검증기·원본 계획은 `../extra/pg-joins/`에 둔다. 저장소 루트에서 `bash catalogs/shinkeonkim/extra/pg-joins/run.sh`로 재현한다. 세 JOIN의 결과 동일성, 실제 노드, BitmapOr와 메모리별 해시 배치를 검증한다. 원본 계획은 단일 실행 관측이며 성능 순위로 해석하지 않는다.
+
+
+`#/postgres-fdw/blog-review`는 기업 블로그의 주의사항을 공식 동작·적용 조건·자체 관측으로 나누어 검토한다. 원문은 `content/fdw/blog-review.md`이며 JOIN·트랜잭션·쓰기·운영 장에도 보강 내용을 반영한다. 별도 단일 관측 실험 `../week07/postgres_fdw/experiments/04-blog-review/verify.py`는 준비된 공유 Lab에서 실행하고 `results/run.json`을 저장한다. CTE·로컬 키 배열·쓰기 차단·표 옵션 우선순위·연결 수명·원격 표 보존을 검증하며 반복 실험 3개의 성능 결과와 구분한다. `check:fdw-review`는 저장된 원본을 읽기 전용으로 검증하고 전체 `check`에 포함된다.
+
+
+관련 확장 심화 5페이지는 `content/fdw/related/`에서 관리하고 `sync-fdw-guide.py`로 생성한다. 메뉴는 `관련 확장 · 선택과 운영`이다. dblink·file_fdw·pg_trgm·pg_stat_statements/auto_explain·pg_cron의 역할, 비용, 운영 책임과 실습 전제를 다룬다. 기존 자동 Lab의 관측과 추가 수동 예제·미검증 항목을 구분한다.
+
+
+`#/postgres-fdw/join-comparison`은 직접 JOIN·키 배열·원격 전처리·전체 로컬 staging을 같은 1,000행으로 비교한다. 준비 5회·읽기 예열 2회/본 측정 10회이며 지속 psql 세션 wall time을 측정한다. 원본은 `../week07/postgres_fdw/experiments/05-join-strategies/results/run.json`이다. 재실행 후 `python3 scripts/sync-fdw-join-comparison.py`와 `python3 scripts/sync-fdw-guide.py`를 순서대로 실행한다. 결과 검증은 전체 check에 포함된다. 기존 EXPLAIN 서버 시간과 다른 지표이며 준비 포함 합산 모델은 직접 end-to-end 측정과 구분한다.
+
+## Week 06 · hll
+
+`#/hll/about`에서 시작한다. Week 05 pgvector 자료는 보존하며 Week 06만 추가한다. 기본 10장, 심화 4장, Lab 4개, 학습 지도·근거·실측 3장과 레지스터 실험실·공간 계산기 총 23페이지다. 설명 원문은 `content/hll/`, 생성 페이지는 `src/pages/hll/reading/`, 인터랙티브 모형은 `src/pages/hll/`에 있다.
+
+실습 코드·Docker·SQL·원본 결과도 `labs/hll/`에 둔다. 저장소 루트에서 `bash catalogs/shinkeonkim/web/labs/hll/run.sh`를 실행한다. 전용 PostgreSQL 18.6·hll 2.21 환경이며 공유 DB·호스트 포트를 사용하지 않는다. 기능·표현 전이·병합·오차 60시행·해시 seed 점검·시간 30표본을 검증한다. 초기 생성 시간은 단일 관측이며 저장 bytes와 RSS, 이론 RSE와 최대 오류, 교육 모형과 실제 구현을 구분한다.
+
+실험을 다시 실행하면 웹 디렉터리에서 아래 순서로 동기화한다. 생성 페이지를 직접 수정하지 않는다.
+
+```sh
+python3 scripts/sync-hll-results.py
+python3 scripts/sync-hll-guide.py
+python3 scripts/sync-hll-results.py --check
+python3 scripts/sync-hll-guide.py --check
+```
+
+두 검사는 전체 check에 포함된다. 특히 입력 타입·seed별 이상 관측은 삭제하지 않고 미확정 원인과 후속 조사 범위를 명시한다. 원본 ID·해시 계약·버전·정밀도·기간·반복 수를 함께 기록한다.
+
+
+HLL Lab 4개에는 원본 결과에서 만든 그림 9개와 읽는 법·해석을 붙였다. SVG·PNG는 `public/hll/plots/`, 생성 코드는 `labs/hll/plot-results.py`, 버전은 `labs/hll/requirements-plots.txt`다. 그림 생성에만 Matplotlib와 한국어 폰트(Apple SD Gothic Neo 또는 Noto Sans CJK)가 필요하며 웹 실행·빌드에는 필요하지 않다. `manifest.json`은 원본 3개·생성 코드·그림의 해시를 기록하고 `check:hll-plots`가 검사한다. 실제 표본과 합산 모델을 구분하며 초기 생성 수치의 해설도 원본과 대조한다.
+
+run.sh는 기본 벤치·저장 관측을 실행하고 날짜별 범위도 자동으로 기록한다. 개별 저장 관측은 `python3 labs/hll/inspect-storage.py`로 다시 실행할 수 있다. 그 뒤 plotting requirements를 설치한 Python 환경에서 `python labs/hll/plot-results.py`를 실행하고 원문의 해석을 갱신한다. 기존 results/guide 동기화도 실행한다. `inspect-storage.py --check`는 저장된 실제 payload를 읽기 전용으로 검사한다.

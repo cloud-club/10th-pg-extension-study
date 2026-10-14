@@ -1,0 +1,12 @@
+ALTER SERVER school_remote OPTIONS (SET extensions '');
+EXPLAIN (ANALYZE, VERBOSE, BUFFERS) SELECT id,title FROM remote_school.books WHERE id <= 10;
+EXPLAIN (ANALYZE, VERBOSE, BUFFERS) SELECT id,title FROM remote_school.books WHERE public.local_small(id);
+EXPLAIN (ANALYZE, VERBOSE) SELECT category,count(*) FROM remote_school.books GROUP BY category;
+EXPLAIN (VERBOSE) SELECT b.id,p.name FROM remote_school.books b JOIN remote_school.publishers p ON p.id=b.publisher_id WHERE b.id <= 10;
+EXPLAIN (VERBOSE) SELECT f.reader_name,b.title FROM public.favorite_books f JOIN remote_school.books b ON b.id=f.book_id;
+EXPLAIN (VERBOSE) SELECT id FROM remote_school.books WHERE title % 'PostgreSQL';
+EXPLAIN (VERBOSE) SELECT id FROM remote_school.books WHERE similarity(title, 'PostgreSQL') > 0.3;
+ALTER SERVER school_remote OPTIONS (SET extensions 'pg_trgm');
+EXPLAIN (VERBOSE) SELECT id FROM remote_school.books WHERE title % 'PostgreSQL';
+EXPLAIN (VERBOSE) SELECT id FROM remote_school.books WHERE similarity(title, 'PostgreSQL') > 0.3;
+ALTER SERVER school_remote OPTIONS (SET extensions '');

@@ -1,0 +1,223 @@
+Pager usage is off.
+                                                         version                                                          
+--------------------------------------------------------------------------------------------------------------------------
+ PostgreSQL 18.6 (Debian 18.6-1.pgdg13+2) on aarch64-unknown-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit
+(1 row)
+
+DROP SCHEMA
+CREATE SCHEMA
+CREATE TABLE
+CREATE TABLE
+INSERT 0 10000
+INSERT 0 100000
+CREATE INDEX
+CREATE INDEX
+CREATE INDEX
+ANALYZE
+ANALYZE
+SET
+CASE default
+                                                                    QUERY PLAN                                                                     
+---------------------------------------------------------------------------------------------------------------------------------------------------
+ Hash Join  (cost=11.29..3092.90 rows=1000 width=8) (actual time=0.028..9.284 rows=1000.00 loops=1)
+   Hash Cond: (o.student_id = s.id)
+   Buffers: shared hit=1822
+   ->  Seq Scan on orders o  (cost=0.00..2819.00 rows=100000 width=8) (actual time=0.005..4.535 rows=100000.00 loops=1)
+         Buffers: shared hit=1819
+   ->  Hash  (cost=10.04..10.04 rows=100 width=4) (actual time=0.021..0.022 rows=100.00 loops=1)
+         Buckets: 1024  Batches: 1  Memory Usage: 12kB
+         Buffers: shared hit=3
+         ->  Index Only Scan using students_pkey on students s  (cost=0.29..10.04 rows=100 width=4) (actual time=0.003..0.012 rows=100.00 loops=1)
+               Index Cond: (id <= 100)
+               Heap Fetches: 100
+               Index Searches: 1
+               Buffers: shared hit=3
+ Settings: max_parallel_workers_per_gather = '0'
+ Planning:
+   Buffers: shared hit=88 read=10
+ Planning Time: 0.251 ms
+ Execution Time: 9.338 ms
+(18 rows)
+
+CASE nested-loop
+BEGIN
+SET
+SET
+ verified_rows 
+---------------
+          1000
+(1 row)
+
+                                                                 QUERY PLAN                                                                  
+---------------------------------------------------------------------------------------------------------------------------------------------
+ Nested Loop  (cost=3.50..3394.37 rows=1000 width=8) (actual time=0.011..0.503 rows=1000.00 loops=1)
+   Buffers: shared hit=1203
+   ->  Index Only Scan using students_pkey on students s  (cost=0.29..10.04 rows=100 width=4) (actual time=0.004..0.015 rows=100.00 loops=1)
+         Index Cond: (id <= 100)
+         Heap Fetches: 100
+         Index Searches: 1
+         Buffers: shared hit=3
+   ->  Bitmap Heap Scan on orders o  (cost=3.21..33.74 rows=10 width=8) (actual time=0.001..0.004 rows=10.00 loops=100)
+         Recheck Cond: (s.id = student_id)
+         Heap Blocks: exact=1000
+         Buffers: shared hit=1200
+         ->  Bitmap Index Scan on orders_student_id_idx  (cost=0.00..3.21 rows=10 width=0) (actual time=0.001..0.001 rows=10.00 loops=100)
+               Index Cond: (student_id = s.id)
+               Index Searches: 100
+               Buffers: shared hit=200
+ Settings: max_parallel_workers_per_gather = '0', enable_hashjoin = 'off', enable_mergejoin = 'off'
+ Planning Time: 0.047 ms
+ Execution Time: 0.554 ms
+(18 rows)
+
+ROLLBACK
+CASE hash
+BEGIN
+SET
+SET
+ verified_rows 
+---------------
+          1000
+(1 row)
+
+                                                                    QUERY PLAN                                                                     
+---------------------------------------------------------------------------------------------------------------------------------------------------
+ Hash Join  (cost=11.29..3092.90 rows=1000 width=8) (actual time=0.029..9.296 rows=1000.00 loops=1)
+   Hash Cond: (o.student_id = s.id)
+   Buffers: shared hit=1822
+   ->  Seq Scan on orders o  (cost=0.00..2819.00 rows=100000 width=8) (actual time=0.004..4.505 rows=100000.00 loops=1)
+         Buffers: shared hit=1819
+   ->  Hash  (cost=10.04..10.04 rows=100 width=4) (actual time=0.023..0.024 rows=100.00 loops=1)
+         Buckets: 1024  Batches: 1  Memory Usage: 12kB
+         Buffers: shared hit=3
+         ->  Index Only Scan using students_pkey on students s  (cost=0.29..10.04 rows=100 width=4) (actual time=0.006..0.015 rows=100.00 loops=1)
+               Index Cond: (id <= 100)
+               Heap Fetches: 100
+               Index Searches: 1
+               Buffers: shared hit=3
+ Settings: max_parallel_workers_per_gather = '0', enable_nestloop = 'off', enable_mergejoin = 'off'
+ Planning Time: 0.060 ms
+ Execution Time: 9.337 ms
+(16 rows)
+
+ROLLBACK
+CASE merge
+BEGIN
+SET
+SET
+ verified_rows 
+---------------
+          1000
+(1 row)
+
+                                                                     QUERY PLAN                                                                     
+----------------------------------------------------------------------------------------------------------------------------------------------------
+ Merge Join  (cost=0.58..9450.58 rows=1000 width=8) (actual time=0.008..0.245 rows=1000.00 loops=1)
+   Merge Cond: (s.id = o.student_id)
+   Buffers: shared hit=1007
+   ->  Index Only Scan using students_pkey on students s  (cost=0.29..10.04 rows=100 width=4) (actual time=0.003..0.012 rows=100.00 loops=1)
+         Index Cond: (id <= 100)
+         Heap Fetches: 100
+         Index Searches: 1
+         Buffers: shared hit=3
+   ->  Index Scan using orders_student_id_idx on orders o  (cost=0.29..9180.30 rows=100000 width=8) (actual time=0.003..0.146 rows=1001.00 loops=1)
+         Index Searches: 1
+         Buffers: shared hit=1004
+ Settings: max_parallel_workers_per_gather = '0', enable_nestloop = 'off', enable_hashjoin = 'off'
+ Planning:
+   Buffers: shared hit=12
+ Planning Time: 0.069 ms
+ Execution Time: 0.282 ms
+(16 rows)
+
+ROLLBACK
+CASE bitmap
+BEGIN
+SET
+SET
+SET
+ verified_rows 
+---------------
+          1990
+(1 row)
+
+                                                                       QUERY PLAN                                                                       
+--------------------------------------------------------------------------------------------------------------------------------------------------------
+ Hash Join  (cost=485.44..2415.95 rows=1937 width=8) (actual time=1.844..2.461 rows=1990.00 loops=1)
+   Hash Cond: (o.student_id = s.id)
+   Buffers: shared hit=1107
+   ->  Bitmap Heap Scan on orders o  (cost=24.16..1949.58 rows=1937 width=8) (actual time=0.161..0.563 rows=1990.00 loops=1)
+         Recheck Cond: ((category = 1) OR (region = 2))
+         Heap Blocks: exact=1009
+         Buffers: shared hit=1015
+         ->  BitmapOr  (cost=24.16..24.16 rows=1947 width=0) (actual time=0.077..0.077 rows=0.00 loops=1)
+               Buffers: shared hit=6
+               ->  Bitmap Index Scan on orders_category_idx  (cost=0.00..11.39 rows=947 width=0) (actual time=0.064..0.065 rows=1000.00 loops=1)
+                     Index Cond: (category = 1)
+                     Index Searches: 1
+                     Buffers: shared hit=3
+               ->  Bitmap Index Scan on orders_region_idx  (cost=0.00..11.79 rows=1000 width=0) (actual time=0.012..0.012 rows=1000.00 loops=1)
+                     Index Cond: (region = 2)
+                     Index Searches: 1
+                     Buffers: shared hit=3
+   ->  Hash  (cost=336.29..336.29 rows=10000 width=4) (actual time=1.679..1.679 rows=10000.00 loops=1)
+         Buckets: 16384  Batches: 1  Memory Usage: 480kB
+         Buffers: shared hit=92
+         ->  Index Only Scan using students_pkey on students s  (cost=0.29..336.29 rows=10000 width=4) (actual time=0.005..1.011 rows=10000.00 loops=1)
+               Heap Fetches: 10000
+               Index Searches: 1
+               Buffers: shared hit=92
+ Settings: max_parallel_workers_per_gather = '0', enable_seqscan = 'off', enable_nestloop = 'off', enable_mergejoin = 'off'
+ Planning Time: 0.049 ms
+ Execution Time: 2.528 ms
+(27 rows)
+
+ROLLBACK
+CASE hash-low-memory
+BEGIN
+SET
+SET
+SET
+SET
+                                                                    QUERY PLAN                                                                    
+--------------------------------------------------------------------------------------------------------------------------------------------------
+ Hash Join  (cost=328.00..4231.61 rows=100000 width=8) (actual time=1.421..23.319 rows=100000.00 loops=1)
+   Hash Cond: (o.student_id = s.id)
+   Buffers: shared hit=1882, temp read=331 written=331
+   ->  Seq Scan on orders o  (cost=0.00..2819.00 rows=100000 width=8) (actual time=0.004..5.841 rows=100000.00 loops=1)
+         Buffers: shared hit=1819
+   ->  Hash  (cost=163.00..163.00 rows=10000 width=4) (actual time=1.361..1.362 rows=10000.00 loops=1)
+         Buckets: 4096  Batches: 8  Memory Usage: 75kB
+         Buffers: shared hit=63, temp written=21
+         ->  Seq Scan on students s  (cost=0.00..163.00 rows=10000 width=4) (actual time=0.003..0.507 rows=10000.00 loops=1)
+               Buffers: shared hit=63
+ Settings: max_parallel_workers_per_gather = '0', enable_nestloop = 'off', enable_mergejoin = 'off', work_mem = '64kB', hash_mem_multiplier = '1'
+ Planning Time: 0.037 ms
+ Execution Time: 26.161 ms
+(13 rows)
+
+ROLLBACK
+CASE hash-high-memory
+BEGIN
+SET
+SET
+SET
+SET
+                                                                    QUERY PLAN                                                                    
+--------------------------------------------------------------------------------------------------------------------------------------------------
+ Hash Join  (cost=288.00..3369.61 rows=100000 width=8) (actual time=1.181..16.733 rows=100000.00 loops=1)
+   Hash Cond: (o.student_id = s.id)
+   Buffers: shared hit=1882
+   ->  Seq Scan on orders o  (cost=0.00..2819.00 rows=100000 width=8) (actual time=0.006..4.820 rows=100000.00 loops=1)
+         Buffers: shared hit=1819
+   ->  Hash  (cost=163.00..163.00 rows=10000 width=4) (actual time=1.171..1.172 rows=10000.00 loops=1)
+         Buckets: 16384  Batches: 1  Memory Usage: 480kB
+         Buffers: shared hit=63
+         ->  Seq Scan on students s  (cost=0.00..163.00 rows=10000 width=4) (actual time=0.004..0.516 rows=10000.00 loops=1)
+               Buffers: shared hit=63
+ Settings: max_parallel_workers_per_gather = '0', enable_nestloop = 'off', enable_mergejoin = 'off', work_mem = '16MB', hash_mem_multiplier = '1'
+ Planning Time: 0.070 ms
+ Execution Time: 19.561 ms
+(13 rows)
+
+ROLLBACK

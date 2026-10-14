@@ -240,7 +240,7 @@ flowchart LR
         <div className="not-prose my-4 grid gap-3 sm:grid-cols-2">
           <div className="rounded-xl border border-ok/30 bg-ok/[0.06] p-4">
             <p className="mb-2 text-[13px] font-semibold"><Badge variant="ok">LIKE 검색</Badge> 절대 안 섞인다</p>
-            <pre className="overflow-x-auto rounded-lg bg-[hsl(222_60%_5%)] p-3 text-[12px] leading-relaxed"><code>{`Bitmap Index Scan  →  후보 1,000,000행
+            <pre className="overflow-x-auto rounded-lg bg-code p-3 text-[12px] leading-relaxed"><code>{`Bitmap Index Scan  →  후보 1,000,000행
 Rows Removed by Index Recheck: 999,500
 결과: 500행   ← 정답은 항상 정확하다`}</code></pre>
             <p className="mt-2 text-[12px] text-muted-foreground">
@@ -249,7 +249,7 @@ Rows Removed by Index Recheck: 999,500
           </div>
           <div className="rounded-xl border border-warn/30 bg-warn/[0.06] p-4">
             <p className="mb-2 text-[13px] font-semibold"><Badge variant="warn">유사도 검색</Badge> 문제는 있는데 방향이 반대다</p>
-            <pre className="overflow-x-auto rounded-lg bg-[hsl(222_60%_5%)] p-3 text-[12px] leading-relaxed"><code>{`조각이 희귀해진다
+            <pre className="overflow-x-auto rounded-lg bg-code p-3 text-[12px] leading-relaxed"><code>{`조각이 희귀해진다
   → 겹치는 조각이 줄어든다
   → 점수가 낮아진다
   → 임계값에 못 미쳐 탈락한다`}</code></pre>

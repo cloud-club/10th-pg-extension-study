@@ -1,0 +1,1334 @@
+{
+  "source": "catalogs/shinkeonkim/week07/postgres_fdw",
+  "labs": {
+    "01-connect-and-metadata": {
+      "environment": {
+        "postgresql": "PostgreSQL 18.6 (Debian 18.6-1.pgdg13+2) on aarch64-unknown-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit",
+        "extensions": [
+          {
+            "name": "plpgsql",
+            "version": "1.0"
+          },
+          {
+            "name": "postgres_fdw",
+            "version": "1.2"
+          },
+          {
+            "name": "pg_trgm",
+            "version": "1.6"
+          },
+          {
+            "name": "dblink",
+            "version": "1.2"
+          },
+          {
+            "name": "file_fdw",
+            "version": "1.0"
+          },
+          {
+            "name": "pg_stat_statements",
+            "version": "1.12"
+          }
+        ],
+        "image": "[{\"ID\":\"sha256:74935e72241653ca55e0414067e6d8763aceb8a810eb51b452253ec3dcfc4336\",\"ContainerName\":\"shinkeonkim-week07-fdw-labs-remote-1\",\"Repository\":\"postgres\",\"Tag\":\"18.6\",\"Platform\":\"linux/arm64/v8\",\"Size\":665862274,\"Created\":\"2026-10-06T01:35:25.233180549Z\",\"LastTagTime\":\"2026-10-09T07:22:04.914162596Z\"},{\"ID\":\"sha256:74935e72241653ca55e0414067e6d8763aceb8a810eb51b452253ec3dcfc4336\",\"ContainerName\":\"shinkeonkim-week07-fdw-labs-local-1\",\"Repository\":\"postgres\",\"Tag\":\"18.6\",\"Platform\":\"linux/arm64/v8\",\"Size\":665862274,\"Created\":\"2026-10-06T01:35:25.233180549Z\",\"LastTagTime\":\"2026-10-09T07:22:04.914162596Z\"}]",
+        "rows": 100000,
+        "network": "같은 호스트 Docker Compose 내부 네트워크",
+        "image_repo_digests": [
+          "postgres@sha256:74935e72241653ca55e0414067e6d8763aceb8a810eb51b452253ec3dcfc4336"
+        ]
+      },
+      "count_le_10": 10,
+      "read_only_update_error": "ERROR:  permission denied for table books\nCONTEXT:  remote SQL command: UPDATE public.books SET title = 'forbidden'::text WHERE ((id = 1))"
+    },
+    "02-pushdown-and-search": {
+      "environment": {
+        "postgresql": "PostgreSQL 18.6 (Debian 18.6-1.pgdg13+2) on aarch64-unknown-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit",
+        "extensions": [
+          {
+            "name": "plpgsql",
+            "version": "1.0"
+          },
+          {
+            "name": "postgres_fdw",
+            "version": "1.2"
+          },
+          {
+            "name": "pg_trgm",
+            "version": "1.6"
+          },
+          {
+            "name": "dblink",
+            "version": "1.2"
+          },
+          {
+            "name": "file_fdw",
+            "version": "1.0"
+          },
+          {
+            "name": "pg_stat_statements",
+            "version": "1.12"
+          }
+        ],
+        "image": "[{\"ID\":\"sha256:74935e72241653ca55e0414067e6d8763aceb8a810eb51b452253ec3dcfc4336\",\"ContainerName\":\"shinkeonkim-week07-fdw-labs-remote-1\",\"Repository\":\"postgres\",\"Tag\":\"18.6\",\"Platform\":\"linux/arm64/v8\",\"Size\":665862274,\"Created\":\"2026-10-06T01:35:25.233180549Z\",\"LastTagTime\":\"2026-10-09T07:22:04.914162596Z\"},{\"ID\":\"sha256:74935e72241653ca55e0414067e6d8763aceb8a810eb51b452253ec3dcfc4336\",\"ContainerName\":\"shinkeonkim-week07-fdw-labs-local-1\",\"Repository\":\"postgres\",\"Tag\":\"18.6\",\"Platform\":\"linux/arm64/v8\",\"Size\":665862274,\"Created\":\"2026-10-06T01:35:25.233180549Z\",\"LastTagTime\":\"2026-10-09T07:22:04.914162596Z\"}]",
+        "rows": 100000,
+        "network": "같은 호스트 Docker Compose 내부 네트워크",
+        "image_repo_digests": [
+          "postgres@sha256:74935e72241653ca55e0414067e6d8763aceb8a810eb51b452253ec3dcfc4336"
+        ]
+      },
+      "pushed": {
+        "Plan": {
+          "Node Type": "Foreign Scan",
+          "Operation": "Select",
+          "Parallel Aware": false,
+          "Async Capable": false,
+          "Relation Name": "books",
+          "Schema": "remote_school",
+          "Alias": "books",
+          "Startup Cost": 100.0,
+          "Total Cost": 222.61,
+          "Plan Rows": 455,
+          "Plan Width": 36,
+          "Actual Startup Time": 0.592,
+          "Actual Total Time": 0.595,
+          "Actual Rows": 10.0,
+          "Actual Loops": 1,
+          "Disabled": false,
+          "Output": [
+            "id",
+            "title"
+          ],
+          "Remote SQL": "SELECT id, title FROM public.books WHERE ((id <= 10))",
+          "Shared Hit Blocks": 0,
+          "Shared Read Blocks": 0,
+          "Shared Dirtied Blocks": 0,
+          "Shared Written Blocks": 0,
+          "Local Hit Blocks": 0,
+          "Local Read Blocks": 0,
+          "Local Dirtied Blocks": 0,
+          "Local Written Blocks": 0,
+          "Temp Read Blocks": 0,
+          "Temp Written Blocks": 0
+        },
+        "Query Identifier": -368018466204279973,
+        "Planning": {
+          "Shared Hit Blocks": 45,
+          "Shared Read Blocks": 0,
+          "Shared Dirtied Blocks": 0,
+          "Shared Written Blocks": 0,
+          "Local Hit Blocks": 0,
+          "Local Read Blocks": 0,
+          "Local Dirtied Blocks": 0,
+          "Local Written Blocks": 0,
+          "Temp Read Blocks": 0,
+          "Temp Written Blocks": 0
+        },
+        "Planning Time": 0.555,
+        "Triggers": [],
+        "Execution Time": 5.828
+      },
+      "local_filter": {
+        "Plan": {
+          "Node Type": "Foreign Scan",
+          "Operation": "Select",
+          "Parallel Aware": false,
+          "Async Capable": false,
+          "Relation Name": "books",
+          "Schema": "remote_school",
+          "Alias": "books",
+          "Startup Cost": 100.0,
+          "Total Cost": 751.55,
+          "Plan Rows": 455,
+          "Plan Width": 36,
+          "Actual Startup Time": 0.733,
+          "Actual Total Time": 124.073,
+          "Actual Rows": 10.0,
+          "Actual Loops": 1,
+          "Disabled": false,
+          "Output": [
+            "id",
+            "title"
+          ],
+          "Filter": "local_small(books.id)",
+          "Rows Removed by Filter": 99990,
+          "Remote SQL": "SELECT id, title FROM public.books",
+          "Shared Hit Blocks": 12,
+          "Shared Read Blocks": 0,
+          "Shared Dirtied Blocks": 0,
+          "Shared Written Blocks": 0,
+          "Local Hit Blocks": 0,
+          "Local Read Blocks": 0,
+          "Local Dirtied Blocks": 0,
+          "Local Written Blocks": 0,
+          "Temp Read Blocks": 0,
+          "Temp Written Blocks": 0
+        },
+        "Query Identifier": 516174035688319017,
+        "Planning": {
+          "Shared Hit Blocks": 45,
+          "Shared Read Blocks": 0,
+          "Shared Dirtied Blocks": 0,
+          "Shared Written Blocks": 0,
+          "Local Hit Blocks": 0,
+          "Local Read Blocks": 0,
+          "Local Dirtied Blocks": 0,
+          "Local Written Blocks": 0,
+          "Temp Read Blocks": 0,
+          "Temp Written Blocks": 0
+        },
+        "Planning Time": 0.56,
+        "Triggers": [],
+        "Execution Time": 129.545
+      },
+      "stable_percent_operator": {
+        "Plan": {
+          "Node Type": "Foreign Scan",
+          "Operation": "Select",
+          "Parallel Aware": false,
+          "Async Capable": false,
+          "Relation Name": "books",
+          "Schema": "remote_school",
+          "Alias": "books",
+          "Startup Cost": 100.0,
+          "Total Cost": 755.56,
+          "Plan Rows": 29,
+          "Plan Width": 4,
+          "Actual Startup Time": 3.13,
+          "Actual Total Time": 258.543,
+          "Actual Rows": 100.0,
+          "Actual Loops": 1,
+          "Disabled": false,
+          "Output": [
+            "id"
+          ],
+          "Filter": "(books.title % 'PostgreSQL'::text)",
+          "Rows Removed by Filter": 99900,
+          "Remote SQL": "SELECT id, title FROM public.books",
+          "Shared Hit Blocks": 0,
+          "Shared Read Blocks": 0,
+          "Shared Dirtied Blocks": 0,
+          "Shared Written Blocks": 0,
+          "Local Hit Blocks": 0,
+          "Local Read Blocks": 0,
+          "Local Dirtied Blocks": 0,
+          "Local Written Blocks": 0,
+          "Temp Read Blocks": 0,
+          "Temp Written Blocks": 0
+        },
+        "Query Identifier": 1769849273109732779,
+        "Planning": {
+          "Shared Hit Blocks": 79,
+          "Shared Read Blocks": 0,
+          "Shared Dirtied Blocks": 0,
+          "Shared Written Blocks": 0,
+          "Local Hit Blocks": 0,
+          "Local Read Blocks": 0,
+          "Local Dirtied Blocks": 0,
+          "Local Written Blocks": 0,
+          "Temp Read Blocks": 0,
+          "Temp Written Blocks": 0
+        },
+        "Planning Time": 0.684,
+        "Triggers": [],
+        "Execution Time": 264.55
+      },
+      "trgm_before": {
+        "Plan": {
+          "Node Type": "Foreign Scan",
+          "Operation": "Select",
+          "Parallel Aware": false,
+          "Async Capable": false,
+          "Relation Name": "books",
+          "Schema": "remote_school",
+          "Alias": "books",
+          "Startup Cost": 100.0,
+          "Total Cost": 768.12,
+          "Plan Rows": 975,
+          "Plan Width": 4,
+          "Actual Startup Time": 2.931,
+          "Actual Total Time": 254.466,
+          "Actual Rows": 100.0,
+          "Actual Loops": 1,
+          "Disabled": false,
+          "Output": [
+            "id"
+          ],
+          "Filter": "(similarity(books.title, 'PostgreSQL'::text) > '0.3'::double precision)",
+          "Rows Removed by Filter": 99900,
+          "Remote SQL": "SELECT id, title FROM public.books",
+          "Shared Hit Blocks": 0,
+          "Shared Read Blocks": 0,
+          "Shared Dirtied Blocks": 0,
+          "Shared Written Blocks": 0,
+          "Local Hit Blocks": 0,
+          "Local Read Blocks": 0,
+          "Local Dirtied Blocks": 0,
+          "Local Written Blocks": 0,
+          "Temp Read Blocks": 0,
+          "Temp Written Blocks": 0
+        },
+        "Query Identifier": -3966574641269479527,
+        "Planning": {
+          "Shared Hit Blocks": 37,
+          "Shared Read Blocks": 0,
+          "Shared Dirtied Blocks": 0,
+          "Shared Written Blocks": 0,
+          "Local Hit Blocks": 0,
+          "Local Read Blocks": 0,
+          "Local Dirtied Blocks": 0,
+          "Local Written Blocks": 0,
+          "Temp Read Blocks": 0,
+          "Temp Written Blocks": 0
+        },
+        "Planning Time": 0.546,
+        "Triggers": [],
+        "Execution Time": 259.918
+      },
+      "trgm_after": {
+        "Plan": {
+          "Node Type": "Foreign Scan",
+          "Operation": "Select",
+          "Parallel Aware": false,
+          "Async Capable": false,
+          "Relation Name": "books",
+          "Schema": "remote_school",
+          "Alias": "books",
+          "Startup Cost": 100.0,
+          "Total Cost": 358.62,
+          "Plan Rows": 975,
+          "Plan Width": 4,
+          "Actual Startup Time": 162.105,
+          "Actual Total Time": 162.212,
+          "Actual Rows": 100.0,
+          "Actual Loops": 1,
+          "Disabled": false,
+          "Output": [
+            "id"
+          ],
+          "Remote SQL": "SELECT id FROM public.books WHERE ((public.similarity(title, 'PostgreSQL'::text) > 0.3::double precision))",
+          "Shared Hit Blocks": 0,
+          "Shared Read Blocks": 0,
+          "Shared Dirtied Blocks": 0,
+          "Shared Written Blocks": 0,
+          "Local Hit Blocks": 0,
+          "Local Read Blocks": 0,
+          "Local Dirtied Blocks": 0,
+          "Local Written Blocks": 0,
+          "Temp Read Blocks": 0,
+          "Temp Written Blocks": 0
+        },
+        "Query Identifier": -3966574641269479527,
+        "Planning": {
+          "Shared Hit Blocks": 77,
+          "Shared Read Blocks": 0,
+          "Shared Dirtied Blocks": 0,
+          "Shared Written Blocks": 0,
+          "Local Hit Blocks": 0,
+          "Local Read Blocks": 0,
+          "Local Dirtied Blocks": 0,
+          "Local Written Blocks": 0,
+          "Temp Read Blocks": 0,
+          "Temp Written Blocks": 0
+        },
+        "Planning Time": 0.666,
+        "Triggers": [],
+        "Execution Time": 167.911
+      },
+      "same_ids": true
+    },
+    "03-fetch-and-network": {
+      "environment": {
+        "postgresql": "PostgreSQL 18.6 (Debian 18.6-1.pgdg13+2) on aarch64-unknown-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit",
+        "extensions": [
+          {
+            "name": "plpgsql",
+            "version": "1.0"
+          },
+          {
+            "name": "postgres_fdw",
+            "version": "1.2"
+          },
+          {
+            "name": "pg_trgm",
+            "version": "1.6"
+          },
+          {
+            "name": "dblink",
+            "version": "1.2"
+          },
+          {
+            "name": "file_fdw",
+            "version": "1.0"
+          },
+          {
+            "name": "pg_stat_statements",
+            "version": "1.12"
+          }
+        ],
+        "image": "[{\"ID\":\"sha256:74935e72241653ca55e0414067e6d8763aceb8a810eb51b452253ec3dcfc4336\",\"ContainerName\":\"shinkeonkim-week07-fdw-labs-local-1\",\"Repository\":\"postgres\",\"Tag\":\"18.6\",\"Platform\":\"linux/arm64/v8\",\"Size\":665862274,\"Created\":\"2026-10-06T01:35:25.233180549Z\",\"LastTagTime\":\"2026-10-09T07:22:04.914162596Z\"},{\"ID\":\"sha256:74935e72241653ca55e0414067e6d8763aceb8a810eb51b452253ec3dcfc4336\",\"ContainerName\":\"shinkeonkim-week07-fdw-labs-remote-1\",\"Repository\":\"postgres\",\"Tag\":\"18.6\",\"Platform\":\"linux/arm64/v8\",\"Size\":665862274,\"Created\":\"2026-10-06T01:35:25.233180549Z\",\"LastTagTime\":\"2026-10-09T07:22:04.914162596Z\"}]",
+        "rows": 100000,
+        "network": "같은 호스트 Docker Compose 내부 네트워크",
+        "image_repo_digests": [
+          "postgres@sha256:74935e72241653ca55e0414067e6d8763aceb8a810eb51b452253ec3dcfc4336"
+        ]
+      },
+      "returned_rows": 10000,
+      "observed_fetch_commands": {
+        "100": 101,
+        "1000": 11
+      },
+      "measurement": "원격 statement 로그의 FETCH 횟수. 지연 성능 비교 아님."
+    },
+    "04-transactions-and-locks": {
+      "environment": {
+        "postgresql": "PostgreSQL 18.6 (Debian 18.6-1.pgdg13+2) on aarch64-unknown-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit",
+        "extensions": [
+          {
+            "name": "plpgsql",
+            "version": "1.0"
+          },
+          {
+            "name": "postgres_fdw",
+            "version": "1.2"
+          },
+          {
+            "name": "pg_trgm",
+            "version": "1.6"
+          },
+          {
+            "name": "dblink",
+            "version": "1.2"
+          },
+          {
+            "name": "file_fdw",
+            "version": "1.0"
+          },
+          {
+            "name": "pg_stat_statements",
+            "version": "1.12"
+          }
+        ],
+        "image": "[{\"ID\":\"sha256:74935e72241653ca55e0414067e6d8763aceb8a810eb51b452253ec3dcfc4336\",\"ContainerName\":\"shinkeonkim-week07-fdw-labs-local-1\",\"Repository\":\"postgres\",\"Tag\":\"18.6\",\"Platform\":\"linux/arm64/v8\",\"Size\":665862274,\"Created\":\"2026-10-06T01:35:25.233180549Z\",\"LastTagTime\":\"2026-10-09T07:22:04.914162596Z\"},{\"ID\":\"sha256:74935e72241653ca55e0414067e6d8763aceb8a810eb51b452253ec3dcfc4336\",\"ContainerName\":\"shinkeonkim-week07-fdw-labs-remote-1\",\"Repository\":\"postgres\",\"Tag\":\"18.6\",\"Platform\":\"linux/arm64/v8\",\"Size\":665862274,\"Created\":\"2026-10-06T01:35:25.233180549Z\",\"LastTagTime\":\"2026-10-09T07:22:04.914162596Z\"}]",
+        "rows": 100000,
+        "network": "같은 호스트 Docker Compose 내부 네트워크",
+        "image_repo_digests": [
+          "postgres@sha256:74935e72241653ca55e0414067e6d8763aceb8a810eb51b452253ec3dcfc4336"
+        ]
+      },
+      "snapshot": {
+        "first": "before",
+        "within_transaction": "before",
+        "after_commit": "after"
+      },
+      "rollback_restored": true,
+      "lock_timeout_error": "ERROR:  canceling statement due to statement timeout",
+      "limits": "정상 롤백·스냅샷·잠금 취소 확인. 분산 커밋 장애 원자성의 증명 아님."
+    },
+    "05-connections-and-related": {
+      "environment": {
+        "postgresql": "PostgreSQL 18.6 (Debian 18.6-1.pgdg13+2) on aarch64-unknown-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit",
+        "extensions": [
+          {
+            "name": "plpgsql",
+            "version": "1.0"
+          },
+          {
+            "name": "postgres_fdw",
+            "version": "1.2"
+          },
+          {
+            "name": "pg_trgm",
+            "version": "1.6"
+          },
+          {
+            "name": "dblink",
+            "version": "1.2"
+          },
+          {
+            "name": "file_fdw",
+            "version": "1.0"
+          },
+          {
+            "name": "pg_stat_statements",
+            "version": "1.12"
+          }
+        ],
+        "image": "[{\"ID\":\"sha256:74935e72241653ca55e0414067e6d8763aceb8a810eb51b452253ec3dcfc4336\",\"ContainerName\":\"shinkeonkim-week07-fdw-labs-local-1\",\"Repository\":\"postgres\",\"Tag\":\"18.6\",\"Platform\":\"linux/arm64/v8\",\"Size\":665862274,\"Created\":\"2026-10-06T01:35:25.233180549Z\",\"LastTagTime\":\"2026-10-09T07:22:04.914162596Z\"},{\"ID\":\"sha256:74935e72241653ca55e0414067e6d8763aceb8a810eb51b452253ec3dcfc4336\",\"ContainerName\":\"shinkeonkim-week07-fdw-labs-remote-1\",\"Repository\":\"postgres\",\"Tag\":\"18.6\",\"Platform\":\"linux/arm64/v8\",\"Size\":665862274,\"Created\":\"2026-10-06T01:35:25.233180549Z\",\"LastTagTime\":\"2026-10-09T07:22:04.914162596Z\"}]",
+        "rows": 100000,
+        "network": "같은 호스트 Docker Compose 내부 네트워크",
+        "image_repo_digests": [
+          "postgres@sha256:74935e72241653ca55e0414067e6d8763aceb8a810eb51b452253ec3dcfc4336"
+        ]
+      },
+      "local_sessions": 4,
+      "remote_connections": 4,
+      "keep_connections_false_remaining": 0,
+      "file_fdw_rows": 3,
+      "dblink_rows": 3
+    }
+  },
+  "experiments": {
+    "01-pushdown-and-transfer": {
+      "timestamp": "2026-10-09T07:28:13.478071+00:00",
+      "environment": {
+        "postgresql": "PostgreSQL 18.6 (Debian 18.6-1.pgdg13+2) on aarch64-unknown-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit",
+        "extensions": [
+          {
+            "name": "plpgsql",
+            "version": "1.0"
+          },
+          {
+            "name": "postgres_fdw",
+            "version": "1.2"
+          },
+          {
+            "name": "pg_trgm",
+            "version": "1.6"
+          },
+          {
+            "name": "dblink",
+            "version": "1.2"
+          },
+          {
+            "name": "file_fdw",
+            "version": "1.0"
+          },
+          {
+            "name": "pg_stat_statements",
+            "version": "1.12"
+          }
+        ],
+        "image": "[{\"ID\":\"sha256:74935e72241653ca55e0414067e6d8763aceb8a810eb51b452253ec3dcfc4336\",\"ContainerName\":\"shinkeonkim-week07-fdw-labs-remote-1\",\"Repository\":\"postgres\",\"Tag\":\"18.6\",\"Platform\":\"linux/arm64/v8\",\"Size\":665862274,\"Created\":\"2026-10-06T01:35:25.233180549Z\",\"LastTagTime\":\"2026-10-09T07:22:04.914162596Z\"},{\"ID\":\"sha256:74935e72241653ca55e0414067e6d8763aceb8a810eb51b452253ec3dcfc4336\",\"ContainerName\":\"shinkeonkim-week07-fdw-labs-local-1\",\"Repository\":\"postgres\",\"Tag\":\"18.6\",\"Platform\":\"linux/arm64/v8\",\"Size\":665862274,\"Created\":\"2026-10-06T01:35:25.233180549Z\",\"LastTagTime\":\"2026-10-09T07:22:04.914162596Z\"}]",
+        "rows": 100000,
+        "network": "같은 호스트 Docker Compose 내부 네트워크",
+        "image_repo_digests": [
+          "postgres@sha256:74935e72241653ca55e0414067e6d8763aceb8a810eb51b452253ec3dcfc4336"
+        ]
+      },
+      "warmups_per_case": 2,
+      "random_seed": 7,
+      "metric": "EXPLAIN Execution Time (ms), 새 로컬 psql 세션마다 실행",
+      "cases": {
+        "remote_filter": {
+          "n": 10,
+          "median_ms": 5.8865,
+          "min_ms": 5.621,
+          "max_ms": 7.459,
+          "samples_ms": [
+            5.935,
+            5.806,
+            5.881,
+            5.892,
+            5.758,
+            5.959,
+            6.092,
+            5.621,
+            5.852,
+            7.459
+          ]
+        },
+        "local_filter": {
+          "n": 10,
+          "median_ms": 124.0945,
+          "min_ms": 122.009,
+          "max_ms": 134.327,
+          "samples_ms": [
+            125.441,
+            123.529,
+            122.009,
+            125.536,
+            124.136,
+            124.053,
+            122.822,
+            134.327,
+            122.32,
+            125.524
+          ]
+        }
+      },
+      "plans": {
+        "local_filter": {
+          "Plan": {
+            "Node Type": "Foreign Scan",
+            "Operation": "Select",
+            "Parallel Aware": false,
+            "Async Capable": false,
+            "Relation Name": "books",
+            "Schema": "remote_school",
+            "Alias": "books",
+            "Startup Cost": 100.0,
+            "Total Cost": 751.55,
+            "Plan Rows": 455,
+            "Plan Width": 36,
+            "Actual Startup Time": 0.707,
+            "Actual Total Time": 120.185,
+            "Actual Rows": 10.0,
+            "Actual Loops": 1,
+            "Disabled": false,
+            "Output": [
+              "id",
+              "title"
+            ],
+            "Filter": "local_small(books.id)",
+            "Rows Removed by Filter": 99990,
+            "Remote SQL": "SELECT id, title FROM public.books",
+            "Shared Hit Blocks": 12,
+            "Shared Read Blocks": 0,
+            "Shared Dirtied Blocks": 0,
+            "Shared Written Blocks": 0,
+            "Local Hit Blocks": 0,
+            "Local Read Blocks": 0,
+            "Local Dirtied Blocks": 0,
+            "Local Written Blocks": 0,
+            "Temp Read Blocks": 0,
+            "Temp Written Blocks": 0
+          },
+          "Query Identifier": 516174035688319017,
+          "Planning": {
+            "Shared Hit Blocks": 45,
+            "Shared Read Blocks": 0,
+            "Shared Dirtied Blocks": 0,
+            "Shared Written Blocks": 0,
+            "Local Hit Blocks": 0,
+            "Local Read Blocks": 0,
+            "Local Dirtied Blocks": 0,
+            "Local Written Blocks": 0,
+            "Temp Read Blocks": 0,
+            "Temp Written Blocks": 0
+          },
+          "Planning Time": 0.522,
+          "Triggers": [],
+          "Execution Time": 125.524
+        },
+        "remote_filter": {
+          "Plan": {
+            "Node Type": "Foreign Scan",
+            "Operation": "Select",
+            "Parallel Aware": false,
+            "Async Capable": false,
+            "Relation Name": "books",
+            "Schema": "remote_school",
+            "Alias": "books",
+            "Startup Cost": 100.0,
+            "Total Cost": 222.61,
+            "Plan Rows": 455,
+            "Plan Width": 36,
+            "Actual Startup Time": 0.742,
+            "Actual Total Time": 0.745,
+            "Actual Rows": 10.0,
+            "Actual Loops": 1,
+            "Disabled": false,
+            "Output": [
+              "id",
+              "title"
+            ],
+            "Remote SQL": "SELECT id, title FROM public.books WHERE ((id <= 10))",
+            "Shared Hit Blocks": 0,
+            "Shared Read Blocks": 0,
+            "Shared Dirtied Blocks": 0,
+            "Shared Written Blocks": 0,
+            "Local Hit Blocks": 0,
+            "Local Read Blocks": 0,
+            "Local Dirtied Blocks": 0,
+            "Local Written Blocks": 0,
+            "Temp Read Blocks": 0,
+            "Temp Written Blocks": 0
+          },
+          "Query Identifier": -368018466204279973,
+          "Planning": {
+            "Shared Hit Blocks": 45,
+            "Shared Read Blocks": 0,
+            "Shared Dirtied Blocks": 0,
+            "Shared Written Blocks": 0,
+            "Local Hit Blocks": 0,
+            "Local Read Blocks": 0,
+            "Local Dirtied Blocks": 0,
+            "Local Written Blocks": 0,
+            "Temp Read Blocks": 0,
+            "Temp Written Blocks": 0
+          },
+          "Planning Time": 0.641,
+          "Triggers": [],
+          "Execution Time": 7.459
+        }
+      },
+      "same_result": true,
+      "local_rows_removed": 99990,
+      "limitations": [
+        "로컬 함수 호출 비용도 포함",
+        "wire bytes와 WAN RTT를 측정하지 않음",
+        "EXPLAIN 계측 비용 포함"
+      ]
+    },
+    "02-fetch-and-row-width": {
+      "timestamp": "2026-10-09T07:28:22.904612+00:00",
+      "environment": {
+        "postgresql": "PostgreSQL 18.6 (Debian 18.6-1.pgdg13+2) on aarch64-unknown-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit",
+        "extensions": [
+          {
+            "name": "plpgsql",
+            "version": "1.0"
+          },
+          {
+            "name": "postgres_fdw",
+            "version": "1.2"
+          },
+          {
+            "name": "pg_trgm",
+            "version": "1.6"
+          },
+          {
+            "name": "dblink",
+            "version": "1.2"
+          },
+          {
+            "name": "file_fdw",
+            "version": "1.0"
+          },
+          {
+            "name": "pg_stat_statements",
+            "version": "1.12"
+          }
+        ],
+        "image": "[{\"ID\":\"sha256:74935e72241653ca55e0414067e6d8763aceb8a810eb51b452253ec3dcfc4336\",\"ContainerName\":\"shinkeonkim-week07-fdw-labs-local-1\",\"Repository\":\"postgres\",\"Tag\":\"18.6\",\"Platform\":\"linux/arm64/v8\",\"Size\":665862274,\"Created\":\"2026-10-06T01:35:25.233180549Z\",\"LastTagTime\":\"2026-10-09T07:22:04.914162596Z\"},{\"ID\":\"sha256:74935e72241653ca55e0414067e6d8763aceb8a810eb51b452253ec3dcfc4336\",\"ContainerName\":\"shinkeonkim-week07-fdw-labs-remote-1\",\"Repository\":\"postgres\",\"Tag\":\"18.6\",\"Platform\":\"linux/arm64/v8\",\"Size\":665862274,\"Created\":\"2026-10-06T01:35:25.233180549Z\",\"LastTagTime\":\"2026-10-09T07:22:04.914162596Z\"}]",
+        "rows": 100000,
+        "network": "같은 호스트 Docker Compose 내부 네트워크",
+        "image_repo_digests": [
+          "postgres@sha256:74935e72241653ca55e0414067e6d8763aceb8a810eb51b452253ec3dcfc4336"
+        ]
+      },
+      "warmups_per_case": 2,
+      "random_seed": 7,
+      "returned_rows": 10000,
+      "metric": "EXPLAIN Execution Time (ms), 새 로컬 psql 세션마다 실행",
+      "cases": {
+        "narrow-100": {
+          "n": 10,
+          "median_ms": 17.1785,
+          "min_ms": 16.85,
+          "max_ms": 19.015,
+          "samples_ms": [
+            17.905,
+            17.193,
+            17.932,
+            17.256,
+            19.015,
+            17.07,
+            17.164,
+            16.85,
+            17.027,
+            17.063
+          ]
+        },
+        "narrow-1000": {
+          "n": 10,
+          "median_ms": 11.4545,
+          "min_ms": 11.216,
+          "max_ms": 11.686,
+          "samples_ms": [
+            11.236,
+            11.665,
+            11.398,
+            11.216,
+            11.464,
+            11.445,
+            11.612,
+            11.381,
+            11.584,
+            11.686
+          ]
+        },
+        "narrow-10000": {
+          "n": 10,
+          "median_ms": 11.177,
+          "min_ms": 10.881,
+          "max_ms": 13.046,
+          "samples_ms": [
+            11.367,
+            11.113,
+            10.881,
+            13.046,
+            11.665,
+            10.97,
+            11.09,
+            11.544,
+            11.241,
+            11.017
+          ]
+        },
+        "wide-100": {
+          "n": 10,
+          "median_ms": 17.937,
+          "min_ms": 17.733,
+          "max_ms": 18.673,
+          "samples_ms": [
+            17.785,
+            18.172,
+            18.673,
+            17.859,
+            17.952,
+            18.013,
+            17.733,
+            17.879,
+            17.922,
+            18.246
+          ]
+        },
+        "wide-1000": {
+          "n": 10,
+          "median_ms": 14.282,
+          "min_ms": 14.042,
+          "max_ms": 15.032,
+          "samples_ms": [
+            15.032,
+            14.338,
+            14.401,
+            14.062,
+            14.383,
+            14.338,
+            14.042,
+            14.131,
+            14.073,
+            14.226
+          ]
+        },
+        "wide-10000": {
+          "n": 10,
+          "median_ms": 15.483,
+          "min_ms": 14.626,
+          "max_ms": 15.928,
+          "samples_ms": [
+            15.928,
+            15.712,
+            15.545,
+            15.456,
+            15.257,
+            15.241,
+            15.51,
+            14.626,
+            14.904,
+            15.893
+          ]
+        }
+      },
+      "plans": {
+        "narrow-100": {
+          "Plan": {
+            "Node Type": "Foreign Scan",
+            "Operation": "Select",
+            "Parallel Aware": false,
+            "Async Capable": false,
+            "Relation Name": "books",
+            "Schema": "remote_school",
+            "Alias": "books",
+            "Startup Cost": 100.0,
+            "Total Cost": 222.61,
+            "Plan Rows": 455,
+            "Plan Width": 36,
+            "Actual Startup Time": 0.586,
+            "Actual Total Time": 11.456,
+            "Actual Rows": 10000.0,
+            "Actual Loops": 1,
+            "Disabled": false,
+            "Output": [
+              "id",
+              "title"
+            ],
+            "Remote SQL": "SELECT id, title FROM public.books WHERE ((id <= 10000))",
+            "Shared Hit Blocks": 0,
+            "Shared Read Blocks": 0,
+            "Shared Dirtied Blocks": 0,
+            "Shared Written Blocks": 0,
+            "Local Hit Blocks": 0,
+            "Local Read Blocks": 0,
+            "Local Dirtied Blocks": 0,
+            "Local Written Blocks": 0,
+            "Temp Read Blocks": 0,
+            "Temp Written Blocks": 0
+          },
+          "Query Identifier": -368018466204279973,
+          "Planning": {
+            "Shared Hit Blocks": 39,
+            "Shared Read Blocks": 0,
+            "Shared Dirtied Blocks": 0,
+            "Shared Written Blocks": 0,
+            "Local Hit Blocks": 0,
+            "Local Read Blocks": 0,
+            "Local Dirtied Blocks": 0,
+            "Local Written Blocks": 0,
+            "Temp Read Blocks": 0,
+            "Temp Written Blocks": 0
+          },
+          "Planning Time": 0.125,
+          "Triggers": [],
+          "Execution Time": 17.063
+        },
+        "wide-100": {
+          "Plan": {
+            "Node Type": "Foreign Scan",
+            "Operation": "Select",
+            "Parallel Aware": false,
+            "Async Capable": false,
+            "Relation Name": "books",
+            "Schema": "remote_school",
+            "Alias": "books",
+            "Startup Cost": 100.0,
+            "Total Cost": 183.5,
+            "Plan Rows": 297,
+            "Plan Width": 68,
+            "Actual Startup Time": 0.728,
+            "Actual Total Time": 12.561,
+            "Actual Rows": 10000.0,
+            "Actual Loops": 1,
+            "Disabled": false,
+            "Output": [
+              "id",
+              "title",
+              "payload"
+            ],
+            "Remote SQL": "SELECT id, title, payload FROM public.books WHERE ((id <= 10000))",
+            "Shared Hit Blocks": 0,
+            "Shared Read Blocks": 0,
+            "Shared Dirtied Blocks": 0,
+            "Shared Written Blocks": 0,
+            "Local Hit Blocks": 0,
+            "Local Read Blocks": 0,
+            "Local Dirtied Blocks": 0,
+            "Local Written Blocks": 0,
+            "Temp Read Blocks": 0,
+            "Temp Written Blocks": 0
+          },
+          "Query Identifier": 8507433466164747708,
+          "Planning": {
+            "Shared Hit Blocks": 44,
+            "Shared Read Blocks": 0,
+            "Shared Dirtied Blocks": 0,
+            "Shared Written Blocks": 0,
+            "Local Hit Blocks": 0,
+            "Local Read Blocks": 0,
+            "Local Dirtied Blocks": 0,
+            "Local Written Blocks": 0,
+            "Temp Read Blocks": 0,
+            "Temp Written Blocks": 0
+          },
+          "Planning Time": 0.121,
+          "Triggers": [],
+          "Execution Time": 18.246
+        },
+        "wide-1000": {
+          "Plan": {
+            "Node Type": "Foreign Scan",
+            "Operation": "Select",
+            "Parallel Aware": false,
+            "Async Capable": false,
+            "Relation Name": "books",
+            "Schema": "remote_school",
+            "Alias": "books",
+            "Startup Cost": 100.0,
+            "Total Cost": 183.5,
+            "Plan Rows": 297,
+            "Plan Width": 68,
+            "Actual Startup Time": 1.46,
+            "Actual Total Time": 8.77,
+            "Actual Rows": 10000.0,
+            "Actual Loops": 1,
+            "Disabled": false,
+            "Output": [
+              "id",
+              "title",
+              "payload"
+            ],
+            "Remote SQL": "SELECT id, title, payload FROM public.books WHERE ((id <= 10000))",
+            "Shared Hit Blocks": 0,
+            "Shared Read Blocks": 0,
+            "Shared Dirtied Blocks": 0,
+            "Shared Written Blocks": 0,
+            "Local Hit Blocks": 0,
+            "Local Read Blocks": 0,
+            "Local Dirtied Blocks": 0,
+            "Local Written Blocks": 0,
+            "Temp Read Blocks": 0,
+            "Temp Written Blocks": 0
+          },
+          "Query Identifier": 8507433466164747708,
+          "Planning": {
+            "Shared Hit Blocks": 44,
+            "Shared Read Blocks": 0,
+            "Shared Dirtied Blocks": 0,
+            "Shared Written Blocks": 0,
+            "Local Hit Blocks": 0,
+            "Local Read Blocks": 0,
+            "Local Dirtied Blocks": 0,
+            "Local Written Blocks": 0,
+            "Temp Read Blocks": 0,
+            "Temp Written Blocks": 0
+          },
+          "Planning Time": 0.116,
+          "Triggers": [],
+          "Execution Time": 14.226
+        },
+        "narrow-10000": {
+          "Plan": {
+            "Node Type": "Foreign Scan",
+            "Operation": "Select",
+            "Parallel Aware": false,
+            "Async Capable": false,
+            "Relation Name": "books",
+            "Schema": "remote_school",
+            "Alias": "books",
+            "Startup Cost": 100.0,
+            "Total Cost": 222.61,
+            "Plan Rows": 455,
+            "Plan Width": 36,
+            "Actual Startup Time": 4.984,
+            "Actual Total Time": 5.593,
+            "Actual Rows": 10000.0,
+            "Actual Loops": 1,
+            "Disabled": false,
+            "Output": [
+              "id",
+              "title"
+            ],
+            "Remote SQL": "SELECT id, title FROM public.books WHERE ((id <= 10000))",
+            "Shared Hit Blocks": 0,
+            "Shared Read Blocks": 0,
+            "Shared Dirtied Blocks": 0,
+            "Shared Written Blocks": 0,
+            "Local Hit Blocks": 0,
+            "Local Read Blocks": 0,
+            "Local Dirtied Blocks": 0,
+            "Local Written Blocks": 0,
+            "Temp Read Blocks": 0,
+            "Temp Written Blocks": 0
+          },
+          "Query Identifier": -368018466204279973,
+          "Planning": {
+            "Shared Hit Blocks": 39,
+            "Shared Read Blocks": 0,
+            "Shared Dirtied Blocks": 0,
+            "Shared Written Blocks": 0,
+            "Local Hit Blocks": 0,
+            "Local Read Blocks": 0,
+            "Local Dirtied Blocks": 0,
+            "Local Written Blocks": 0,
+            "Temp Read Blocks": 0,
+            "Temp Written Blocks": 0
+          },
+          "Planning Time": 0.125,
+          "Triggers": [],
+          "Execution Time": 11.017
+        },
+        "wide-10000": {
+          "Plan": {
+            "Node Type": "Foreign Scan",
+            "Operation": "Select",
+            "Parallel Aware": false,
+            "Async Capable": false,
+            "Relation Name": "books",
+            "Schema": "remote_school",
+            "Alias": "books",
+            "Startup Cost": 100.0,
+            "Total Cost": 183.5,
+            "Plan Rows": 297,
+            "Plan Width": 68,
+            "Actual Startup Time": 8.839,
+            "Actual Total Time": 9.975,
+            "Actual Rows": 10000.0,
+            "Actual Loops": 1,
+            "Disabled": false,
+            "Output": [
+              "id",
+              "title",
+              "payload"
+            ],
+            "Remote SQL": "SELECT id, title, payload FROM public.books WHERE ((id <= 10000))",
+            "Shared Hit Blocks": 0,
+            "Shared Read Blocks": 0,
+            "Shared Dirtied Blocks": 0,
+            "Shared Written Blocks": 0,
+            "Local Hit Blocks": 0,
+            "Local Read Blocks": 0,
+            "Local Dirtied Blocks": 0,
+            "Local Written Blocks": 0,
+            "Temp Read Blocks": 0,
+            "Temp Written Blocks": 0
+          },
+          "Query Identifier": 8507433466164747708,
+          "Planning": {
+            "Shared Hit Blocks": 44,
+            "Shared Read Blocks": 0,
+            "Shared Dirtied Blocks": 0,
+            "Shared Written Blocks": 0,
+            "Local Hit Blocks": 0,
+            "Local Read Blocks": 0,
+            "Local Dirtied Blocks": 0,
+            "Local Written Blocks": 0,
+            "Temp Read Blocks": 0,
+            "Temp Written Blocks": 0
+          },
+          "Planning Time": 0.119,
+          "Triggers": [],
+          "Execution Time": 15.893
+        },
+        "narrow-1000": {
+          "Plan": {
+            "Node Type": "Foreign Scan",
+            "Operation": "Select",
+            "Parallel Aware": false,
+            "Async Capable": false,
+            "Relation Name": "books",
+            "Schema": "remote_school",
+            "Alias": "books",
+            "Startup Cost": 100.0,
+            "Total Cost": 222.61,
+            "Plan Rows": 455,
+            "Plan Width": 36,
+            "Actual Startup Time": 1.025,
+            "Actual Total Time": 6.112,
+            "Actual Rows": 10000.0,
+            "Actual Loops": 1,
+            "Disabled": false,
+            "Output": [
+              "id",
+              "title"
+            ],
+            "Remote SQL": "SELECT id, title FROM public.books WHERE ((id <= 10000))",
+            "Shared Hit Blocks": 0,
+            "Shared Read Blocks": 0,
+            "Shared Dirtied Blocks": 0,
+            "Shared Written Blocks": 0,
+            "Local Hit Blocks": 0,
+            "Local Read Blocks": 0,
+            "Local Dirtied Blocks": 0,
+            "Local Written Blocks": 0,
+            "Temp Read Blocks": 0,
+            "Temp Written Blocks": 0
+          },
+          "Query Identifier": -368018466204279973,
+          "Planning": {
+            "Shared Hit Blocks": 39,
+            "Shared Read Blocks": 0,
+            "Shared Dirtied Blocks": 0,
+            "Shared Written Blocks": 0,
+            "Local Hit Blocks": 0,
+            "Local Read Blocks": 0,
+            "Local Dirtied Blocks": 0,
+            "Local Written Blocks": 0,
+            "Temp Read Blocks": 0,
+            "Temp Written Blocks": 0
+          },
+          "Planning Time": 0.122,
+          "Triggers": [],
+          "Execution Time": 11.686
+        }
+      },
+      "limitations": [
+        "같은 호스트 내부 RTT",
+        "log_statement 비활성 성능 측정",
+        "wire bytes·메모리·첫 행 시간 미측정",
+        "합성 payload"
+      ]
+    },
+    "03-planning-and-connections": {
+      "timestamp": "2026-10-09T07:28:24.553335+00:00",
+      "environment": {
+        "postgresql": "PostgreSQL 18.6 (Debian 18.6-1.pgdg13+2) on aarch64-unknown-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit",
+        "extensions": [
+          {
+            "name": "plpgsql",
+            "version": "1.0"
+          },
+          {
+            "name": "postgres_fdw",
+            "version": "1.2"
+          },
+          {
+            "name": "pg_trgm",
+            "version": "1.6"
+          },
+          {
+            "name": "dblink",
+            "version": "1.2"
+          },
+          {
+            "name": "file_fdw",
+            "version": "1.0"
+          },
+          {
+            "name": "pg_stat_statements",
+            "version": "1.12"
+          }
+        ],
+        "image": "[{\"ID\":\"sha256:74935e72241653ca55e0414067e6d8763aceb8a810eb51b452253ec3dcfc4336\",\"ContainerName\":\"shinkeonkim-week07-fdw-labs-local-1\",\"Repository\":\"postgres\",\"Tag\":\"18.6\",\"Platform\":\"linux/arm64/v8\",\"Size\":665862274,\"Created\":\"2026-10-06T01:35:25.233180549Z\",\"LastTagTime\":\"2026-10-09T07:22:04.914162596Z\"},{\"ID\":\"sha256:74935e72241653ca55e0414067e6d8763aceb8a810eb51b452253ec3dcfc4336\",\"ContainerName\":\"shinkeonkim-week07-fdw-labs-remote-1\",\"Repository\":\"postgres\",\"Tag\":\"18.6\",\"Platform\":\"linux/arm64/v8\",\"Size\":665862274,\"Created\":\"2026-10-06T01:35:25.233180549Z\",\"LastTagTime\":\"2026-10-09T07:22:04.914162596Z\"}]",
+        "rows": 100000,
+        "network": "같은 호스트 Docker Compose 내부 네트워크",
+        "image_repo_digests": [
+          "postgres@sha256:74935e72241653ca55e0414067e6d8763aceb8a810eb51b452253ec3dcfc4336"
+        ]
+      },
+      "warmups_per_case": 2,
+      "random_seed": 7,
+      "metric": "지속 로컬 psql 세션의 EXPLAIN Planning/Execution Time (ms)",
+      "cases": {
+        "estimate-false-keep-false": {
+          "planning": {
+            "n": 10,
+            "median_ms": 0.024,
+            "min_ms": 0.017,
+            "max_ms": 0.027,
+            "samples_ms": [
+              0.026,
+              0.025,
+              0.024,
+              0.017,
+              0.023,
+              0.024,
+              0.02,
+              0.024,
+              0.019,
+              0.027
+            ]
+          },
+          "execution": {
+            "n": 10,
+            "median_ms": 5.0565,
+            "min_ms": 4.727,
+            "max_ms": 5.29,
+            "samples_ms": [
+              5.217,
+              5.039,
+              5.074,
+              5.077,
+              4.817,
+              4.727,
+              5.026,
+              5.092,
+              5.29,
+              4.826
+            ]
+          }
+        },
+        "estimate-false-keep-true": {
+          "planning": {
+            "n": 10,
+            "median_ms": 0.016,
+            "min_ms": 0.011,
+            "max_ms": 0.023,
+            "samples_ms": [
+              0.023,
+              0.02,
+              0.014,
+              0.022,
+              0.016,
+              0.016,
+              0.016,
+              0.011,
+              0.017,
+              0.013
+            ]
+          },
+          "execution": {
+            "n": 10,
+            "median_ms": 0.3385,
+            "min_ms": 0.289,
+            "max_ms": 0.364,
+            "samples_ms": [
+              0.34,
+              0.321,
+              0.289,
+              0.348,
+              0.354,
+              0.309,
+              0.36,
+              0.364,
+              0.316,
+              0.337
+            ]
+          }
+        },
+        "estimate-true-keep-false": {
+          "planning": {
+            "n": 10,
+            "median_ms": 4.718500000000001,
+            "min_ms": 4.622,
+            "max_ms": 5.118,
+            "samples_ms": [
+              5.118,
+              4.634,
+              4.639,
+              4.821,
+              4.793,
+              4.81,
+              4.644,
+              4.622,
+              4.623,
+              4.844
+            ]
+          },
+          "execution": {
+            "n": 10,
+            "median_ms": 0.274,
+            "min_ms": 0.217,
+            "max_ms": 0.305,
+            "samples_ms": [
+              0.239,
+              0.217,
+              0.291,
+              0.27,
+              0.278,
+              0.257,
+              0.298,
+              0.288,
+              0.305,
+              0.22
+            ]
+          }
+        },
+        "estimate-true-keep-true": {
+          "planning": {
+            "n": 10,
+            "median_ms": 0.189,
+            "min_ms": 0.168,
+            "max_ms": 0.243,
+            "samples_ms": [
+              0.2,
+              0.173,
+              0.211,
+              0.185,
+              0.168,
+              0.193,
+              0.243,
+              0.178,
+              0.206,
+              0.183
+            ]
+          },
+          "execution": {
+            "n": 10,
+            "median_ms": 0.243,
+            "min_ms": 0.193,
+            "max_ms": 0.33,
+            "samples_ms": [
+              0.296,
+              0.211,
+              0.231,
+              0.265,
+              0.193,
+              0.234,
+              0.33,
+              0.252,
+              0.233,
+              0.258
+            ]
+          }
+        }
+      },
+      "limitations": [
+        "각 조건 블록 내 반복, 조건 블록 순서만 섞음",
+        "실행 순서·캐시 영향 잔존",
+        "TLS 없는 내부 Docker 연결",
+        "앱 풀 대기 미포함"
+      ]
+    }
+  }
+}
