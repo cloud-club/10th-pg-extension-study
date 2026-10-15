@@ -1,0 +1,171 @@
+{
+ "note": "PostgreSQL 16.15 · pgvector 0.8.6 · pgvectorscale 0.9.1 (timescale/timescaledb-ha:pg16) · 별도 임시 study DB에서 실측. 경과 시간은 실행마다 달라질 수 있다.",
+ "available": {
+  "sql": "SELECT name, version, superuser, trusted, relocatable, requires\nFROM pg_available_extension_versions\nWHERE name = 'vector' OR (name = 'vectorscale' AND version = '0.9.1');",
+  "output": "name     | version | superuser | trusted | relocatable | requires \n-------------+---------+-----------+---------+-------------+----------\n vectorscale | 0.9.1   | t         | f       | f           | {vector}\n vector      | 0.8.6   | t         | f       | t           | \n(2 rows)"
+ },
+ "create": "CREATE EXTENSION vector;\nCREATE EXTENSION vectorscale CASCADE;",
+ "installed": {
+  "sql": "SELECT extname, extversion FROM pg_extension WHERE extname IN ('vector', 'vectorscale') ORDER BY 1;",
+  "output": "extname   | extversion \n-------------+------------\n vector      | 0.8.6\n vectorscale | 0.9.1\n(2 rows)"
+ },
+ "nonsuper": {
+  "sql": "SET ROLE app_user;\nCREATE EXTENSION vector;",
+  "output": "ERROR:  permission denied to create extension \"vector\"\nHINT:  Must be superuser to create this extension."
+ },
+ "nonsuper_cascade": {
+  "sql": "SET ROLE app_user;\nCREATE EXTENSION vectorscale CASCADE;",
+  "output": "NOTICE:  installing required extension \"vector\"\nERROR:  permission denied to create extension \"vector\"\nHINT:  Must be superuser to create this extension."
+ },
+ "types": {
+  "sql": "SELECT '[1,2,3]'::vector(3)        AS vec,\n       '[1,2,3]'::halfvec(3)       AS half,\n       '{1:1,3:2}/5'::sparsevec    AS sparse,\n       '101'::bit(3)               AS bits;",
+  "output": "vec   |  half   |   sparse    | bits \n---------+---------+-------------+------\n [1,2,3] | [1,2,3] | {1:1,3:2}/5 | 101\n(1 row)"
+ },
+ "dim_error": {
+  "sql": "SELECT '[1,2,3]'::vector(4);",
+  "output": "ERROR:  expected 4 dimensions, not 3"
+ },
+ "items": "CREATE TABLE items (id bigserial PRIMARY KEY, embedding vector(3));\nINSERT INTO items (embedding) VALUES ('[1,2,3]'), ('[4,5,6]'), ('[1,2,4]');",
+ "distances": {
+  "sql": "SELECT embedding,\n       embedding <-> '[1,2,3]' AS l2,\n       embedding <#> '[1,2,3]' AS neg_inner,\n       embedding <=> '[1,2,3]' AS cosine,\n       embedding <+> '[1,2,3]' AS l1\nFROM items ORDER BY l2;",
+  "output": "embedding |        l2         | neg_inner |        cosine        | l1 \n-----------+-------------------+-----------+----------------------+----\n [1,2,3]   |                 0 |       -14 |                    0 |  0\n [1,2,4]   |                 1 |       -17 |  0.00853986601633272 |  1\n [4,5,6]   | 5.196152422706632 |       -32 | 0.025368153802923787 |  9\n(3 rows)"
+ },
+ "bit_distances": {
+  "sql": "SELECT '101'::bit(3) <~> '100'::bit(3) AS hamming,\n       '101'::bit(3) <%> '100'::bit(3) AS jaccard;",
+  "output": "hamming | jaccard \n---------+---------\n       1 |     0.5\n(1 row)"
+ },
+ "opclasses": {
+  "sql": "SELECT am.amname AS method, string_agg(oc.opcname, ', ' ORDER BY oc.opcname) AS opclasses\nFROM pg_opclass oc JOIN pg_am am ON am.oid = oc.opcmethod\nWHERE am.amname IN ('hnsw', 'ivfflat', 'diskann')\nGROUP BY am.amname ORDER BY am.amname;",
+  "output": "method  |                                                                                                                    opclasses                                                                                                                     \n---------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------\n diskann | vector_cosine_ops, vector_ip_ops, vector_l2_ops, vector_smallint_label_ops\n hnsw    | bit_hamming_ops, bit_jaccard_ops, halfvec_cosine_ops, halfvec_ip_ops, halfvec_l1_ops, halfvec_l2_ops, sparsevec_cosine_ops, sparsevec_ip_ops, sparsevec_l1_ops, sparsevec_l2_ops, vector_cosine_ops, vector_ip_ops, vector_l1_ops, vector_l2_ops\n ivfflat | bit_hamming_ops, halfvec_cosine_ops, halfvec_ip_ops, halfvec_l2_ops, vector_cosine_ops, vector_ip_ops, vector_l2_ops\n(3 rows)"
+ },
+ "gucs": {
+  "sql": "SELECT name, setting FROM pg_settings\nWHERE name LIKE 'hnsw.%' OR name LIKE 'ivfflat.%' OR name LIKE 'diskann.query%'\nORDER BY name;",
+  "output": "name              | setting \n--------------------------------+---------\n diskann.query_rescore          | 50\n diskann.query_search_list_size | 100\n hnsw.ef_search                 | 40\n hnsw.iterative_scan            | off\n hnsw.max_scan_tuples           | 20000\n hnsw.scan_mem_multiplier       | 1\n ivfflat.iterative_scan         | off\n ivfflat.max_probes             | 32768\n ivfflat.probes                 | 1\n(9 rows)"
+ },
+ "gucs_before_load": {
+  "sql": "SELECT count(*) AS visible FROM pg_settings WHERE name LIKE 'hnsw.%';",
+  "output": "visible \n---------\n       0\n(1 row)"
+ },
+ "hnsw_tiny": {
+  "sql": "CREATE INDEX ON items USING hnsw (embedding vector_l2_ops);",
+  "output": "CREATE INDEX"
+ },
+ "explain_tiny": {
+  "sql": "EXPLAIN (COSTS OFF)\nSELECT id FROM items ORDER BY embedding <-> '[1,2,3]' LIMIT 1;",
+  "output": "QUERY PLAN                       \n-------------------------------------------------------\n Limit\n   ->  Sort\n         Sort Key: ((embedding <-> '[1,2,3]'::vector))\n         ->  Seq Scan on items\n(4 rows)"
+ },
+ "concentration": {
+  "sql": "SELECT dims,\n       round(min(d)::numeric, 3) AS nearest, round(avg(d)::numeric, 3) AS average,\n       round(max(d)::numeric, 3) AS farthest, round((min(d) / max(d))::numeric, 3) AS nearest_over_farthest\nFROM (\n  SELECT 128 AS dims, e <-> (SELECT e FROM uni128 WHERE id = 1) AS d FROM uni128 WHERE id <> 1\n  UNION ALL\n  SELECT 2, e <-> (SELECT e FROM uni2 WHERE id = 1) FROM uni2 WHERE id <> 1\n) s GROUP BY dims ORDER BY dims;",
+  "output": "dims | nearest | average | farthest | nearest_over_farthest \n------+---------+---------+----------+-----------------------\n    2 |   0.006 |   0.388 |    0.779 |                 0.008\n  128 |   3.765 |   4.566 |    5.383 |                 0.699\n(2 rows)"
+ },
+ "initplan_wrong": {
+  "sql": "-- 잘못된 생성: 행마다 스칼라 서브쿼리로 난수 배열을 만든다\nCREATE TABLE wrong AS\nSELECT v AS id, (SELECT array_agg(random()) FROM generate_series(1, 128))::vector AS e\nFROM generate_series(1, 2000) v;\nSELECT count(*) AS rows, count(DISTINCT e) AS distinct_vectors FROM wrong;",
+  "output": "rows | distinct_vectors \n------+------------------\n 2000 |                1\n(1 row)"
+ },
+ "initplan_plan": {
+  "sql": "EXPLAIN (COSTS OFF)\nSELECT v, (SELECT array_agg(random()) FROM generate_series(1, 128))::vector\nFROM generate_series(1, 2000) v;",
+  "output": "QUERY PLAN                   \n------------------------------------------------\n Function Scan on generate_series v\n   InitPlan 1 (returns $0)\n     ->  Aggregate\n           ->  Function Scan on generate_series\n(4 rows)"
+ },
+ "initplan_right": {
+  "sql": "SELECT count(*) AS rows, count(DISTINCT e) AS distinct_vectors FROM uni128;",
+  "output": "rows | distinct_vectors \n------+------------------\n 2000 |             2000\n(1 row)"
+ },
+ "ivf_empty_notice": {
+  "sql": "CREATE TABLE empty_t (id bigint, embedding vector(8));\nCREATE INDEX ON empty_t USING ivfflat (embedding vector_l2_ops) WITH (lists = 10);",
+  "output": "CREATE TABLE\nCREATE INDEX\nNOTICE:  ivfflat index created with little data\nDETAIL:  This will cause low recall.\nHINT:  Drop the index until the table has more data."
+ },
+ "ivf_sizes": {
+  "sql": "SELECT 'early (빈 테이블에 먼저)' AS build_order, pg_relation_size('early_idx') AS index_bytes\nUNION ALL\nSELECT 'proper (데이터 먼저)', pg_relation_size('proper_idx');",
+  "output": "build_order        | index_bytes \n--------------------------+-------------\n early (빈 테이블에 먼저) |      319488\n proper (데이터 먼저)     |      327680\n(2 rows)"
+ },
+ "ivf_recall": {
+  "sql": "SET ivfflat.probes = 1;\nSELECT 'early (빈 테이블에 먼저)' AS build_order,\n       round(count(*)::numeric / 1000, 3) AS recall_at_10\nFROM (SELECT q.id AS qid, nn.id FROM early q,\n      LATERAL (SELECT id FROM early ORDER BY embedding <-> q.embedding LIMIT 10) nn WHERE q.id <= 100) ann\nJOIN truth_early USING (qid, id)\nUNION ALL\nSELECT 'proper (데이터 먼저)',\n       round(count(*)::numeric / 1000, 3)\nFROM (SELECT q.id AS qid, nn.id FROM proper q,\n      LATERAL (SELECT id FROM proper ORDER BY embedding <-> q.embedding LIMIT 10) nn WHERE q.id <= 100) ann\nJOIN truth_proper USING (qid, id);",
+  "output": "build_order        | recall_at_10 \n--------------------------+--------------\n early (빈 테이블에 먼저) |        0.655\n proper (데이터 먼저)     |        0.712\n(2 rows)"
+ },
+ "ivf_probes_1": {
+  "sql": "SET ivfflat.probes = 1;\nEXPLAIN (ANALYZE, BUFFERS, COSTS OFF, TIMING OFF)\nSELECT id FROM proper ORDER BY embedding <-> (SELECT embedding FROM proper WHERE id = 1) LIMIT 10;",
+  "output": "QUERY PLAN                                    \n---------------------------------------------------------------------------------\n Limit (actual rows=10 loops=1)\n   Buffers: shared hit=28\n   InitPlan 1 (returns $0)\n     ->  Index Scan using proper_pkey on proper proper_1 (actual rows=1 loops=1)\n           Index Cond: (id = 1)\n           Buffers: shared hit=6\n   ->  Index Scan using proper_idx on proper (actual rows=10 loops=1)\n         Order By: (embedding <-> $0)\n         Buffers: shared hit=28\n Planning:\n   Buffers: shared hit=577\n Planning Time: 0.365 ms\n Execution Time: 0.123 ms\n(13 rows)"
+ },
+ "ivf_probes_10": {
+  "sql": "SET ivfflat.probes = 10;\nEXPLAIN (ANALYZE, BUFFERS, COSTS OFF, TIMING OFF)\nSELECT id FROM proper ORDER BY embedding <-> (SELECT embedding FROM proper WHERE id = 1) LIMIT 10;",
+  "output": "QUERY PLAN                                    \n---------------------------------------------------------------------------------\n Limit (actual rows=10 loops=1)\n   Buffers: shared hit=62\n   InitPlan 1 (returns $0)\n     ->  Index Scan using proper_pkey on proper proper_1 (actual rows=1 loops=1)\n           Index Cond: (id = 1)\n           Buffers: shared hit=6\n   ->  Index Scan using proper_idx on proper (actual rows=10 loops=1)\n         Order By: (embedding <-> $0)\n         Buffers: shared hit=62\n Planning:\n   Buffers: shared hit=577\n Planning Time: 0.369 ms\n Execution Time: 0.787 ms\n(13 rows)"
+ },
+ "hnsw_ef_10": {
+  "sql": "SET hnsw.ef_search = 10;\nEXPLAIN (ANALYZE, BUFFERS, COSTS OFF, TIMING OFF)\nSELECT id FROM proper ORDER BY embedding <-> (SELECT embedding FROM proper WHERE id = 1) LIMIT 10;",
+  "output": "QUERY PLAN                                    \n---------------------------------------------------------------------------------\n Limit (actual rows=10 loops=1)\n   Buffers: shared hit=266\n   InitPlan 1 (returns $0)\n     ->  Index Scan using proper_pkey on proper proper_1 (actual rows=1 loops=1)\n           Index Cond: (id = 1)\n           Buffers: shared hit=6\n   ->  Index Scan using proper_hnsw on proper (actual rows=10 loops=1)\n         Order By: (embedding <-> $0)\n         Buffers: shared hit=266\n Planning:\n   Buffers: shared hit=578\n Planning Time: 0.380 ms\n Execution Time: 0.192 ms\n(13 rows)"
+ },
+ "hnsw_ef_200": {
+  "sql": "SET hnsw.ef_search = 200;\nEXPLAIN (ANALYZE, BUFFERS, COSTS OFF, TIMING OFF)\nSELECT id FROM proper ORDER BY embedding <-> (SELECT embedding FROM proper WHERE id = 1) LIMIT 10;",
+  "output": "QUERY PLAN                                    \n---------------------------------------------------------------------------------\n Limit (actual rows=10 loops=1)\n   Buffers: shared hit=1403\n   InitPlan 1 (returns $0)\n     ->  Index Scan using proper_pkey on proper proper_1 (actual rows=1 loops=1)\n           Index Cond: (id = 1)\n           Buffers: shared hit=6\n   ->  Index Scan using proper_hnsw on proper (actual rows=10 loops=1)\n         Order By: (embedding <-> $0)\n         Buffers: shared hit=1403\n Planning:\n   Buffers: shared hit=577\n Planning Time: 0.389 ms\n Execution Time: 0.550 ms\n(13 rows)"
+ },
+ "diskann_build": {
+  "sql": "CREATE INDEX items_diskann ON items USING diskann (embedding vector_l2_ops);",
+  "output": "CREATE INDEX\nNOTICE:  Starting index build with num_neighbors=-1, search_list_size=100, max_alpha=1.2, storage_layout=SbqCompression.\nNOTICE:  Indexed 3 tuples"
+ },
+ "diskann_layout_error": {
+  "sql": "CREATE INDEX ON items USING diskann (embedding vector_l2_ops) WITH (storage_layout = SbqCompression);",
+  "output": "ERROR:  Invalid storage type. Must be either 'plain' or 'memory_optimized'"
+ },
+ "diskann_plain": {
+  "sql": "CREATE INDEX items_diskann_plain ON items USING diskann (embedding vector_l2_ops) WITH (storage_layout = plain);",
+  "output": "CREATE INDEX\nNOTICE:  Starting index build with num_neighbors=-1, search_list_size=100, max_alpha=1.2, storage_layout=Plain.\nNOTICE:  Indexed 3 tuples"
+ },
+ "diskann_gucs": {
+  "sql": "SELECT name, setting FROM pg_settings WHERE name LIKE 'diskann.%' ORDER BY name;",
+  "output": "name                    | setting \n--------------------------------------------+---------\n diskann.force_parallel_workers             | -1\n diskann.min_vectors_for_parallel_build     | 65536\n diskann.parallel_flush_interval            | 0.05\n diskann.parallel_initial_start_nodes_count | 1024\n diskann.query_rescore                      | 50\n diskann.query_search_list_size             | 100\n(6 rows)"
+ },
+ "docs_setup": "CREATE TABLE docs (id bigserial PRIMARY KEY, embedding vector(32), labels smallint[]);\nINSERT INTO docs (embedding, labels)\nSELECT array_agg((CASE WHEN d = l THEN 10.0 ELSE 0.0 END + (random() - 0.5) * 0.8)::float4 ORDER BY d)::vector,\n       ARRAY[l]::smallint[]\nFROM generate_series(1, 10) l, generate_series(1, 5000) i, generate_series(1, 32) d\nGROUP BY l, i ORDER BY l, i;\n-- 질의 벡터 q: 라벨 1 의 중심 근처. 필터는 라벨 10 (라벨 2~10 중심은 q 에서 모두 같은 거리)\nCREATE TABLE q AS\nSELECT array_agg((CASE WHEN d = 1 THEN 10.0 ELSE 0.0 END + (random() - 0.5) * 0.8)::float4 ORDER BY d)::vector AS embedding\nFROM generate_series(1, 32) d;",
+ "docs_distinct": {
+  "sql": "SELECT count(*) AS rows, count(DISTINCT embedding) AS distinct_vectors FROM docs;",
+  "output": "rows  | distinct_vectors \n-------+------------------\n 50000 |            50000\n(1 row)"
+ },
+ "filter_exact": {
+  "sql": "SET enable_indexscan = off;\nSELECT count(*) AS rows_returned\nFROM (SELECT id FROM docs\n      WHERE labels && ARRAY[10]::smallint[]\n      ORDER BY embedding <-> (SELECT embedding FROM q) LIMIT 10) s;",
+  "output": "rows_returned \n---------------\n            10\n(1 row)"
+ },
+ "filter_hnsw_off": {
+  "sql": "SET hnsw.iterative_scan = off;\nSELECT count(*) AS rows_returned\nFROM (SELECT id FROM docs\n      WHERE labels && ARRAY[10]::smallint[]\n      ORDER BY embedding <-> (SELECT embedding FROM q) LIMIT 10) s;",
+  "output": "rows_returned \n---------------\n             0\n(1 row)"
+ },
+ "filter_hnsw_relaxed_order": {
+  "sql": "SET hnsw.iterative_scan = relaxed_order;\nSELECT count(*) AS rows_returned\nFROM (SELECT id FROM docs\n      WHERE labels && ARRAY[10]::smallint[]\n      ORDER BY embedding <-> (SELECT embedding FROM q) LIMIT 10) s;",
+  "output": "rows_returned \n---------------\n            10\n(1 row)"
+ },
+ "filter_hnsw_off_plan": {
+  "sql": "SET hnsw.iterative_scan = off;\nEXPLAIN (ANALYZE, BUFFERS, COSTS OFF, TIMING OFF)\nSELECT id FROM docs WHERE labels && ARRAY[10]::smallint[]\nORDER BY embedding <-> (SELECT embedding FROM q) LIMIT 10;",
+  "output": "QUERY PLAN                            \n------------------------------------------------------------------\n Limit (actual rows=0 loops=1)\n   Buffers: shared hit=1117\n   InitPlan 1 (returns $0)\n     ->  Seq Scan on q (actual rows=1 loops=1)\n           Buffers: shared hit=1\n   ->  Index Scan using docs_hnsw on docs (actual rows=0 loops=1)\n         Order By: (embedding <-> $0)\n         Filter: (labels && '{10}'::smallint[])\n         Rows Removed by Filter: 40\n         Buffers: shared hit=1117\n Planning:\n   Buffers: shared hit=553\n Planning Time: 0.371 ms\n Execution Time: 0.664 ms\n(14 rows)"
+ },
+ "filter_hnsw_relaxed_plan": {
+  "sql": "SET hnsw.iterative_scan = relaxed_order;\nEXPLAIN (ANALYZE, BUFFERS, COSTS OFF, TIMING OFF)\nSELECT id FROM docs WHERE labels && ARRAY[10]::smallint[]\nORDER BY embedding <-> (SELECT embedding FROM q) LIMIT 10;",
+  "output": "QUERY PLAN                             \n-------------------------------------------------------------------\n Limit (actual rows=10 loops=1)\n   Buffers: shared hit=44938\n   InitPlan 1 (returns $0)\n     ->  Seq Scan on q (actual rows=1 loops=1)\n           Buffers: shared hit=1\n   ->  Index Scan using docs_hnsw on docs (actual rows=10 loops=1)\n         Order By: (embedding <-> $0)\n         Filter: (labels && '{10}'::smallint[])\n         Rows Removed by Filter: 18107\n         Buffers: shared hit=44938\n Planning:\n   Buffers: shared hit=553\n Planning Time: 0.362 ms\n Execution Time: 19.343 ms\n(14 rows)"
+ },
+ "filter_diskann_build": {
+  "sql": "CREATE INDEX docs_diskann ON docs USING diskann (embedding vector_l2_ops, labels);",
+  "output": "CREATE INDEX\nNOTICE:  Starting index build with num_neighbors=-1, search_list_size=100, max_alpha=1.2, storage_layout=SbqCompression.\nNOTICE:  Indexed 50000 tuples"
+ },
+ "filter_diskann": {
+  "sql": "SELECT count(*) AS rows_returned\nFROM (SELECT id FROM docs\n      WHERE labels && ARRAY[10]::smallint[]\n      ORDER BY embedding <-> (SELECT embedding FROM q) LIMIT 10) s;",
+  "output": "rows_returned \n---------------\n            10\n(1 row)"
+ },
+ "filter_diskann_plan": {
+  "sql": "EXPLAIN (ANALYZE, BUFFERS, COSTS OFF, TIMING OFF)\nSELECT id FROM docs WHERE labels && ARRAY[10]::smallint[]\nORDER BY embedding <-> (SELECT embedding FROM q) LIMIT 10;",
+  "output": "QUERY PLAN                              \n----------------------------------------------------------------------\n Limit (actual rows=10 loops=1)\n   Buffers: shared hit=5762\n   InitPlan 1 (returns $0)\n     ->  Seq Scan on q (actual rows=1 loops=1)\n           Buffers: shared hit=1\n   ->  Index Scan using docs_diskann on docs (actual rows=10 loops=1)\n         Index Cond: (labels && '{10}'::smallint[])\n         Order By: (embedding <-> $0)\n         Buffers: shared hit=5762\n Planning:\n   Buffers: shared hit=564\n Planning Time: 0.397 ms\n Execution Time: 2.624 ms\n(13 rows)"
+ },
+ "dup_setup": "CREATE TABLE docs_dup (id bigserial PRIMARY KEY, embedding vector(32), labels smallint[]);\n-- 라벨마다 한 번씩 INSERT. 서브쿼리가 바깥 행을 참조하지 않아 5,000행이 같은 벡터를 받는다\nINSERT INTO docs_dup (embedding, labels)\nSELECT (ARRAY(SELECT (CASE WHEN g = 1 THEN 10.0 ELSE 0.0 END + (random() - 0.5) * 0.8)::float4\n              FROM generate_series(1, 32) g))::vector, ARRAY[1]::smallint[]\nFROM generate_series(1, 5000);\n-- ... 라벨 2~10 도 같은 방식",
+ "dup_distinct": {
+  "sql": "SELECT count(*) AS rows, count(DISTINCT embedding) AS distinct_vectors FROM docs_dup;",
+  "output": "rows  | distinct_vectors \n-------+------------------\n 50000 |               10\n(1 row)"
+ },
+ "dup_reachable": {
+  "sql": "SET enable_seqscan = off;\nSET hnsw.iterative_scan = relaxed_order;\nSET hnsw.max_scan_tuples = 1000000;\n-- 필터 없이, 인덱스 스캔이 끝날 때까지 몇 행을 돌려주나\nSELECT count(*) AS reachable_rows\nFROM (SELECT id FROM docs_dup ORDER BY embedding <-> (SELECT embedding FROM q) LIMIT 1000000) s;",
+  "output": "reachable_rows \n----------------\n            482\n(1 row)"
+ },
+ "dup_filter": {
+  "sql": "SET enable_seqscan = off;\nSET hnsw.iterative_scan = relaxed_order;\nSELECT count(*) AS rows_returned\nFROM (SELECT id FROM docs_dup WHERE labels && ARRAY[10]::smallint[]\n      ORDER BY embedding <-> (SELECT embedding FROM q) LIMIT 10) s;",
+  "output": "rows_returned \n---------------\n             0\n(1 row)"
+ },
+ "docs_reachable": {
+  "sql": "SET enable_seqscan = off;\nSET hnsw.iterative_scan = relaxed_order;\nSET hnsw.max_scan_tuples = 1000000;\nSELECT count(*) AS reachable_rows\nFROM (SELECT id FROM docs ORDER BY embedding <-> (SELECT embedding FROM q) LIMIT 1000000) s;",
+  "output": "reachable_rows \n----------------\n          50000\n(1 row)"
+ }
+}

@@ -1,0 +1,1283 @@
+{
+ "clothoVersion": 1,
+ "id": "pgv-exact-vs-ann",
+ "title": "정확한 검색과 근사 검색, 그리고 recall@10",
+ "description": "실험 01: 51,000행 · 128차원. 브루트포스는 정확하지만 전부 읽고, ANN 은 일부만 읽는 대신 놓칠 수 있다.",
+ "duration": 31500,
+ "canvas": {
+  "width": 940,
+  "height": 500,
+  "background": "#0b1120"
+ },
+ "elements": [
+  {
+   "type": "text",
+   "id": "title",
+   "x": 40,
+   "y": 42,
+   "content": "정확한 검색과 근사 검색, 그리고 recall@10",
+   "fontSize": 22,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 0,
+     "end": 31500,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ],
+   "fontWeight": "700"
+  },
+  {
+   "type": "text",
+   "id": "e1",
+   "x": 40,
+   "y": 96,
+   "content": "질의 벡터 q 와 테이블의 모든 행 - 하나도 빼지 않고 거리를 잰다",
+   "fontSize": 15,
+   "color": "#94a3b8",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 200,
+     "end": 7000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "e2",
+   "x": 40,
+   "y": 116,
+   "width": 64,
+   "height": 44,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 600,
+     "end": 7000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "1",
+   "labelColor": "#0b1120",
+   "labelSize": 16
+  },
+  {
+   "type": "rect",
+   "id": "e3",
+   "x": 112,
+   "y": 116,
+   "width": 64,
+   "height": 44,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 780,
+     "end": 7000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "2",
+   "labelColor": "#0b1120",
+   "labelSize": 16
+  },
+  {
+   "type": "rect",
+   "id": "e4",
+   "x": 184,
+   "y": 116,
+   "width": 64,
+   "height": 44,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 960,
+     "end": 7000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "3",
+   "labelColor": "#0b1120",
+   "labelSize": 16
+  },
+  {
+   "type": "rect",
+   "id": "e5",
+   "x": 256,
+   "y": 116,
+   "width": 64,
+   "height": 44,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 1140,
+     "end": 7000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "4",
+   "labelColor": "#0b1120",
+   "labelSize": 16
+  },
+  {
+   "type": "rect",
+   "id": "e6",
+   "x": 328,
+   "y": 116,
+   "width": 64,
+   "height": 44,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 1320,
+     "end": 7000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "5",
+   "labelColor": "#0b1120",
+   "labelSize": 16
+  },
+  {
+   "type": "rect",
+   "id": "e7",
+   "x": 400,
+   "y": 116,
+   "width": 64,
+   "height": 44,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 1500,
+     "end": 7000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "6",
+   "labelColor": "#0b1120",
+   "labelSize": 16
+  },
+  {
+   "type": "rect",
+   "id": "e8",
+   "x": 472,
+   "y": 116,
+   "width": 64,
+   "height": 44,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 1680,
+     "end": 7000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "7",
+   "labelColor": "#0b1120",
+   "labelSize": 16
+  },
+  {
+   "type": "rect",
+   "id": "e9",
+   "x": 544,
+   "y": 116,
+   "width": 64,
+   "height": 44,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 1860,
+     "end": 7000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "8",
+   "labelColor": "#0b1120",
+   "labelSize": 16
+  },
+  {
+   "type": "rect",
+   "id": "e10",
+   "x": 616,
+   "y": 116,
+   "width": 64,
+   "height": 44,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 2040,
+     "end": 7000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "9",
+   "labelColor": "#0b1120",
+   "labelSize": 16
+  },
+  {
+   "type": "rect",
+   "id": "e11",
+   "x": 688,
+   "y": 116,
+   "width": 64,
+   "height": 44,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 2220,
+     "end": 7000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "10",
+   "labelColor": "#0b1120",
+   "labelSize": 16
+  },
+  {
+   "type": "rect",
+   "id": "e12",
+   "x": 760,
+   "y": 116,
+   "width": 64,
+   "height": 44,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 2400,
+     "end": 7000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "11",
+   "labelColor": "#0b1120",
+   "labelSize": 16
+  },
+  {
+   "type": "rect",
+   "id": "e13",
+   "x": 832,
+   "y": 116,
+   "width": 64,
+   "height": 44,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 2580,
+     "end": 7000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "12",
+   "labelColor": "#0b1120",
+   "labelSize": 16
+  },
+  {
+   "type": "text",
+   "id": "e14",
+   "x": 40,
+   "y": 214,
+   "content": "51,000행이면 질의마다 51,000번 계산한다 - 인덱스 없는 ORDER BY <-> LIMIT 10",
+   "fontSize": 15,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 3000,
+     "end": 7000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "e15",
+   "x": 40,
+   "y": 250,
+   "content": "결과는 정확하다(정답 top-10). 대신 행 수에 비례해 느려진다.",
+   "fontSize": 15,
+   "color": "#34d399",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 4200,
+     "end": 7000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "e16",
+   "x": 40,
+   "y": 96,
+   "content": "같은 12개 중 인덱스가 실제로 읽는 것만 칠한다",
+   "fontSize": 15,
+   "color": "#94a3b8",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 7200,
+     "end": 15000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "e17",
+   "x": 40,
+   "y": 116,
+   "width": 64,
+   "height": 44,
+   "fill": "#334155",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 7500,
+     "end": 15000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "1",
+   "labelColor": "#94a3b8",
+   "labelSize": 16
+  },
+  {
+   "type": "rect",
+   "id": "e18",
+   "x": 112,
+   "y": 116,
+   "width": 64,
+   "height": 44,
+   "fill": "#fb7185",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 7620,
+     "end": 15000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "2",
+   "labelColor": "#0b1120",
+   "labelSize": 16
+  },
+  {
+   "type": "rect",
+   "id": "e19",
+   "x": 184,
+   "y": 116,
+   "width": 64,
+   "height": 44,
+   "fill": "#fb7185",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 7740,
+     "end": 15000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "3",
+   "labelColor": "#0b1120",
+   "labelSize": 16
+  },
+  {
+   "type": "rect",
+   "id": "e20",
+   "x": 256,
+   "y": 116,
+   "width": 64,
+   "height": 44,
+   "fill": "#334155",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 7860,
+     "end": 15000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "4",
+   "labelColor": "#94a3b8",
+   "labelSize": 16
+  },
+  {
+   "type": "rect",
+   "id": "e21",
+   "x": 328,
+   "y": 116,
+   "width": 64,
+   "height": 44,
+   "fill": "#fb7185",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 7980,
+     "end": 15000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "5",
+   "labelColor": "#0b1120",
+   "labelSize": 16
+  },
+  {
+   "type": "rect",
+   "id": "e22",
+   "x": 400,
+   "y": 116,
+   "width": 64,
+   "height": 44,
+   "fill": "#fb7185",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 8100,
+     "end": 15000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "6",
+   "labelColor": "#0b1120",
+   "labelSize": 16
+  },
+  {
+   "type": "rect",
+   "id": "e23",
+   "x": 472,
+   "y": 116,
+   "width": 64,
+   "height": 44,
+   "fill": "#334155",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 8220,
+     "end": 15000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "7",
+   "labelColor": "#94a3b8",
+   "labelSize": 16
+  },
+  {
+   "type": "rect",
+   "id": "e24",
+   "x": 544,
+   "y": 116,
+   "width": 64,
+   "height": 44,
+   "fill": "#334155",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 8340,
+     "end": 15000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "8",
+   "labelColor": "#94a3b8",
+   "labelSize": 16
+  },
+  {
+   "type": "rect",
+   "id": "e25",
+   "x": 616,
+   "y": 116,
+   "width": 64,
+   "height": 44,
+   "fill": "#fb7185",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 8460,
+     "end": 15000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "9",
+   "labelColor": "#0b1120",
+   "labelSize": 16
+  },
+  {
+   "type": "rect",
+   "id": "e26",
+   "x": 688,
+   "y": 116,
+   "width": 64,
+   "height": 44,
+   "fill": "#fb7185",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 8580,
+     "end": 15000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "10",
+   "labelColor": "#0b1120",
+   "labelSize": 16
+  },
+  {
+   "type": "rect",
+   "id": "e27",
+   "x": 760,
+   "y": 116,
+   "width": 64,
+   "height": 44,
+   "fill": "#334155",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 8700,
+     "end": 15000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "11",
+   "labelColor": "#94a3b8",
+   "labelSize": 16
+  },
+  {
+   "type": "rect",
+   "id": "e28",
+   "x": 832,
+   "y": 116,
+   "width": 64,
+   "height": 44,
+   "fill": "#334155",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 8820,
+     "end": 15000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "12",
+   "labelColor": "#94a3b8",
+   "labelSize": 16
+  },
+  {
+   "type": "text",
+   "id": "e29",
+   "x": 40,
+   "y": 214,
+   "content": "읽은 칸(빨강)만 비교하니 빠르다. 안 읽은 칸에 정답이 있으면 놓친다.",
+   "fontSize": 15,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 9600,
+     "end": 15000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "e30",
+   "x": 40,
+   "y": 250,
+   "content": "HNSW 는 ef_search, IVFFlat 은 probes, DiskANN 은 query_search_list_size 로",
+   "fontSize": 15,
+   "color": "#94a3b8",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 11000,
+     "end": 15000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "e31",
+   "x": 40,
+   "y": 280,
+   "content": "'얼마나 넓게 읽을지'를 질의 시점에 정한다.",
+   "fontSize": 15,
+   "color": "#94a3b8",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 11400,
+     "end": 15000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "e32",
+   "x": 40,
+   "y": 96,
+   "content": "정답 top-10",
+   "fontSize": 15,
+   "color": "#94a3b8",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 15200,
+     "end": 23500,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "e33",
+   "x": 40,
+   "y": 112,
+   "width": 78,
+   "height": 40,
+   "fill": "#34d399",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 15400,
+     "end": 23500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "정답1",
+   "labelColor": "#0b1120",
+   "labelSize": 14
+  },
+  {
+   "type": "rect",
+   "id": "e34",
+   "x": 126,
+   "y": 112,
+   "width": 78,
+   "height": 40,
+   "fill": "#34d399",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 15480,
+     "end": 23500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "정답2",
+   "labelColor": "#0b1120",
+   "labelSize": 14
+  },
+  {
+   "type": "rect",
+   "id": "e35",
+   "x": 212,
+   "y": 112,
+   "width": 78,
+   "height": 40,
+   "fill": "#34d399",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 15560,
+     "end": 23500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "정답3",
+   "labelColor": "#0b1120",
+   "labelSize": 14
+  },
+  {
+   "type": "rect",
+   "id": "e36",
+   "x": 298,
+   "y": 112,
+   "width": 78,
+   "height": 40,
+   "fill": "#34d399",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 15640,
+     "end": 23500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "정답4",
+   "labelColor": "#0b1120",
+   "labelSize": 14
+  },
+  {
+   "type": "rect",
+   "id": "e37",
+   "x": 384,
+   "y": 112,
+   "width": 78,
+   "height": 40,
+   "fill": "#34d399",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 15720,
+     "end": 23500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "정답5",
+   "labelColor": "#0b1120",
+   "labelSize": 14
+  },
+  {
+   "type": "rect",
+   "id": "e38",
+   "x": 470,
+   "y": 112,
+   "width": 78,
+   "height": 40,
+   "fill": "#34d399",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 15800,
+     "end": 23500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "정답6",
+   "labelColor": "#0b1120",
+   "labelSize": 14
+  },
+  {
+   "type": "rect",
+   "id": "e39",
+   "x": 556,
+   "y": 112,
+   "width": 78,
+   "height": 40,
+   "fill": "#34d399",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 15880,
+     "end": 23500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "정답7",
+   "labelColor": "#0b1120",
+   "labelSize": 14
+  },
+  {
+   "type": "rect",
+   "id": "e40",
+   "x": 642,
+   "y": 112,
+   "width": 78,
+   "height": 40,
+   "fill": "#34d399",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 15960,
+     "end": 23500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "정답8",
+   "labelColor": "#0b1120",
+   "labelSize": 14
+  },
+  {
+   "type": "rect",
+   "id": "e41",
+   "x": 728,
+   "y": 112,
+   "width": 78,
+   "height": 40,
+   "fill": "#34d399",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 16040,
+     "end": 23500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "정답9",
+   "labelColor": "#0b1120",
+   "labelSize": 14
+  },
+  {
+   "type": "rect",
+   "id": "e42",
+   "x": 814,
+   "y": 112,
+   "width": 78,
+   "height": 40,
+   "fill": "#34d399",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 16120,
+     "end": 23500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "정답10",
+   "labelColor": "#0b1120",
+   "labelSize": 14
+  },
+  {
+   "type": "text",
+   "id": "e43",
+   "x": 40,
+   "y": 198,
+   "content": "ANN top-10 (6개는 정답과 같고 4개는 다르다)",
+   "fontSize": 15,
+   "color": "#94a3b8",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 16800,
+     "end": 23500,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "e44",
+   "x": 40,
+   "y": 214,
+   "width": 78,
+   "height": 40,
+   "fill": "#34d399",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 17200,
+     "end": 23500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "정답1",
+   "labelColor": "#0b1120",
+   "labelSize": 14
+  },
+  {
+   "type": "rect",
+   "id": "e45",
+   "x": 126,
+   "y": 214,
+   "width": 78,
+   "height": 40,
+   "fill": "#34d399",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 17280,
+     "end": 23500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "정답2",
+   "labelColor": "#0b1120",
+   "labelSize": 14
+  },
+  {
+   "type": "rect",
+   "id": "e46",
+   "x": 212,
+   "y": 214,
+   "width": 78,
+   "height": 40,
+   "fill": "#34d399",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 17360,
+     "end": 23500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "정답3",
+   "labelColor": "#0b1120",
+   "labelSize": 14
+  },
+  {
+   "type": "rect",
+   "id": "e47",
+   "x": 298,
+   "y": 214,
+   "width": 78,
+   "height": 40,
+   "fill": "#34d399",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 17440,
+     "end": 23500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "정답4",
+   "labelColor": "#0b1120",
+   "labelSize": 14
+  },
+  {
+   "type": "rect",
+   "id": "e48",
+   "x": 384,
+   "y": 214,
+   "width": 78,
+   "height": 40,
+   "fill": "#34d399",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 17520,
+     "end": 23500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "정답5",
+   "labelColor": "#0b1120",
+   "labelSize": 14
+  },
+  {
+   "type": "rect",
+   "id": "e49",
+   "x": 470,
+   "y": 214,
+   "width": 78,
+   "height": 40,
+   "fill": "#34d399",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 17600,
+     "end": 23500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "정답6",
+   "labelColor": "#0b1120",
+   "labelSize": 14
+  },
+  {
+   "type": "rect",
+   "id": "e50",
+   "x": 556,
+   "y": 214,
+   "width": 78,
+   "height": 40,
+   "fill": "#fbbf24",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 17680,
+     "end": 23500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "다른1",
+   "labelColor": "#0b1120",
+   "labelSize": 14
+  },
+  {
+   "type": "rect",
+   "id": "e51",
+   "x": 642,
+   "y": 214,
+   "width": 78,
+   "height": 40,
+   "fill": "#fbbf24",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 17760,
+     "end": 23500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "다른2",
+   "labelColor": "#0b1120",
+   "labelSize": 14
+  },
+  {
+   "type": "rect",
+   "id": "e52",
+   "x": 728,
+   "y": 214,
+   "width": 78,
+   "height": 40,
+   "fill": "#fbbf24",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 17840,
+     "end": 23500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "다른3",
+   "labelColor": "#0b1120",
+   "labelSize": 14
+  },
+  {
+   "type": "rect",
+   "id": "e53",
+   "x": 814,
+   "y": 214,
+   "width": 78,
+   "height": 40,
+   "fill": "#fbbf24",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 17920,
+     "end": 23500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "다른4",
+   "labelColor": "#0b1120",
+   "labelSize": 14
+  },
+  {
+   "type": "text",
+   "id": "e54",
+   "x": 40,
+   "y": 304,
+   "content": "recall@10 = 겹친 개수 / 10 = 6 / 10 = 0.6",
+   "fontSize": 17,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 18600,
+     "end": 23500,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ],
+   "fontWeight": "700"
+  },
+  {
+   "type": "text",
+   "id": "e55",
+   "x": 40,
+   "y": 340,
+   "content": "이 문서의 실험은 이 값을 질의 50개에 대해 평균 낸다.",
+   "fontSize": 15,
+   "color": "#94a3b8",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 19600,
+     "end": 23500,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "e56",
+   "x": 40,
+   "y": 96,
+   "content": "같은 데이터, 같은 정답. 질의 시점 파라미터만 바꿨다 (2회 평균)",
+   "fontSize": 15,
+   "color": "#94a3b8",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 23700,
+     "end": 31500,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "e57",
+   "x": 40,
+   "y": 116,
+   "width": 400,
+   "height": 52,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 24100,
+     "end": 31500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "ef_search=10 · recall 0.64",
+   "labelColor": "#0b1120",
+   "labelSize": 18
+  },
+  {
+   "type": "rect",
+   "id": "e58",
+   "x": 480,
+   "y": 116,
+   "width": 420,
+   "height": 52,
+   "fill": "#34d399",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 24900,
+     "end": 31500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "ef_search=200 · recall 0.94",
+   "labelColor": "#0b1120",
+   "labelSize": 18
+  },
+  {
+   "type": "text",
+   "id": "e59",
+   "x": 40,
+   "y": 220,
+   "content": "읽는 버퍼: 질의당 481 → 5,058",
+   "fontSize": 16,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 26100,
+     "end": 31500,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "e60",
+   "x": 40,
+   "y": 256,
+   "content": "recall 이 오르는 만큼 비용도 오른다 - 이것이 ANN 의 기본 트레이드오프다.",
+   "fontSize": 15,
+   "color": "#fbbf24",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 27300,
+     "end": 31500,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  }
+ ],
+ "chapters": [
+  {
+   "id": "ch0",
+   "time": 0,
+   "label": "1. 정확한 검색",
+   "subtitle": "질의 하나마다 모든 행과의 거리를 계산하고 정렬한다"
+  },
+  {
+   "id": "ch1",
+   "time": 7000,
+   "label": "2. 근사 검색(ANN)",
+   "subtitle": "인덱스가 '가까워 보이는' 일부만 읽고 top-10 을 고른다"
+  },
+  {
+   "id": "ch2",
+   "time": 15000,
+   "label": "3. recall@10",
+   "subtitle": "ANN 의 top-10 중 정답 top-10 에 든 비율"
+  },
+  {
+   "id": "ch3",
+   "time": 23500,
+   "label": "4. 넓게 읽을수록",
+   "subtitle": "실험 01 · HNSW: ef_search 10 → 200"
+  }
+ ],
+ "settings": {
+  "loop": false,
+  "autoplay": true,
+  "showChapterList": true
+ }
+}

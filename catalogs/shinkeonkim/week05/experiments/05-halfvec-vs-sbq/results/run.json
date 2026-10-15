@@ -1,0 +1,40 @@
+{
+  "environment": {
+    "postgres": "PostgreSQL 16.15 (Ubuntu 16.15-1.pgdg22.04+2) on aarch64-unknown-linux-gnu, compiled by gcc (Ubuntu 11.4.0-1ubuntu1~22.04.3) 11.4.0, 64-bit",
+    "vector_version": "0.8.6",
+    "vectorscale_version": "0.9.1",
+    "shared_buffers": "512MB",
+    "maintenance_work_mem": "1GB",
+    "cpu_count": "3",
+    "mem_total": "MemTotal:        4014168 kB"
+  },
+  "n_vectors": 50000,
+  "dim": 128,
+  "table_mb": 74.977,
+  "configs": [
+    {
+      "config": "vector(float4)+HNSW",
+      "build_ms": 3613.786,
+      "index_mb": 40.492,
+      "recall_at_10": 0.88,
+      "buffers_per_query": 2780.0,
+      "ms_per_query": 0.761
+    },
+    {
+      "config": "halfvec(float2)+HNSW",
+      "build_ms": 6637.088,
+      "index_mb": 27.773,
+      "recall_at_10": 0.94,
+      "buffers_per_query": 2740.5,
+      "ms_per_query": 0.816
+    },
+    {
+      "config": "vector(SBQ)+DiskANN",
+      "build_ms": 50600.869,
+      "index_mb": 23.453,
+      "recall_at_10": 1.0,
+      "buffers_per_query": 6674.6,
+      "ms_per_query": 2.117
+    }
+  ]
+}

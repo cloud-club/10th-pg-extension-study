@@ -168,6 +168,91 @@ export const SECTIONS: SectionDef[] = [
       { slug: 'experiments', title: '실험 질문과 결과', view: lazy(() => import('@/pages/cron/Experiments')) },
     ],
   },
+  {
+    week: 'week04', slug: 'hstore-start', routeSlug: 'hstore', title: '시작하기', accent: 'tsv',
+    hint: '무엇이고 언제 쓰나',
+    pages: [
+      { slug: 'about', title: '개요와 첫 사용', hint: '키-값 묶음을 한 컬럼에', view: lazy(() => import('@/pages/hstore/About')) },
+      { slug: 'install-syntax', title: '설치와 기본 문법', hint: '리터럴·연산자·함수·첨자', view: lazy(() => import('@/pages/hstore/InstallSyntax')) },
+      { slug: 'trusted', title: 'trusted 확장이란', hint: '슈퍼유저 없이 설치되는 이유', view: lazy(() => import('@/pages/hstore/Trusted')) },
+      { slug: 'when-to-use', title: '언제 쓰고 언제 피하나', hint: '열·EAV·jsonb·Redis와 비교', view: lazy(() => import('@/pages/hstore/WhenToUse')) },
+      { slug: 'use-cases', title: '실무 사용처', hint: 'Rails·Django·osm2pgsql이 실제로 쓴 패턴', view: lazy(() => import('@/pages/hstore/UseCases')) },
+      { slug: 'actions', title: '실전 액션', hint: '조회·조작·삭제 전부 실제 실행 결과로', view: lazy(() => import('@/pages/hstore/Actions')) },
+    ],
+  },
+  {
+    week: 'week04', slug: 'hstore-model', routeSlug: 'hstore', title: '저장과 조회', accent: 'tsv',
+    hint: '디스크 형식·jsonb·인덱스',
+    pages: [
+      { slug: 'storage', title: '저장 방식', hint: '정렬된 쌍·HEntry·TOAST·압축', view: lazy(() => import('@/pages/hstore/Storage')) },
+      { slug: 'vs-jsonb', title: 'jsonb와의 차이', hint: '타입·중첩·크기·연산자', view: lazy(() => import('@/pages/hstore/VsJsonb')) },
+      { slug: 'gist-gin-internals', title: 'GiST·GIN 내부 구조', hint: '왜 hstore에만 GiST가 있는가', view: lazy(() => import('@/pages/hstore/GistGinInternals')) },
+      { slug: 'indexes', title: '인덱스', hint: 'GIN·GiST·btree 식 인덱스', view: lazy(() => import('@/pages/hstore/Indexes')) },
+    ],
+  },
+  {
+    week: 'week04', slug: 'hstore-runtime', routeSlug: 'hstore', title: '갱신·동시성·운영', accent: 'ok',
+    hint: '쓰기 비용과 동시 갱신',
+    pages: [
+      { slug: 'updates', title: '갱신 비용', hint: '키 하나 수정 = 값 전체 재기록', view: lazy(() => import('@/pages/hstore/Updates')) },
+      { slug: 'concurrency', title: '동시성', hint: '행 잠금·유실 갱신·재시도', view: lazy(() => import('@/pages/hstore/Concurrency')) },
+      { slug: 'vs-redis', title: 'Redis 해시와 비교', hint: '같은 일·다른 보장', view: lazy(() => import('@/pages/hstore/VsRedis')) },
+      { slug: 'operations', title: '운영과 관리형 DB', hint: '지원 현황·ORM·이전·모니터링', view: lazy(() => import('@/pages/hstore/Operations')) },
+    ],
+  },
+  {
+    week: 'week04', slug: 'hstore-internals', routeSlug: 'hstore', title: '구현과 검증', accent: 'warn',
+    hint: 'C 소스·실험·참고 자료',
+    pages: [
+      { slug: 'source', title: '소스 파일·함수 지도', hint: 'contrib/hstore 읽기', view: lazy(() => import('@/pages/hstore/Source')) },
+      { slug: 'experiments', title: '실험 질문과 결과', hint: '5개 실험·반복·한계', view: lazy(() => import('@/pages/hstore/Experiments')) },
+      { slug: 'resources', title: '참고 자료', hint: '공식 문서·GitHub·글', view: lazy(() => import('@/pages/hstore/Resources')) },
+    ],
+  },
+  {
+    week: 'week05', slug: 'pgv-start', routeSlug: 'pgvector', title: '학습 안내', accent: 'tsv',
+    pages: [
+      { slug: 'about', title: '개요와 학습 순서', hint: '기본 학습 10장 · 실습 · 심화', view: lazy(() => import('@/pages/pgvector/About')) },
+    ],
+  },
+  {
+    week: 'week05', slug: 'pgv-reading', routeSlug: 'pgvector', title: '기본 학습 · 01–10', accent: 'ok',
+    pages: [
+      { slug: 'ann', title: '01. 벡터 검색과 ANN', hint: '의미를 숫자로 · 정확도와 속도', view: lazy(() => import('@/pages/pgvector/reading/Ann')) },
+      { slug: 'overview', title: '02. pgvector 전체 구조', hint: '벡터 저장 · 인덱스 · 확장의 관계', view: lazy(() => import('@/pages/pgvector/reading/Overview')) },
+      { slug: 'ivfflat', title: '03. IVFFlat', hint: '동네를 나누고 가까운 동네만', view: lazy(() => import('@/pages/pgvector/reading/Ivfflat')) },
+      { slug: 'hnsw', title: '04. HNSW', hint: '여러 층의 도로망과 지름길', view: lazy(() => import('@/pages/pgvector/reading/Hnsw')) },
+      { slug: 'storage', title: '05. RAM, SSD와 Random Access', hint: '캐시 · working set · I/O', view: lazy(() => import('@/pages/pgvector/reading/Storage')) },
+      { slug: 'diskann', title: '06. StreamingDiskANN', hint: 'SSD를 고려한 그래프 · 후보 공급', view: lazy(() => import('@/pages/pgvector/reading/Diskann')) },
+      { slug: 'sbq', title: '07. SBQ', hint: '통계로 벡터를 작게 표현하기', view: lazy(() => import('@/pages/pgvector/reading/Sbq')) },
+      { slug: 'filtering', title: '08. Filtered Vector Search', hint: '일반 WHERE · 라벨 필터링', view: lazy(() => import('@/pages/pgvector/reading/Filtering')) },
+      { slug: 'when-to-use', title: '09. 기술 비교와 선택 기준', hint: '규모 · 정확도 · 비용을 함께', view: lazy(() => import('@/pages/pgvector/reading/Comparison')) },
+      { slug: 'glossary', title: '10. 용어집과 복습', hint: '핵심 용어와 열 가지 질문', view: lazy(() => import('@/pages/pgvector/reading/Glossary')) },
+    ],
+  },
+  {
+    week: 'week05', slug: 'pgv-practice', routeSlug: 'pgvector', title: '실습과 실험 · 더 해보기', accent: 'warn',
+    pages: [
+      { slug: 'labs', title: 'Lab 목록과 실행 순서', hint: '설치 · 거리 연산자 · 인덱스', view: lazy(() => import('@/pages/pgvector/Labs')) },
+      { slug: 'install', title: '설치와 SQL 실습', hint: '권한 · 타입 · 실제 출력 · EXPLAIN', view: lazy(() => import('@/pages/pgvector/Install')) },
+      { slug: 'experiments', title: '실험 질문과 결과', hint: '7개 실험 · 재현 절차 · 정정 이력', view: lazy(() => import('@/pages/pgvector/Experiments')) },
+    ],
+  },
+  {
+    week: 'week05', slug: 'pgv-advanced', routeSlug: 'pgvector', title: '심화 · 구현과 실측', accent: 'bigm',
+    pages: [
+      { slug: 'ann-details', title: 'Recall 측정과 실행 계획', hint: '정답 집합 · 버퍼 · 퀴즈', view: lazy(() => import('@/pages/pgvector/Ann')) },
+      { slug: 'ivfflat-details', title: 'IVFFlat 구현과 실측', hint: 'lists × probes · 분포 변화', view: lazy(() => import('@/pages/pgvector/Ivfflat')) },
+      { slug: 'hnsw-details', title: 'HNSW 구현과 실측', hint: '연결 수 · 빌드 메모리 · VACUUM', view: lazy(() => import('@/pages/pgvector/Hnsw')) },
+      { slug: 'hnsw-ivfflat', title: 'HNSW vs IVFFlat 실측', hint: '같은 환경에서 인덱스 비교', view: lazy(() => import('@/pages/pgvector/HnswIvfflat')) },
+      { slug: 'tuning', title: '튜닝 곡선과 규모', hint: 'recall · 지연시간 · 데이터 크기', view: lazy(() => import('@/pages/pgvector/Tuning')) },
+      { slug: 'diskann-details', title: 'DiskANN 구현과 벤치마크', hint: '파라미터 · 압축 · 외부 벤치마크', view: lazy(() => import('@/pages/pgvector/Diskann')) },
+      { slug: 'cost', title: '빌드 비용과 크기', hint: 'halfvec · SBQ · 압축 해제', view: lazy(() => import('@/pages/pgvector/Cost')) },
+      { slug: 'filtering-details', title: '필터 검색 실측', hint: 'iterative_scan · 라벨 인덱스', view: lazy(() => import('@/pages/pgvector/Filtering')) },
+      { slug: 'selection-details', title: '실측으로 보는 선택 기준', hint: '이 저장소의 수치와 환경 한계', view: lazy(() => import('@/pages/pgvector/WhenToUse')) },
+      { slug: 'resources', title: '참고 자료', hint: '공식 문서 · 논문 · 저장소', view: lazy(() => import('@/pages/pgvector/Resources')) },
+    ],
+  },
 ]
 
 export const HOME = `/${SECTIONS[0].slug}/${SECTIONS[0].pages[0].slug}`
@@ -200,6 +285,8 @@ export function href(l: Located) {
 export const WEEKS = [
   { slug: 'week02', title: 'Week 02 · 텍스트 검색' },
   { slug: 'week03', title: 'Week 03 · 작업 예약' },
+  { slug: 'week04', title: 'Week 04 · hstore' },
+  { slug: 'week05', title: 'Week 05 · pgvector · pgvectorscale' },
 ]
 export function weekHome(week: string) {
   const section = SECTIONS.find((s) => s.week === week)

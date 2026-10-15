@@ -1,0 +1,62 @@
+{
+  "environment": {
+    "postgres": "PostgreSQL 16.15 (Ubuntu 16.15-1.pgdg22.04+2) on aarch64-unknown-linux-gnu, compiled by gcc (Ubuntu 11.4.0-1ubuntu1~22.04.3) 11.4.0, 64-bit",
+    "vector_version": "0.8.6",
+    "vectorscale_version": "0.9.1",
+    "shared_buffers": "512MB",
+    "maintenance_work_mem": "1GB",
+    "cpu_count": "3",
+    "mem_total": "MemTotal:        4014168 kB"
+  },
+  "dim": 128,
+  "rows": [
+    {
+      "n": 20000,
+      "table_mb": 11.641,
+      "hnsw_build_ms": 1299.715,
+      "hnsw_mb": 15.891,
+      "ivfflat_lists": 20,
+      "ivfflat_build_ms": 134.077,
+      "ivfflat_mb": 10.531,
+      "diskann_build_ms": 14773.321,
+      "diskann_mb": 9.211,
+      "diskann_notice": "NOTICE:  Starting index build with num_neighbors=-1, search_list_size=100, max_alpha=1.2, storage_layout=SbqCompression.",
+      "diskann_parallel_build_threshold_crossed": false,
+      "hnsw_ratio_to_table": 1.365,
+      "ivfflat_ratio_to_table": 0.905,
+      "diskann_ratio_to_table": 0.791
+    },
+    {
+      "n": 100000,
+      "table_mb": 58.0,
+      "hnsw_build_ms": 8473.639,
+      "hnsw_mb": 79.352,
+      "ivfflat_lists": 100,
+      "ivfflat_build_ms": 361.298,
+      "ivfflat_mb": 52.5,
+      "diskann_build_ms": 137145.135,
+      "diskann_mb": 45.977,
+      "diskann_notice": "NOTICE:  Starting index build with num_neighbors=-1, search_list_size=100, max_alpha=1.2, storage_layout=SbqCompression.",
+      "diskann_parallel_build_threshold_crossed": true,
+      "hnsw_ratio_to_table": 1.368,
+      "ivfflat_ratio_to_table": 0.905,
+      "diskann_ratio_to_table": 0.793
+    },
+    {
+      "n": 300000,
+      "table_mb": 173.93,
+      "hnsw_build_ms": 33474.099,
+      "hnsw_mb": 238.094,
+      "ivfflat_lists": 300,
+      "ivfflat_build_ms": 1417.631,
+      "ivfflat_mb": 157.555,
+      "diskann_build_ms": 583177.059,
+      "diskann_mb": 137.891,
+      "diskann_notice": "NOTICE:  Starting index build with num_neighbors=-1, search_list_size=100, max_alpha=1.2, storage_layout=SbqCompression.",
+      "diskann_parallel_build_threshold_crossed": true,
+      "hnsw_ratio_to_table": 1.369,
+      "ivfflat_ratio_to_table": 0.906,
+      "diskann_ratio_to_table": 0.793
+    }
+  ]
+}

@@ -46,6 +46,7 @@ export default function App() {
       <AppShell>
         <Routes>
           <Route path="/" element={<Navigate to={HOME} replace />} />
+          <Route path="/pgvector/first" element={<Navigate to="/pgvector/ann" replace />} />
           <Route path="/:section" element={<SectionRoute />} />
           <Route path="/:section/:page" element={<PageRoute />} />
           <Route path="*" element={<NotFound />} />

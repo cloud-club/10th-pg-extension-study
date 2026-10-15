@@ -24,5 +24,9 @@ Thumbs.db
 .vscode/
 .idea/
 
+# Python 실험·생성 스크립트의 로컬 캐시
+__pycache__/
+*.pyc
+
 # 벤치마크용 한글 말뭉치 캐시 (bench.sh 가 실행 시 내려받는다 - 커밋하지 않는다)
 catalogs/*/**/.corpus/
