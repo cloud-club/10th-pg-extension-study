@@ -1,0 +1,13 @@
+diff --git a/src/pg_cron.c b/src/pg_cron.c
+index 2c7c0d0..8005a00 100644
+--- a/src/pg_cron.c
++++ b/src/pg_cron.c
+@@ -1134,7 +1134,7 @@ PollForTasks(List *taskList)
+ 			return;
+ 		}
+ 
+-		if (task->state == CRON_TASK_WAITING && task->pendingRunCount == 0)
++		if (task->state == CRON_TASK_WAITING)
+ 		{
+ 			/*
+ 			 * Make sure we do not wait past the next run time of an interval
