@@ -165,7 +165,8 @@ export const SECTIONS: SectionDef[] = [
     pages: [
       { slug: 'source-map', title: '소스 파일·함수 지도', view: lazy(() => import('@/pages/cron/SourceMap')) },
       { slug: 'source', title: 'pg_cron C 코드 읽기', view: lazy(() => import('@/pages/cron/Source')) },
-      { slug: 'experiments', title: '실험 질문과 결과', view: lazy(() => import('@/pages/cron/Experiments')) },
+      { slug: 'join-comparison', title: '비교 Lab · JOIN·전처리·staging', view: lazy(() => import('@/pages/fdw/reading/JoinComparison')) },
+    { slug: 'experiments', title: '실험 질문과 결과', view: lazy(() => import('@/pages/cron/Experiments')) },
     ],
   },
   {
@@ -205,7 +206,8 @@ export const SECTIONS: SectionDef[] = [
     hint: 'C 소스·실험·참고 자료',
     pages: [
       { slug: 'source', title: '소스 파일·함수 지도', hint: 'contrib/hstore 읽기', view: lazy(() => import('@/pages/hstore/Source')) },
-      { slug: 'experiments', title: '실험 질문과 결과', hint: '5개 실험·반복·한계', view: lazy(() => import('@/pages/hstore/Experiments')) },
+      { slug: 'join-comparison', title: '비교 Lab · JOIN·전처리·staging', view: lazy(() => import('@/pages/fdw/reading/JoinComparison')) },
+    { slug: 'experiments', title: '실험 질문과 결과', hint: '5개 실험·반복·한계', view: lazy(() => import('@/pages/hstore/Experiments')) },
       { slug: 'resources', title: '참고 자료', hint: '공식 문서·GitHub·글', view: lazy(() => import('@/pages/hstore/Resources')) },
     ],
   },
@@ -235,7 +237,8 @@ export const SECTIONS: SectionDef[] = [
     pages: [
       { slug: 'labs', title: 'Lab 목록과 실행 순서', hint: '설치 · 거리 연산자 · 인덱스', view: lazy(() => import('@/pages/pgvector/Labs')) },
       { slug: 'install', title: '설치와 SQL 실습', hint: '권한 · 타입 · 실제 출력 · EXPLAIN', view: lazy(() => import('@/pages/pgvector/Install')) },
-      { slug: 'experiments', title: '실험 질문과 결과', hint: '7개 실험 · 재현 절차 · 정정 이력', view: lazy(() => import('@/pages/pgvector/Experiments')) },
+      { slug: 'join-comparison', title: '비교 Lab · JOIN·전처리·staging', view: lazy(() => import('@/pages/fdw/reading/JoinComparison')) },
+    { slug: 'experiments', title: '실험 질문과 결과', hint: '7개 실험 · 재현 절차 · 정정 이력', view: lazy(() => import('@/pages/pgvector/Experiments')) },
     ],
   },
   {
@@ -253,6 +256,94 @@ export const SECTIONS: SectionDef[] = [
       { slug: 'resources', title: '참고 자료', hint: '공식 문서 · 논문 · 저장소', view: lazy(() => import('@/pages/pgvector/Resources')) },
     ],
   },
+  { week: 'week06', slug: 'hll-start', routeSlug: 'hll', title: 'hll · 시작하기', accent: 'ok', pages: [
+    { slug: 'about', title: 'hll은 어디에 쓰는가? · 고유 방문자 수를 작게 저장하기', view: lazy(() => import('@/pages/hll/reading/About')) },
+  ] },
+  { week: 'week06', slug: 'hll-basic', routeSlug: 'hll', title: 'hll · 기본 학습', accent: 'ok', pages: [
+    { slug: 'counting', title: '기본 01 · 방문 횟수와 실제 사람 수', view: lazy(() => import('@/pages/hll/reading/Counting')) },
+    { slug: 'exact-cost', title: '기본 02 · 정확한 계산은 무엇을 기억할까?', view: lazy(() => import('@/pages/hll/reading/ExactCost')) },
+    { slug: 'hashing', title: '기본 03 · hll_hash 함수는 무엇을 하는가?', view: lazy(() => import('@/pages/hll/reading/Hashing')) },
+    { slug: 'bits', title: '기본 04 · 동전 던지기에서 HLL의 개수 추정까지', view: lazy(() => import('@/pages/hll/reading/Bits')) },
+    { slug: 'probability', title: '기본 05 · 동전 비유를 확률식으로 연결하기', view: lazy(() => import('@/pages/hll/reading/Probability')) },
+    { slug: 'registers', title: '기본 06 · HLL 안에 무엇이 저장되는가?', view: lazy(() => import('@/pages/hll/reading/Registers')) },
+    { slug: 'estimation', title: '기본 07 · 추정값과 오차를 읽는 법', view: lazy(() => import('@/pages/hll/reading/Estimation')) },
+    { slug: 'sql', title: '기본 08 · 설치와 첫 hll 집계', view: lazy(() => import('@/pages/hll/reading/Sql')) },
+    { slug: 'union', title: '기본 09 · 숫자를 더하지 말고 스케치를 합치기', view: lazy(() => import('@/pages/hll/reading/Union')) },
+    { slug: 'limits', title: '기본 10 · 할 수 없는 질문과 선택 기준', view: lazy(() => import('@/pages/hll/reading/Limits')) },
+  ] },
+  { week: 'week06', slug: 'hll-explore', routeSlug: 'hll', title: 'hll · 직접 움직여 보기', accent: 'ok', pages: [
+    { slug: 'register-lab', title: '레지스터 실험실', view: lazy(() => import('@/pages/hll/RegisterLab')) },
+    { slug: 'budget', title: '정밀도와 공간 계산기', view: lazy(() => import('@/pages/hll/Budget')) },
+  ] },
+  { week: 'week06', slug: 'hll-advanced', routeSlug: 'hll', title: 'hll · 심화', accent: 'ok', pages: [
+    { slug: 'math', title: '심화 01 · 최고 rank에서 조화평균과 추정식까지', view: lazy(() => import('@/pages/hll/reading/Math')) },
+    { slug: 'storage', title: '심화 02 · EMPTY·EXPLICIT·SPARSE·FULL', view: lazy(() => import('@/pages/hll/reading/Storage')) },
+    { slug: 'compatibility', title: '심화 03 · 합칠 수 있는 스케치의 계약', view: lazy(() => import('@/pages/hll/reading/Compatibility')) },
+    { slug: 'operations', title: '심화 04 · 공간, 실행 계획, 갱신과 운영', view: lazy(() => import('@/pages/hll/reading/Operations')) },
+  ] },
+  { week: 'week06', slug: 'hll-labs', routeSlug: 'hll', title: 'hll · 실습과 근거', accent: 'ok', pages: [
+    { slug: 'lab-basics', title: 'Lab 01 · 설치·중복·NULL·빈 입력·표현 전이', view: lazy(() => import('@/pages/hll/reading/LabBasics')) },
+    { slug: 'lab-union', title: 'Lab 02 · 일별 숫자와 주간 합집합', view: lazy(() => import('@/pages/hll/reading/LabUnion')) },
+    { slug: 'lab-precision', title: 'Lab 03 · 정밀도·공간·오차 분포', view: lazy(() => import('@/pages/hll/reading/LabPrecision')) },
+    { slug: 'lab-performance', title: 'Lab 04 · 초기 집계와 저장된 스케치 재사용', view: lazy(() => import('@/pages/hll/reading/LabPerformance')) },
+    { slug: 'results', title: '실제 결과 · 기능·공간·오차·실행 시간', view: lazy(() => import('@/pages/hll/reading/Results')) },
+    { slug: 'resources', title: '용어·근거·검증 범위', view: lazy(() => import('@/pages/hll/reading/Resources')) },
+  ] },
+  { week: 'week07', slug: 'postgres-fdw', routeSlug: 'postgres-fdw', title: '시작하기', hint: '기본 → 실습 → 심화의 학습 지도', accent: 'ok', pages: [
+    { slug: 'about', title: '전체 학습 순서', view: lazy(() => import('@/pages/fdw/About')) },
+    { slug: 'industry-cases', title: '국내 기업 사례와 조사 질문', view: lazy(() => import('@/pages/fdw/reading/IndustryCases')) },
+    { slug: 'blog-review', title: '블로그 주의사항 검토와 실험', view: lazy(() => import('@/pages/fdw/reading/BlogReview')) },
+  ] },
+  { week: 'week07', slug: 'fdw-basic', routeSlug: 'postgres-fdw', title: '기본 학습', hint: 'SQL·원격 데이터부터 정확성과 선택까지', accent: 'ok', pages: [
+    { slug: 'databases', title: '01. DB 두 개를 함께 읽는다는 것', view: lazy(() => import('@/pages/fdw/reading/Databases')) },
+    { slug: 'objects', title: '02. FDW와 네 가지 객체', view: lazy(() => import('@/pages/fdw/reading/Objects')) },
+    { slug: 'install', title: '03. 연결·권한·첫 조회', view: lazy(() => import('@/pages/fdw/reading/Connect')) },
+    { slug: 'select-joins', title: '04. SELECT와 JOIN의 데이터 흐름', view: lazy(() => import('@/pages/fdw/reading/Queries')) },
+    { slug: 'plans', title: '05. 실행 계획과 pushdown', view: lazy(() => import('@/pages/fdw/reading/Explain')) },
+    { slug: 'network-basics', title: '06. RTT·대역폭·fetch', view: lazy(() => import('@/pages/fdw/reading/NetworkBasics')) },
+    { slug: 'load', title: '07. 연결·세션·동시 부하', view: lazy(() => import('@/pages/fdw/reading/Connections')) },
+    { slug: 'transactions', title: '08. 트랜잭션·스냅샷·장애', view: lazy(() => import('@/pages/fdw/reading/Transactions')) },
+    { slug: 'related', title: '09. 관련 확장과 설계 선택', view: lazy(() => import('@/pages/fdw/reading/Related')) },
+    { slug: 'glossary', title: '10. 용어집과 진단 순서', view: lazy(() => import('@/pages/fdw/reading/Review')) },
+  ] },
+  { week: 'week07', slug: 'fdw-related', routeSlug: 'postgres-fdw', title: '관련 확장 · 선택과 운영', hint: '대안·검색·관측·캐시의 책임과 제약', accent: 'ok', pages: [
+    { slug: 'related-dblink', title: 'dblink · 명시적 원격 SQL과 세션', view: lazy(() => import('@/pages/fdw/reading/RelatedDblink')) },
+    { slug: 'related-file-fdw', title: 'file_fdw · 파일 읽기와 적재 선택', view: lazy(() => import('@/pages/fdw/reading/RelatedFile')) },
+    { slug: 'related-remote-search', title: 'pg_trgm · 전송과 인덱스의 두 조건', view: lazy(() => import('@/pages/fdw/reading/RelatedSearch')) },
+    { slug: 'related-observability', title: 'pg_stat_statements·auto_explain · 관측', view: lazy(() => import('@/pages/fdw/reading/RelatedObserve')) },
+    { slug: 'related-cache-cron', title: 'pg_cron · 캐시 갱신과 실패 운영', view: lazy(() => import('@/pages/fdw/reading/RelatedCron')) },
+  ] },
+  { week: 'week07', slug: 'fdw-labs', routeSlug: 'postgres-fdw', title: '실습과 검증', hint: '자동·수동 Lab 5개와 실제 결과', accent: 'ok', pages: [
+    { slug: 'labs', title: 'Week 07 · postgres_fdw Labs', view: lazy(() => import('@/pages/fdw/reading/Labs')) },
+    { slug: 'lab-connect', title: 'Lab 01 · 연결과 메타데이터', view: lazy(() => import('@/pages/fdw/reading/LabConnect')) },
+    { slug: 'lab-pushdown', title: 'Lab 02 · pushdown·JOIN·원격 검색', view: lazy(() => import('@/pages/fdw/reading/LabPushdown')) },
+    { slug: 'lab-fetch', title: 'Lab 03 · FETCH 횟수와 네트워크 모델', view: lazy(() => import('@/pages/fdw/reading/LabFetch')) },
+    { slug: 'lab-transactions', title: 'Lab 04 · 스냅샷·롤백·원격 잠금', view: lazy(() => import('@/pages/fdw/reading/LabTransactions')) },
+    { slug: 'lab-connections', title: 'Lab 05 · 세션별 연결·관측·관련 확장', view: lazy(() => import('@/pages/fdw/reading/LabConnections')) },
+    { slug: 'network', title: '네트워크 가정 계산기', view: lazy(() => import('@/pages/fdw/Network')) },
+    { slug: 'join-comparison', title: '비교 Lab · JOIN·전처리·staging', view: lazy(() => import('@/pages/fdw/reading/JoinComparison')) },
+    { slug: 'experiments', title: '실험 질문과 결과', view: lazy(() => import('@/pages/fdw/Experiments')) },
+  ] },
+  { week: 'week07', slug: 'fdw-advanced', routeSlug: 'postgres-fdw', title: '심화 · 구현과 운영', hint: 'planner·cursor·연결·쓰기의 내부 동작', accent: 'ok', pages: [
+    { slug: 'planner', title: '심화 01. planner와 shippability', view: lazy(() => import('@/pages/fdw/reading/Planner')) },
+    { slug: 'costs', title: '심화 02. 비용·통계·JOIN', view: lazy(() => import('@/pages/fdw/reading/Costs')) },
+    { slug: 'cursors', title: '심화 03. cursor·fetch·메모리', view: lazy(() => import('@/pages/fdw/reading/Cursors')) },
+    { slug: 'observability', title: '심화 04. 연결·관측·부하', view: lazy(() => import('@/pages/fdw/reading/Observability')) },
+    { slug: 'writes', title: '심화 05. 쓰기·잠금·재시도', view: lazy(() => import('@/pages/fdw/reading/Writes')) },
+    { slug: 'source', title: '심화 06. 소스 읽기와 운영 설계', view: lazy(() => import('@/pages/fdw/reading/Source')) },
+  ] },
+
+  { week: 'extra-joins', slug: 'pg-joins', title: '번외 · PostgreSQL JOIN', hint: '기본 → 심화 → 실행 계획 Lab', accent: 'ok', pages: [
+    { slug: 'about', title: '번외 · PostgreSQL JOIN 학습 지도', view: lazy(() => import('@/pages/joins/About')) },
+    { slug: 'semantics', title: '기본 01 · JOIN은 어떤 결과를 만드는가?', view: lazy(() => import('@/pages/joins/Semantics')) },
+    { slug: 'nested-loop', title: '기본 02 · Nested Loop: 한 명씩 찾아가기', view: lazy(() => import('@/pages/joins/NestedLoop')) },
+    { slug: 'hash', title: '기본 03 · Hash Join: 번호별 상자 만들기', view: lazy(() => import('@/pages/joins/Hash')) },
+    { slug: 'merge', title: '기본 04 · Merge Join: 정렬된 명단 함께 읽기', view: lazy(() => import('@/pages/joins/Merge')) },
+    { slug: 'bitmap', title: '기본 05 · Bitmap은 JOIN 방식인가?', view: lazy(() => import('@/pages/joins/Bitmap')) },
+    { slug: 'planning', title: '심화 · 계획 선택, 메모리와 동시 부하', view: lazy(() => import('@/pages/joins/Planning')) },
+    { slug: 'labs', title: 'Lab · 같은 결과, 다른 실행 계획', view: lazy(() => import('@/pages/joins/Labs')) },
+  ] },
+
 ]
 
 export const HOME = `/${SECTIONS[0].slug}/${SECTIONS[0].pages[0].slug}`
@@ -287,6 +378,9 @@ export const WEEKS = [
   { slug: 'week03', title: 'Week 03 · 작업 예약' },
   { slug: 'week04', title: 'Week 04 · hstore' },
   { slug: 'week05', title: 'Week 05 · pgvector · pgvectorscale' },
+  { slug: 'week06', title: 'Week 06 · hll' },
+  { slug: 'week07', title: 'Week 07 · postgres_fdw' },
+  { slug: 'extra-joins', title: '번외 · PostgreSQL JOIN' },
 ]
 export function weekHome(week: string) {
   const section = SECTIONS.find((s) => s.week === week)

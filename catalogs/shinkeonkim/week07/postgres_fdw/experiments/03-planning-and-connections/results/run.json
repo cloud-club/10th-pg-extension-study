@@ -1,0 +1,201 @@
+{
+  "timestamp": "2026-10-09T07:28:24.553335+00:00",
+  "environment": {
+    "postgresql": "PostgreSQL 18.6 (Debian 18.6-1.pgdg13+2) on aarch64-unknown-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit",
+    "extensions": [
+      {
+        "name": "plpgsql",
+        "version": "1.0"
+      },
+      {
+        "name": "postgres_fdw",
+        "version": "1.2"
+      },
+      {
+        "name": "pg_trgm",
+        "version": "1.6"
+      },
+      {
+        "name": "dblink",
+        "version": "1.2"
+      },
+      {
+        "name": "file_fdw",
+        "version": "1.0"
+      },
+      {
+        "name": "pg_stat_statements",
+        "version": "1.12"
+      }
+    ],
+    "image": "[{\"ID\":\"sha256:74935e72241653ca55e0414067e6d8763aceb8a810eb51b452253ec3dcfc4336\",\"ContainerName\":\"shinkeonkim-week07-fdw-labs-local-1\",\"Repository\":\"postgres\",\"Tag\":\"18.6\",\"Platform\":\"linux/arm64/v8\",\"Size\":665862274,\"Created\":\"2026-10-06T01:35:25.233180549Z\",\"LastTagTime\":\"2026-10-09T07:22:04.914162596Z\"},{\"ID\":\"sha256:74935e72241653ca55e0414067e6d8763aceb8a810eb51b452253ec3dcfc4336\",\"ContainerName\":\"shinkeonkim-week07-fdw-labs-remote-1\",\"Repository\":\"postgres\",\"Tag\":\"18.6\",\"Platform\":\"linux/arm64/v8\",\"Size\":665862274,\"Created\":\"2026-10-06T01:35:25.233180549Z\",\"LastTagTime\":\"2026-10-09T07:22:04.914162596Z\"}]",
+    "rows": 100000,
+    "network": "같은 호스트 Docker Compose 내부 네트워크",
+    "image_repo_digests": [
+      "postgres@sha256:74935e72241653ca55e0414067e6d8763aceb8a810eb51b452253ec3dcfc4336"
+    ]
+  },
+  "warmups_per_case": 2,
+  "random_seed": 7,
+  "metric": "지속 로컬 psql 세션의 EXPLAIN Planning/Execution Time (ms)",
+  "cases": {
+    "estimate-false-keep-false": {
+      "planning": {
+        "n": 10,
+        "median_ms": 0.024,
+        "min_ms": 0.017,
+        "max_ms": 0.027,
+        "samples_ms": [
+          0.026,
+          0.025,
+          0.024,
+          0.017,
+          0.023,
+          0.024,
+          0.02,
+          0.024,
+          0.019,
+          0.027
+        ]
+      },
+      "execution": {
+        "n": 10,
+        "median_ms": 5.0565,
+        "min_ms": 4.727,
+        "max_ms": 5.29,
+        "samples_ms": [
+          5.217,
+          5.039,
+          5.074,
+          5.077,
+          4.817,
+          4.727,
+          5.026,
+          5.092,
+          5.29,
+          4.826
+        ]
+      }
+    },
+    "estimate-false-keep-true": {
+      "planning": {
+        "n": 10,
+        "median_ms": 0.016,
+        "min_ms": 0.011,
+        "max_ms": 0.023,
+        "samples_ms": [
+          0.023,
+          0.02,
+          0.014,
+          0.022,
+          0.016,
+          0.016,
+          0.016,
+          0.011,
+          0.017,
+          0.013
+        ]
+      },
+      "execution": {
+        "n": 10,
+        "median_ms": 0.3385,
+        "min_ms": 0.289,
+        "max_ms": 0.364,
+        "samples_ms": [
+          0.34,
+          0.321,
+          0.289,
+          0.348,
+          0.354,
+          0.309,
+          0.36,
+          0.364,
+          0.316,
+          0.337
+        ]
+      }
+    },
+    "estimate-true-keep-false": {
+      "planning": {
+        "n": 10,
+        "median_ms": 4.718500000000001,
+        "min_ms": 4.622,
+        "max_ms": 5.118,
+        "samples_ms": [
+          5.118,
+          4.634,
+          4.639,
+          4.821,
+          4.793,
+          4.81,
+          4.644,
+          4.622,
+          4.623,
+          4.844
+        ]
+      },
+      "execution": {
+        "n": 10,
+        "median_ms": 0.274,
+        "min_ms": 0.217,
+        "max_ms": 0.305,
+        "samples_ms": [
+          0.239,
+          0.217,
+          0.291,
+          0.27,
+          0.278,
+          0.257,
+          0.298,
+          0.288,
+          0.305,
+          0.22
+        ]
+      }
+    },
+    "estimate-true-keep-true": {
+      "planning": {
+        "n": 10,
+        "median_ms": 0.189,
+        "min_ms": 0.168,
+        "max_ms": 0.243,
+        "samples_ms": [
+          0.2,
+          0.173,
+          0.211,
+          0.185,
+          0.168,
+          0.193,
+          0.243,
+          0.178,
+          0.206,
+          0.183
+        ]
+      },
+      "execution": {
+        "n": 10,
+        "median_ms": 0.243,
+        "min_ms": 0.193,
+        "max_ms": 0.33,
+        "samples_ms": [
+          0.296,
+          0.211,
+          0.231,
+          0.265,
+          0.193,
+          0.234,
+          0.33,
+          0.252,
+          0.233,
+          0.258
+        ]
+      }
+    }
+  },
+  "limitations": [
+    "각 조건 블록 내 반복, 조건 블록 순서만 섞음",
+    "실행 순서·캐시 영향 잔존",
+    "TLS 없는 내부 Docker 연결",
+    "앱 풀 대기 미포함"
+  ]
+}

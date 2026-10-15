@@ -20,7 +20,7 @@ export function ChartBox<T extends ChartType>({
   return (
     <figure className={cn('rounded-xl border border-border bg-card p-4', className)}>
       {title && <figcaption className="mb-3 text-[14px] font-semibold">{title}</figcaption>}
-      <div style={{ height }}>
+      <div className="rounded-lg bg-[#0b1120] p-3" style={{ height }}>
         {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
         <ReactChart type={type} data={data as any} options={options as any} />
       </div>

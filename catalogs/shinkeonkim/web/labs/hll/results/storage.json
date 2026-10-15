@@ -1,0 +1,43 @@
+{
+  "inputs": [
+    {
+      "id": 17,
+      "hash": "-7921456016582288345"
+    },
+    {
+      "id": 17,
+      "hash": "-7921456016582288345"
+    },
+    {
+      "id": 28,
+      "hash": "6865416962167295854"
+    },
+    {
+      "id": 39,
+      "hash": "-6816633132510080745"
+    }
+  ],
+  "explicit_type": 2,
+  "explicit_print": "EXPLICIT, 3 elements, nregs=2048, nbits=5, expthresh=-1(160), sparseon=1:\n0: -7921456016582288345 \n1: -6816633132510080745 \n2:  6865416962167295854 ",
+  "full_type": 4,
+  "full_hex": "14840000000000020000000040",
+  "registers": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    2,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    2,
+    0
+  ],
+  "sql": "WITH v(id) AS (VALUES (17),(17),(28),(39))\nSELECT json_build_object('inputs',json_agg(json_build_object('id',id,'hash',hll_hash_integer(id)::text)),\n'explicit_type',hll_type(hll_add_agg(hll_hash_integer(id))),\n'explicit_print',hll_print(hll_add_agg(hll_hash_integer(id))),\n'full_type',hll_type(hll_add_agg(hll_hash_integer(id),4,5,0,0)),\n'full_hex',encode(hll_send(hll_add_agg(hll_hash_integer(id),4,5,0,0)),'hex')) FROM v;"
+}

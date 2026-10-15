@@ -1,0 +1,848 @@
+{
+  "environment": {
+    "postgresql": "PostgreSQL 18.6 (Debian 18.6-1.pgdg13+2) on aarch64-unknown-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit",
+    "hll": "2.21",
+    "work_mem": "4MB",
+    "parallel_workers": "0",
+    "measured_at": "2026-10-13T12:38:56.961217+00:00",
+    "package": "postgresql-18-hll\t2.21-1.pgdg13+2",
+    "image": "sha256:633f749b212af3f15c45032acff6064462facf10213674d1e41e9c83e27d4cb5"
+  },
+  "small": {
+    "rows": 5,
+    "distinct": 3,
+    "estimate": 3,
+    "null_hash_is_null": true
+  },
+  "empty": {
+    "empty": 0,
+    "aggregate_no_rows_is_null": true
+  },
+  "duplicate_invariant": true,
+  "transitions": [
+    {
+      "n": 0,
+      "type": 1,
+      "estimate": 0,
+      "binary_bytes": 3,
+      "column_bytes": 7
+    },
+    {
+      "n": 1,
+      "type": 2,
+      "estimate": 1,
+      "binary_bytes": 11,
+      "column_bytes": 15
+    },
+    {
+      "n": 10,
+      "type": 2,
+      "estimate": 10,
+      "binary_bytes": 83,
+      "column_bytes": 87
+    },
+    {
+      "n": 160,
+      "type": 2,
+      "estimate": 160,
+      "binary_bytes": 1283,
+      "column_bytes": 1287
+    },
+    {
+      "n": 161,
+      "type": 3,
+      "estimate": 163.344215041927,
+      "binary_bytes": 317,
+      "column_bytes": 321
+    },
+    {
+      "n": 500,
+      "type": 3,
+      "estimate": 513.2638757053194,
+      "binary_bytes": 911,
+      "column_bytes": 915
+    },
+    {
+      "n": 1000,
+      "type": 4,
+      "estimate": 999.7020724616214,
+      "binary_bytes": 1283,
+      "column_bytes": 1287
+    },
+    {
+      "n": 10000,
+      "type": 4,
+      "estimate": 9725.852733707077,
+      "binary_bytes": 1283,
+      "column_bytes": 1287
+    }
+  ],
+  "weekly": {
+    "events": 210000,
+    "exact": 25000,
+    "sum_daily_exact": 70000,
+    "sum_daily_estimates": 69517.29229359586,
+    "merged": 23268.445531392797,
+    "merge_matches_direct": true,
+    "daily_binary_bytes": 8981
+  },
+  "precision": [
+    {
+      "log2m": 8,
+      "m": 256,
+      "exact": 50000,
+      "trials": [
+        {
+          "trial": 0,
+          "estimate": 52248.225654825146,
+          "binary_bytes": 163
+        },
+        {
+          "trial": 1,
+          "estimate": 53597.3678310558,
+          "binary_bytes": 163
+        },
+        {
+          "trial": 2,
+          "estimate": 56324.648036733124,
+          "binary_bytes": 163
+        },
+        {
+          "trial": 3,
+          "estimate": 47704.17278303826,
+          "binary_bytes": 163
+        },
+        {
+          "trial": 4,
+          "estimate": 45525.68950046352,
+          "binary_bytes": 163
+        },
+        {
+          "trial": 5,
+          "estimate": 54520.92143611879,
+          "binary_bytes": 163
+        },
+        {
+          "trial": 6,
+          "estimate": 49307.54384088563,
+          "binary_bytes": 163
+        },
+        {
+          "trial": 7,
+          "estimate": 54534.414566633845,
+          "binary_bytes": 163
+        },
+        {
+          "trial": 8,
+          "estimate": 48407.81279364664,
+          "binary_bytes": 163
+        },
+        {
+          "trial": 9,
+          "estimate": 48095.36896260112,
+          "binary_bytes": 163
+        },
+        {
+          "trial": 10,
+          "estimate": 45231.32510732376,
+          "binary_bytes": 163
+        },
+        {
+          "trial": 11,
+          "estimate": 45878.74845012411,
+          "binary_bytes": 163
+        },
+        {
+          "trial": 12,
+          "estimate": 49993.23093011238,
+          "binary_bytes": 163
+        },
+        {
+          "trial": 13,
+          "estimate": 48995.184550340426,
+          "binary_bytes": 163
+        },
+        {
+          "trial": 14,
+          "estimate": 46527.46889508793,
+          "binary_bytes": 163
+        },
+        {
+          "trial": 15,
+          "estimate": 55293.40498489779,
+          "binary_bytes": 163
+        },
+        {
+          "trial": 16,
+          "estimate": 45576.13310512809,
+          "binary_bytes": 163
+        },
+        {
+          "trial": 17,
+          "estimate": 45586.90887841219,
+          "binary_bytes": 163
+        },
+        {
+          "trial": 18,
+          "estimate": 45372.3570069995,
+          "binary_bytes": 163
+        },
+        {
+          "trial": 19,
+          "estimate": 49886.114127100744,
+          "binary_bytes": 163
+        }
+      ],
+      "mean_signed_error_pct": -1.1392958558471202,
+      "rmse_pct": 7.378565567460011,
+      "max_abs_error_pct": 12.649296073466248,
+      "theoretical_rse_pct": 6.5
+    },
+    {
+      "log2m": 11,
+      "m": 2048,
+      "exact": 50000,
+      "trials": [
+        {
+          "trial": 0,
+          "estimate": 50311.86546359727,
+          "binary_bytes": 1283
+        },
+        {
+          "trial": 1,
+          "estimate": 51165.42722640219,
+          "binary_bytes": 1283
+        },
+        {
+          "trial": 2,
+          "estimate": 50446.93124386195,
+          "binary_bytes": 1283
+        },
+        {
+          "trial": 3,
+          "estimate": 50724.11207833768,
+          "binary_bytes": 1283
+        },
+        {
+          "trial": 4,
+          "estimate": 49297.064478347405,
+          "binary_bytes": 1283
+        },
+        {
+          "trial": 5,
+          "estimate": 49644.20716184277,
+          "binary_bytes": 1283
+        },
+        {
+          "trial": 6,
+          "estimate": 47579.38117856908,
+          "binary_bytes": 1283
+        },
+        {
+          "trial": 7,
+          "estimate": 48440.5548690893,
+          "binary_bytes": 1283
+        },
+        {
+          "trial": 8,
+          "estimate": 50033.25638684239,
+          "binary_bytes": 1283
+        },
+        {
+          "trial": 9,
+          "estimate": 49336.08086821116,
+          "binary_bytes": 1283
+        },
+        {
+          "trial": 10,
+          "estimate": 49438.95592768753,
+          "binary_bytes": 1283
+        },
+        {
+          "trial": 11,
+          "estimate": 50604.124376337066,
+          "binary_bytes": 1283
+        },
+        {
+          "trial": 12,
+          "estimate": 48462.76373553229,
+          "binary_bytes": 1283
+        },
+        {
+          "trial": 13,
+          "estimate": 49825.399283002036,
+          "binary_bytes": 1283
+        },
+        {
+          "trial": 14,
+          "estimate": 48605.65930273733,
+          "binary_bytes": 1283
+        },
+        {
+          "trial": 15,
+          "estimate": 50855.47418657169,
+          "binary_bytes": 1283
+        },
+        {
+          "trial": 16,
+          "estimate": 49556.768755861485,
+          "binary_bytes": 1283
+        },
+        {
+          "trial": 17,
+          "estimate": 49163.87557830185,
+          "binary_bytes": 1283
+        },
+        {
+          "trial": 18,
+          "estimate": 50329.41614405683,
+          "binary_bytes": 1283
+        },
+        {
+          "trial": 19,
+          "estimate": 48420.45706250092,
+          "binary_bytes": 1283
+        }
+      ],
+      "mean_signed_error_pct": -0.775822469230977,
+      "rmse_pct": 2.038715331046812,
+      "max_abs_error_pct": 4.841237642861844,
+      "theoretical_rse_pct": 2.2980970388562794
+    },
+    {
+      "log2m": 14,
+      "m": 16384,
+      "exact": 50000,
+      "trials": [
+        {
+          "trial": 0,
+          "estimate": 50249.218976828924,
+          "binary_bytes": 10243
+        },
+        {
+          "trial": 1,
+          "estimate": 51077.127744369,
+          "binary_bytes": 10243
+        },
+        {
+          "trial": 2,
+          "estimate": 49490.16660914945,
+          "binary_bytes": 10243
+        },
+        {
+          "trial": 3,
+          "estimate": 50094.22161837207,
+          "binary_bytes": 10243
+        },
+        {
+          "trial": 4,
+          "estimate": 51035.055302183726,
+          "binary_bytes": 10243
+        },
+        {
+          "trial": 5,
+          "estimate": 50530.76130404449,
+          "binary_bytes": 10243
+        },
+        {
+          "trial": 6,
+          "estimate": 50294.89985584193,
+          "binary_bytes": 10243
+        },
+        {
+          "trial": 7,
+          "estimate": 50332.23152417573,
+          "binary_bytes": 10243
+        },
+        {
+          "trial": 8,
+          "estimate": 50581.5885280387,
+          "binary_bytes": 10243
+        },
+        {
+          "trial": 9,
+          "estimate": 50755.61823113829,
+          "binary_bytes": 10243
+        },
+        {
+          "trial": 10,
+          "estimate": 50925.214001762746,
+          "binary_bytes": 10243
+        },
+        {
+          "trial": 11,
+          "estimate": 50664.34550205095,
+          "binary_bytes": 10243
+        },
+        {
+          "trial": 12,
+          "estimate": 50502.52236320208,
+          "binary_bytes": 10243
+        },
+        {
+          "trial": 13,
+          "estimate": 50745.25526402986,
+          "binary_bytes": 10243
+        },
+        {
+          "trial": 14,
+          "estimate": 50425.16679086719,
+          "binary_bytes": 10243
+        },
+        {
+          "trial": 15,
+          "estimate": 50508.38876052864,
+          "binary_bytes": 10243
+        },
+        {
+          "trial": 16,
+          "estimate": 50330.362401789826,
+          "binary_bytes": 10243
+        },
+        {
+          "trial": 17,
+          "estimate": 50587.46720849793,
+          "binary_bytes": 10243
+        },
+        {
+          "trial": 18,
+          "estimate": 50547.603898288115,
+          "binary_bytes": 10243
+        },
+        {
+          "trial": 19,
+          "estimate": 50195.131546070385,
+          "binary_bytes": 10243
+        }
+      ],
+      "mean_signed_error_pct": 0.9872347431230031,
+      "rmse_pct": 1.2072660272321645,
+      "max_abs_error_pct": 2.1542554887379954,
+      "theoretical_rse_pct": 0.8125
+    }
+  ],
+  "hash_seed_checks": [
+    {
+      "kind": "integer",
+      "seed": 0,
+      "distinct_hash_texts": 50000,
+      "occupied_buckets": 2048,
+      "low_bit_zero_count": 25039,
+      "estimate": 47431.31685916327
+    },
+    {
+      "kind": "integer",
+      "seed": 4,
+      "distinct_hash_texts": 50000,
+      "occupied_buckets": 1024,
+      "low_bit_zero_count": 50000,
+      "estimate": 1419.565425786768
+    },
+    {
+      "kind": "text",
+      "seed": 0,
+      "distinct_hash_texts": 50000,
+      "occupied_buckets": 2048,
+      "low_bit_zero_count": 25108,
+      "estimate": 50505.912524918
+    },
+    {
+      "kind": "text",
+      "seed": 5,
+      "distinct_hash_texts": 50000,
+      "occupied_buckets": 2038,
+      "low_bit_zero_count": 44940,
+      "estimate": 17858.73674669755
+    }
+  ],
+  "incompatible_union_error": "ERROR:  register count does not match: source uses 2048 and dest uses 256",
+  "daily_build": {
+    "Plan": {
+      "Node Type": "Aggregate",
+      "Strategy": "Hashed",
+      "Partial Mode": "Simple",
+      "Parallel Aware": false,
+      "Async Capable": false,
+      "Startup Cost": 4605.0,
+      "Total Cost": 4605.09,
+      "Plan Rows": 7,
+      "Plan Width": 36,
+      "Actual Startup Time": 30.238,
+      "Actual Total Time": 30.279,
+      "Actual Rows": 7.0,
+      "Actual Loops": 1,
+      "Disabled": false,
+      "Group Key": [
+        "day"
+      ],
+      "Planned Partitions": 0,
+      "HashAgg Batches": 1,
+      "Peak Memory Usage": 985,
+      "Disk Usage": 0,
+      "Shared Hit Blocks": 930,
+      "Shared Read Blocks": 0,
+      "Shared Dirtied Blocks": 0,
+      "Shared Written Blocks": 0,
+      "Local Hit Blocks": 0,
+      "Local Read Blocks": 0,
+      "Local Dirtied Blocks": 0,
+      "Local Written Blocks": 0,
+      "Temp Read Blocks": 0,
+      "Temp Written Blocks": 0,
+      "Plans": [
+        {
+          "Node Type": "Seq Scan",
+          "Parent Relationship": "Outer",
+          "Parallel Aware": false,
+          "Async Capable": false,
+          "Relation Name": "events",
+          "Alias": "events",
+          "Startup Cost": 0.0,
+          "Total Cost": 3030.0,
+          "Plan Rows": 210000,
+          "Plan Width": 8,
+          "Actual Startup Time": 0.004,
+          "Actual Total Time": 9.46,
+          "Actual Rows": 210000.0,
+          "Actual Loops": 1,
+          "Disabled": false,
+          "Shared Hit Blocks": 930,
+          "Shared Read Blocks": 0,
+          "Shared Dirtied Blocks": 0,
+          "Shared Written Blocks": 0,
+          "Local Hit Blocks": 0,
+          "Local Read Blocks": 0,
+          "Local Dirtied Blocks": 0,
+          "Local Written Blocks": 0,
+          "Temp Read Blocks": 0,
+          "Temp Written Blocks": 0
+        }
+      ]
+    },
+    "Planning": {
+      "Shared Hit Blocks": 50,
+      "Shared Read Blocks": 0,
+      "Shared Dirtied Blocks": 0,
+      "Shared Written Blocks": 0,
+      "Local Hit Blocks": 0,
+      "Local Read Blocks": 0,
+      "Local Dirtied Blocks": 0,
+      "Local Written Blocks": 0,
+      "Temp Read Blocks": 0,
+      "Temp Written Blocks": 0
+    },
+    "Planning Time": 0.144,
+    "Triggers": [],
+    "Execution Time": 31.272
+  },
+  "daily_relation_bytes": 24576,
+  "benchmarks": {
+    "exact_raw": {
+      "n": 10,
+      "samples_ms": [
+        49.112,
+        48.813,
+        49.521,
+        49.066,
+        49.778,
+        51.364,
+        49.178,
+        49.196,
+        48.915,
+        49.445
+      ],
+      "median_ms": 49.187,
+      "min_ms": 48.813,
+      "max_ms": 51.364,
+      "plan": {
+        "Plan": {
+          "Node Type": "Aggregate",
+          "Strategy": "Plain",
+          "Partial Mode": "Simple",
+          "Parallel Aware": false,
+          "Async Capable": false,
+          "Startup Cost": 25517.53,
+          "Total Cost": 25517.54,
+          "Plan Rows": 1,
+          "Plan Width": 8,
+          "Actual Startup Time": 48.987,
+          "Actual Total Time": 48.993,
+          "Actual Rows": 1.0,
+          "Actual Loops": 1,
+          "Disabled": false,
+          "Shared Hit Blocks": 933,
+          "Shared Read Blocks": 0,
+          "Shared Dirtied Blocks": 0,
+          "Shared Written Blocks": 0,
+          "Local Hit Blocks": 0,
+          "Local Read Blocks": 0,
+          "Local Dirtied Blocks": 0,
+          "Local Written Blocks": 0,
+          "Temp Read Blocks": 309,
+          "Temp Written Blocks": 310,
+          "Plans": [
+            {
+              "Node Type": "Sort",
+              "Parent Relationship": "Outer",
+              "Parallel Aware": false,
+              "Async Capable": false,
+              "Startup Cost": 24467.53,
+              "Total Cost": 24992.53,
+              "Plan Rows": 210000,
+              "Plan Width": 4,
+              "Actual Startup Time": 31.091,
+              "Actual Total Time": 40.513,
+              "Actual Rows": 210000.0,
+              "Actual Loops": 1,
+              "Disabled": false,
+              "Sort Key": [
+                "user_id"
+              ],
+              "Sort Method": "external merge",
+              "Sort Space Used": 2472,
+              "Sort Space Type": "Disk",
+              "Shared Hit Blocks": 933,
+              "Shared Read Blocks": 0,
+              "Shared Dirtied Blocks": 0,
+              "Shared Written Blocks": 0,
+              "Local Hit Blocks": 0,
+              "Local Read Blocks": 0,
+              "Local Dirtied Blocks": 0,
+              "Local Written Blocks": 0,
+              "Temp Read Blocks": 309,
+              "Temp Written Blocks": 310,
+              "Plans": [
+                {
+                  "Node Type": "Seq Scan",
+                  "Parent Relationship": "Outer",
+                  "Parallel Aware": false,
+                  "Async Capable": false,
+                  "Relation Name": "events",
+                  "Alias": "events",
+                  "Startup Cost": 0.0,
+                  "Total Cost": 3030.0,
+                  "Plan Rows": 210000,
+                  "Plan Width": 4,
+                  "Actual Startup Time": 0.01,
+                  "Actual Total Time": 10.968,
+                  "Actual Rows": 210000.0,
+                  "Actual Loops": 1,
+                  "Disabled": false,
+                  "Shared Hit Blocks": 930,
+                  "Shared Read Blocks": 0,
+                  "Shared Dirtied Blocks": 0,
+                  "Shared Written Blocks": 0,
+                  "Local Hit Blocks": 0,
+                  "Local Read Blocks": 0,
+                  "Local Dirtied Blocks": 0,
+                  "Local Written Blocks": 0,
+                  "Temp Read Blocks": 0,
+                  "Temp Written Blocks": 0
+                }
+              ]
+            }
+          ]
+        },
+        "Planning": {
+          "Shared Hit Blocks": 36,
+          "Shared Read Blocks": 0,
+          "Shared Dirtied Blocks": 0,
+          "Shared Written Blocks": 0,
+          "Local Hit Blocks": 0,
+          "Local Read Blocks": 0,
+          "Local Dirtied Blocks": 0,
+          "Local Written Blocks": 0,
+          "Temp Read Blocks": 0,
+          "Temp Written Blocks": 0
+        },
+        "Planning Time": 0.091,
+        "Triggers": [],
+        "Execution Time": 49.445
+      },
+      "query": "SELECT count(DISTINCT user_id) FROM hll_lab.events"
+    },
+    "hll_raw": {
+      "n": 10,
+      "samples_ms": [
+        20.841,
+        20.771,
+        20.761,
+        20.916,
+        20.818,
+        20.662,
+        20.618,
+        20.701,
+        20.785,
+        20.692
+      ],
+      "median_ms": 20.766,
+      "min_ms": 20.618,
+      "max_ms": 20.916,
+      "plan": {
+        "Plan": {
+          "Node Type": "Aggregate",
+          "Strategy": "Plain",
+          "Partial Mode": "Simple",
+          "Parallel Aware": false,
+          "Async Capable": false,
+          "Startup Cost": 4080.0,
+          "Total Cost": 4080.02,
+          "Plan Rows": 1,
+          "Plan Width": 8,
+          "Actual Startup Time": 20.439,
+          "Actual Total Time": 20.442,
+          "Actual Rows": 1.0,
+          "Actual Loops": 1,
+          "Disabled": false,
+          "Shared Hit Blocks": 930,
+          "Shared Read Blocks": 0,
+          "Shared Dirtied Blocks": 0,
+          "Shared Written Blocks": 0,
+          "Local Hit Blocks": 0,
+          "Local Read Blocks": 0,
+          "Local Dirtied Blocks": 0,
+          "Local Written Blocks": 0,
+          "Temp Read Blocks": 0,
+          "Temp Written Blocks": 0,
+          "Plans": [
+            {
+              "Node Type": "Seq Scan",
+              "Parent Relationship": "Outer",
+              "Parallel Aware": false,
+              "Async Capable": false,
+              "Relation Name": "events",
+              "Alias": "events",
+              "Startup Cost": 0.0,
+              "Total Cost": 3030.0,
+              "Plan Rows": 210000,
+              "Plan Width": 4,
+              "Actual Startup Time": 0.004,
+              "Actual Total Time": 9.055,
+              "Actual Rows": 210000.0,
+              "Actual Loops": 1,
+              "Disabled": false,
+              "Shared Hit Blocks": 930,
+              "Shared Read Blocks": 0,
+              "Shared Dirtied Blocks": 0,
+              "Shared Written Blocks": 0,
+              "Local Hit Blocks": 0,
+              "Local Read Blocks": 0,
+              "Local Dirtied Blocks": 0,
+              "Local Written Blocks": 0,
+              "Temp Read Blocks": 0,
+              "Temp Written Blocks": 0
+            }
+          ]
+        },
+        "Planning": {
+          "Shared Hit Blocks": 29,
+          "Shared Read Blocks": 0,
+          "Shared Dirtied Blocks": 0,
+          "Shared Written Blocks": 0,
+          "Local Hit Blocks": 0,
+          "Local Read Blocks": 0,
+          "Local Dirtied Blocks": 0,
+          "Local Written Blocks": 0,
+          "Temp Read Blocks": 0,
+          "Temp Written Blocks": 0
+        },
+        "Planning Time": 0.088,
+        "Triggers": [],
+        "Execution Time": 20.692
+      },
+      "query": "SELECT hll_cardinality(hll_add_agg(hll_hash_integer(user_id),11,5,-1,1)) FROM hll_lab.events"
+    },
+    "hll_daily_union": {
+      "n": 10,
+      "samples_ms": [
+        0.321,
+        0.322,
+        0.291,
+        0.275,
+        0.287,
+        0.302,
+        0.292,
+        0.311,
+        0.294,
+        0.279
+      ],
+      "median_ms": 0.293,
+      "min_ms": 0.275,
+      "max_ms": 0.322,
+      "plan": {
+        "Plan": {
+          "Node Type": "Aggregate",
+          "Strategy": "Plain",
+          "Partial Mode": "Simple",
+          "Parallel Aware": false,
+          "Async Capable": false,
+          "Startup Cost": 25.88,
+          "Total Cost": 25.89,
+          "Plan Rows": 1,
+          "Plan Width": 8,
+          "Actual Startup Time": 0.066,
+          "Actual Total Time": 0.068,
+          "Actual Rows": 1.0,
+          "Actual Loops": 1,
+          "Disabled": false,
+          "Shared Hit Blocks": 2,
+          "Shared Read Blocks": 0,
+          "Shared Dirtied Blocks": 0,
+          "Shared Written Blocks": 0,
+          "Local Hit Blocks": 0,
+          "Local Read Blocks": 0,
+          "Local Dirtied Blocks": 0,
+          "Local Written Blocks": 0,
+          "Temp Read Blocks": 0,
+          "Temp Written Blocks": 0,
+          "Plans": [
+            {
+              "Node Type": "Seq Scan",
+              "Parent Relationship": "Outer",
+              "Parallel Aware": false,
+              "Async Capable": false,
+              "Relation Name": "daily",
+              "Alias": "daily",
+              "Startup Cost": 0.0,
+              "Total Cost": 22.7,
+              "Plan Rows": 1270,
+              "Plan Width": 32,
+              "Actual Startup Time": 0.006,
+              "Actual Total Time": 0.007,
+              "Actual Rows": 7.0,
+              "Actual Loops": 1,
+              "Disabled": false,
+              "Shared Hit Blocks": 2,
+              "Shared Read Blocks": 0,
+              "Shared Dirtied Blocks": 0,
+              "Shared Written Blocks": 0,
+              "Local Hit Blocks": 0,
+              "Local Read Blocks": 0,
+              "Local Dirtied Blocks": 0,
+              "Local Written Blocks": 0,
+              "Temp Read Blocks": 0,
+              "Temp Written Blocks": 0
+            }
+          ]
+        },
+        "Planning": {
+          "Shared Hit Blocks": 33,
+          "Shared Read Blocks": 0,
+          "Shared Dirtied Blocks": 0,
+          "Shared Written Blocks": 0,
+          "Local Hit Blocks": 0,
+          "Local Read Blocks": 0,
+          "Local Dirtied Blocks": 0,
+          "Local Written Blocks": 0,
+          "Temp Read Blocks": 0,
+          "Temp Written Blocks": 0
+        },
+        "Planning Time": 0.086,
+        "Triggers": [],
+        "Execution Time": 0.279
+      },
+      "query": "SELECT hll_cardinality(hll_union_agg(sketch)) FROM hll_lab.daily"
+    }
+  },
+  "scope": "합성 210000행, 예열된 단일 세션, EXPLAIN 서버 시간. RSS·앱 지연·동시 부하 미측정."
+}

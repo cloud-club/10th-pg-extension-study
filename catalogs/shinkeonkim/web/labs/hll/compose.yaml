@@ -1,0 +1,13 @@
+name: shinkeonkim-week06-hll
+services:
+  db:
+    build: .
+    image: shinkeonkim-hll-lab:pg18.6
+    environment:
+      POSTGRES_PASSWORD: hll_lab_only
+      POSTGRES_DB: study
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d study"]
+      interval: 2s
+      timeout: 3s
+      retries: 30

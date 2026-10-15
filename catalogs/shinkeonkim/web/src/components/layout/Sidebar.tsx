@@ -1,5 +1,6 @@
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { SECTIONS, WEEKS, weekHome, type Accent } from '@/content/registry'
+import { ThemeToggle } from './ThemeToggle'
 import { cn } from '@/lib/utils'
 
 const DOT: Record<Accent, string> = {
@@ -13,7 +14,8 @@ export function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
   const routeSection = pathname.split('/')[1]
   const week = SECTIONS.find((s) => s.slug === routeSection || s.routeSlug === routeSection)?.week ?? WEEKS[0].slug
   return (
-    <nav className="px-3 pb-16 pt-4">
+    <nav aria-label="학습 탐색" className="px-3 pb-16 pt-4">
+      <ThemeToggle />
       <label className="mb-5 block px-2 text-xs text-muted-foreground">
         학습 주차
         <select aria-label="학습 주차" value={week} onChange={(e) => { navigate(weekHome(e.target.value)); onNavigate?.() }} className="mt-2 w-full rounded border border-border bg-background p-2 text-foreground">
@@ -46,7 +48,7 @@ export function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
                   >
                     {p.title}
                     {p.hint && (
-                      <span className="mt-0.5 block text-[11.5px] font-normal text-muted-foreground/70">
+                      <span className="mt-0.5 block text-[11.5px] font-normal text-muted-foreground">
                         {p.hint}
                       </span>
                     )}
