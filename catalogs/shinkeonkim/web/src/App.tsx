@@ -36,8 +36,8 @@ function PageRoute() {
 /** 섹션만 찍었을 때는 그 섹션의 첫 페이지로 보낸다. */
 function SectionRoute() {
   const { section } = useParams()
-  const s = SECTIONS.find((x) => x.slug === section)
-  return s ? <Navigate to={`/${s.slug}/${s.pages[0].slug}`} replace /> : <NotFound />
+  const s = SECTIONS.find((x) => x.slug === section || x.routeSlug === section)
+  return s ? <Navigate to={`/${s.routeSlug ?? s.slug}/${s.pages[0].slug}`} replace /> : <NotFound />
 }
 
 export default function App() {

@@ -107,7 +107,7 @@ SELECT bigm_is_similar('클둥이', '클동이');`}</CodeBlock>
 
       <Section id="short" title="4. 짧은 검색어 — 여기가 존재 이유다">
         <p>
-          <K>pg_bigm</K> 을 쓸 진짜 이유는 <strong>1글자와 2글자 한 칸</strong>이다. 같은 데이터에서 길이만 바꿔
+          <K>pg_bigm</K> 의 이점을 확인할 주요 조건은 <strong>1~2글자 검색어</strong>다. 같은 데이터에서 길이만 바꿔
           재면 이렇게 나온다.
         </p>
         <Table>

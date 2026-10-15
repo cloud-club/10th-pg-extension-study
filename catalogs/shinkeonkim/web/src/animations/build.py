@@ -767,7 +767,82 @@ def doc_similarity():
     }
     return widen(doc, 170)
 
+def cron_story(id, title, steps):
+    end = len(steps) * 6000
+    els = [txt("title", 40, 45, title, 24, INK, 0, end, "700")]
+    chapters = []
+    for i, (label, detail, note) in enumerate(steps):
+        start = i * 6000
+        stop = (i + 1) * 6000 if i < len(steps) - 1 else end
+        chapters.append({"id": f"ch{i}", "time": start, "label": label, "subtitle": note})
+        els.extend([
+            box(f"step{i}", 40, 95, 820, 70, BIGM, start, stop, label, label_size=23),
+            txt(f"detail{i}", 40, 215, detail, 19, INK, start, stop),
+            txt(f"note{i}", 40, 265, note, 17, MUTED, start, stop),
+        ])
+    return {"clothoVersion": 1, "id": id, "title": title,
+            "description": "소스 기반 개념 모형. 재생 시간은 실제 실행 시간과 무관하다.",
+            "duration": end, "canvas": {"width": 900, "height": 330, "background": BG},
+            "elements": els, "chapters": chapters,
+            "settings": {"loop": False, "autoplay": True, "showChapterList": True}}
+
+
+def doc_cron_lifecycle():
+    return cron_story("cron-lifecycle", "예약 정의에서 SQL 실행까지", [
+        ("1. cron.schedule → cron.job", "예약 시각 · SQL · DB · 사용자를 저장한다", "등록 트랜잭션 COMMIT 뒤 다른 세션에 보인다"),
+        ("2. 캐시 무효화 → launcher", "변경된 작업 정의를 메모리로 다시 읽는다", "작업 테이블을 매번 새로 조회하는 구조가 아니다"),
+        ("3. StartAllPendingRuns", "예약 시각이 되면 대기 실행을 표시한다", "대기 상태와 실제 실행 시작은 서로 다르다"),
+        ("4. ManageCronTask", "libpq 연결 또는 동적 worker로 SQL을 실행한다", "종료 결과를 수집하고 작업 상태를 다음 실행에 대비한다"),
+    ])
+
+
+def doc_cron_concurrency():
+    return cron_story("cron-concurrency", "동일 jobid 직렬화 · 초 간격 예약 예시", [
+        ("1. 잡 A 시작", "WAITING + 대기 있음 + 전체 슬롯 여유 → 실행", "CanStartTask의 세 조건을 모두 만족한다"),
+        ("2. A 실행 중 다음 간격 도래", "A는 RUNNING · 대기 횟수는 0에서 1로", "A를 동시에 하나 더 시작하지 않는다"),
+        ("3. A가 계속 실행되는 동안", "초 간격 분기: 이미 대기 1회면 더 쌓지 않는다", "다른 잡 B는 전체 슬롯이 남으면 병렬 실행 가능"),
+        ("4. A 완료 → 다음 실행", "대기 횟수를 보존한 채 WAITING으로 돌아간다", "실행 슬롯을 얻으면 대기하던 A를 시작한다"),
+    ])
+
+
+def doc_cron_event_loop():
+    end = 30000
+    els = [txt("title", 40, 42, "한 launcher가 두 잡을 관리하는 과정", 24, INK, 0, end, "700")]
+    steps = [
+        ("A 실행 요청", "A의 실행 시각 확인", "실행 요청됨", "아직 생성 전", "pg_cron launcher가 A의 SQL 실행을 요청한다.", "사용 중 1 / 한도 2"),
+        ("B 실행 요청", "B의 실행 시각 확인", "SQL 실행 중", "실행 요청됨", "A의 SQL이 끝나기 전에 B도 시작할 수 있다.", "사용 중 2 / 한도 2"),
+        ("결과 기다리기", "결과 도착 여부 확인", "SQL 실행 중", "SQL 실행 중", "두 SQL은 별도 프로세스에서 진행된다.", "사용 중 2 / 한도 2"),
+        ("A 완료 확인", "A의 결과 수집", "완료 결과 전달", "SQL 실행 중", "A의 결과를 확인하는 동안에도 B는 계속 진행된다.", "완료 처리 후 사용 중 1 / 한도 2"),
+        ("A 정리", "이력 기록 · 연결 정리", "종료됨", "SQL 실행 중", "A의 실행 자리를 돌려주고 다음 예약을 살핀다.", "사용 중 1 / 한도 2"),
+        ("B 완료 확인", "B 정리 후 예약 확인", "종료됨", "종료됨", "실행 프로세스는 종료되고 launcher는 계속 남는다.", "사용 중 0 / 한도 2"),
+    ]
+    chapters = []
+    for i, (label, launcher, a, b, note, count) in enumerate(steps):
+        start, stop = i * 5000, (i + 1) * 5000
+        chapters.append({"id": f"ch{i}", "time": start, "label": label, "subtitle": note})
+        for j, (heading, state) in enumerate([("pg_cron launcher", launcher), ("잡 A 실행 프로세스", a), ("잡 B 실행 프로세스", b)]):
+            x = 40 + j * 290
+            color = BIGM if j == 0 else (OK if "실행 중" in state else PANEL)
+            els.append(box(f"node{i}_{j}", x, 95, 240, 70, PANEL, start, stop,
+                           heading, label_color=INK, label_size=18, stroke=BIGM if j == 0 else DIM))
+            els.append(box(f"state{i}_{j}", x, 190, 240, 65, color, start, stop,
+                           state, label_color=ON_FILL if color != PANEL else INK, label_size=17))
+        els.extend([
+            txt(f"note{i}", 40, 310, note, 19, INK, start, stop),
+            txt(f"count{i}", 40, 355, count, 18, WARN, start, stop),
+        ])
+    els.append(txt("legend", 40, 405, "파랑: 상태 관리 / 초록: SQL 진행 / libpq 모드의 설명용 흐름", 16, MUTED, 0, end))
+    return {"clothoVersion": 1, "id": "cron-event-loop", "title": "한 launcher가 여러 잡을 관리하는 방법",
+            "description": "PostgreSQL 16 / pg_cron 1.6.8 기본 모드의 개념 모형. 시간과 순서는 실측이 아니다.",
+            "duration": end, "canvas": {"width": 900, "height": 450, "background": BG},
+            "elements": els, "chapters": chapters,
+            "settings": {"loop": False, "autoplay": True, "showChapterList": True}}
+
+
 DOCS = {
+    "cron-event-loop": doc_cron_event_loop,
+    "cron-lifecycle": doc_cron_lifecycle,
+    "cron-concurrency": doc_cron_concurrency,
     "ngram-slice": doc_ngram_slice,
     "two-char-trap": doc_two_char_trap,
     "gin-pipeline": doc_gin_pipeline,

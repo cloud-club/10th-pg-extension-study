@@ -8,7 +8,9 @@
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "check:animations": "bun scripts/check-animations.mjs",
-    "check": "bun run typecheck && bun run check:animations"
+    "check": "bun run typecheck && bun run check:animations && bun run check:navigation && bun run check:cron-data",
+    "check:navigation": "bun scripts/check-navigation.ts",
+    "check:cron-data": "python3 scripts/sync-cron-results.py --check"
   },
   "dependencies": {
     "@kokoa/clotho": "0.4.0",
@@ -20,6 +22,7 @@
     "chart.js": "^4.4.4",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "highlight.js": "11.11.1",
     "lucide-react": "^0.468.0",
     "mermaid": "^11.17.2",
     "react": "^18.3.1",

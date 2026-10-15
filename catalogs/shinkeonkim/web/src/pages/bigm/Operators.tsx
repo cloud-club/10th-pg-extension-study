@@ -65,8 +65,8 @@ export default function Operators() {
             위 측정은 <K>enable_seqscan=off</K> 로 인덱스 경로를 <strong>강제</strong>해서 잰 것이다. 플래너를
             풀어놓고 시간·버퍼까지 재면 다른 그림이 나온다 — 특히 <K>ILIKE</K> 는{' '}
             <Link to="/experiments/ilike">실험 09</Link> 에서 따로 쟀다. 요약하면{' '}
-            <strong>pg_trgm 의 <K>ILIKE</K> 는 진짜로 빠르고(38배, recheck 0), pg_bigm 은 한글 검색어에서도
-            <K>ILIKE</K> 한 글자에 51배를 잃는다.</strong>
+            <strong>이 실험에서 pg_trgm의 <K>ILIKE</K>는 더 빨랐고(38배, recheck 0), pg_bigm 은 한글 검색어에서도
+            LIKE를 <K>ILIKE</K>로 바꾼 조건에서 실행시간이 51배로 늘었다.</strong>
           </p>
         </Callout>
 

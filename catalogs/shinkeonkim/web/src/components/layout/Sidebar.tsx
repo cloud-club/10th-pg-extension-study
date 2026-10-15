@@ -1,5 +1,5 @@
-import { NavLink, useLocation } from 'react-router-dom'
-import { SECTIONS, type Accent } from '@/content/registry'
+import { NavLink, useLocation, useNavigate } from 'react-router-dom'
+import { SECTIONS, WEEKS, weekHome, type Accent } from '@/content/registry'
 import { cn } from '@/lib/utils'
 
 const DOT: Record<Accent, string> = {
@@ -9,9 +9,18 @@ const DOT: Record<Accent, string> = {
 
 export function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
   const { pathname } = useLocation()
+  const navigate = useNavigate()
+  const routeSection = pathname.split('/')[1]
+  const week = SECTIONS.find((s) => s.slug === routeSection || s.routeSlug === routeSection)?.week ?? WEEKS[0].slug
   return (
     <nav className="px-3 pb-16 pt-4">
-      {SECTIONS.map((s) => (
+      <label className="mb-5 block px-2 text-xs text-muted-foreground">
+        학습 주차
+        <select aria-label="학습 주차" value={week} onChange={(e) => { navigate(weekHome(e.target.value)); onNavigate?.() }} className="mt-2 w-full rounded border border-border bg-background p-2 text-foreground">
+          {WEEKS.map((w) => <option key={w.slug} value={w.slug}>{w.title}</option>)}
+        </select>
+      </label>
+      {SECTIONS.filter((s) => s.week === week).map((s) => (
         <div key={s.slug} className="mb-5">
           <div className="mb-1.5 flex items-center gap-2 px-2">
             <span className={cn('h-1.5 w-1.5 rounded-full', DOT[s.accent ?? 'default'])} />
@@ -21,7 +30,7 @@ export function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
           </div>
           <ul>
             {s.pages.map((p) => {
-              const to = `/${s.slug}/${p.slug}`
+              const to = `/${s.routeSlug ?? s.slug}/${p.slug}`
               const active = pathname === to
               return (
                 <li key={p.slug}>

@@ -43,9 +43,18 @@
   .prose-doc pre { @apply my-3 overflow-x-auto rounded-xl bg-[hsl(222_60%_5%)] p-4 text-[12.5px] leading-relaxed; }
   .prose-doc pre code { @apply bg-transparent p-0; }
   .prose-doc a { @apply text-primary underline-offset-4 hover:underline; }
-  .prose-doc table { @apply my-4 w-full border-collapse text-[14px]; }
+  .prose-doc table { @apply my-4 w-full border-collapse text-[14px]; overflow-wrap: anywhere; }
   .prose-doc th { @apply border-b border-border bg-secondary/60 px-3 py-2 text-left font-semibold; }
   .prose-doc td { @apply border-b border-border px-3 py-2 align-top; }
   .prose-doc h3 { @apply mt-8 mb-2 text-[17px] font-semibold; }
   .prose-doc h4 { @apply mt-6 mb-2 text-[15px] font-semibold; }
 }
+
+/* Syntax colors on the existing dark code background. */
+.hljs { color: #e2e8f0; }
+.hljs-keyword, .hljs-type, .hljs-selector-tag { color: #c4b5fd; }
+.hljs-string, .hljs-regexp, .hljs-addition { color: #86efac; }
+.hljs-number, .hljs-literal { color: #fdba74; }
+.hljs-comment, .hljs-quote { color: #94a3b8; }
+.hljs-title, .hljs-built_in, .hljs-function .hljs-title { color: #7dd3fc; }
+.hljs-meta, .hljs-attr, .hljs-variable { color: #f9a8d4; }

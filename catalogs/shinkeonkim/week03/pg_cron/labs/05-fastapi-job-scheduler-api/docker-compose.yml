@@ -1,0 +1,49 @@
+name: pg-study-catalog-shinkeonkim-pgcron-05
+
+services:
+  postgres:
+    build: ./postgres
+    container_name: pg-study-catalog-shinkeonkim-pg-cron-05
+    environment:
+      POSTGRES_DB: study
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "127.0.0.1:15934:5432"
+    volumes:
+      - ./postgres/initdb:/docker-entrypoint-initdb.d:ro
+    command:
+      - postgres
+      - -c
+      - shared_preload_libraries=pg_cron
+      - -c
+      - cron.database_name=study
+      - -c
+      - cron.host=/var/run/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -p 5432 -U postgres -d study"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+      start_period: 30s
+
+  api:
+    build: ./api
+    container_name: pg-study-catalog-shinkeonkim-pg-cron-05-api
+    environment:
+      DB_HOST: postgres
+      DB_PORT: "5432"
+      DB_NAME: study
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+    ports:
+      - "127.0.0.1:18934:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "python3 -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health')\""]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+      start_period: 10s

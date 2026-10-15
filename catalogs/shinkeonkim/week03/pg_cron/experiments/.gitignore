@@ -1,0 +1,5 @@
+__pycache__/
+*.pyc
+
+# 반복 실행이 만드는 회차별 원본과 서버 로그. 요약값은 web/src/data에 게시한다.
+**/results/

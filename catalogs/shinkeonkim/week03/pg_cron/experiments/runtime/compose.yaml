@@ -1,0 +1,25 @@
+name: pgcron-week03-research
+services:
+  postgres:
+    build: .
+    environment:
+      POSTGRES_DB: study
+      POSTGRES_PASSWORD: experiment-only
+    command:
+      - postgres
+      - -c
+      - shared_preload_libraries=pg_cron
+      - -c
+      - cron.database_name=study
+      - -c
+      - cron.host=/var/run/postgresql
+      - -c
+      - cron.max_running_jobs=${CRON_CAPACITY:-4}
+    healthcheck:
+      test: [CMD-SHELL, 'pg_isready -h 127.0.0.1 -U postgres -d study']
+      interval: 1s
+      timeout: 3s
+      retries: 60
+    # 전용 임시 DB. 호스트 포트는 공개하지 않는다.
+    tmpfs:
+      - /var/lib/postgresql/data
