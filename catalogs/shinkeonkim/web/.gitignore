@@ -17,6 +17,7 @@ dist-ssr/
 
 # Vite / TypeScript 캐시
 .vite/
+.wrangler/
 *.tsbuildinfo
 
 # build.py 가 CDN 에서 내려받아 캐시하는 clotho 스키마 (검증용, 재다운로드된다)

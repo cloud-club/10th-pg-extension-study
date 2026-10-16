@@ -1,0 +1,1172 @@
+{
+ "clothoVersion": 1,
+ "id": "pgv-diskann-graph",
+ "title": "DiskANN: 한 층의 그래프에서 후보 목록을 갱신",
+ "description": "원리를 설명하는 개념 모형입니다. 재생 시간은 검색 시간과 무관합니다.",
+ "duration": 29000,
+ "canvas": {
+  "width": 940,
+  "height": 550,
+  "background": "#0b1120"
+ },
+ "elements": [
+  {
+   "type": "text",
+   "id": "title",
+   "x": 32,
+   "y": 40,
+   "content": "DiskANN: 한 층의 그래프에서 후보 목록을 갱신",
+   "fontSize": 22,
+   "color": "#e2e8f0",
+   "appearances": [
+    {
+     "start": 0,
+     "end": 29000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "legend",
+   "x": 32,
+   "y": 84,
+   "content": "파랑 = 방문   노랑 = 대기 후보   분홍 테두리 = 현재 위치   초록 = 가까운 후보",
+   "fontSize": 14,
+   "color": "#94a3b8",
+   "appearances": [
+    {
+     "start": 0,
+     "end": 29000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ]
+  },
+  {
+   "type": "line",
+   "id": "a-b",
+   "fromId": "a",
+   "toId": "b",
+   "fromAnchor": "auto",
+   "toAnchor": "auto",
+   "stroke": "#334155",
+   "strokeWidth": 2,
+   "appearances": [
+    {
+     "start": 0,
+     "end": 29000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ]
+  },
+  {
+   "type": "line",
+   "id": "a-c",
+   "fromId": "a",
+   "toId": "c",
+   "fromAnchor": "auto",
+   "toAnchor": "auto",
+   "stroke": "#334155",
+   "strokeWidth": 2,
+   "appearances": [
+    {
+     "start": 0,
+     "end": 29000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ],
+   "tracks": [
+    {
+     "property": "stroke",
+     "interpolate": "discrete",
+     "keyframes": [
+      {
+       "time": 0,
+       "value": "#334155"
+      },
+      {
+       "time": 8499,
+       "value": "#334155"
+      },
+      {
+       "time": 8500,
+       "value": "#60a5fa"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "type": "line",
+   "id": "b-d",
+   "fromId": "b",
+   "toId": "d",
+   "fromAnchor": "auto",
+   "toAnchor": "auto",
+   "stroke": "#334155",
+   "strokeWidth": 2,
+   "appearances": [
+    {
+     "start": 0,
+     "end": 29000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ]
+  },
+  {
+   "type": "line",
+   "id": "b-f",
+   "fromId": "b",
+   "toId": "f",
+   "fromAnchor": "auto",
+   "toAnchor": "auto",
+   "stroke": "#334155",
+   "strokeWidth": 2,
+   "appearances": [
+    {
+     "start": 0,
+     "end": 29000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ]
+  },
+  {
+   "type": "line",
+   "id": "d-h",
+   "fromId": "d",
+   "toId": "h",
+   "fromAnchor": "auto",
+   "toAnchor": "auto",
+   "stroke": "#334155",
+   "strokeWidth": 2,
+   "appearances": [
+    {
+     "start": 0,
+     "end": 29000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ]
+  },
+  {
+   "type": "line",
+   "id": "d-e",
+   "fromId": "d",
+   "toId": "e",
+   "fromAnchor": "auto",
+   "toAnchor": "auto",
+   "stroke": "#334155",
+   "strokeWidth": 2,
+   "appearances": [
+    {
+     "start": 0,
+     "end": 29000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ]
+  },
+  {
+   "type": "line",
+   "id": "e-g",
+   "fromId": "e",
+   "toId": "g",
+   "fromAnchor": "auto",
+   "toAnchor": "auto",
+   "stroke": "#334155",
+   "strokeWidth": 2,
+   "appearances": [
+    {
+     "start": 0,
+     "end": 29000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ]
+  },
+  {
+   "type": "line",
+   "id": "f-h",
+   "fromId": "f",
+   "toId": "h",
+   "fromAnchor": "auto",
+   "toAnchor": "auto",
+   "stroke": "#334155",
+   "strokeWidth": 2,
+   "appearances": [
+    {
+     "start": 0,
+     "end": 29000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ]
+  },
+  {
+   "type": "line",
+   "id": "h-g",
+   "fromId": "h",
+   "toId": "g",
+   "fromAnchor": "auto",
+   "toAnchor": "auto",
+   "stroke": "#334155",
+   "strokeWidth": 2,
+   "appearances": [
+    {
+     "start": 0,
+     "end": 29000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ]
+  },
+  {
+   "type": "line",
+   "id": "c-j",
+   "fromId": "c",
+   "toId": "j",
+   "fromAnchor": "auto",
+   "toAnchor": "auto",
+   "stroke": "#334155",
+   "strokeWidth": 2,
+   "appearances": [
+    {
+     "start": 0,
+     "end": 29000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ],
+   "tracks": [
+    {
+     "property": "stroke",
+     "interpolate": "discrete",
+     "keyframes": [
+      {
+       "time": 0,
+       "value": "#334155"
+      },
+      {
+       "time": 14499,
+       "value": "#334155"
+      },
+      {
+       "time": 14500,
+       "value": "#60a5fa"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "type": "line",
+   "id": "j-g",
+   "fromId": "j",
+   "toId": "g",
+   "fromAnchor": "auto",
+   "toAnchor": "auto",
+   "stroke": "#334155",
+   "strokeWidth": 2,
+   "appearances": [
+    {
+     "start": 0,
+     "end": 29000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ],
+   "tracks": [
+    {
+     "property": "stroke",
+     "interpolate": "discrete",
+     "keyframes": [
+      {
+       "time": 0,
+       "value": "#334155"
+      },
+      {
+       "time": 21999,
+       "value": "#334155"
+      },
+      {
+       "time": 22000,
+       "value": "#60a5fa"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "type": "circle",
+   "id": "a",
+   "cx": 90,
+   "cy": 285,
+   "r": 20,
+   "fill": "#1e293b",
+   "stroke": "#94a3b8",
+   "strokeWidth": 1.5,
+   "label": "A",
+   "labelColor": "#e2e8f0",
+   "labelSize": 14,
+   "appearances": [
+    {
+     "start": 0,
+     "end": 29000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ],
+   "tracks": [
+    {
+     "property": "fill",
+     "interpolate": "discrete",
+     "keyframes": [
+      {
+       "time": 0,
+       "value": "#1e293b"
+      },
+      {
+       "time": 2999,
+       "value": "#1e293b"
+      },
+      {
+       "time": 3000,
+       "value": "#60a5fa"
+      }
+     ]
+    },
+    {
+     "property": "labelColor",
+     "interpolate": "discrete",
+     "keyframes": [
+      {
+       "time": 0,
+       "value": "#e2e8f0"
+      },
+      {
+       "time": 2999,
+       "value": "#e2e8f0"
+      },
+      {
+       "time": 3000,
+       "value": "#0b1120"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "type": "circle",
+   "id": "b",
+   "cx": 230,
+   "cy": 160,
+   "r": 20,
+   "fill": "#1e293b",
+   "stroke": "#94a3b8",
+   "strokeWidth": 1.5,
+   "label": "B",
+   "labelColor": "#e2e8f0",
+   "labelSize": 14,
+   "appearances": [
+    {
+     "start": 0,
+     "end": 29000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ],
+   "tracks": [
+    {
+     "property": "fill",
+     "interpolate": "discrete",
+     "keyframes": [
+      {
+       "time": 0,
+       "value": "#1e293b"
+      },
+      {
+       "time": 6499,
+       "value": "#1e293b"
+      },
+      {
+       "time": 6500,
+       "value": "#fbbf24"
+      }
+     ]
+    },
+    {
+     "property": "labelColor",
+     "interpolate": "discrete",
+     "keyframes": [
+      {
+       "time": 0,
+       "value": "#e2e8f0"
+      },
+      {
+       "time": 6499,
+       "value": "#e2e8f0"
+      },
+      {
+       "time": 6500,
+       "value": "#0b1120"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "type": "circle",
+   "id": "c",
+   "cx": 225,
+   "cy": 400,
+   "r": 20,
+   "fill": "#1e293b",
+   "stroke": "#94a3b8",
+   "strokeWidth": 1.5,
+   "label": "C",
+   "labelColor": "#e2e8f0",
+   "labelSize": 14,
+   "appearances": [
+    {
+     "start": 0,
+     "end": 29000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ],
+   "tracks": [
+    {
+     "property": "fill",
+     "interpolate": "discrete",
+     "keyframes": [
+      {
+       "time": 0,
+       "value": "#1e293b"
+      },
+      {
+       "time": 6999,
+       "value": "#1e293b"
+      },
+      {
+       "time": 7000,
+       "value": "#fbbf24"
+      }
+     ]
+    },
+    {
+     "property": "labelColor",
+     "interpolate": "discrete",
+     "keyframes": [
+      {
+       "time": 0,
+       "value": "#e2e8f0"
+      },
+      {
+       "time": 6999,
+       "value": "#e2e8f0"
+      },
+      {
+       "time": 7000,
+       "value": "#0b1120"
+      }
+     ]
+    },
+    {
+     "property": "fill",
+     "interpolate": "discrete",
+     "keyframes": [
+      {
+       "time": 0,
+       "value": "#1e293b"
+      },
+      {
+       "time": 6999,
+       "value": "#1e293b"
+      },
+      {
+       "time": 7000,
+       "value": "#fbbf24"
+      },
+      {
+       "time": 9499,
+       "value": "#fbbf24"
+      },
+      {
+       "time": 9500,
+       "value": "#60a5fa"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "type": "circle",
+   "id": "d",
+   "cx": 365,
+   "cy": 255,
+   "r": 20,
+   "fill": "#1e293b",
+   "stroke": "#94a3b8",
+   "strokeWidth": 1.5,
+   "label": "D",
+   "labelColor": "#e2e8f0",
+   "labelSize": 14,
+   "appearances": [
+    {
+     "start": 0,
+     "end": 29000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ]
+  },
+  {
+   "type": "circle",
+   "id": "e",
+   "cx": 420,
+   "cy": 370,
+   "r": 20,
+   "fill": "#1e293b",
+   "stroke": "#94a3b8",
+   "strokeWidth": 1.5,
+   "label": "E",
+   "labelColor": "#e2e8f0",
+   "labelSize": 14,
+   "appearances": [
+    {
+     "start": 0,
+     "end": 29000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ]
+  },
+  {
+   "type": "circle",
+   "id": "f",
+   "cx": 520,
+   "cy": 155,
+   "r": 20,
+   "fill": "#1e293b",
+   "stroke": "#94a3b8",
+   "strokeWidth": 1.5,
+   "label": "F",
+   "labelColor": "#e2e8f0",
+   "labelSize": 14,
+   "appearances": [
+    {
+     "start": 0,
+     "end": 29000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ]
+  },
+  {
+   "type": "circle",
+   "id": "h",
+   "cx": 585,
+   "cy": 270,
+   "r": 20,
+   "fill": "#1e293b",
+   "stroke": "#94a3b8",
+   "strokeWidth": 1.5,
+   "label": "H",
+   "labelColor": "#e2e8f0",
+   "labelSize": 14,
+   "appearances": [
+    {
+     "start": 0,
+     "end": 29000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ]
+  },
+  {
+   "type": "circle",
+   "id": "j",
+   "cx": 455,
+   "cy": 425,
+   "r": 20,
+   "fill": "#1e293b",
+   "stroke": "#94a3b8",
+   "strokeWidth": 1.5,
+   "label": "J",
+   "labelColor": "#e2e8f0",
+   "labelSize": 14,
+   "appearances": [
+    {
+     "start": 0,
+     "end": 29000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ],
+   "tracks": [
+    {
+     "property": "fill",
+     "interpolate": "discrete",
+     "keyframes": [
+      {
+       "time": 0,
+       "value": "#1e293b"
+      },
+      {
+       "time": 12499,
+       "value": "#1e293b"
+      },
+      {
+       "time": 12500,
+       "value": "#fbbf24"
+      }
+     ]
+    },
+    {
+     "property": "labelColor",
+     "interpolate": "discrete",
+     "keyframes": [
+      {
+       "time": 0,
+       "value": "#e2e8f0"
+      },
+      {
+       "time": 12499,
+       "value": "#e2e8f0"
+      },
+      {
+       "time": 12500,
+       "value": "#0b1120"
+      }
+     ]
+    },
+    {
+     "property": "fill",
+     "interpolate": "discrete",
+     "keyframes": [
+      {
+       "time": 0,
+       "value": "#1e293b"
+      },
+      {
+       "time": 12499,
+       "value": "#1e293b"
+      },
+      {
+       "time": 12500,
+       "value": "#fbbf24"
+      },
+      {
+       "time": 15999,
+       "value": "#fbbf24"
+      },
+      {
+       "time": 16000,
+       "value": "#60a5fa"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "type": "circle",
+   "id": "g",
+   "cx": 610,
+   "cy": 380,
+   "r": 20,
+   "fill": "#1e293b",
+   "stroke": "#94a3b8",
+   "strokeWidth": 1.5,
+   "label": "G",
+   "labelColor": "#e2e8f0",
+   "labelSize": 14,
+   "appearances": [
+    {
+     "start": 0,
+     "end": 29000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ],
+   "tracks": [
+    {
+     "property": "fill",
+     "interpolate": "discrete",
+     "keyframes": [
+      {
+       "time": 0,
+       "value": "#1e293b"
+      },
+      {
+       "time": 19999,
+       "value": "#1e293b"
+      },
+      {
+       "time": 20000,
+       "value": "#fbbf24"
+      }
+     ]
+    },
+    {
+     "property": "labelColor",
+     "interpolate": "discrete",
+     "keyframes": [
+      {
+       "time": 0,
+       "value": "#e2e8f0"
+      },
+      {
+       "time": 19999,
+       "value": "#e2e8f0"
+      },
+      {
+       "time": 20000,
+       "value": "#0b1120"
+      }
+     ]
+    },
+    {
+     "property": "fill",
+     "interpolate": "discrete",
+     "keyframes": [
+      {
+       "time": 0,
+       "value": "#1e293b"
+      },
+      {
+       "time": 19999,
+       "value": "#1e293b"
+      },
+      {
+       "time": 20000,
+       "value": "#fbbf24"
+      },
+      {
+       "time": 24499,
+       "value": "#fbbf24"
+      },
+      {
+       "time": 24500,
+       "value": "#34d399"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "type": "circle",
+   "id": "query",
+   "cx": 625,
+   "cy": 450,
+   "r": 17,
+   "fill": "#fb7185",
+   "stroke": "#94a3b8",
+   "strokeWidth": 1.5,
+   "label": "Q",
+   "labelColor": "#0b1120",
+   "labelSize": 14,
+   "appearances": [
+    {
+     "start": 0,
+     "end": 29000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "queue-title",
+   "x": 690,
+   "y": 145,
+   "content": "후보 목록",
+   "fontSize": 18,
+   "color": "#e2e8f0",
+   "appearances": [
+    {
+     "start": 0,
+     "end": 29000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "queue-0-0",
+   "x": 690,
+   "y": 175,
+   "width": 215,
+   "height": 44,
+   "fill": "#1e293b",
+   "cornerRadius": 8,
+   "label": "A (거리 10)",
+   "labelColor": "#e2e8f0",
+   "labelSize": 16,
+   "appearances": [
+    {
+     "start": 0,
+     "end": 6000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "queue-0-1",
+   "x": 690,
+   "y": 237,
+   "width": 215,
+   "height": 44,
+   "fill": "#1e293b",
+   "cornerRadius": 8,
+   "label": "진입점부터 시작",
+   "labelColor": "#e2e8f0",
+   "labelSize": 16,
+   "appearances": [
+    {
+     "start": 0,
+     "end": 6000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "queue-1-0",
+   "x": 690,
+   "y": 175,
+   "width": 215,
+   "height": 44,
+   "fill": "#1e293b",
+   "cornerRadius": 8,
+   "label": "C (거리 7)",
+   "labelColor": "#e2e8f0",
+   "labelSize": 16,
+   "appearances": [
+    {
+     "start": 6000,
+     "end": 12000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "queue-1-1",
+   "x": 690,
+   "y": 237,
+   "width": 215,
+   "height": 44,
+   "fill": "#1e293b",
+   "cornerRadius": 8,
+   "label": "B (거리 8)",
+   "labelColor": "#e2e8f0",
+   "labelSize": 16,
+   "appearances": [
+    {
+     "start": 6000,
+     "end": 12000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "queue-2-0",
+   "x": 690,
+   "y": 175,
+   "width": 215,
+   "height": 44,
+   "fill": "#1e293b",
+   "cornerRadius": 8,
+   "label": "J (거리 4)",
+   "labelColor": "#e2e8f0",
+   "labelSize": 16,
+   "appearances": [
+    {
+     "start": 12000,
+     "end": 19000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "queue-2-1",
+   "x": 690,
+   "y": 237,
+   "width": 215,
+   "height": 44,
+   "fill": "#1e293b",
+   "cornerRadius": 8,
+   "label": "B (거리 8)",
+   "labelColor": "#e2e8f0",
+   "labelSize": 16,
+   "appearances": [
+    {
+     "start": 12000,
+     "end": 19000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "queue-3-0",
+   "x": 690,
+   "y": 175,
+   "width": 215,
+   "height": 44,
+   "fill": "#1e293b",
+   "cornerRadius": 8,
+   "label": "G (거리 0.7)",
+   "labelColor": "#e2e8f0",
+   "labelSize": 16,
+   "appearances": [
+    {
+     "start": 19000,
+     "end": 29000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "queue-3-1",
+   "x": 690,
+   "y": 237,
+   "width": 215,
+   "height": 44,
+   "fill": "#1e293b",
+   "cornerRadius": 8,
+   "label": "B (거리 8)",
+   "labelColor": "#e2e8f0",
+   "labelSize": 16,
+   "appearances": [
+    {
+     "start": 19000,
+     "end": 29000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "queue-note",
+   "x": 690,
+   "y": 345,
+   "content": "거리는 본문의 예시값",
+   "fontSize": 14,
+   "color": "#e2e8f0",
+   "appearances": [
+    {
+     "start": 0,
+     "end": 29000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "queue-note-2",
+   "x": 690,
+   "y": 375,
+   "content": "그림의 길이와 무관",
+   "fontSize": 14,
+   "color": "#94a3b8",
+   "appearances": [
+    {
+     "start": 0,
+     "end": 29000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ]
+  },
+  {
+   "type": "circle",
+   "id": "search-cursor",
+   "cx": 90,
+   "cy": 285,
+   "r": 28,
+   "fill": "transparent",
+   "stroke": "#fb7185",
+   "strokeWidth": 3,
+   "appearances": [
+    {
+     "start": 3000,
+     "end": 29000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ],
+   "tracks": [
+    {
+     "property": "cx",
+     "interpolate": "number",
+     "keyframes": [
+      {
+       "time": 3000,
+       "value": 90
+      },
+      {
+       "time": 8000,
+       "value": 90
+      },
+      {
+       "time": 9500,
+       "value": 225
+      },
+      {
+       "time": 14500,
+       "value": 225
+      },
+      {
+       "time": 16000,
+       "value": 455
+      },
+      {
+       "time": 22000,
+       "value": 455
+      },
+      {
+       "time": 24000,
+       "value": 610
+      }
+     ]
+    },
+    {
+     "property": "cy",
+     "interpolate": "number",
+     "keyframes": [
+      {
+       "time": 3000,
+       "value": 285
+      },
+      {
+       "time": 8000,
+       "value": 285
+      },
+      {
+       "time": 9500,
+       "value": 400
+      },
+      {
+       "time": 14500,
+       "value": 400
+      },
+      {
+       "time": 16000,
+       "value": 425
+      },
+      {
+       "time": 22000,
+       "value": 425
+      },
+      {
+       "time": 24000,
+       "value": 380
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "note",
+   "x": 32,
+   "y": 515,
+   "content": "지름길은 이동을 줄일 수 있습니다. 그래프 이동 횟수가 실제 SSD 읽기 횟수와 같지는 않습니다.",
+   "fontSize": 14,
+   "color": "#e2e8f0",
+   "appearances": [
+    {
+     "start": 0,
+     "end": 29000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ]
+  }
+ ],
+ "effects": [
+  {
+   "type": "flow",
+   "id": "a-c-flow",
+   "elementId": "a-c",
+   "time": 8500,
+   "duration": 900,
+   "color": "#60a5fa",
+   "particles": 2,
+   "radius": 3
+  },
+  {
+   "type": "flow",
+   "id": "c-j-flow",
+   "elementId": "c-j",
+   "time": 14500,
+   "duration": 900,
+   "color": "#60a5fa",
+   "particles": 2,
+   "radius": 3
+  },
+  {
+   "type": "flow",
+   "id": "j-g-flow",
+   "elementId": "j-g",
+   "time": 22000,
+   "duration": 900,
+   "color": "#60a5fa",
+   "particles": 2,
+   "radius": 3
+  }
+ ],
+ "chapters": [
+  {
+   "id": "phase-0",
+   "time": 0,
+   "label": "연결과 시작점",
+   "subtitle": "회색 선은 이동할 수 있는 연결입니다. A에서 출발합니다."
+  },
+  {
+   "id": "phase-1",
+   "time": 6000,
+   "label": "A의 이웃 비교",
+   "subtitle": "B와 C를 후보에 넣고, Q에 더 가까운 C를 먼저 확장합니다."
+  },
+  {
+   "id": "phase-2",
+   "time": 12000,
+   "label": "C에서 J로",
+   "subtitle": "J를 찾았다고 B를 버리지 않습니다. 후보 목록을 갱신합니다."
+  },
+  {
+   "id": "phase-3",
+   "time": 19000,
+   "label": "J에서 G로",
+   "subtitle": "지름길로 G까지 접근합니다. 최종 후보는 원본 벡터로 재평가할 수 있습니다."
+  }
+ ],
+ "settings": {
+  "autoplay": true,
+  "loop": false,
+  "showChapterList": true,
+  "chapterListPosition": "bottom"
+ }
+}

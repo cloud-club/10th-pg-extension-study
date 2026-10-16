@@ -1,0 +1,43 @@
+{
+  "environment": {
+    "postgresql": "PostgreSQL 18.6 (Debian 18.6-1.pgdg13+2) on aarch64-unknown-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit",
+    "extensions": [
+      {
+        "name": "plpgsql",
+        "version": "1.0"
+      },
+      {
+        "name": "postgres_fdw",
+        "version": "1.2"
+      },
+      {
+        "name": "pg_trgm",
+        "version": "1.6"
+      },
+      {
+        "name": "dblink",
+        "version": "1.2"
+      },
+      {
+        "name": "file_fdw",
+        "version": "1.0"
+      },
+      {
+        "name": "pg_stat_statements",
+        "version": "1.12"
+      }
+    ],
+    "image": "[{\"ID\":\"sha256:74935e72241653ca55e0414067e6d8763aceb8a810eb51b452253ec3dcfc4336\",\"ContainerName\":\"shinkeonkim-week07-fdw-labs-local-1\",\"Repository\":\"postgres\",\"Tag\":\"18.6\",\"Platform\":\"linux/arm64/v8\",\"Size\":665862274,\"Created\":\"2026-10-06T01:35:25.233180549Z\",\"LastTagTime\":\"2026-10-09T07:22:04.914162596Z\"},{\"ID\":\"sha256:74935e72241653ca55e0414067e6d8763aceb8a810eb51b452253ec3dcfc4336\",\"ContainerName\":\"shinkeonkim-week07-fdw-labs-remote-1\",\"Repository\":\"postgres\",\"Tag\":\"18.6\",\"Platform\":\"linux/arm64/v8\",\"Size\":665862274,\"Created\":\"2026-10-06T01:35:25.233180549Z\",\"LastTagTime\":\"2026-10-09T07:22:04.914162596Z\"}]",
+    "rows": 100000,
+    "network": "같은 호스트 Docker Compose 내부 네트워크",
+    "image_repo_digests": [
+      "postgres@sha256:74935e72241653ca55e0414067e6d8763aceb8a810eb51b452253ec3dcfc4336"
+    ]
+  },
+  "returned_rows": 10000,
+  "observed_fetch_commands": {
+    "100": 101,
+    "1000": 11
+  },
+  "measurement": "원격 statement 로그의 FETCH 횟수. 지연 성능 비교 아님."
+}

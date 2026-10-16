@@ -1,0 +1,37 @@
+name: pgvector-week05-research
+services:
+  postgres:
+    image: timescale/timescaledb-ha@sha256:e9f34d8dd27621ec3933386eb07b70021d15b8116247362e0537bbff94ef0769
+    # pgvector 0.8.6 + pgvectorscale 0.9.1 + timescaledb 2.30.2 가 이미 빌드되어 들어 있는 공식 이미지.
+    # 두 확장 모두 Rust/pgrx 빌드 체인이 필요해 postgres:16-trixie 베이스로 직접 빌드하지 않는다.
+    environment:
+      POSTGRES_DB: study
+      POSTGRES_PASSWORD: experiment-only
+    command:
+      - postgres
+      - -c
+      - shared_buffers=512MB
+      - -c
+      - effective_cache_size=2GB
+      # 실습 환경 전체 메모리가 3.8GiB로 빠듯하다. HNSW/DiskANN 빌드가 이 한도에 걸리면
+      # NOTICE로 그래프가 maintenance_work_mem에 안 맞는다는 경고가 나온다 - 그 경고 자체도 기록 대상이다.
+      - -c
+      - maintenance_work_mem=1GB
+      - -c
+      - max_wal_size=4GB
+      - -c
+      - checkpoint_timeout=1h
+      - -c
+      - max_parallel_maintenance_workers=2
+      - -c
+      - track_io_timing=on
+    shm_size: 1g
+    healthcheck:
+      test: [CMD-SHELL, 'pg_isready -h 127.0.0.1 -U postgres -d study']
+      interval: 1s
+      timeout: 3s
+      retries: 60
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+volumes:
+  pgdata: {}

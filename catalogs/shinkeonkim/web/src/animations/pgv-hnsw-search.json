@@ -1,0 +1,1212 @@
+{
+ "clothoVersion": 1,
+ "id": "pgv-hnsw-search",
+ "title": "HNSW 는 층이 있는 그래프를 내려가며 찾는다",
+ "description": "위층에서 큰 걸음으로 가까운 곳까지 가고, 바닥층에서 ef_search 개 후보를 유지하며 넓힌다. 수치는 실험 01·06.",
+ "duration": 32000,
+ "canvas": {
+  "width": 940,
+  "height": 500,
+  "background": "#0b1120"
+ },
+ "elements": [
+  {
+   "type": "text",
+   "id": "title",
+   "x": 40,
+   "y": 42,
+   "content": "HNSW 는 층이 있는 그래프를 내려가며 찾는다",
+   "fontSize": 22,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 0,
+     "end": 32000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ],
+   "fontWeight": "700"
+  },
+  {
+   "type": "text",
+   "id": "e1",
+   "x": 40,
+   "y": 96,
+   "content": "2층 (드문 점들 - 멀리 이어진 간선)",
+   "fontSize": 15,
+   "color": "#94a3b8",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 200,
+     "end": 7500,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "e2",
+   "x": 80,
+   "y": 112,
+   "width": 100,
+   "height": 40,
+   "fill": "#a78bfa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 500,
+     "end": 7500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "L2-1",
+   "labelColor": "#0b1120",
+   "labelSize": 15
+  },
+  {
+   "type": "rect",
+   "id": "e3",
+   "x": 420,
+   "y": 112,
+   "width": 100,
+   "height": 40,
+   "fill": "#a78bfa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 700,
+     "end": 7500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "L2-2",
+   "labelColor": "#0b1120",
+   "labelSize": 15
+  },
+  {
+   "type": "rect",
+   "id": "e4",
+   "x": 760,
+   "y": 112,
+   "width": 100,
+   "height": 40,
+   "fill": "#a78bfa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 900,
+     "end": 7500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "L2-3",
+   "labelColor": "#0b1120",
+   "labelSize": 15
+  },
+  {
+   "type": "text",
+   "id": "e5",
+   "x": 40,
+   "y": 196,
+   "content": "1층",
+   "fontSize": 15,
+   "color": "#94a3b8",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 1400,
+     "end": 7500,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "e6",
+   "x": 40,
+   "y": 212,
+   "width": 120,
+   "height": 40,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 1700,
+     "end": 7500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "L1-1",
+   "labelColor": "#0b1120",
+   "labelSize": 15
+  },
+  {
+   "type": "rect",
+   "id": "e7",
+   "x": 190,
+   "y": 212,
+   "width": 120,
+   "height": 40,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 1850,
+     "end": 7500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "L1-2",
+   "labelColor": "#0b1120",
+   "labelSize": 15
+  },
+  {
+   "type": "rect",
+   "id": "e8",
+   "x": 340,
+   "y": 212,
+   "width": 120,
+   "height": 40,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 2000,
+     "end": 7500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "L1-3",
+   "labelColor": "#0b1120",
+   "labelSize": 15
+  },
+  {
+   "type": "rect",
+   "id": "e9",
+   "x": 490,
+   "y": 212,
+   "width": 120,
+   "height": 40,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 2150,
+     "end": 7500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "L1-4",
+   "labelColor": "#0b1120",
+   "labelSize": 15
+  },
+  {
+   "type": "rect",
+   "id": "e10",
+   "x": 640,
+   "y": 212,
+   "width": 120,
+   "height": 40,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 2300,
+     "end": 7500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "L1-5",
+   "labelColor": "#0b1120",
+   "labelSize": 15
+  },
+  {
+   "type": "rect",
+   "id": "e11",
+   "x": 790,
+   "y": 212,
+   "width": 120,
+   "height": 40,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 2450,
+     "end": 7500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "L1-6",
+   "labelColor": "#0b1120",
+   "labelSize": 15
+  },
+  {
+   "type": "text",
+   "id": "e12",
+   "x": 40,
+   "y": 296,
+   "content": "0층 (모든 점)",
+   "fontSize": 15,
+   "color": "#94a3b8",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 2800,
+     "end": 7500,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "e13",
+   "x": 40,
+   "y": 312,
+   "width": 80,
+   "height": 40,
+   "fill": "#1e293b",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 3000,
+     "end": 7500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "1",
+   "labelColor": "#e2e8f0",
+   "labelSize": 15,
+   "stroke": "#334155",
+   "strokeWidth": 2
+  },
+  {
+   "type": "rect",
+   "id": "e14",
+   "x": 128,
+   "y": 312,
+   "width": 80,
+   "height": 40,
+   "fill": "#1e293b",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 3080,
+     "end": 7500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "2",
+   "labelColor": "#e2e8f0",
+   "labelSize": 15,
+   "stroke": "#334155",
+   "strokeWidth": 2
+  },
+  {
+   "type": "rect",
+   "id": "e15",
+   "x": 216,
+   "y": 312,
+   "width": 80,
+   "height": 40,
+   "fill": "#1e293b",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 3160,
+     "end": 7500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "3",
+   "labelColor": "#e2e8f0",
+   "labelSize": 15,
+   "stroke": "#334155",
+   "strokeWidth": 2
+  },
+  {
+   "type": "rect",
+   "id": "e16",
+   "x": 304,
+   "y": 312,
+   "width": 80,
+   "height": 40,
+   "fill": "#1e293b",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 3240,
+     "end": 7500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "4",
+   "labelColor": "#e2e8f0",
+   "labelSize": 15,
+   "stroke": "#334155",
+   "strokeWidth": 2
+  },
+  {
+   "type": "rect",
+   "id": "e17",
+   "x": 392,
+   "y": 312,
+   "width": 80,
+   "height": 40,
+   "fill": "#1e293b",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 3320,
+     "end": 7500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "5",
+   "labelColor": "#e2e8f0",
+   "labelSize": 15,
+   "stroke": "#334155",
+   "strokeWidth": 2
+  },
+  {
+   "type": "rect",
+   "id": "e18",
+   "x": 480,
+   "y": 312,
+   "width": 80,
+   "height": 40,
+   "fill": "#1e293b",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 3400,
+     "end": 7500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "6",
+   "labelColor": "#e2e8f0",
+   "labelSize": 15,
+   "stroke": "#334155",
+   "strokeWidth": 2
+  },
+  {
+   "type": "rect",
+   "id": "e19",
+   "x": 568,
+   "y": 312,
+   "width": 80,
+   "height": 40,
+   "fill": "#1e293b",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 3480,
+     "end": 7500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "7",
+   "labelColor": "#e2e8f0",
+   "labelSize": 15,
+   "stroke": "#334155",
+   "strokeWidth": 2
+  },
+  {
+   "type": "rect",
+   "id": "e20",
+   "x": 656,
+   "y": 312,
+   "width": 80,
+   "height": 40,
+   "fill": "#1e293b",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 3560,
+     "end": 7500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "8",
+   "labelColor": "#e2e8f0",
+   "labelSize": 15,
+   "stroke": "#334155",
+   "strokeWidth": 2
+  },
+  {
+   "type": "rect",
+   "id": "e21",
+   "x": 744,
+   "y": 312,
+   "width": 80,
+   "height": 40,
+   "fill": "#1e293b",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 3640,
+     "end": 7500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "9",
+   "labelColor": "#e2e8f0",
+   "labelSize": 15,
+   "stroke": "#334155",
+   "strokeWidth": 2
+  },
+  {
+   "type": "rect",
+   "id": "e22",
+   "x": 832,
+   "y": 312,
+   "width": 80,
+   "height": 40,
+   "fill": "#1e293b",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 3720,
+     "end": 7500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "10",
+   "labelColor": "#e2e8f0",
+   "labelSize": 15,
+   "stroke": "#334155",
+   "strokeWidth": 2
+  },
+  {
+   "type": "text",
+   "id": "e23",
+   "x": 40,
+   "y": 400,
+   "content": "위층일수록 점이 적고 간선이 길다 - 고속도로와 골목길처럼.",
+   "fontSize": 15,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 4400,
+     "end": 7500,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "e24",
+   "x": 40,
+   "y": 96,
+   "content": "진입점(L2-1)에서 출발 → 각 층에서 질의 q 쪽으로 그리디 이동",
+   "fontSize": 15,
+   "color": "#94a3b8",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 7700,
+     "end": 15500,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "e25",
+   "x": 80,
+   "y": 112,
+   "width": 100,
+   "height": 40,
+   "fill": "#334155",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 7900,
+     "end": 15500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "L2-1",
+   "labelColor": "#94a3b8",
+   "labelSize": 15
+  },
+  {
+   "type": "rect",
+   "id": "e26",
+   "x": 420,
+   "y": 112,
+   "width": 100,
+   "height": 40,
+   "fill": "#fb7185",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 8700,
+     "end": 15500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "L2-2",
+   "labelColor": "#0b1120",
+   "labelSize": 15
+  },
+  {
+   "type": "text",
+   "id": "e27",
+   "x": 560,
+   "y": 138,
+   "content": "← 2층에서 가장 가까움",
+   "fontSize": 14,
+   "color": "#94a3b8",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 9100,
+     "end": 15500,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "e28",
+   "x": 460,
+   "y": 212,
+   "width": 120,
+   "height": 40,
+   "fill": "#334155",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 9900,
+     "end": 15500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "L1-4",
+   "labelColor": "#94a3b8",
+   "labelSize": 15
+  },
+  {
+   "type": "rect",
+   "id": "e29",
+   "x": 610,
+   "y": 212,
+   "width": 120,
+   "height": 40,
+   "fill": "#fb7185",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 10500,
+     "end": 15500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "L1-5",
+   "labelColor": "#0b1120",
+   "labelSize": 15
+  },
+  {
+   "type": "text",
+   "id": "e30",
+   "x": 760,
+   "y": 238,
+   "content": "← 1층",
+   "fontSize": 14,
+   "color": "#94a3b8",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 10900,
+     "end": 15500,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "e31",
+   "x": 656,
+   "y": 312,
+   "width": 80,
+   "height": 40,
+   "fill": "#fb7185",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 11900,
+     "end": 15500,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "8",
+   "labelColor": "#0b1120",
+   "labelSize": 15
+  },
+  {
+   "type": "text",
+   "id": "e32",
+   "x": 760,
+   "y": 338,
+   "content": "← 0층 출발점",
+   "fontSize": 14,
+   "color": "#94a3b8",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 12300,
+     "end": 15500,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "e33",
+   "x": 40,
+   "y": 420,
+   "content": "위층에서 멀리 뛰어 질의 근처까지 빨리 간다. 정밀한 탐색은 0층에서.",
+   "fontSize": 15,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 13100,
+     "end": 15500,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "e34",
+   "x": 40,
+   "y": 96,
+   "content": "ef_search = 4 일 때 (작은 목록)",
+   "fontSize": 15,
+   "color": "#94a3b8",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 15700,
+     "end": 24000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "e35",
+   "x": 40,
+   "y": 112,
+   "width": 100,
+   "height": 40,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 16000,
+     "end": 24000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "후보 1",
+   "labelColor": "#0b1120",
+   "labelSize": 15
+  },
+  {
+   "type": "rect",
+   "id": "e36",
+   "x": 150,
+   "y": 112,
+   "width": 100,
+   "height": 40,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 16200,
+     "end": 24000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "후보 2",
+   "labelColor": "#0b1120",
+   "labelSize": 15
+  },
+  {
+   "type": "rect",
+   "id": "e37",
+   "x": 260,
+   "y": 112,
+   "width": 100,
+   "height": 40,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 16400,
+     "end": 24000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "후보 3",
+   "labelColor": "#0b1120",
+   "labelSize": 15
+  },
+  {
+   "type": "rect",
+   "id": "e38",
+   "x": 370,
+   "y": 112,
+   "width": 100,
+   "height": 40,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 16600,
+     "end": 24000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "후보 4",
+   "labelColor": "#0b1120",
+   "labelSize": 15
+  },
+  {
+   "type": "text",
+   "id": "e39",
+   "x": 40,
+   "y": 196,
+   "content": "목록이 작으면 근처만 보고 끝난다 → 빠르지만 정답을 놓친다",
+   "fontSize": 15,
+   "color": "#fbbf24",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 17100,
+     "end": 24000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "e40",
+   "x": 40,
+   "y": 252,
+   "content": "ef_search = 10 일 때 (큰 목록)",
+   "fontSize": 15,
+   "color": "#94a3b8",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 18300,
+     "end": 24000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "e41",
+   "x": 40,
+   "y": 268,
+   "width": 80,
+   "height": 40,
+   "fill": "#34d399",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 18600,
+     "end": 24000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "1",
+   "labelColor": "#0b1120",
+   "labelSize": 15
+  },
+  {
+   "type": "rect",
+   "id": "e42",
+   "x": 128,
+   "y": 268,
+   "width": 80,
+   "height": 40,
+   "fill": "#34d399",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 18720,
+     "end": 24000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "2",
+   "labelColor": "#0b1120",
+   "labelSize": 15
+  },
+  {
+   "type": "rect",
+   "id": "e43",
+   "x": 216,
+   "y": 268,
+   "width": 80,
+   "height": 40,
+   "fill": "#34d399",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 18840,
+     "end": 24000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "3",
+   "labelColor": "#0b1120",
+   "labelSize": 15
+  },
+  {
+   "type": "rect",
+   "id": "e44",
+   "x": 304,
+   "y": 268,
+   "width": 80,
+   "height": 40,
+   "fill": "#34d399",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 18960,
+     "end": 24000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "4",
+   "labelColor": "#0b1120",
+   "labelSize": 15
+  },
+  {
+   "type": "rect",
+   "id": "e45",
+   "x": 392,
+   "y": 268,
+   "width": 80,
+   "height": 40,
+   "fill": "#34d399",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 19080,
+     "end": 24000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "5",
+   "labelColor": "#0b1120",
+   "labelSize": 15
+  },
+  {
+   "type": "rect",
+   "id": "e46",
+   "x": 480,
+   "y": 268,
+   "width": 80,
+   "height": 40,
+   "fill": "#34d399",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 19200,
+     "end": 24000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "6",
+   "labelColor": "#0b1120",
+   "labelSize": 15
+  },
+  {
+   "type": "rect",
+   "id": "e47",
+   "x": 568,
+   "y": 268,
+   "width": 80,
+   "height": 40,
+   "fill": "#34d399",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 19320,
+     "end": 24000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "7",
+   "labelColor": "#0b1120",
+   "labelSize": 15
+  },
+  {
+   "type": "rect",
+   "id": "e48",
+   "x": 656,
+   "y": 268,
+   "width": 80,
+   "height": 40,
+   "fill": "#34d399",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 19440,
+     "end": 24000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "8",
+   "labelColor": "#0b1120",
+   "labelSize": 15
+  },
+  {
+   "type": "rect",
+   "id": "e49",
+   "x": 744,
+   "y": 268,
+   "width": 80,
+   "height": 40,
+   "fill": "#34d399",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 19560,
+     "end": 24000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "9",
+   "labelColor": "#0b1120",
+   "labelSize": 15
+  },
+  {
+   "type": "rect",
+   "id": "e50",
+   "x": 832,
+   "y": 268,
+   "width": 80,
+   "height": 40,
+   "fill": "#34d399",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 19680,
+     "end": 24000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "10",
+   "labelColor": "#0b1120",
+   "labelSize": 15
+  },
+  {
+   "type": "text",
+   "id": "e51",
+   "x": 40,
+   "y": 352,
+   "content": "더 많은 이웃을 펼쳐 본다 → 정답을 더 찾지만 읽는 페이지(버퍼)가 는다",
+   "fontSize": 15,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 20100,
+     "end": 24000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "e52",
+   "x": 40,
+   "y": 96,
+   "content": "ef_search=10 의 recall@10",
+   "fontSize": 15,
+   "color": "#94a3b8",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 24200,
+     "end": 32000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "e53",
+   "x": 40,
+   "y": 112,
+   "width": 400,
+   "height": 52,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 24500,
+     "end": 32000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "51,000행 · 0.64",
+   "labelColor": "#0b1120",
+   "labelSize": 18
+  },
+  {
+   "type": "rect",
+   "id": "e54",
+   "x": 480,
+   "y": 112,
+   "width": 420,
+   "height": 52,
+   "fill": "#fb7185",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 25500,
+     "end": 32000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "301,000행 · 0.22",
+   "labelColor": "#0b1120",
+   "labelSize": 18
+  },
+  {
+   "type": "text",
+   "id": "e55",
+   "x": 40,
+   "y": 220,
+   "content": "301,000행에서는 ef_search=100 으로 올려도 0.50 - 싼 설정은 규모에 약하다.",
+   "fontSize": 15,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 26800,
+     "end": 32000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "e56",
+   "x": 40,
+   "y": 256,
+   "content": "같은 조건에서 DiskANN 의 가장 싼 설정은 1.00 이었다 (실험 06).",
+   "fontSize": 15,
+   "color": "#34d399",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 28000,
+     "end": 32000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  }
+ ],
+ "chapters": [
+  {
+   "id": "ch0",
+   "time": 0,
+   "label": "1. 층이 있는 그래프",
+   "subtitle": "모든 점은 바닥층에, 일부만 위층에도 있다"
+  },
+  {
+   "id": "ch1",
+   "time": 7500,
+   "label": "2. 위에서 아래로",
+   "subtitle": "각 층에서 질의에 가장 가까운 점으로 이동한 뒤 한 층 내려간다"
+  },
+  {
+   "id": "ch2",
+   "time": 15500,
+   "label": "3. 0층에서 ef_search 개",
+   "subtitle": "후보 목록 크기 = ef_search. 목록이 꽉 차면 먼 후보부터 버린다"
+  },
+  {
+   "id": "ch3",
+   "time": 24000,
+   "label": "4. 규모가 커지면",
+   "subtitle": "실험 06 · 같은 ef_search=10, 행 수만 6배"
+  }
+ ],
+ "settings": {
+  "loop": false,
+  "autoplay": true,
+  "showChapterList": true
+ }
+}

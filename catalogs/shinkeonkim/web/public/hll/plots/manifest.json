@@ -1,0 +1,74 @@
+{
+  "generator_sha256": "dd7ab577e095e1c628c448e3cd2acc1ad758ff35f83af0dc91b7bddc73e1b585",
+  "matplotlib": "3.11.2",
+  "inputs": {
+    "run.json": "a69d53d9ced722d39dd88aef1795e37144501491d030f93f6e2c210d0e9d239d",
+    "storage.json": "7e8cd51e990702bff7d671abfd008f3e0bd618518ff399cdc7b939a7bc989927",
+    "daily-ranges.json": "7ab7dce0b742f213a81fccc868da469028be88efa4e616ef91106167914431ef"
+  },
+  "figures": {
+    "lab01-stored-values": {
+      "title": "실제 저장: 작은 해시 목록과 강제 FULL 레지스터 비교",
+      "files": {
+        "svg": "cd260fb918d2089dcf6930acc31bb2658b1308b7557d5c0555a4302c03d0ad48",
+        "png": "861e68197e1f18b1f222d6f504088ac52cfd9409c88741cd5f9a81650f5fda97"
+      }
+    },
+    "lab01-storage-size": {
+      "title": "고유 개수별 표현과 직렬화 크기",
+      "files": {
+        "svg": "47cdf89c8230459dcaa0670a15392dfd7844b7d95c559e5d5f57d0d7824d70f1",
+        "png": "12e2bae5c8123420e5ff199e2832caf13b9de0ddbf146362c51f846a94cded1b"
+      }
+    },
+    "lab02-overlap": {
+      "title": "원본 SQL로 확인한 날짜별 사용자 ID 범위",
+      "files": {
+        "svg": "04c47ee3567d601a528d2c53a602ead467ded6082a81d248ee9c24e0f70d76c7",
+        "png": "4e18f07e3ebdbba5a19928a543281dc657256797bcfa4b1fd86565e47aef1807"
+      }
+    },
+    "lab02-union": {
+      "title": "일별 숫자 합과 실제 주간 값·병합 추정 비교",
+      "files": {
+        "svg": "d826c2c5689a56b7784d4cae7b4321298026bd7987ffd8a3be69782809daabaa",
+        "png": "53f254b87450d8d738f047e09dcd6ef54d74db68e4645d6162eff6dfdbaa30a1"
+      }
+    },
+    "lab03-error-distribution": {
+      "title": "정밀도별 실제 오차 20시행 분포",
+      "files": {
+        "svg": "0e01a8d52cabc37a58ee4b70afd99977f8459c7d7cc58a8f0af75d913a4db1a6",
+        "png": "f9516c9c71f88cf09705229683711b8b846632371b7d16039da34f49b9567784"
+      }
+    },
+    "lab03-space-error": {
+      "title": "FULL 공간과 이론·표본 오차의 비교",
+      "files": {
+        "svg": "bcb651ce9015b95a158c81cf207bbda281b2b0a2df9d1016b7d3bbde449fef1e",
+        "png": "471fc7937b11d4286909c11816b050e7812d761628f02b9e9e2cdec0afcc30ca"
+      }
+    },
+    "lab03-hash-check": {
+      "title": "별도 hash seed 점검: 버킷 사용과 큰 과소 추정",
+      "files": {
+        "svg": "148b691060caa9f71b65686a06d562568c63c330be08b99c8c318f507741d36a",
+        "png": "11e0f7b0081e716d991694c4873312bcc2c53bf3328acd4d65ba32df65737aef"
+      }
+    },
+    "lab04-read-times": {
+      "title": "정확 집계·원본 HLL·스케치 재사용의 서버 시간",
+      "files": {
+        "svg": "ef05a29d87215cf9795aad0d602d00f8dd0b83b7980f2f96d60ac1442b1787ca",
+        "png": "9d9761b4809b3a4cc2dca8c39f0bb3aacea9144369d184b70eb43fd0c22d36c3"
+      }
+    },
+    "lab04-amortization": {
+      "title": "실측값으로 계산한 초기 생성 포함 합산 모델",
+      "files": {
+        "svg": "420fc2167bf3dea0a2ff062c8fdd84349b13eb5d4eb2f241909d85525fb3f7a8",
+        "png": "a452a1c8f82ccc3c6dacef3909b83b6d6c31664c990b1fed756b4fe8fcaf6037"
+      }
+    }
+  }
+}

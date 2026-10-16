@@ -1,0 +1,77 @@
+# 심화 05. 쓰기·잠금·재시도
+
+## 출발점과 질문
+
+일반적인 SELECT보다 원격 쓰기의 정확성 경계가 중요하다. SQL 지원, 쓰기 배치, 잠금 시간, 실패 시 커밋 여부를 서로 나누어 생각한다.
+
+## 읽기 전용 설계에서 먼저 확인할 것
+
+updatable=false는 INSERT·UPDATE·DELETE, truncatable=false는 TRUNCATE를 제어한다. server 옵션을 table 옵션이 덮어쓸 수 있으므로 읽기 전용 server라는 이름만 보고 판단하지 않는다. 로컬 옵션과 별개로 원격 전용 역할의 실제 권한을 제한한다. 전용 실험은 두 차단 오류와 table override에 따른 계획 허용을 확인했다. [주의사항 검토와 재현](/postgres-fdw/blog-review)에서 확인하며 로컬 ALTER 권한을 가진 사용자를 상대로 옵션만을 권한 경계로 삼지 않는다.
+
+## 1. 원격 UPDATE의 두 실행 방식
+
+원격에서 전체 UPDATE를 처리할 수 있는 조건이면 direct modify 경로가 후보가 된다. 로컬 JOIN·전송 불가능한 조건·로컬 트리거 등의 제약이 있으면 로컬에서 대상 행을 읽고 수정 작업을 보내는 경로가 필요할 수 있다.
+
+EXPLAIN VERBOSE로 원격 UPDATE와 로컬 노드를 확인한다. 안전한 동일 정답을 유지하는지 먼저 확인하고 성능을 비교한다. 조건을 원격으로 보내려고 함수의 volatility를 잘못 선언하는 것은 쓰기에서도 의미를 깨뜨릴 수 있다.
+
+## 2. batch_size는 INSERT용 묶음이다
+
+batch_size 기본값은 1이다. fetch_size를 키워도 INSERT 묶음은 커지지 않는다. 입력 열 수와 프로토콜 파라미터 제한에 따라 실제 묶음 크기가 조정될 수 있고 RETURNING·트리거 등으로 묶음 실행이 제한되는 경우도 있다.
+
+INSERT 속도를 논할 때 행 개수·열 수·트랜잭션 크기·원격 인덱스·WAL·트리거를 함께 적는다. UPDATE·DELETE 전체를 batch_size가 동일하게 가속한다고 해석하지 않는다.
+
+## 3. ON CONFLICT와 원격 제약
+
+postgres_fdw의 INSERT는 ON CONFLICT DO UPDATE를 지원하지 않는다. DO NOTHING도 conflict target을 지정하지 않는 형태 등 지원 조건을 확인해야 한다. 로컬 foreign table 정의만 보고 원격 UNIQUE·CHECK·트리거의 실제 보장을 대신 판단하지 않는다.
+
+업무 ID를 이용한 중복 방지는 원격의 실제 UNIQUE 제약과 상태 확인을 기반으로 설계한다. FDW의 upsert 지원 한계 때문에 원격 함수·서비스 API·명시적 업무 처리 계층이 더 적합한 경우도 있다.
+
+## 4. 잠금 대기는 두 서버에 다르게 보인다
+
+원격 세션이 books.id=1을 UPDATE하고 트랜잭션을 열어두면 다른 원격 UPDATE는 그 행의 잠금을 기다릴 수 있다. 로컬 FDW UPDATE는 원격 응답을 기다리는 것처럼 보이고 원격 pg_stat_activity에는 Lock 대기가 보일 수 있다.
+
+Lab 04는 원격 잠금을 유지한 채 로컬 UPDATE에 짧은 statement_timeout을 걸어 취소한다. timeout의 원인은 연결 수립이 아니라 원격 행 잠금이라는 것을 두 세션 순서로 확인한다. 종료 후 잠금을 풀고 값이 바뀌지 않았는지 검증한다.
+
+## 5. 타임아웃의 범위
+
+connect_timeout은 연결 수립, statement_timeout은 실행 명령, lock_timeout은 잠금 대기를 제한한다. 로컬 설정이 원격 모든 세션 설정과 동일하게 자동 복제되는 것은 아니다. 원격 역할 기본 설정을 바꿨다면 새 연결에서 적용되는지 확인한다.
+
+취소는 원격 정리까지 시간이 걸릴 수 있다. 로컬 오류 메시지만 보고 원격 active 상태가 즉시 사라졌다고 단정하지 않는다. rollback·원격 세션·잠금 해제를 관측한다.
+
+## 6. 실패 순서를 업무 관점으로 그린다
+
+```mermaid
+sequenceDiagram
+ participant L as 로컬 업무
+ participant R as 원격 DB
+ L->>R: 변경 요청
+ R->>R: 변경 처리
+ L->>R: COMMIT
+ R->>R: 커밋 완료 가능
+ R--xL: 응답 경로 끊김 가능
+ Note over L,R: 요청 오류만으로 미반영을 확정하지 않음
+```
+
+이는 가능한 장애 시나리오의 개념도다. 랩의 timeout·rollback 검증이 이 커밋 직후 단절까지 재현했다고 주장하지 않는다. 불확실한 결과에서는 업무 ID로 원격 상태를 조회하고 중복 효과를 막는 정책을 사용한다.
+
+## 7. 원격 snapshot과 전역 snapshot
+
+원격 서버별로 일관된 스냅샷을 유지해도 여러 독립 DB 사이에 동일한 전역 시점을 만들어 주는 것은 아니다. 각 원격 트랜잭션의 시작 시점·첫 읽기 시점이 다를 수 있다. 로컬과 원격을 합친 보고서의 시간 의미를 업무 요구에 맞춰 정한다.
+
+분산 커밋과 분산 읽기 시점은 각각 별도 보장이다. “트랜잭션을 썼다”는 말 하나로 둘을 모두 해결했다고 하지 않는다.
+
+## 8. 복습
+
+질문: 로컬 statement_timeout으로 UPDATE가 취소됐으므로 connect_timeout을 늘리면 해결될까?
+
+답: 원격 잠금 대기라면 연결 수립 한도는 원인을 해결하지 않는다.
+
+질문: 같은 SQL을 다시 실행할 수 있으면 멱등인가?
+
+답: 재실행 후 업무 효과가 중복되지 않아야 한다. 실행 가능 여부와 의미 보장은 다르다.
+
+## 근거와 다음
+
+[FDW row locking](https://www.postgresql.org/docs/18/fdw-row-locking.html) · [클라이언트 기본 설정·타임아웃](https://www.postgresql.org/docs/18/runtime-config-client.html) · [INSERT](https://www.postgresql.org/docs/18/sql-insert.html)
+
+다음: [심화 06. 소스와 운영 설계](06-source-and-production-design.md).

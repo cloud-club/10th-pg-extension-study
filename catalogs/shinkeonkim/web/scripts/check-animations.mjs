@@ -86,6 +86,8 @@ for (const f of files) {
       for (let j = i + 1; j < real.length; j++) {
         const a = real[i], b = real[j]
         if (a.type !== 'text' && b.type !== 'text') continue   // 상자끼리 겹침은 의도일 수 있다
+        // 레이블 없는 배경·영역·연결선 위의 텍스트는 의도적인 배치다.
+        if ((a.type !== 'text' && !a.label) || (b.type !== 'text' && !b.label)) continue
         const A = box[a.id], B = box[b.id]
         if (!A || !B) continue
         const together = (a.appearances ?? []).some((x) =>

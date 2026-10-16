@@ -1,0 +1,96 @@
+# 비교 Lab · 직접 JOIN, 키 배열, 원격 전처리, 로컬 staging
+
+## 처음 이해하기: 같은 책 목록을 얻는 네 가지 길
+관심 책 번호는 로컬에 있고 책 제목은 원격에 있습니다. 결과가 같아도 전체 목록을 가져와 찾거나, 필요한 번호를 보내거나, 미리 축소 표를 만들거나, 로컬 복사본을 저장할 수 있습니다. “마지막 SELECT가 빠르다”와 “준비부터 전체 작업이 저렴하다”를 구분하는 Lab입니다.
+
+기업 사례의 전처리·staging 조언을 합성 데이터로 검증합니다. 기업의 4억 행·운영 네트워크를 재현한 실험은 아닙니다. [사례 검토](blog-review.md), [비용·통계·JOIN](docs/advanced/02-cost-statistics-and-joins.md)에서 이어집니다.
+
+## 정답과 통제 조건
+원격 books는 100,000행, 로컬 관심 키는 100·200·…·100,000의 1,000개입니다. 결과는 id·title 두 열을 id 순서로 비교합니다. 모든 예열·본 측정에서 JSON 결과 전체를 대조하고 동일 결과의 SHA-256도 저장합니다. 키뿐 아니라 제목까지 비교합니다.
+
+| 방식 | 준비 | 조회 시 원격 접근 |
+| --- | --- | --- |
+| 직접 JOIN | 공통 환경만 | 원격 books와 로컬 키 결합 |
+| 키 배열 전달 | 공통 환경만 | 키 배열 조건을 원격 WHERE로 전달 |
+| 원격 전처리 | 원격 축소 표·인덱스·통계·권한·foreign table 등록 | 축소 표 조회 |
+| 로컬 staging | 원격 전체 id·title 복사·로컬 인덱스·통계 | 로컬 표만 조회 |
+
+공통 키 표·확장·server·mapping 생성은 비교의 공통 fixture이며 준비 시간에서 제외합니다. 원격 전처리에는 원격 DB의 DDL 권한이 필요하며 읽기 전용 FDW 사용자에게 그 권한을 추가하지 않습니다. 전용 Lab의 원격 관리자 세션으로 전처리합니다.
+
+## 기본 쿼리와 단계
+```sql
+-- 직접 JOIN
+SELECT b.id,b.title FROM remote_school.books b
+JOIN join_compare.keys k ON k.id=b.id;
+
+-- 로컬 키를 원격 필터에 전달
+SELECT b.id,b.title FROM remote_school.books b
+JOIN join_compare.keys k ON k.id=b.id
+WHERE b.id=ANY ((SELECT array_agg(id) FROM join_compare.keys)::integer[]);
+```
+
+키 배열 전달은 작은 키 집합과 전송 가능한 조건의 대안입니다. 배열 생성·파라미터 전송 비용도 조회 시간에 들어갑니다. 큰 키 집합이나 다른 통계에서 같은 결론을 보장하지 않습니다.
+
+```sql
+-- 원격 관리자 세션에서 전처리
+CREATE TABLE join_compare.reduced AS
+SELECT id,title FROM public.books WHERE id%100=0;
+CREATE UNIQUE INDEX ON join_compare.reduced(id);
+ANALYZE join_compare.reduced;
+GRANT SELECT ON join_compare.reduced TO fdw_reader;
+
+-- 로컬 세션에서 등록
+CREATE FOREIGN TABLE join_compare.remote_books(id integer,title text)
+SERVER school_remote OPTIONS(schema_name 'join_compare',table_name 'reduced');
+```
+
+원격 id%100=0은 이 합성 데이터의 관심 키와 일치하는 업무 조건입니다. 실제 로컬 키를 원격에 자동 공유한 구현이 아닙니다. 임의 키 집합이라면 키 업로드·권한·동기화 비용이 추가되며 별도로 측정해야 합니다. 축소 표 조회 후에도 로컬 키와 JOIN합니다.
+
+```sql
+-- 로컬에 전체 필요한 열을 staging
+CREATE TABLE join_compare.staging AS
+SELECT id,title FROM remote_school.books;
+CREATE UNIQUE INDEX ON join_compare.staging(id);
+ANALYZE join_compare.staging;
+SELECT b.id,b.title FROM join_compare.staging b
+JOIN join_compare.keys k ON k.id=b.id;
+```
+
+staging은 100,000행 중 필요한 두 열만 복사합니다. 처음부터 키 배열로 1,000행만 복사하는 filtered staging은 이 비교에 포함하지 않은 별도 대안입니다. 복사 이후 원격 변경이 자동 반영되지 않습니다.
+
+## 재현과 정리
+저장소 루트에서 Docker를 실행한 상태로 아래 명령을 사용합니다.
+```bash
+bash catalogs/shinkeonkim/week07/postgres_fdw/labs/shared/run.sh up
+python3 catalogs/shinkeonkim/week07/postgres_fdw/experiments/05-join-strategies/bench.py
+```
+전용 join_compare 스키마를 생성·재생성하므로 동일 공유 환경에서 이 실험을 동시에 실행하지 않습니다. 공유 books·favorite_books·server 옵션은 변경하지 않습니다. 성공 종료 때 전용 스키마를 양쪽에서 제거하며 실패해 남은 객체는 다음 실행에서 재생성합니다. 전용 결과 원본은 experiments/05-join-strategies/results/run.json에 보관합니다.
+
+## 측정 방법
+준비 작업은 방식별 5회 반복하고, 읽기는 각 방식 예열 2회 후 본 측정 10회입니다. 읽기 순서를 회차마다 순환합니다. 지속 psql 세션에서 Python perf_counter로 요청부터 JSON 전체 결과 수신까지 wall time을 측정합니다. 앱 서비스 지연이나 기존 실험의 EXPLAIN Execution Time과 동일한 지표가 아닙니다.
+원격 전처리 준비는 원격 표 생성·인덱스·통계·권한과 로컬 등록 시간을 합칩니다. staging 준비는 로컬 표 생성에 포함된 원격 읽기·전송·적재·인덱스·통계 시간입니다. 재생성 시 이전 실험 표의 DROP도 포함합니다. 정리·컨테이너 기동·공통 fixture 비용은 제외합니다. 캐시를 비우지 않았으며 반복 준비와 읽기는 예열된 조건입니다.
+
+## 실제 결과
+
+| 방식 | 준비 중앙값 ms | 조회 중앙값 ms | 조회 범위 ms | 준비 + 1회 모델 ms | 준비 + 10회 모델 ms | 원격 출력 행 × loops |
+| --- | --- | --- | --- | --- | --- | --- |
+| 직접 JOIN | 0.00 | 80.74 | 78.84–84.78 | 80.74 | 814.20 | 100,000 × 1 |
+| 키 배열 | 0.00 | 4.65 | 4.42–5.52 | 4.65 | 47.84 | 1,000 × 1 |
+| 원격 전처리 | 13.15 | 3.45 | 2.41–4.70 | 16.60 | 47.15 | 1,000 × 1 |
+| 로컬 staging | 179.83 | 5.18 | 4.38–6.94 | 185.01 | 232.66 | 0 (로컬 조회) |
+
+측정 시각: 2026-10-13 08:45:22.101111+00 · PostgreSQL 18.6 · 같은 호스트 Docker 내부 네트워크.
+
+추가 저장 공간(인덱스 포함): 원격 축소 표 114,688 bytes, 로컬 staging 8,560,640 bytes.
+
+모든 측정의 id·title 동일성을 확인했습니다. 결과 SHA-256: `05c3cf59e05e5bf1963098139a4291fc42881c0ea544dd450abb539bbb65e2c7`.
+
+## 결과 해석과 운영으로 옮길 때의 경계
+한 번 조회와 10번 조회의 준비 포함 값은 준비 중앙값과 읽기 측정값을 합친 모델입니다. 별도의 end-to-end 실행에서 직접 측정한 총시간이라고 표시하지 않습니다. 한 번 조회 모델은 준비 중앙값 + 읽기 중앙값, 10번 조회 모델은 준비 중앙값 + 실제 읽기 10회 합계입니다.
+로컬 staging의 조회는 원격 장애와 분리할 수 있지만 적재·저장 공간·최신성 관리가 생깁니다. 다른 키 집합을 반복 조회한다면 전체 staging의 재사용 가치도 달라집니다. 원격 전처리는 업무 DB의 CPU·I/O·WAL·저장 공간을 사용하는 설계입니다.
+표 크기는 pg_total_relation_size로 인덱스를 포함한 추가 저장 공간을 기록합니다. 두 서버 공간을 합쳐 wire bytes라고 부르지 않습니다. Foreign Scan의 rows·loops·Remote SQL은 별도 EXPLAIN에서 확인하며 EXPLAIN 계측 시간은 wall time 표와 섞지 않습니다.
+현재 측정에는 WAN RTT·wire bytes·peak RSS·원격 CPU/I/O·WAL 증가량·동시 부하·갱신 비용·장애 주입이 없습니다. 따라서 한 경로의 보편적 우승이나 운영 p99 개선으로 일반화하지 않습니다.
+
+## 복습과 다음 실험
+관심 키가 10개 또는 5만 개이면 어떤 비용이 커질까요? 데이터가 계속 바뀌면 staging의 정답 비교를 언제 해야 할까요? 원격 전처리의 준비 비용을 몇 번 재사용할 수 있을까요?
+다음에는 filtered staging·임의 키 업로드·동시 세션·원격 부하를 같은 정답과 함께 비교합니다. [관련 확장과 캐시](related/cache-cron.md), [관측과 부하](docs/advanced/04-capacity-and-observability.md)로 이어집니다.

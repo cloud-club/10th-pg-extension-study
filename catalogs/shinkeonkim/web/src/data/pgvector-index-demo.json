@@ -1,0 +1,1160 @@
+{
+ "runs": 2,
+ "note": "PostgreSQL 16.15 · pgvector 0.8.6 (timescale/timescaledb-ha:pg16) · shared_buffers 512MB · maintenance_work_mem 1GB · CPU 3. 질의는 병렬 없이(max_parallel_workers_per_gather=0) 측정. 시간은 실행마다 달라진다.",
+ "dataset": {
+  "rows": 20000,
+  "dim": 32,
+  "clusters": 100,
+  "queries": 100,
+  "distinct_vectors": 20000,
+  "table_mb": 3.96,
+  "generate_sql": "CREATE TABLE centers AS\n  SELECT c, d, random() AS x FROM generate_series(0, 100 - 1) c, generate_series(1, 32) d;\nCREATE TABLE pts (id bigint PRIMARY KEY, cluster int, embedding vector(32));\nINSERT INTO pts\n  SELECT v, v % 100, array_agg(ce.x + (random() - 0.5) * 0.4 ORDER BY ce.d)::vector\n  FROM generate_series(1, 20000) v JOIN centers ce ON ce.c = v % 100\n  GROUP BY v;"
+ },
+ "exact": {
+  "buffers_per_query": 445.0,
+  "ms_per_query": 1.801
+ },
+ "ivfflat": [
+  {
+   "lists": 20,
+   "run": 0,
+   "probes": 1,
+   "build_ms": 24.5,
+   "index_mb": 2.92,
+   "recall": 1.0,
+   "buffers_per_query": 31.9,
+   "ms_per_query": 0.117
+  },
+  {
+   "lists": 20,
+   "run": 0,
+   "probes": 2,
+   "build_ms": 24.5,
+   "index_mb": 2.92,
+   "recall": 1.0,
+   "buffers_per_query": 53.4,
+   "ms_per_query": 0.252
+  },
+  {
+   "lists": 20,
+   "run": 0,
+   "probes": 4,
+   "build_ms": 24.5,
+   "index_mb": 2.92,
+   "recall": 1.0,
+   "buffers_per_query": 97.3,
+   "ms_per_query": 0.525
+  },
+  {
+   "lists": 20,
+   "run": 0,
+   "probes": 8,
+   "build_ms": 24.5,
+   "index_mb": 2.92,
+   "recall": 1.0,
+   "buffers_per_query": 180.5,
+   "ms_per_query": 1.018
+  },
+  {
+   "lists": 20,
+   "run": 0,
+   "probes": 16,
+   "build_ms": 24.5,
+   "index_mb": 2.92,
+   "recall": 1.0,
+   "buffers_per_query": 332.6,
+   "ms_per_query": 2.048
+  },
+  {
+   "lists": 20,
+   "run": 1,
+   "probes": 1,
+   "build_ms": 31.5,
+   "index_mb": 2.93,
+   "recall": 0.989,
+   "buffers_per_query": 32.7,
+   "ms_per_query": 0.115
+  },
+  {
+   "lists": 20,
+   "run": 1,
+   "probes": 2,
+   "build_ms": 31.5,
+   "index_mb": 2.93,
+   "recall": 1.0,
+   "buffers_per_query": 55.4,
+   "ms_per_query": 0.244
+  },
+  {
+   "lists": 20,
+   "run": 1,
+   "probes": 4,
+   "build_ms": 31.5,
+   "index_mb": 2.93,
+   "recall": 1.0,
+   "buffers_per_query": 102.9,
+   "ms_per_query": 0.549
+  },
+  {
+   "lists": 20,
+   "run": 1,
+   "probes": 8,
+   "build_ms": 31.5,
+   "index_mb": 2.93,
+   "recall": 1.0,
+   "buffers_per_query": 186.2,
+   "ms_per_query": 1.113
+  },
+  {
+   "lists": 20,
+   "run": 1,
+   "probes": 16,
+   "build_ms": 31.5,
+   "index_mb": 2.93,
+   "recall": 1.0,
+   "buffers_per_query": 327.0,
+   "ms_per_query": 2.02
+  },
+  {
+   "lists": 141,
+   "run": 0,
+   "probes": 1,
+   "build_ms": 55.2,
+   "index_mb": 3.37,
+   "recall": 0.871,
+   "buffers_per_query": 16.5,
+   "ms_per_query": 0.024
+  },
+  {
+   "lists": 141,
+   "run": 0,
+   "probes": 2,
+   "build_ms": 55.2,
+   "index_mb": 3.37,
+   "recall": 0.986,
+   "buffers_per_query": 19.4,
+   "ms_per_query": 0.034
+  },
+  {
+   "lists": 141,
+   "run": 0,
+   "probes": 4,
+   "build_ms": 55.2,
+   "index_mb": 3.37,
+   "recall": 1.0,
+   "buffers_per_query": 25.9,
+   "ms_per_query": 0.06
+  },
+  {
+   "lists": 141,
+   "run": 0,
+   "probes": 8,
+   "build_ms": 55.2,
+   "index_mb": 3.37,
+   "recall": 1.0,
+   "buffers_per_query": 38.7,
+   "ms_per_query": 0.124
+  },
+  {
+   "lists": 141,
+   "run": 0,
+   "probes": 16,
+   "build_ms": 55.2,
+   "index_mb": 3.37,
+   "recall": 1.0,
+   "buffers_per_query": 64.6,
+   "ms_per_query": 0.255
+  },
+  {
+   "lists": 141,
+   "run": 0,
+   "probes": 32,
+   "build_ms": 55.2,
+   "index_mb": 3.37,
+   "recall": 1.0,
+   "buffers_per_query": 115.5,
+   "ms_per_query": 0.526
+  },
+  {
+   "lists": 141,
+   "run": 1,
+   "probes": 1,
+   "build_ms": 56.3,
+   "index_mb": 3.31,
+   "recall": 0.87,
+   "buffers_per_query": 16.5,
+   "ms_per_query": 0.024
+  },
+  {
+   "lists": 141,
+   "run": 1,
+   "probes": 2,
+   "build_ms": 56.3,
+   "index_mb": 3.31,
+   "recall": 0.993,
+   "buffers_per_query": 19.4,
+   "ms_per_query": 0.038
+  },
+  {
+   "lists": 141,
+   "run": 1,
+   "probes": 4,
+   "build_ms": 56.3,
+   "index_mb": 3.31,
+   "recall": 1.0,
+   "buffers_per_query": 25.6,
+   "ms_per_query": 0.069
+  },
+  {
+   "lists": 141,
+   "run": 1,
+   "probes": 8,
+   "build_ms": 56.3,
+   "index_mb": 3.31,
+   "recall": 1.0,
+   "buffers_per_query": 38.3,
+   "ms_per_query": 0.124
+  },
+  {
+   "lists": 141,
+   "run": 1,
+   "probes": 16,
+   "build_ms": 56.3,
+   "index_mb": 3.31,
+   "recall": 1.0,
+   "buffers_per_query": 63.0,
+   "ms_per_query": 0.256
+  },
+  {
+   "lists": 141,
+   "run": 1,
+   "probes": 32,
+   "build_ms": 56.3,
+   "index_mb": 3.31,
+   "recall": 1.0,
+   "buffers_per_query": 111.2,
+   "ms_per_query": 0.526
+  },
+  {
+   "lists": 500,
+   "run": 0,
+   "probes": 1,
+   "build_ms": 342.7,
+   "index_mb": 4.63,
+   "recall": 0.451,
+   "buffers_per_query": 21.4,
+   "ms_per_query": 0.016
+  },
+  {
+   "lists": 500,
+   "run": 0,
+   "probes": 2,
+   "build_ms": 342.7,
+   "index_mb": 4.63,
+   "recall": 0.709,
+   "buffers_per_query": 22.7,
+   "ms_per_query": 0.021
+  },
+  {
+   "lists": 500,
+   "run": 0,
+   "probes": 4,
+   "build_ms": 342.7,
+   "index_mb": 4.63,
+   "recall": 0.928,
+   "buffers_per_query": 25.0,
+   "ms_per_query": 0.03
+  },
+  {
+   "lists": 500,
+   "run": 0,
+   "probes": 8,
+   "build_ms": 342.7,
+   "index_mb": 4.63,
+   "recall": 0.999,
+   "buffers_per_query": 29.6,
+   "ms_per_query": 0.044
+  },
+  {
+   "lists": 500,
+   "run": 0,
+   "probes": 16,
+   "build_ms": 342.7,
+   "index_mb": 4.63,
+   "recall": 1.0,
+   "buffers_per_query": 38.8,
+   "ms_per_query": 0.078
+  },
+  {
+   "lists": 500,
+   "run": 0,
+   "probes": 32,
+   "build_ms": 342.7,
+   "index_mb": 4.63,
+   "recall": 1.0,
+   "buffers_per_query": 57.8,
+   "ms_per_query": 0.15
+  },
+  {
+   "lists": 500,
+   "run": 1,
+   "probes": 1,
+   "build_ms": 308.1,
+   "index_mb": 4.7,
+   "recall": 0.41,
+   "buffers_per_query": 21.4,
+   "ms_per_query": 0.017
+  },
+  {
+   "lists": 500,
+   "run": 1,
+   "probes": 2,
+   "build_ms": 308.1,
+   "index_mb": 4.7,
+   "recall": 0.694,
+   "buffers_per_query": 22.8,
+   "ms_per_query": 0.021
+  },
+  {
+   "lists": 500,
+   "run": 1,
+   "probes": 4,
+   "build_ms": 308.1,
+   "index_mb": 4.7,
+   "recall": 0.932,
+   "buffers_per_query": 25.2,
+   "ms_per_query": 0.03
+  },
+  {
+   "lists": 500,
+   "run": 1,
+   "probes": 8,
+   "build_ms": 308.1,
+   "index_mb": 4.7,
+   "recall": 1.0,
+   "buffers_per_query": 29.9,
+   "ms_per_query": 0.046
+  },
+  {
+   "lists": 500,
+   "run": 1,
+   "probes": 16,
+   "build_ms": 308.1,
+   "index_mb": 4.7,
+   "recall": 1.0,
+   "buffers_per_query": 39.5,
+   "ms_per_query": 0.081
+  },
+  {
+   "lists": 500,
+   "run": 1,
+   "probes": 32,
+   "build_ms": 308.1,
+   "index_mb": 4.7,
+   "recall": 1.0,
+   "buffers_per_query": 58.4,
+   "ms_per_query": 0.159
+  }
+ ],
+ "efc_error": {
+  "sql": "CREATE INDEX ON pts USING hnsw (embedding vector_l2_ops) WITH (m = 16, ef_construction = 16);",
+  "output": "ERROR:  ef_construction must be greater than or equal to 2 * m"
+ },
+ "hnsw": [
+  {
+   "m": 4,
+   "ef_construction": 64,
+   "run": 0,
+   "ef_search": 10,
+   "build_ms": 561.8,
+   "index_mb": 5.45,
+   "recall": 0.525,
+   "buffers_per_query": 155.1,
+   "ms_per_query": 0.033
+  },
+  {
+   "m": 4,
+   "ef_construction": 64,
+   "run": 0,
+   "ef_search": 20,
+   "build_ms": 561.8,
+   "index_mb": 5.45,
+   "recall": 0.694,
+   "buffers_per_query": 210.6,
+   "ms_per_query": 0.052
+  },
+  {
+   "m": 4,
+   "ef_construction": 64,
+   "run": 0,
+   "ef_search": 40,
+   "build_ms": 561.8,
+   "index_mb": 5.45,
+   "recall": 0.847,
+   "buffers_per_query": 307.2,
+   "ms_per_query": 0.061
+  },
+  {
+   "m": 4,
+   "ef_construction": 64,
+   "run": 0,
+   "ef_search": 100,
+   "build_ms": 561.8,
+   "index_mb": 5.45,
+   "recall": 0.913,
+   "buffers_per_query": 438.8,
+   "ms_per_query": 0.084
+  },
+  {
+   "m": 4,
+   "ef_construction": 64,
+   "run": 0,
+   "ef_search": 200,
+   "build_ms": 561.8,
+   "index_mb": 5.45,
+   "recall": 0.975,
+   "buffers_per_query": 612.4,
+   "ms_per_query": 0.123
+  },
+  {
+   "m": 4,
+   "ef_construction": 64,
+   "run": 1,
+   "ef_search": 10,
+   "build_ms": 536.9,
+   "index_mb": 5.45,
+   "recall": 0.561,
+   "buffers_per_query": 150.6,
+   "ms_per_query": 0.032
+  },
+  {
+   "m": 4,
+   "ef_construction": 64,
+   "run": 1,
+   "ef_search": 20,
+   "build_ms": 536.9,
+   "index_mb": 5.45,
+   "recall": 0.728,
+   "buffers_per_query": 204.4,
+   "ms_per_query": 0.039
+  },
+  {
+   "m": 4,
+   "ef_construction": 64,
+   "run": 1,
+   "ef_search": 40,
+   "build_ms": 536.9,
+   "index_mb": 5.45,
+   "recall": 0.831,
+   "buffers_per_query": 286.7,
+   "ms_per_query": 0.057
+  },
+  {
+   "m": 4,
+   "ef_construction": 64,
+   "run": 1,
+   "ef_search": 100,
+   "build_ms": 536.9,
+   "index_mb": 5.45,
+   "recall": 0.942,
+   "buffers_per_query": 425.9,
+   "ms_per_query": 0.083
+  },
+  {
+   "m": 4,
+   "ef_construction": 64,
+   "run": 1,
+   "ef_search": 200,
+   "build_ms": 536.9,
+   "index_mb": 5.45,
+   "recall": 0.974,
+   "buffers_per_query": 584.0,
+   "ms_per_query": 0.118
+  },
+  {
+   "m": 8,
+   "ef_construction": 64,
+   "run": 0,
+   "ef_search": 10,
+   "build_ms": 741.2,
+   "index_mb": 6.39,
+   "recall": 0.901,
+   "buffers_per_query": 196.7,
+   "ms_per_query": 0.043
+  },
+  {
+   "m": 8,
+   "ef_construction": 64,
+   "run": 0,
+   "ef_search": 20,
+   "build_ms": 741.2,
+   "index_mb": 6.39,
+   "recall": 0.975,
+   "buffers_per_query": 253.4,
+   "ms_per_query": 0.056
+  },
+  {
+   "m": 8,
+   "ef_construction": 64,
+   "run": 0,
+   "ef_search": 40,
+   "build_ms": 741.2,
+   "index_mb": 6.39,
+   "recall": 0.998,
+   "buffers_per_query": 316.3,
+   "ms_per_query": 0.064
+  },
+  {
+   "m": 8,
+   "ef_construction": 64,
+   "run": 0,
+   "ef_search": 100,
+   "build_ms": 741.2,
+   "index_mb": 6.39,
+   "recall": 1.0,
+   "buffers_per_query": 404.8,
+   "ms_per_query": 0.094
+  },
+  {
+   "m": 8,
+   "ef_construction": 64,
+   "run": 0,
+   "ef_search": 200,
+   "build_ms": 741.2,
+   "index_mb": 6.39,
+   "recall": 1.0,
+   "buffers_per_query": 523.5,
+   "ms_per_query": 0.13
+  },
+  {
+   "m": 8,
+   "ef_construction": 64,
+   "run": 1,
+   "ef_search": 10,
+   "build_ms": 732.6,
+   "index_mb": 6.38,
+   "recall": 0.899,
+   "buffers_per_query": 199.4,
+   "ms_per_query": 0.04
+  },
+  {
+   "m": 8,
+   "ef_construction": 64,
+   "run": 1,
+   "ef_search": 20,
+   "build_ms": 732.6,
+   "index_mb": 6.38,
+   "recall": 0.956,
+   "buffers_per_query": 252.9,
+   "ms_per_query": 0.056
+  },
+  {
+   "m": 8,
+   "ef_construction": 64,
+   "run": 1,
+   "ef_search": 40,
+   "build_ms": 732.6,
+   "index_mb": 6.38,
+   "recall": 0.978,
+   "buffers_per_query": 315.2,
+   "ms_per_query": 0.083
+  },
+  {
+   "m": 8,
+   "ef_construction": 64,
+   "run": 1,
+   "ef_search": 100,
+   "build_ms": 732.6,
+   "index_mb": 6.38,
+   "recall": 0.99,
+   "buffers_per_query": 408.8,
+   "ms_per_query": 0.097
+  },
+  {
+   "m": 8,
+   "ef_construction": 64,
+   "run": 1,
+   "ef_search": 200,
+   "build_ms": 732.6,
+   "index_mb": 6.38,
+   "recall": 1.0,
+   "buffers_per_query": 536.8,
+   "ms_per_query": 0.138
+  },
+  {
+   "m": 16,
+   "ef_construction": 64,
+   "run": 0,
+   "ef_search": 10,
+   "build_ms": 1512.5,
+   "index_mb": 8.3,
+   "recall": 0.982,
+   "buffers_per_query": 243.3,
+   "ms_per_query": 0.051
+  },
+  {
+   "m": 16,
+   "ef_construction": 64,
+   "run": 0,
+   "ef_search": 20,
+   "build_ms": 1512.5,
+   "index_mb": 8.3,
+   "recall": 0.989,
+   "buffers_per_query": 286.3,
+   "ms_per_query": 0.069
+  },
+  {
+   "m": 16,
+   "ef_construction": 64,
+   "run": 0,
+   "ef_search": 40,
+   "build_ms": 1512.5,
+   "index_mb": 8.3,
+   "recall": 1.0,
+   "buffers_per_query": 330.6,
+   "ms_per_query": 0.09
+  },
+  {
+   "m": 16,
+   "ef_construction": 64,
+   "run": 0,
+   "ef_search": 100,
+   "build_ms": 1512.5,
+   "index_mb": 8.3,
+   "recall": 1.0,
+   "buffers_per_query": 405.7,
+   "ms_per_query": 0.153
+  },
+  {
+   "m": 16,
+   "ef_construction": 64,
+   "run": 0,
+   "ef_search": 200,
+   "build_ms": 1512.5,
+   "index_mb": 8.3,
+   "recall": 1.0,
+   "buffers_per_query": 525.2,
+   "ms_per_query": 0.219
+  },
+  {
+   "m": 16,
+   "ef_construction": 64,
+   "run": 1,
+   "ef_search": 10,
+   "build_ms": 1614.9,
+   "index_mb": 8.3,
+   "recall": 0.99,
+   "buffers_per_query": 240.2,
+   "ms_per_query": 0.056
+  },
+  {
+   "m": 16,
+   "ef_construction": 64,
+   "run": 1,
+   "ef_search": 20,
+   "build_ms": 1614.9,
+   "index_mb": 8.3,
+   "recall": 0.999,
+   "buffers_per_query": 283.1,
+   "ms_per_query": 0.068
+  },
+  {
+   "m": 16,
+   "ef_construction": 64,
+   "run": 1,
+   "ef_search": 40,
+   "build_ms": 1614.9,
+   "index_mb": 8.3,
+   "recall": 1.0,
+   "buffers_per_query": 325.5,
+   "ms_per_query": 0.093
+  },
+  {
+   "m": 16,
+   "ef_construction": 64,
+   "run": 1,
+   "ef_search": 100,
+   "build_ms": 1614.9,
+   "index_mb": 8.3,
+   "recall": 1.0,
+   "buffers_per_query": 400.7,
+   "ms_per_query": 0.122
+  },
+  {
+   "m": 16,
+   "ef_construction": 64,
+   "run": 1,
+   "ef_search": 200,
+   "build_ms": 1614.9,
+   "index_mb": 8.3,
+   "recall": 1.0,
+   "buffers_per_query": 519.9,
+   "ms_per_query": 0.178
+  },
+  {
+   "m": 32,
+   "ef_construction": 64,
+   "run": 0,
+   "ef_search": 10,
+   "build_ms": 4372.3,
+   "index_mb": 12.09,
+   "recall": 0.99,
+   "buffers_per_query": 291.7,
+   "ms_per_query": 0.076
+  },
+  {
+   "m": 32,
+   "ef_construction": 64,
+   "run": 0,
+   "ef_search": 20,
+   "build_ms": 4372.3,
+   "index_mb": 12.09,
+   "recall": 1.0,
+   "buffers_per_query": 319.1,
+   "ms_per_query": 0.097
+  },
+  {
+   "m": 32,
+   "ef_construction": 64,
+   "run": 0,
+   "ef_search": 40,
+   "build_ms": 4372.3,
+   "index_mb": 12.09,
+   "recall": 1.0,
+   "buffers_per_query": 347.5,
+   "ms_per_query": 0.116
+  },
+  {
+   "m": 32,
+   "ef_construction": 64,
+   "run": 0,
+   "ef_search": 100,
+   "build_ms": 4372.3,
+   "index_mb": 12.09,
+   "recall": 1.0,
+   "buffers_per_query": 419.7,
+   "ms_per_query": 0.176
+  },
+  {
+   "m": 32,
+   "ef_construction": 64,
+   "run": 0,
+   "ef_search": 200,
+   "build_ms": 4372.3,
+   "index_mb": 12.09,
+   "recall": 1.0,
+   "buffers_per_query": 540.5,
+   "ms_per_query": 0.282
+  },
+  {
+   "m": 32,
+   "ef_construction": 64,
+   "run": 1,
+   "ef_search": 10,
+   "build_ms": 4434.3,
+   "index_mb": 12.1,
+   "recall": 0.979,
+   "buffers_per_query": 293.4,
+   "ms_per_query": 0.077
+  },
+  {
+   "m": 32,
+   "ef_construction": 64,
+   "run": 1,
+   "ef_search": 20,
+   "build_ms": 4434.3,
+   "index_mb": 12.1,
+   "recall": 0.98,
+   "buffers_per_query": 318.6,
+   "ms_per_query": 0.092
+  },
+  {
+   "m": 32,
+   "ef_construction": 64,
+   "run": 1,
+   "ef_search": 40,
+   "build_ms": 4434.3,
+   "index_mb": 12.1,
+   "recall": 1.0,
+   "buffers_per_query": 354.1,
+   "ms_per_query": 0.117
+  },
+  {
+   "m": 32,
+   "ef_construction": 64,
+   "run": 1,
+   "ef_search": 100,
+   "build_ms": 4434.3,
+   "index_mb": 12.1,
+   "recall": 1.0,
+   "buffers_per_query": 425.8,
+   "ms_per_query": 0.179
+  },
+  {
+   "m": 32,
+   "ef_construction": 64,
+   "run": 1,
+   "ef_search": 200,
+   "build_ms": 4434.3,
+   "index_mb": 12.1,
+   "recall": 1.0,
+   "buffers_per_query": 547.7,
+   "ms_per_query": 0.287
+  },
+  {
+   "m": 16,
+   "ef_construction": 32,
+   "run": 0,
+   "ef_search": 10,
+   "build_ms": 1217.0,
+   "index_mb": 8.3,
+   "recall": 0.922,
+   "buffers_per_query": 236.6,
+   "ms_per_query": 0.058
+  },
+  {
+   "m": 16,
+   "ef_construction": 32,
+   "run": 0,
+   "ef_search": 20,
+   "build_ms": 1217.0,
+   "index_mb": 8.3,
+   "recall": 0.928,
+   "buffers_per_query": 280.2,
+   "ms_per_query": 0.062
+  },
+  {
+   "m": 16,
+   "ef_construction": 32,
+   "run": 0,
+   "ef_search": 40,
+   "build_ms": 1217.0,
+   "index_mb": 8.3,
+   "recall": 0.958,
+   "buffers_per_query": 332.0,
+   "ms_per_query": 0.089
+  },
+  {
+   "m": 16,
+   "ef_construction": 32,
+   "run": 0,
+   "ef_search": 100,
+   "build_ms": 1217.0,
+   "index_mb": 8.3,
+   "recall": 0.987,
+   "buffers_per_query": 418.9,
+   "ms_per_query": 0.127
+  },
+  {
+   "m": 16,
+   "ef_construction": 32,
+   "run": 0,
+   "ef_search": 200,
+   "build_ms": 1217.0,
+   "index_mb": 8.3,
+   "recall": 0.987,
+   "buffers_per_query": 570.9,
+   "ms_per_query": 0.194
+  },
+  {
+   "m": 16,
+   "ef_construction": 32,
+   "run": 1,
+   "ef_search": 10,
+   "build_ms": 1192.4,
+   "index_mb": 8.29,
+   "recall": 0.965,
+   "buffers_per_query": 237.2,
+   "ms_per_query": 0.054
+  },
+  {
+   "m": 16,
+   "ef_construction": 32,
+   "run": 1,
+   "ef_search": 20,
+   "build_ms": 1192.4,
+   "index_mb": 8.29,
+   "recall": 0.983,
+   "buffers_per_query": 280.7,
+   "ms_per_query": 0.071
+  },
+  {
+   "m": 16,
+   "ef_construction": 32,
+   "run": 1,
+   "ef_search": 40,
+   "build_ms": 1192.4,
+   "index_mb": 8.29,
+   "recall": 0.984,
+   "buffers_per_query": 323.1,
+   "ms_per_query": 0.087
+  },
+  {
+   "m": 16,
+   "ef_construction": 32,
+   "run": 1,
+   "ef_search": 100,
+   "build_ms": 1192.4,
+   "index_mb": 8.29,
+   "recall": 0.984,
+   "buffers_per_query": 395.5,
+   "ms_per_query": 0.13
+  },
+  {
+   "m": 16,
+   "ef_construction": 32,
+   "run": 1,
+   "ef_search": 200,
+   "build_ms": 1192.4,
+   "index_mb": 8.29,
+   "recall": 0.984,
+   "buffers_per_query": 548.0,
+   "ms_per_query": 0.223
+  },
+  {
+   "m": 16,
+   "ef_construction": 200,
+   "run": 0,
+   "ef_search": 10,
+   "build_ms": 2904.5,
+   "index_mb": 8.29,
+   "recall": 0.991,
+   "buffers_per_query": 249.4,
+   "ms_per_query": 0.059
+  },
+  {
+   "m": 16,
+   "ef_construction": 200,
+   "run": 0,
+   "ef_search": 20,
+   "build_ms": 2904.5,
+   "index_mb": 8.29,
+   "recall": 0.999,
+   "buffers_per_query": 299.9,
+   "ms_per_query": 0.066
+  },
+  {
+   "m": 16,
+   "ef_construction": 200,
+   "run": 0,
+   "ef_search": 40,
+   "build_ms": 2904.5,
+   "index_mb": 8.29,
+   "recall": 1.0,
+   "buffers_per_query": 356.9,
+   "ms_per_query": 0.096
+  },
+  {
+   "m": 16,
+   "ef_construction": 200,
+   "run": 0,
+   "ef_search": 100,
+   "build_ms": 2904.5,
+   "index_mb": 8.29,
+   "recall": 1.0,
+   "buffers_per_query": 469.8,
+   "ms_per_query": 0.126
+  },
+  {
+   "m": 16,
+   "ef_construction": 200,
+   "run": 0,
+   "ef_search": 200,
+   "build_ms": 2904.5,
+   "index_mb": 8.29,
+   "recall": 1.0,
+   "buffers_per_query": 641.6,
+   "ms_per_query": 0.195
+  },
+  {
+   "m": 16,
+   "ef_construction": 200,
+   "run": 1,
+   "ef_search": 10,
+   "build_ms": 2896.6,
+   "index_mb": 8.29,
+   "recall": 0.992,
+   "buffers_per_query": 249.8,
+   "ms_per_query": 0.06
+  },
+  {
+   "m": 16,
+   "ef_construction": 200,
+   "run": 1,
+   "ef_search": 20,
+   "build_ms": 2896.6,
+   "index_mb": 8.29,
+   "recall": 0.999,
+   "buffers_per_query": 300.5,
+   "ms_per_query": 0.071
+  },
+  {
+   "m": 16,
+   "ef_construction": 200,
+   "run": 1,
+   "ef_search": 40,
+   "build_ms": 2896.6,
+   "index_mb": 8.29,
+   "recall": 1.0,
+   "buffers_per_query": 357.8,
+   "ms_per_query": 0.093
+  },
+  {
+   "m": 16,
+   "ef_construction": 200,
+   "run": 1,
+   "ef_search": 100,
+   "build_ms": 2896.6,
+   "index_mb": 8.29,
+   "recall": 1.0,
+   "buffers_per_query": 470.9,
+   "ms_per_query": 0.14
+  },
+  {
+   "m": 16,
+   "ef_construction": 200,
+   "run": 1,
+   "ef_search": 200,
+   "build_ms": 2896.6,
+   "index_mb": 8.29,
+   "recall": 1.0,
+   "buffers_per_query": 642.7,
+   "ms_per_query": 0.194
+  }
+ ],
+ "shift": {
+  "queries": 50,
+  "results": [
+   {
+    "index": "ivfflat",
+    "run": 0,
+    "setting": "SET ivfflat.probes = 2;",
+    "before_reindex": {
+     "recall": 0.84,
+     "buffers_per_query": 74.7,
+     "ms_per_query": 0.392
+    },
+    "after_reindex": {
+     "recall": 1.0,
+     "buffers_per_query": 55.7,
+     "ms_per_query": 0.282
+    }
+   },
+   {
+    "index": "ivfflat",
+    "run": 1,
+    "setting": "SET ivfflat.probes = 2;",
+    "before_reindex": {
+     "recall": 0.764,
+     "buffers_per_query": 63.9,
+     "ms_per_query": 0.314
+    },
+    "after_reindex": {
+     "recall": 0.998,
+     "buffers_per_query": 59.7,
+     "ms_per_query": 0.282
+    }
+   },
+   {
+    "index": "hnsw",
+    "run": 0,
+    "setting": "SET hnsw.ef_search = 40;",
+    "before_reindex": {
+     "recall": 1.0,
+     "buffers_per_query": 317.8,
+     "ms_per_query": 0.085
+    },
+    "after_reindex": {
+     "recall": 1.0,
+     "buffers_per_query": 330.1,
+     "ms_per_query": 0.09
+    }
+   },
+   {
+    "index": "hnsw",
+    "run": 1,
+    "setting": "SET hnsw.ef_search = 40;",
+    "before_reindex": {
+     "recall": 1.0,
+     "buffers_per_query": 326.2,
+     "ms_per_query": 0.09
+    },
+    "after_reindex": {
+     "recall": 1.0,
+     "buffers_per_query": 322.3,
+     "ms_per_query": 0.096
+    }
+   }
+  ]
+ },
+ "vacuum": {
+  "deleted_fraction": 0.2,
+  "results": [
+   {
+    "index": "없음",
+    "run": 0,
+    "vacuum_ms": 3.6
+   },
+   {
+    "index": "없음",
+    "run": 1,
+    "vacuum_ms": 3.8
+   },
+   {
+    "index": "IVFFlat",
+    "run": 0,
+    "vacuum_ms": 7.7
+   },
+   {
+    "index": "IVFFlat",
+    "run": 1,
+    "vacuum_ms": 7.3
+   },
+   {
+    "index": "HNSW",
+    "run": 0,
+    "vacuum_ms": 317.1
+   },
+   {
+    "index": "HNSW",
+    "run": 1,
+    "vacuum_ms": 298.3
+   }
+  ]
+ },
+ "mwm": {
+  "sql": "SET maintenance_work_mem = '1MB';\nSET max_parallel_maintenance_workers = 0;\nCREATE INDEX ON pts USING hnsw (embedding vector_l2_ops);",
+  "results": [
+   {
+    "maintenance_work_mem": "1GB",
+    "run": 0,
+    "build_ms": 1556.6,
+    "notice": []
+   },
+   {
+    "maintenance_work_mem": "1GB",
+    "run": 1,
+    "build_ms": 1678.3,
+    "notice": []
+   },
+   {
+    "maintenance_work_mem": "1MB",
+    "run": 0,
+    "build_ms": 4606.1,
+    "notice": [
+     "NOTICE:  hnsw graph no longer fits into maintenance_work_mem after 1241 tuples",
+     "DETAIL:  Building will take significantly more time."
+    ]
+   },
+   {
+    "maintenance_work_mem": "1MB",
+    "run": 1,
+    "build_ms": 4477.2,
+    "notice": [
+     "NOTICE:  hnsw graph no longer fits into maintenance_work_mem after 1249 tuples",
+     "DETAIL:  Building will take significantly more time."
+    ]
+   }
+  ]
+ }
+}

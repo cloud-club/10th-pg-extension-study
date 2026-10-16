@@ -1,13 +1,14 @@
 import mermaid from 'mermaid'
 import { useEffect, useId, useRef, useState } from 'react'
+import { useTheme, type Theme } from '@/lib/theme'
 import { cn } from '@/lib/utils'
 
-let initialized = false
+let initialized: Theme | null = null
 
 /** 다이어그램 색은 앱 팔레트와 같은 값을 쓴다 — 그림만 다른 테마로 튀면 안 된다. */
-function init() {
-  if (initialized) return
-  initialized = true
+function init(theme: Theme) {
+  if (initialized === theme) return
+  initialized = theme
   mermaid.initialize({
     startOnLoad: false,
     securityLevel: 'strict',
@@ -15,7 +16,7 @@ function init() {
     fontFamily:
       '-apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", Pretendard, "Noto Sans KR", system-ui, sans-serif',
     themeVariables: {
-      darkMode: true,
+      darkMode: theme === 'dark',
       background: '#0b1120',
       primaryColor: '#1e293b',
       primaryTextColor: '#e2e8f0',
@@ -29,6 +30,12 @@ function init() {
       clusterBkg: 'rgba(148,163,184,0.06)',
       clusterBorder: '#334155',
       edgeLabelBackground: '#0b1120',
+      ...(theme === 'light' ? {
+        background: '#f8fafc', primaryColor: '#e2e8f0', primaryTextColor: '#0f172a',
+        primaryBorderColor: '#64748b', secondaryColor: '#e2e8f0', tertiaryColor: '#f1f5f9',
+        lineColor: '#475569', textColor: '#334155', mainBkg: '#e2e8f0', nodeBorder: '#64748b',
+        clusterBkg: '#f1f5f9', clusterBorder: '#94a3b8', edgeLabelBackground: '#ffffff',
+      } : {}),
       fontSize: '14px',
     },
     flowchart: { curve: 'basis', padding: 14, nodeSpacing: 40, rankSpacing: 46, htmlLabels: false },
@@ -45,6 +52,7 @@ function init() {
 export function Diagram({
   chart, caption, className, maxWidth,
 }: { chart: string; caption?: React.ReactNode; className?: string; maxWidth?: number }) {
+  const theme = useTheme()
   const id = useId().replace(/:/g, '_')
   const [svg, setSvg] = useState('')
   const [err, setErr] = useState<string | null>(null)
@@ -52,13 +60,15 @@ export function Diagram({
 
   useEffect(() => {
     alive.current = true
-    init()
+    let cancelled = false
+    init(theme)
+    setErr(null)
     mermaid
       .render(`d${id}`, chart.trim())
-      .then(({ svg: out }) => { if (alive.current) setSvg(out) })
-      .catch((e: unknown) => { if (alive.current) setErr(e instanceof Error ? e.message : String(e)) })
-    return () => { alive.current = false }
-  }, [chart, id])
+      .then(({ svg: out }) => { if (!cancelled && alive.current) setSvg(out) })
+      .catch((e: unknown) => { if (!cancelled && alive.current) setErr(e instanceof Error ? e.message : String(e)) })
+    return () => { cancelled = true; alive.current = false }
+  }, [chart, id, theme])
 
   return (
     <figure className={cn('my-5 rounded-xl border border-border bg-card p-4', className)}>

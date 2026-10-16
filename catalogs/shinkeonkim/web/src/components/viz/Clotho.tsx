@@ -23,7 +23,9 @@ export function Clotho({ id, caption, className }: Props) {
   const doc = ANIMATIONS[id]
   return (
     <figure className={cn('rounded-xl border border-border bg-card p-3', className)}>
-      <AnimationPlayer doc={doc} theme="dark" strings={koreanStrings} />
+      <div className="dark rounded-lg bg-[#0b1120] p-2 text-[#e2e8f0] [color-scheme:dark]">
+        <AnimationPlayer doc={doc} theme="dark" strings={koreanStrings} />
+      </div>
       <figcaption className="mt-3 px-1 text-[12.5px] leading-relaxed text-muted-foreground">
         {caption ?? doc.description}{' '}
         <span className="text-muted-foreground/70">

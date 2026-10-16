@@ -1,0 +1,1417 @@
+{
+ "clothoVersion": 1,
+ "id": "pgv-ivfflat-graph",
+ "title": "IVFFlat: 중심 선택 → 동네 탐색 → 경계 보완",
+ "description": "원리를 설명하는 개념 모형입니다. 재생 시간은 검색 시간과 무관합니다.",
+ "duration": 24000,
+ "canvas": {
+  "width": 940,
+  "height": 550,
+  "background": "#0b1120"
+ },
+ "elements": [
+  {
+   "type": "line",
+   "id": "compare-a",
+   "fromId": "query",
+   "toId": "centroid-a",
+   "fromAnchor": "auto",
+   "toAnchor": "auto",
+   "stroke": "#64748b",
+   "strokeWidth": 2,
+   "strokeDasharray": "4 5",
+   "appearances": [
+    {
+     "start": 7000,
+     "end": 24000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ]
+  },
+  {
+   "type": "line",
+   "id": "compare-b",
+   "fromId": "query",
+   "toId": "centroid-b",
+   "fromAnchor": "auto",
+   "toAnchor": "auto",
+   "stroke": "#64748b",
+   "strokeWidth": 2,
+   "strokeDasharray": "4 5",
+   "appearances": [
+    {
+     "start": 7000,
+     "end": 24000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ]
+  },
+  {
+   "type": "line",
+   "id": "compare-c",
+   "fromId": "query",
+   "toId": "centroid-c",
+   "fromAnchor": "auto",
+   "toAnchor": "auto",
+   "stroke": "#64748b",
+   "strokeWidth": 2,
+   "strokeDasharray": "4 5",
+   "appearances": [
+    {
+     "start": 7000,
+     "end": 24000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ]
+  },
+  {
+   "type": "line",
+   "id": "compare-d",
+   "fromId": "query",
+   "toId": "centroid-d",
+   "fromAnchor": "auto",
+   "toAnchor": "auto",
+   "stroke": "#64748b",
+   "strokeWidth": 2,
+   "strokeDasharray": "4 5",
+   "appearances": [
+    {
+     "start": 7000,
+     "end": 24000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "title",
+   "x": 32,
+   "y": 40,
+   "content": "IVFFlat: 중심 선택 → 동네 탐색 → 경계 보완",
+   "fontSize": 22,
+   "color": "#e2e8f0",
+   "appearances": [
+    {
+     "start": 0,
+     "end": 24000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "legend",
+   "x": 32,
+   "y": 84,
+   "content": "작은 점 = 저장된 벡터   큰 점 = 중심   분홍 Q = 질의 벡터",
+   "fontSize": 15,
+   "color": "#94a3b8",
+   "appearances": [
+    {
+     "start": 0,
+     "end": 24000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "region-a",
+   "x": 90,
+   "y": 130,
+   "width": 270,
+   "height": 175,
+   "fill": "transparent",
+   "stroke": "#334155",
+   "strokeWidth": 1.5,
+   "cornerRadius": 12,
+   "appearances": [
+    {
+     "start": 0,
+     "end": 24000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "region-label-a",
+   "x": 102,
+   "y": 154,
+   "content": "동네 A",
+   "fontSize": 14,
+   "color": "#94a3b8",
+   "appearances": [
+    {
+     "start": 0,
+     "end": 24000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "region-b",
+   "x": 365,
+   "y": 130,
+   "width": 270,
+   "height": 175,
+   "fill": "transparent",
+   "stroke": "#334155",
+   "strokeWidth": 1.5,
+   "cornerRadius": 12,
+   "appearances": [
+    {
+     "start": 0,
+     "end": 24000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "region-label-b",
+   "x": 377,
+   "y": 154,
+   "content": "동네 B",
+   "fontSize": 14,
+   "color": "#94a3b8",
+   "appearances": [
+    {
+     "start": 0,
+     "end": 24000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "region-c",
+   "x": 90,
+   "y": 310,
+   "width": 270,
+   "height": 150,
+   "fill": "transparent",
+   "stroke": "#334155",
+   "strokeWidth": 1.5,
+   "cornerRadius": 12,
+   "appearances": [
+    {
+     "start": 0,
+     "end": 24000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "region-label-c",
+   "x": 102,
+   "y": 334,
+   "content": "동네 C",
+   "fontSize": 14,
+   "color": "#94a3b8",
+   "appearances": [
+    {
+     "start": 0,
+     "end": 24000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "region-d",
+   "x": 365,
+   "y": 310,
+   "width": 270,
+   "height": 150,
+   "fill": "transparent",
+   "stroke": "#334155",
+   "strokeWidth": 1.5,
+   "cornerRadius": 12,
+   "appearances": [
+    {
+     "start": 0,
+     "end": 24000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "region-label-d",
+   "x": 377,
+   "y": 334,
+   "content": "동네 D",
+   "fontSize": 14,
+   "color": "#94a3b8",
+   "appearances": [
+    {
+     "start": 0,
+     "end": 24000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ]
+  },
+  {
+   "type": "circle",
+   "id": "centroid-a",
+   "cx": 245,
+   "cy": 215,
+   "r": 22,
+   "fill": "#a78bfa",
+   "stroke": "#94a3b8",
+   "strokeWidth": 1.5,
+   "label": "A",
+   "labelColor": "#0b1120",
+   "labelSize": 14,
+   "appearances": [
+    {
+     "start": 0,
+     "end": 24000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ]
+  },
+  {
+   "type": "circle",
+   "id": "centroid-b",
+   "cx": 475,
+   "cy": 215,
+   "r": 22,
+   "fill": "#a78bfa",
+   "stroke": "#94a3b8",
+   "strokeWidth": 1.5,
+   "label": "B",
+   "labelColor": "#0b1120",
+   "labelSize": 14,
+   "appearances": [
+    {
+     "start": 0,
+     "end": 24000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ]
+  },
+  {
+   "type": "circle",
+   "id": "centroid-c",
+   "cx": 245,
+   "cy": 380,
+   "r": 22,
+   "fill": "#a78bfa",
+   "stroke": "#94a3b8",
+   "strokeWidth": 1.5,
+   "label": "C",
+   "labelColor": "#0b1120",
+   "labelSize": 14,
+   "appearances": [
+    {
+     "start": 0,
+     "end": 24000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ]
+  },
+  {
+   "type": "circle",
+   "id": "centroid-d",
+   "cx": 475,
+   "cy": 380,
+   "r": 22,
+   "fill": "#a78bfa",
+   "stroke": "#94a3b8",
+   "strokeWidth": 1.5,
+   "label": "D",
+   "labelColor": "#0b1120",
+   "labelSize": 14,
+   "appearances": [
+    {
+     "start": 0,
+     "end": 24000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ]
+  },
+  {
+   "type": "circle",
+   "id": "query",
+   "cx": 357,
+   "cy": 245,
+   "r": 17,
+   "fill": "#fb7185",
+   "stroke": "#94a3b8",
+   "strokeWidth": 1.5,
+   "label": "Q",
+   "labelColor": "#0b1120",
+   "labelSize": 14,
+   "appearances": [
+    {
+     "start": 0,
+     "end": 24000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ]
+  },
+  {
+   "type": "circle",
+   "id": "vector-a-0",
+   "cx": 145,
+   "cy": 205,
+   "r": 13,
+   "fill": "#1e293b",
+   "stroke": "#94a3b8",
+   "strokeWidth": 1.5,
+   "label": "a1",
+   "labelColor": "#e2e8f0",
+   "labelSize": 14,
+   "appearances": [
+    {
+     "start": 0,
+     "end": 24000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ],
+   "tracks": [
+    {
+     "property": "fill",
+     "interpolate": "discrete",
+     "keyframes": [
+      {
+       "time": 0,
+       "value": "#1e293b"
+      },
+      {
+       "time": 9999,
+       "value": "#1e293b"
+      },
+      {
+       "time": 10000,
+       "value": "#60a5fa"
+      }
+     ]
+    },
+    {
+     "property": "labelColor",
+     "interpolate": "discrete",
+     "keyframes": [
+      {
+       "time": 0,
+       "value": "#e2e8f0"
+      },
+      {
+       "time": 9999,
+       "value": "#e2e8f0"
+      },
+      {
+       "time": 10000,
+       "value": "#0b1120"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "type": "circle",
+   "id": "vector-a-1",
+   "cx": 185,
+   "cy": 265,
+   "r": 13,
+   "fill": "#1e293b",
+   "stroke": "#94a3b8",
+   "strokeWidth": 1.5,
+   "label": "a2",
+   "labelColor": "#e2e8f0",
+   "labelSize": 14,
+   "appearances": [
+    {
+     "start": 0,
+     "end": 24000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ],
+   "tracks": [
+    {
+     "property": "fill",
+     "interpolate": "discrete",
+     "keyframes": [
+      {
+       "time": 0,
+       "value": "#1e293b"
+      },
+      {
+       "time": 10649,
+       "value": "#1e293b"
+      },
+      {
+       "time": 10650,
+       "value": "#60a5fa"
+      }
+     ]
+    },
+    {
+     "property": "labelColor",
+     "interpolate": "discrete",
+     "keyframes": [
+      {
+       "time": 0,
+       "value": "#e2e8f0"
+      },
+      {
+       "time": 10649,
+       "value": "#e2e8f0"
+      },
+      {
+       "time": 10650,
+       "value": "#0b1120"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "type": "circle",
+   "id": "vector-a-2",
+   "cx": 300,
+   "cy": 175,
+   "r": 13,
+   "fill": "#1e293b",
+   "stroke": "#94a3b8",
+   "strokeWidth": 1.5,
+   "label": "a3",
+   "labelColor": "#e2e8f0",
+   "labelSize": 14,
+   "appearances": [
+    {
+     "start": 0,
+     "end": 24000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ],
+   "tracks": [
+    {
+     "property": "fill",
+     "interpolate": "discrete",
+     "keyframes": [
+      {
+       "time": 0,
+       "value": "#1e293b"
+      },
+      {
+       "time": 11299,
+       "value": "#1e293b"
+      },
+      {
+       "time": 11300,
+       "value": "#60a5fa"
+      }
+     ]
+    },
+    {
+     "property": "labelColor",
+     "interpolate": "discrete",
+     "keyframes": [
+      {
+       "time": 0,
+       "value": "#e2e8f0"
+      },
+      {
+       "time": 11299,
+       "value": "#e2e8f0"
+      },
+      {
+       "time": 11300,
+       "value": "#0b1120"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "type": "circle",
+   "id": "vector-a-3",
+   "cx": 330,
+   "cy": 280,
+   "r": 13,
+   "fill": "#1e293b",
+   "stroke": "#94a3b8",
+   "strokeWidth": 1.5,
+   "label": "a4",
+   "labelColor": "#e2e8f0",
+   "labelSize": 14,
+   "appearances": [
+    {
+     "start": 0,
+     "end": 24000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ],
+   "tracks": [
+    {
+     "property": "fill",
+     "interpolate": "discrete",
+     "keyframes": [
+      {
+       "time": 0,
+       "value": "#1e293b"
+      },
+      {
+       "time": 11949,
+       "value": "#1e293b"
+      },
+      {
+       "time": 11950,
+       "value": "#60a5fa"
+      }
+     ]
+    },
+    {
+     "property": "labelColor",
+     "interpolate": "discrete",
+     "keyframes": [
+      {
+       "time": 0,
+       "value": "#e2e8f0"
+      },
+      {
+       "time": 11949,
+       "value": "#e2e8f0"
+      },
+      {
+       "time": 11950,
+       "value": "#0b1120"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "type": "circle",
+   "id": "vector-a-4",
+   "cx": 295,
+   "cy": 270,
+   "r": 13,
+   "fill": "#1e293b",
+   "stroke": "#94a3b8",
+   "strokeWidth": 1.5,
+   "label": "a5",
+   "labelColor": "#e2e8f0",
+   "labelSize": 14,
+   "appearances": [
+    {
+     "start": 0,
+     "end": 24000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ],
+   "tracks": [
+    {
+     "property": "fill",
+     "interpolate": "discrete",
+     "keyframes": [
+      {
+       "time": 0,
+       "value": "#1e293b"
+      },
+      {
+       "time": 12599,
+       "value": "#1e293b"
+      },
+      {
+       "time": 12600,
+       "value": "#60a5fa"
+      }
+     ]
+    },
+    {
+     "property": "labelColor",
+     "interpolate": "discrete",
+     "keyframes": [
+      {
+       "time": 0,
+       "value": "#e2e8f0"
+      },
+      {
+       "time": 12599,
+       "value": "#e2e8f0"
+      },
+      {
+       "time": 12600,
+       "value": "#0b1120"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "type": "circle",
+   "id": "vector-b-0",
+   "cx": 397,
+   "cy": 248,
+   "r": 13,
+   "fill": "#1e293b",
+   "stroke": "#94a3b8",
+   "strokeWidth": 1.5,
+   "label": "b1",
+   "labelColor": "#e2e8f0",
+   "labelSize": 14,
+   "appearances": [
+    {
+     "start": 0,
+     "end": 24000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ],
+   "tracks": [
+    {
+     "property": "fill",
+     "interpolate": "discrete",
+     "keyframes": [
+      {
+       "time": 0,
+       "value": "#1e293b"
+      },
+      {
+       "time": 16499,
+       "value": "#1e293b"
+      },
+      {
+       "time": 16500,
+       "value": "#60a5fa"
+      }
+     ]
+    },
+    {
+     "property": "labelColor",
+     "interpolate": "discrete",
+     "keyframes": [
+      {
+       "time": 0,
+       "value": "#e2e8f0"
+      },
+      {
+       "time": 16499,
+       "value": "#e2e8f0"
+      },
+      {
+       "time": 16500,
+       "value": "#0b1120"
+      }
+     ]
+    },
+    {
+     "property": "fill",
+     "interpolate": "discrete",
+     "keyframes": [
+      {
+       "time": 0,
+       "value": "#1e293b"
+      },
+      {
+       "time": 16499,
+       "value": "#1e293b"
+      },
+      {
+       "time": 16500,
+       "value": "#60a5fa"
+      },
+      {
+       "time": 20499,
+       "value": "#60a5fa"
+      },
+      {
+       "time": 20500,
+       "value": "#34d399"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "type": "circle",
+   "id": "vector-b-1",
+   "cx": 415,
+   "cy": 165,
+   "r": 13,
+   "fill": "#1e293b",
+   "stroke": "#94a3b8",
+   "strokeWidth": 1.5,
+   "label": "b2",
+   "labelColor": "#e2e8f0",
+   "labelSize": 14,
+   "appearances": [
+    {
+     "start": 0,
+     "end": 24000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ],
+   "tracks": [
+    {
+     "property": "fill",
+     "interpolate": "discrete",
+     "keyframes": [
+      {
+       "time": 0,
+       "value": "#1e293b"
+      },
+      {
+       "time": 17149,
+       "value": "#1e293b"
+      },
+      {
+       "time": 17150,
+       "value": "#60a5fa"
+      }
+     ]
+    },
+    {
+     "property": "labelColor",
+     "interpolate": "discrete",
+     "keyframes": [
+      {
+       "time": 0,
+       "value": "#e2e8f0"
+      },
+      {
+       "time": 17149,
+       "value": "#e2e8f0"
+      },
+      {
+       "time": 17150,
+       "value": "#0b1120"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "type": "circle",
+   "id": "vector-b-2",
+   "cx": 545,
+   "cy": 175,
+   "r": 13,
+   "fill": "#1e293b",
+   "stroke": "#94a3b8",
+   "strokeWidth": 1.5,
+   "label": "b3",
+   "labelColor": "#e2e8f0",
+   "labelSize": 14,
+   "appearances": [
+    {
+     "start": 0,
+     "end": 24000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ],
+   "tracks": [
+    {
+     "property": "fill",
+     "interpolate": "discrete",
+     "keyframes": [
+      {
+       "time": 0,
+       "value": "#1e293b"
+      },
+      {
+       "time": 17799,
+       "value": "#1e293b"
+      },
+      {
+       "time": 17800,
+       "value": "#60a5fa"
+      }
+     ]
+    },
+    {
+     "property": "labelColor",
+     "interpolate": "discrete",
+     "keyframes": [
+      {
+       "time": 0,
+       "value": "#e2e8f0"
+      },
+      {
+       "time": 17799,
+       "value": "#e2e8f0"
+      },
+      {
+       "time": 17800,
+       "value": "#0b1120"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "type": "circle",
+   "id": "vector-b-3",
+   "cx": 570,
+   "cy": 260,
+   "r": 13,
+   "fill": "#1e293b",
+   "stroke": "#94a3b8",
+   "strokeWidth": 1.5,
+   "label": "b4",
+   "labelColor": "#e2e8f0",
+   "labelSize": 14,
+   "appearances": [
+    {
+     "start": 0,
+     "end": 24000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ],
+   "tracks": [
+    {
+     "property": "fill",
+     "interpolate": "discrete",
+     "keyframes": [
+      {
+       "time": 0,
+       "value": "#1e293b"
+      },
+      {
+       "time": 18449,
+       "value": "#1e293b"
+      },
+      {
+       "time": 18450,
+       "value": "#60a5fa"
+      }
+     ]
+    },
+    {
+     "property": "labelColor",
+     "interpolate": "discrete",
+     "keyframes": [
+      {
+       "time": 0,
+       "value": "#e2e8f0"
+      },
+      {
+       "time": 18449,
+       "value": "#e2e8f0"
+      },
+      {
+       "time": 18450,
+       "value": "#0b1120"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "type": "circle",
+   "id": "vector-b-4",
+   "cx": 465,
+   "cy": 270,
+   "r": 13,
+   "fill": "#1e293b",
+   "stroke": "#94a3b8",
+   "strokeWidth": 1.5,
+   "label": "b5",
+   "labelColor": "#e2e8f0",
+   "labelSize": 14,
+   "appearances": [
+    {
+     "start": 0,
+     "end": 24000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ],
+   "tracks": [
+    {
+     "property": "fill",
+     "interpolate": "discrete",
+     "keyframes": [
+      {
+       "time": 0,
+       "value": "#1e293b"
+      },
+      {
+       "time": 19099,
+       "value": "#1e293b"
+      },
+      {
+       "time": 19100,
+       "value": "#60a5fa"
+      }
+     ]
+    },
+    {
+     "property": "labelColor",
+     "interpolate": "discrete",
+     "keyframes": [
+      {
+       "time": 0,
+       "value": "#e2e8f0"
+      },
+      {
+       "time": 19099,
+       "value": "#e2e8f0"
+      },
+      {
+       "time": 19100,
+       "value": "#0b1120"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "type": "circle",
+   "id": "vector-c-0",
+   "cx": 150,
+   "cy": 350,
+   "r": 13,
+   "fill": "#1e293b",
+   "stroke": "#94a3b8",
+   "strokeWidth": 1.5,
+   "label": "c1",
+   "labelColor": "#e2e8f0",
+   "labelSize": 14,
+   "appearances": [
+    {
+     "start": 0,
+     "end": 24000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ]
+  },
+  {
+   "type": "circle",
+   "id": "vector-c-1",
+   "cx": 190,
+   "cy": 420,
+   "r": 13,
+   "fill": "#1e293b",
+   "stroke": "#94a3b8",
+   "strokeWidth": 1.5,
+   "label": "c2",
+   "labelColor": "#e2e8f0",
+   "labelSize": 14,
+   "appearances": [
+    {
+     "start": 0,
+     "end": 24000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ]
+  },
+  {
+   "type": "circle",
+   "id": "vector-c-2",
+   "cx": 310,
+   "cy": 345,
+   "r": 13,
+   "fill": "#1e293b",
+   "stroke": "#94a3b8",
+   "strokeWidth": 1.5,
+   "label": "c3",
+   "labelColor": "#e2e8f0",
+   "labelSize": 14,
+   "appearances": [
+    {
+     "start": 0,
+     "end": 24000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ]
+  },
+  {
+   "type": "circle",
+   "id": "vector-c-3",
+   "cx": 325,
+   "cy": 415,
+   "r": 13,
+   "fill": "#1e293b",
+   "stroke": "#94a3b8",
+   "strokeWidth": 1.5,
+   "label": "c4",
+   "labelColor": "#e2e8f0",
+   "labelSize": 14,
+   "appearances": [
+    {
+     "start": 0,
+     "end": 24000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ]
+  },
+  {
+   "type": "circle",
+   "id": "vector-c-4",
+   "cx": 270,
+   "cy": 440,
+   "r": 13,
+   "fill": "#1e293b",
+   "stroke": "#94a3b8",
+   "strokeWidth": 1.5,
+   "label": "c5",
+   "labelColor": "#e2e8f0",
+   "labelSize": 14,
+   "appearances": [
+    {
+     "start": 0,
+     "end": 24000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ]
+  },
+  {
+   "type": "circle",
+   "id": "vector-d-0",
+   "cx": 400,
+   "cy": 345,
+   "r": 13,
+   "fill": "#1e293b",
+   "stroke": "#94a3b8",
+   "strokeWidth": 1.5,
+   "label": "d1",
+   "labelColor": "#e2e8f0",
+   "labelSize": 14,
+   "appearances": [
+    {
+     "start": 0,
+     "end": 24000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ]
+  },
+  {
+   "type": "circle",
+   "id": "vector-d-1",
+   "cx": 415,
+   "cy": 425,
+   "r": 13,
+   "fill": "#1e293b",
+   "stroke": "#94a3b8",
+   "strokeWidth": 1.5,
+   "label": "d2",
+   "labelColor": "#e2e8f0",
+   "labelSize": 14,
+   "appearances": [
+    {
+     "start": 0,
+     "end": 24000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ]
+  },
+  {
+   "type": "circle",
+   "id": "vector-d-2",
+   "cx": 555,
+   "cy": 340,
+   "r": 13,
+   "fill": "#1e293b",
+   "stroke": "#94a3b8",
+   "strokeWidth": 1.5,
+   "label": "d3",
+   "labelColor": "#e2e8f0",
+   "labelSize": 14,
+   "appearances": [
+    {
+     "start": 0,
+     "end": 24000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ]
+  },
+  {
+   "type": "circle",
+   "id": "vector-d-3",
+   "cx": 585,
+   "cy": 415,
+   "r": 13,
+   "fill": "#1e293b",
+   "stroke": "#94a3b8",
+   "strokeWidth": 1.5,
+   "label": "d4",
+   "labelColor": "#e2e8f0",
+   "labelSize": 14,
+   "appearances": [
+    {
+     "start": 0,
+     "end": 24000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ]
+  },
+  {
+   "type": "circle",
+   "id": "vector-d-4",
+   "cx": 520,
+   "cy": 445,
+   "r": 13,
+   "fill": "#1e293b",
+   "stroke": "#94a3b8",
+   "strokeWidth": 1.5,
+   "label": "d5",
+   "labelColor": "#e2e8f0",
+   "labelSize": 14,
+   "appearances": [
+    {
+     "start": 0,
+     "end": 24000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "state-a",
+   "x": 680,
+   "y": 180,
+   "content": "먼저 동네 중심을 정합니다",
+   "fontSize": 16,
+   "color": "#e2e8f0",
+   "appearances": [
+    {
+     "start": 0,
+     "end": 7000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "state-a2",
+   "x": 680,
+   "y": 218,
+   "content": "lists = 4인 개념 예시",
+   "fontSize": 15,
+   "color": "#94a3b8",
+   "appearances": [
+    {
+     "start": 0,
+     "end": 7000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "state-b",
+   "x": 680,
+   "y": 180,
+   "content": "가장 가까운 중심: A",
+   "fontSize": 16,
+   "color": "#e2e8f0",
+   "appearances": [
+    {
+     "start": 7000,
+     "end": 15000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "state-b2",
+   "x": 680,
+   "y": 218,
+   "content": "파랑: 조사한 벡터",
+   "fontSize": 16,
+   "color": "#60a5fa",
+   "appearances": [
+    {
+     "start": 10000,
+     "end": 15000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "state-b3",
+   "x": 680,
+   "y": 256,
+   "content": "b1은 더 가까워도",
+   "fontSize": 16,
+   "color": "#fbbf24",
+   "appearances": [
+    {
+     "start": 11500,
+     "end": 15000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "state-b4",
+   "x": 680,
+   "y": 288,
+   "content": "동네 밖이라 놓칩니다",
+   "fontSize": 16,
+   "color": "#fbbf24",
+   "appearances": [
+    {
+     "start": 11500,
+     "end": 15000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "state-c",
+   "x": 680,
+   "y": 180,
+   "content": "A와 B를 함께 조사",
+   "fontSize": 16,
+   "color": "#e2e8f0",
+   "appearances": [
+    {
+     "start": 15000,
+     "end": 24000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "state-c2",
+   "x": 680,
+   "y": 218,
+   "content": "비교할 벡터가 늘지만",
+   "fontSize": 15,
+   "color": "#e2e8f0",
+   "appearances": [
+    {
+     "start": 17000,
+     "end": 24000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "state-c3",
+   "x": 680,
+   "y": 250,
+   "content": "경계 너머도 찾습니다",
+   "fontSize": 15,
+   "color": "#e2e8f0",
+   "appearances": [
+    {
+     "start": 17000,
+     "end": 24000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "state-c4",
+   "x": 680,
+   "y": 300,
+   "content": "초록 b1: 가까운 후보",
+   "fontSize": 15,
+   "color": "#34d399",
+   "appearances": [
+    {
+     "start": 20500,
+     "end": 24000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "note",
+   "x": 32,
+   "y": 510,
+   "content": "동네 내부에서는 원본 벡터로 거리를 잽니다. Q와 가까운 점이 옆 동네에 있을 수 있습니다.",
+   "fontSize": 15,
+   "color": "#e2e8f0",
+   "appearances": [
+    {
+     "start": 0,
+     "end": 24000,
+     "entryMode": "instant",
+     "entryDuration": 1
+    }
+   ]
+  }
+ ],
+ "effects": [],
+ "chapters": [
+  {
+   "id": "phase-0",
+   "time": 0,
+   "label": "동네 나누기",
+   "subtitle": "lists는 동네 수. 작은 점은 벡터, 큰 점은 대표 중심입니다."
+  },
+  {
+   "id": "phase-1",
+   "time": 7000,
+   "label": "probes = 1",
+   "subtitle": "Q와 중심이 가장 가까운 동네 A만 조사합니다."
+  },
+  {
+   "id": "phase-2",
+   "time": 15000,
+   "label": "probes = 2",
+   "subtitle": "이웃 동네 B까지 열어 경계 너머의 가까운 벡터를 찾습니다."
+  }
+ ],
+ "settings": {
+  "autoplay": true,
+  "loop": false,
+  "showChapterList": true,
+  "chapterListPosition": "bottom"
+ }
+}

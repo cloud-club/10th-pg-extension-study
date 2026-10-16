@@ -1,0 +1,37 @@
+{
+  "note": "PostgreSQL 16 / pg_cron 1.6.8 · libpq · cron.max_running_jobs=4 · 2026-09-15 · 별도 임시 DB 실측. PID·시각·회차 수는 실행마다 달라진다.",
+  "blocks": {
+    "settings": {
+      "sql": "SELECT current_setting('cron.max_running_jobs') AS job_limit,\n       current_setting('cron.use_background_workers') AS worker_mode;",
+      "output": "job_limit | worker_mode \n-----------+-------------\n 4         | off\n(1 row)"
+    },
+    "setup": {
+      "sql": "CREATE TABLE public.cron_demo_runs (\n  id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,\n  label text, pid integer, started timestamptz, finished timestamptz\n);\nCREATE FUNCTION public.cron_demo(label text) RETURNS void\nLANGUAGE plpgsql AS $$\nDECLARE t timestamptz := clock_timestamp();\nBEGIN\n  PERFORM pg_sleep(2);\n  INSERT INTO public.cron_demo_runs(label, pid, started, finished)\n  VALUES (label, pg_backend_pid(), t, clock_timestamp());\nEND $$;",
+      "output": ""
+    },
+    "register": {
+      "sql": "SELECT name, cron.schedule(name, '1 second',\n  format('SELECT public.cron_demo(%L)', name)) AS jobid\nFROM (VALUES ('demo-a'), ('demo-b')) AS jobs(name);",
+      "output": "name  | jobid \n--------+-------\n demo-a |     1\n demo-b |     2\n(2 rows)"
+    },
+    "activity": {
+      "sql": "SELECT pid, backend_type, application_name, state, wait_event\nFROM pg_stat_activity\nWHERE application_name IN ('pg_cron', 'pg_cron scheduler')\nORDER BY backend_type, pid;",
+      "output": "pid |   backend_type   | application_name  | state  | wait_event \n-----+------------------+-------------------+--------+------------\n 158 | client backend   | pg_cron           | active | PgSleep\n 159 | client backend   | pg_cron           | active | PgSleep\n  75 | pg_cron launcher | pg_cron scheduler |        | \n(3 rows)"
+    },
+    "cleanup": {
+      "sql": "SELECT cron.unschedule(jobid) FROM cron.job\nWHERE jobname IN ('demo-a', 'demo-b');",
+      "output": "unschedule \n------------\n t\n t\n(2 rows)"
+    },
+    "runs": {
+      "sql": "SELECT label, pid, to_char(started, 'HH24:MI:SS.MS') AS started,\n       to_char(finished, 'HH24:MI:SS.MS') AS finished\nFROM public.cron_demo_runs ORDER BY started, label;",
+      "output": "label  | pid |   started    |   finished   \n--------+-----+--------------+--------------\n demo-a | 159 | 07:09:30.546 | 07:09:32.547\n demo-b | 158 | 07:09:30.546 | 07:09:32.547\n demo-a | 216 | 07:09:32.556 | 07:09:34.558\n demo-b | 215 | 07:09:32.556 | 07:09:34.558\n demo-a | 269 | 07:09:34.561 | 07:09:36.563\n demo-b | 268 | 07:09:34.561 | 07:09:36.563\n(6 rows)"
+    },
+    "overlap": {
+      "sql": "SELECT count(*) FILTER (WHERE a.label = b.label) AS same_job_overlaps,\n       count(*) FILTER (WHERE a.label <> b.label) AS other_job_overlaps\nFROM cron_demo_runs a JOIN cron_demo_runs b\n  ON a.id < b.id\n AND tstzrange(a.started, a.finished, '[)')\n     && tstzrange(b.started, b.finished, '[)');",
+      "output": "same_job_overlaps | other_job_overlaps \n-------------------+--------------------\n                 0 |                  3\n(1 row)"
+    },
+    "peak": {
+      "sql": "SELECT max(concurrent_jobs) AS peak_jobs\nFROM (\n  SELECT a.id, count(*) AS concurrent_jobs\n  FROM cron_demo_runs a JOIN cron_demo_runs b\n    ON b.started <= a.started AND a.started < b.finished\n  GROUP BY a.id\n) AS observations;",
+      "output": "peak_jobs \n-----------\n         2\n(1 row)"
+    }
+  }
+}

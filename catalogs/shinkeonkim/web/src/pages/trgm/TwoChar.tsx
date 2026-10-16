@@ -51,14 +51,14 @@ export default function TwoChar() {
             <p className="mb-2 text-[13px] font-semibold">
               <Badge variant="trgm">pg_trgm</Badge> <code className="ml-1 text-[12px]">trgm_op.c — make_trigrams()</code>
             </p>
-            <pre className="overflow-x-auto rounded-lg bg-[hsl(222_60%_5%)] p-3 text-[12.5px] leading-relaxed"><code>{`if (charlen < 3)
+            <pre className="overflow-x-auto rounded-lg bg-code p-3 text-[12.5px] leading-relaxed"><code>{`if (charlen < 3)
     return tptr;      /* 포기한다 */`}</code></pre>
           </div>
           <div className="rounded-xl border border-bigm/30 bg-bigm/[0.06] p-4">
             <p className="mb-2 text-[13px] font-semibold">
               <Badge variant="bigm">pg_bigm</Badge> <code className="ml-1 text-[12px]">bigm_op.c — make_bigrams()</code>
             </p>
-            <pre className="overflow-x-auto rounded-lg bg-[hsl(222_60%_5%)] p-3 text-[12.5px] leading-relaxed"><code>{`if (charlen < 2) {
+            <pre className="overflow-x-auto rounded-lg bg-code p-3 text-[12.5px] leading-relaxed"><code>{`if (charlen < 2) {
     compact_bigram(bptr, ptr, pg_mblen(str));
     bptr->pmatch = true;   /* 부분 일치로 전환 */
 }`}</code></pre>
@@ -156,7 +156,7 @@ export default function TwoChar() {
           <TCaption>
             <strong>“2-gram 이라 짧은 키워드에 강하다”는 설명은 절반만 맞다.</strong> 나머지 절반은{' '}
             <strong>조각을 해싱하지 않아서 접두어 탐색이 가능하다</strong>는 것이고, 이쪽이 1글자 검색까지 되는
-            진짜 이유다.
+            구조적 이유다.
           </TCaption>
         </Table>
       </Section>

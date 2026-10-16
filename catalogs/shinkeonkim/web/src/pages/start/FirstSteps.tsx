@@ -109,7 +109,7 @@ export default function FirstSteps() {
         <p>
           찾는 말 <K>trial</K> 의 조각은 <K>tri · ria · ial</K> 인데, <K>arterial triage</K> 라는 문장은
           이 셋을 전부 갖고 있으면서 <K>trial</K> 을 담고 있지 않습니다. 그래서 데이터베이스는 후보를 추린 뒤
-          <strong>원문을 다시 읽어 진짜인지 확인</strong>합니다.
+          <strong>원문을 다시 읽어 조건에 맞는지 확인</strong>합니다.
         </p>
       </Callout>
 

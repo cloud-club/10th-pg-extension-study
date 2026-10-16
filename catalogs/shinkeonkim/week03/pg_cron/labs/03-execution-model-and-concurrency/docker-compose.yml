@@ -1,0 +1,42 @@
+name: pg-study-catalog-shinkeonkim-pgcron-03
+
+services:
+  postgres:
+    build: .
+    container_name: pg-study-catalog-shinkeonkim-pg-cron-03
+    environment:
+      POSTGRES_DB: study
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "127.0.0.1:15932:5432"
+    volumes:
+      - ./sql:/lab/sql:ro
+      - ./initdb:/docker-entrypoint-initdb.d:ro   # 최초 기동 시 otherdb 를 만든다
+    # ---------------------------------------------------------------------
+    # Background Worker 등록은 postmaster 가 시작될 때만 가능하다 - 그래서
+    # shared_preload_libraries 가 필수다 (docs/02-internals-and-source.md 참고).
+    #
+    #   cron.database_name       스케줄 테이블(cron.job)이 사는 DB. pg_cron 은
+    #                             클러스터 전체에 "한 DB에만" 설치할 수 있다 -
+    #                             다른 DB 의 작업은 cron.schedule_in_database() 로 돌린다.
+    #   cron.use_background_workers = off (기본값) - 기본은 launcher 가 libpq 로
+    #                             로컬에 접속해 job 을 클라이언트 백엔드로 실행한다.
+    #                             on 으로 바꾸면 진짜 background worker 로 실행한다
+    #                             (03 에서 두 모드의 차이를 다룬다).
+    command:
+      - postgres
+      - -c
+      - shared_preload_libraries=pg_cron
+      - -c
+      - cron.database_name=study
+      - -c
+      - cron.host=/var/run/postgresql
+      - -c
+      - cron.max_running_jobs=5
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -p 5432 -U postgres -d study"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+      start_period: 30s

@@ -1,0 +1,1102 @@
+{
+ "clothoVersion": 1,
+ "id": "cron-event-loop",
+ "title": "한 launcher가 여러 잡을 관리하는 방법",
+ "description": "PostgreSQL 16 / pg_cron 1.6.8 기본 모드의 개념 모형. 시간과 순서는 실측이 아니다.",
+ "duration": 30000,
+ "canvas": {
+  "width": 900,
+  "height": 450,
+  "background": "#0b1120"
+ },
+ "elements": [
+  {
+   "type": "text",
+   "id": "title",
+   "x": 40,
+   "y": 42,
+   "content": "한 launcher가 두 잡을 관리하는 과정",
+   "fontSize": 24,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 0,
+     "end": 30000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ],
+   "fontWeight": "700"
+  },
+  {
+   "type": "rect",
+   "id": "node0_0",
+   "x": 40,
+   "y": 95,
+   "width": 240,
+   "height": 70,
+   "fill": "#1e293b",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 0,
+     "end": 5000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "pg_cron launcher",
+   "labelColor": "#e2e8f0",
+   "labelSize": 18,
+   "stroke": "#60a5fa",
+   "strokeWidth": 2
+  },
+  {
+   "type": "rect",
+   "id": "state0_0",
+   "x": 40,
+   "y": 190,
+   "width": 240,
+   "height": 65,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 0,
+     "end": 5000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "A의 실행 시각 확인",
+   "labelColor": "#0b1120",
+   "labelSize": 17
+  },
+  {
+   "type": "rect",
+   "id": "node0_1",
+   "x": 330,
+   "y": 95,
+   "width": 240,
+   "height": 70,
+   "fill": "#1e293b",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 0,
+     "end": 5000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "잡 A 실행 프로세스",
+   "labelColor": "#e2e8f0",
+   "labelSize": 18,
+   "stroke": "#334155",
+   "strokeWidth": 2
+  },
+  {
+   "type": "rect",
+   "id": "state0_1",
+   "x": 330,
+   "y": 190,
+   "width": 240,
+   "height": 65,
+   "fill": "#1e293b",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 0,
+     "end": 5000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "실행 요청됨",
+   "labelColor": "#e2e8f0",
+   "labelSize": 17
+  },
+  {
+   "type": "rect",
+   "id": "node0_2",
+   "x": 620,
+   "y": 95,
+   "width": 240,
+   "height": 70,
+   "fill": "#1e293b",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 0,
+     "end": 5000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "잡 B 실행 프로세스",
+   "labelColor": "#e2e8f0",
+   "labelSize": 18,
+   "stroke": "#334155",
+   "strokeWidth": 2
+  },
+  {
+   "type": "rect",
+   "id": "state0_2",
+   "x": 620,
+   "y": 190,
+   "width": 240,
+   "height": 65,
+   "fill": "#1e293b",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 0,
+     "end": 5000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "아직 생성 전",
+   "labelColor": "#e2e8f0",
+   "labelSize": 17
+  },
+  {
+   "type": "text",
+   "id": "note0",
+   "x": 40,
+   "y": 310,
+   "content": "pg_cron launcher가 A의 SQL 실행을 요청한다.",
+   "fontSize": 19,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 0,
+     "end": 5000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "count0",
+   "x": 40,
+   "y": 355,
+   "content": "사용 중 1 / 한도 2",
+   "fontSize": 18,
+   "color": "#fbbf24",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 0,
+     "end": 5000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "node1_0",
+   "x": 40,
+   "y": 95,
+   "width": 240,
+   "height": 70,
+   "fill": "#1e293b",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 5000,
+     "end": 10000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "pg_cron launcher",
+   "labelColor": "#e2e8f0",
+   "labelSize": 18,
+   "stroke": "#60a5fa",
+   "strokeWidth": 2
+  },
+  {
+   "type": "rect",
+   "id": "state1_0",
+   "x": 40,
+   "y": 190,
+   "width": 240,
+   "height": 65,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 5000,
+     "end": 10000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "B의 실행 시각 확인",
+   "labelColor": "#0b1120",
+   "labelSize": 17
+  },
+  {
+   "type": "rect",
+   "id": "node1_1",
+   "x": 330,
+   "y": 95,
+   "width": 240,
+   "height": 70,
+   "fill": "#1e293b",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 5000,
+     "end": 10000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "잡 A 실행 프로세스",
+   "labelColor": "#e2e8f0",
+   "labelSize": 18,
+   "stroke": "#334155",
+   "strokeWidth": 2
+  },
+  {
+   "type": "rect",
+   "id": "state1_1",
+   "x": 330,
+   "y": 190,
+   "width": 240,
+   "height": 65,
+   "fill": "#34d399",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 5000,
+     "end": 10000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "SQL 실행 중",
+   "labelColor": "#0b1120",
+   "labelSize": 17
+  },
+  {
+   "type": "rect",
+   "id": "node1_2",
+   "x": 620,
+   "y": 95,
+   "width": 240,
+   "height": 70,
+   "fill": "#1e293b",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 5000,
+     "end": 10000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "잡 B 실행 프로세스",
+   "labelColor": "#e2e8f0",
+   "labelSize": 18,
+   "stroke": "#334155",
+   "strokeWidth": 2
+  },
+  {
+   "type": "rect",
+   "id": "state1_2",
+   "x": 620,
+   "y": 190,
+   "width": 240,
+   "height": 65,
+   "fill": "#1e293b",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 5000,
+     "end": 10000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "실행 요청됨",
+   "labelColor": "#e2e8f0",
+   "labelSize": 17
+  },
+  {
+   "type": "text",
+   "id": "note1",
+   "x": 40,
+   "y": 310,
+   "content": "A의 SQL이 끝나기 전에 B도 시작할 수 있다.",
+   "fontSize": 19,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 5000,
+     "end": 10000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "count1",
+   "x": 40,
+   "y": 355,
+   "content": "사용 중 2 / 한도 2",
+   "fontSize": 18,
+   "color": "#fbbf24",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 5000,
+     "end": 10000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "node2_0",
+   "x": 40,
+   "y": 95,
+   "width": 240,
+   "height": 70,
+   "fill": "#1e293b",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 10000,
+     "end": 15000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "pg_cron launcher",
+   "labelColor": "#e2e8f0",
+   "labelSize": 18,
+   "stroke": "#60a5fa",
+   "strokeWidth": 2
+  },
+  {
+   "type": "rect",
+   "id": "state2_0",
+   "x": 40,
+   "y": 190,
+   "width": 240,
+   "height": 65,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 10000,
+     "end": 15000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "결과 도착 여부 확인",
+   "labelColor": "#0b1120",
+   "labelSize": 17
+  },
+  {
+   "type": "rect",
+   "id": "node2_1",
+   "x": 330,
+   "y": 95,
+   "width": 240,
+   "height": 70,
+   "fill": "#1e293b",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 10000,
+     "end": 15000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "잡 A 실행 프로세스",
+   "labelColor": "#e2e8f0",
+   "labelSize": 18,
+   "stroke": "#334155",
+   "strokeWidth": 2
+  },
+  {
+   "type": "rect",
+   "id": "state2_1",
+   "x": 330,
+   "y": 190,
+   "width": 240,
+   "height": 65,
+   "fill": "#34d399",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 10000,
+     "end": 15000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "SQL 실행 중",
+   "labelColor": "#0b1120",
+   "labelSize": 17
+  },
+  {
+   "type": "rect",
+   "id": "node2_2",
+   "x": 620,
+   "y": 95,
+   "width": 240,
+   "height": 70,
+   "fill": "#1e293b",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 10000,
+     "end": 15000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "잡 B 실행 프로세스",
+   "labelColor": "#e2e8f0",
+   "labelSize": 18,
+   "stroke": "#334155",
+   "strokeWidth": 2
+  },
+  {
+   "type": "rect",
+   "id": "state2_2",
+   "x": 620,
+   "y": 190,
+   "width": 240,
+   "height": 65,
+   "fill": "#34d399",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 10000,
+     "end": 15000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "SQL 실행 중",
+   "labelColor": "#0b1120",
+   "labelSize": 17
+  },
+  {
+   "type": "text",
+   "id": "note2",
+   "x": 40,
+   "y": 310,
+   "content": "두 SQL은 별도 프로세스에서 진행된다.",
+   "fontSize": 19,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 10000,
+     "end": 15000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "count2",
+   "x": 40,
+   "y": 355,
+   "content": "사용 중 2 / 한도 2",
+   "fontSize": 18,
+   "color": "#fbbf24",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 10000,
+     "end": 15000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "node3_0",
+   "x": 40,
+   "y": 95,
+   "width": 240,
+   "height": 70,
+   "fill": "#1e293b",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 15000,
+     "end": 20000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "pg_cron launcher",
+   "labelColor": "#e2e8f0",
+   "labelSize": 18,
+   "stroke": "#60a5fa",
+   "strokeWidth": 2
+  },
+  {
+   "type": "rect",
+   "id": "state3_0",
+   "x": 40,
+   "y": 190,
+   "width": 240,
+   "height": 65,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 15000,
+     "end": 20000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "A의 결과 수집",
+   "labelColor": "#0b1120",
+   "labelSize": 17
+  },
+  {
+   "type": "rect",
+   "id": "node3_1",
+   "x": 330,
+   "y": 95,
+   "width": 240,
+   "height": 70,
+   "fill": "#1e293b",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 15000,
+     "end": 20000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "잡 A 실행 프로세스",
+   "labelColor": "#e2e8f0",
+   "labelSize": 18,
+   "stroke": "#334155",
+   "strokeWidth": 2
+  },
+  {
+   "type": "rect",
+   "id": "state3_1",
+   "x": 330,
+   "y": 190,
+   "width": 240,
+   "height": 65,
+   "fill": "#1e293b",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 15000,
+     "end": 20000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "완료 결과 전달",
+   "labelColor": "#e2e8f0",
+   "labelSize": 17
+  },
+  {
+   "type": "rect",
+   "id": "node3_2",
+   "x": 620,
+   "y": 95,
+   "width": 240,
+   "height": 70,
+   "fill": "#1e293b",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 15000,
+     "end": 20000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "잡 B 실행 프로세스",
+   "labelColor": "#e2e8f0",
+   "labelSize": 18,
+   "stroke": "#334155",
+   "strokeWidth": 2
+  },
+  {
+   "type": "rect",
+   "id": "state3_2",
+   "x": 620,
+   "y": 190,
+   "width": 240,
+   "height": 65,
+   "fill": "#34d399",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 15000,
+     "end": 20000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "SQL 실행 중",
+   "labelColor": "#0b1120",
+   "labelSize": 17
+  },
+  {
+   "type": "text",
+   "id": "note3",
+   "x": 40,
+   "y": 310,
+   "content": "A의 결과를 확인하는 동안에도 B는 계속 진행된다.",
+   "fontSize": 19,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 15000,
+     "end": 20000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "count3",
+   "x": 40,
+   "y": 355,
+   "content": "완료 처리 후 사용 중 1 / 한도 2",
+   "fontSize": 18,
+   "color": "#fbbf24",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 15000,
+     "end": 20000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "node4_0",
+   "x": 40,
+   "y": 95,
+   "width": 240,
+   "height": 70,
+   "fill": "#1e293b",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 20000,
+     "end": 25000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "pg_cron launcher",
+   "labelColor": "#e2e8f0",
+   "labelSize": 18,
+   "stroke": "#60a5fa",
+   "strokeWidth": 2
+  },
+  {
+   "type": "rect",
+   "id": "state4_0",
+   "x": 40,
+   "y": 190,
+   "width": 240,
+   "height": 65,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 20000,
+     "end": 25000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "이력 기록 · 연결 정리",
+   "labelColor": "#0b1120",
+   "labelSize": 17
+  },
+  {
+   "type": "rect",
+   "id": "node4_1",
+   "x": 330,
+   "y": 95,
+   "width": 240,
+   "height": 70,
+   "fill": "#1e293b",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 20000,
+     "end": 25000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "잡 A 실행 프로세스",
+   "labelColor": "#e2e8f0",
+   "labelSize": 18,
+   "stroke": "#334155",
+   "strokeWidth": 2
+  },
+  {
+   "type": "rect",
+   "id": "state4_1",
+   "x": 330,
+   "y": 190,
+   "width": 240,
+   "height": 65,
+   "fill": "#1e293b",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 20000,
+     "end": 25000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "종료됨",
+   "labelColor": "#e2e8f0",
+   "labelSize": 17
+  },
+  {
+   "type": "rect",
+   "id": "node4_2",
+   "x": 620,
+   "y": 95,
+   "width": 240,
+   "height": 70,
+   "fill": "#1e293b",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 20000,
+     "end": 25000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "잡 B 실행 프로세스",
+   "labelColor": "#e2e8f0",
+   "labelSize": 18,
+   "stroke": "#334155",
+   "strokeWidth": 2
+  },
+  {
+   "type": "rect",
+   "id": "state4_2",
+   "x": 620,
+   "y": 190,
+   "width": 240,
+   "height": 65,
+   "fill": "#34d399",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 20000,
+     "end": 25000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "SQL 실행 중",
+   "labelColor": "#0b1120",
+   "labelSize": 17
+  },
+  {
+   "type": "text",
+   "id": "note4",
+   "x": 40,
+   "y": 310,
+   "content": "A의 실행 자리를 돌려주고 다음 예약을 살핀다.",
+   "fontSize": 19,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 20000,
+     "end": 25000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "count4",
+   "x": 40,
+   "y": 355,
+   "content": "사용 중 1 / 한도 2",
+   "fontSize": 18,
+   "color": "#fbbf24",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 20000,
+     "end": 25000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "rect",
+   "id": "node5_0",
+   "x": 40,
+   "y": 95,
+   "width": 240,
+   "height": 70,
+   "fill": "#1e293b",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 25000,
+     "end": 30000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "pg_cron launcher",
+   "labelColor": "#e2e8f0",
+   "labelSize": 18,
+   "stroke": "#60a5fa",
+   "strokeWidth": 2
+  },
+  {
+   "type": "rect",
+   "id": "state5_0",
+   "x": 40,
+   "y": 190,
+   "width": 240,
+   "height": 65,
+   "fill": "#60a5fa",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 25000,
+     "end": 30000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "B 정리 후 예약 확인",
+   "labelColor": "#0b1120",
+   "labelSize": 17
+  },
+  {
+   "type": "rect",
+   "id": "node5_1",
+   "x": 330,
+   "y": 95,
+   "width": 240,
+   "height": 70,
+   "fill": "#1e293b",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 25000,
+     "end": 30000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "잡 A 실행 프로세스",
+   "labelColor": "#e2e8f0",
+   "labelSize": 18,
+   "stroke": "#334155",
+   "strokeWidth": 2
+  },
+  {
+   "type": "rect",
+   "id": "state5_1",
+   "x": 330,
+   "y": 190,
+   "width": 240,
+   "height": 65,
+   "fill": "#1e293b",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 25000,
+     "end": 30000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "종료됨",
+   "labelColor": "#e2e8f0",
+   "labelSize": 17
+  },
+  {
+   "type": "rect",
+   "id": "node5_2",
+   "x": 620,
+   "y": 95,
+   "width": 240,
+   "height": 70,
+   "fill": "#1e293b",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 25000,
+     "end": 30000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "잡 B 실행 프로세스",
+   "labelColor": "#e2e8f0",
+   "labelSize": 18,
+   "stroke": "#334155",
+   "strokeWidth": 2
+  },
+  {
+   "type": "rect",
+   "id": "state5_2",
+   "x": 620,
+   "y": 190,
+   "width": 240,
+   "height": 65,
+   "fill": "#1e293b",
+   "cornerRadius": 8,
+   "appearances": [
+    {
+     "start": 25000,
+     "end": 30000,
+     "entryMode": "pop",
+     "entryDuration": 260
+    }
+   ],
+   "label": "종료됨",
+   "labelColor": "#e2e8f0",
+   "labelSize": 17
+  },
+  {
+   "type": "text",
+   "id": "note5",
+   "x": 40,
+   "y": 310,
+   "content": "실행 프로세스는 종료되고 launcher는 계속 남는다.",
+   "fontSize": 19,
+   "color": "#e2e8f0",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 25000,
+     "end": 30000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "count5",
+   "x": 40,
+   "y": 355,
+   "content": "사용 중 0 / 한도 2",
+   "fontSize": 18,
+   "color": "#fbbf24",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 25000,
+     "end": 30000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  },
+  {
+   "type": "text",
+   "id": "legend",
+   "x": 40,
+   "y": 405,
+   "content": "파랑: 상태 관리 / 초록: SQL 진행 / libpq 모드의 설명용 흐름",
+   "fontSize": 16,
+   "color": "#94a3b8",
+   "textAnchor": "start",
+   "appearances": [
+    {
+     "start": 0,
+     "end": 30000,
+     "entryMode": "fade",
+     "entryDuration": 260
+    }
+   ]
+  }
+ ],
+ "chapters": [
+  {
+   "id": "ch0",
+   "time": 0,
+   "label": "A 실행 요청",
+   "subtitle": "pg_cron launcher가 A의 SQL 실행을 요청한다."
+  },
+  {
+   "id": "ch1",
+   "time": 5000,
+   "label": "B 실행 요청",
+   "subtitle": "A의 SQL이 끝나기 전에 B도 시작할 수 있다."
+  },
+  {
+   "id": "ch2",
+   "time": 10000,
+   "label": "결과 기다리기",
+   "subtitle": "두 SQL은 별도 프로세스에서 진행된다."
+  },
+  {
+   "id": "ch3",
+   "time": 15000,
+   "label": "A 완료 확인",
+   "subtitle": "A의 결과를 확인하는 동안에도 B는 계속 진행된다."
+  },
+  {
+   "id": "ch4",
+   "time": 20000,
+   "label": "A 정리",
+   "subtitle": "A의 실행 자리를 돌려주고 다음 예약을 살핀다."
+  },
+  {
+   "id": "ch5",
+   "time": 25000,
+   "label": "B 완료 확인",
+   "subtitle": "실행 프로세스는 종료되고 launcher는 계속 남는다."
+  }
+ ],
+ "settings": {
+  "loop": false,
+  "autoplay": true,
+  "showChapterList": true
+ }
+}

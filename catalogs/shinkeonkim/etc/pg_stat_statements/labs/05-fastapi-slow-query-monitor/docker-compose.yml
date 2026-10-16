@@ -1,0 +1,37 @@
+name: pg-study-catalog-shinkeonkim-pgss-05
+
+services:
+  postgres:
+    build: ./postgres
+    container_name: pg-study-catalog-shinkeonkim-pgss-05-postgres
+    environment:
+      POSTGRES_DB: study
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "127.0.0.1:15924:5432"
+    volumes:
+      - ./postgres/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+    command:
+      - postgres
+      - -c
+      - shared_preload_libraries=pg_stat_statements
+      - -c
+      - pg_stat_statements.track=all
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -p 5432 -U postgres -d study"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+      start_period: 30s
+
+  api:
+    build: ./api
+    container_name: pg-study-catalog-shinkeonkim-pgss-05-api
+    environment:
+      DATABASE_URL: "host=postgres port=5432 dbname=study user=postgres password=postgres"
+    ports:
+      - "127.0.0.1:18924:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy

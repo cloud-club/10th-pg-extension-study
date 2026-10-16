@@ -2,9 +2,36 @@
 @tailwind components;
 @tailwind utilities;
 
-/* 다크 전용. 카탈로그의 visualizations 와 같은 팔레트를 HSL 로 옮겼다. */
+/* 문서와 UI는 테마 토큰을 공유한다. */
 @layer base {
   :root {
+    color-scheme: light;
+    --background: 210 40% 98%;
+    --foreground: 222 47% 11%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+    --primary: 221 83% 40%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 214 32% 91%;
+    --secondary-foreground: 222 47% 11%;
+    --muted: 214 32% 91%;
+    --muted-foreground: 215 25% 35%;
+    --accent: 214 32% 91%;
+    --accent-foreground: 222 47% 11%;
+    --border: 214 25% 80%;
+    --input: 214 25% 80%;
+    --ring: 221 83% 40%;
+    --radius: 0.75rem;
+    --code: 214 32% 94%;
+    --bigm: 221 83% 40%;
+    --trgm: 347 77% 40%;
+    --tsv: 263 70% 42%;
+    --ok: 163 88% 25%;
+    --warn: 30 92% 30%;
+  }
+  :root.dark {
+    color-scheme: dark;
+    --code: 222 60% 5%;
     --background: 222 47% 8%;
     --foreground: 213 31% 91%;
     --card: 222 41% 11%;
@@ -40,12 +67,30 @@
   .prose-doc ul { @apply my-3 list-disc pl-5 space-y-1; }
   .prose-doc ol { @apply my-3 list-decimal pl-5 space-y-1; }
   .prose-doc code { @apply rounded bg-secondary px-1.5 py-0.5 font-mono text-[0.9em]; }
-  .prose-doc pre { @apply my-3 overflow-x-auto rounded-xl bg-[hsl(222_60%_5%)] p-4 text-[12.5px] leading-relaxed; }
+  .prose-doc pre { @apply my-3 overflow-x-auto rounded-xl bg-code p-4 text-[12.5px] leading-relaxed; }
   .prose-doc pre code { @apply bg-transparent p-0; }
   .prose-doc a { @apply text-primary underline-offset-4 hover:underline; }
-  .prose-doc table { @apply my-4 w-full border-collapse text-[14px]; }
+  .prose-doc table { @apply my-4 w-full border-collapse text-[14px]; overflow-wrap: anywhere; }
   .prose-doc th { @apply border-b border-border bg-secondary/60 px-3 py-2 text-left font-semibold; }
   .prose-doc td { @apply border-b border-border px-3 py-2 align-top; }
   .prose-doc h3 { @apply mt-8 mb-2 text-[17px] font-semibold; }
   .prose-doc h4 { @apply mt-6 mb-2 text-[15px] font-semibold; }
 }
+
+/* Syntax colors on the existing dark code background. */
+.hljs { color: #e2e8f0; }
+.hljs-keyword, .hljs-type, .hljs-selector-tag { color: #c4b5fd; }
+.hljs-string, .hljs-regexp, .hljs-addition { color: #86efac; }
+.hljs-number, .hljs-literal { color: #fdba74; }
+.hljs-comment, .hljs-quote { color: #94a3b8; }
+.hljs-title, .hljs-built_in, .hljs-function .hljs-title { color: #7dd3fc; }
+.hljs-meta, .hljs-attr, .hljs-variable { color: #f9a8d4; }
+
+/* 밝은 코드 배경에서 주석과 구문 색의 대비를 확보한다. */
+:root:not(.dark) .hljs { color: #0f172a; }
+:root:not(.dark) :is(.hljs-keyword, .hljs-type, .hljs-selector-tag) { color: #6d28d9; }
+:root:not(.dark) :is(.hljs-string, .hljs-regexp, .hljs-addition) { color: #166534; }
+:root:not(.dark) :is(.hljs-number, .hljs-literal) { color: #9a3412; }
+:root:not(.dark) :is(.hljs-comment, .hljs-quote) { color: #475569; }
+:root:not(.dark) :is(.hljs-title, .hljs-built_in, .hljs-function .hljs-title) { color: #075985; }
+:root:not(.dark) :is(.hljs-meta, .hljs-attr, .hljs-variable) { color: #9d174d; }

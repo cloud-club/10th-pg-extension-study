@@ -1,0 +1,78 @@
+{
+  "environment": {
+    "postgres": "PostgreSQL 16.15 (Ubuntu 16.15-1.pgdg22.04+2) on aarch64-unknown-linux-gnu, compiled by gcc (Ubuntu 11.4.0-1ubuntu1~22.04.3) 11.4.0, 64-bit",
+    "vector_version": "0.8.6",
+    "vectorscale_version": "0.9.1",
+    "shared_buffers": "512MB",
+    "maintenance_work_mem": "1GB",
+    "cpu_count": "3",
+    "mem_total": "MemTotal:        4014168 kB"
+  },
+  "dim": 128,
+  "bisection": [
+    {
+      "n": 30000,
+      "maintenance_work_mem": "1GB",
+      "ok": true,
+      "peak_container_mem_mb": 246.5,
+      "msg": null
+    },
+    {
+      "n": 40000,
+      "maintenance_work_mem": "1GB",
+      "ok": true,
+      "peak_container_mem_mb": 310.4,
+      "msg": null
+    },
+    {
+      "n": 45000,
+      "maintenance_work_mem": "1GB",
+      "ok": true,
+      "peak_container_mem_mb": 343.0,
+      "msg": null
+    },
+    {
+      "n": 48000,
+      "maintenance_work_mem": "1GB",
+      "ok": true,
+      "peak_container_mem_mb": 362.8,
+      "msg": null
+    },
+    {
+      "n": 51000,
+      "maintenance_work_mem": "1GB",
+      "ok": true,
+      "peak_container_mem_mb": 384.3,
+      "msg": null
+    }
+  ],
+  "mwm_sweep": [
+    {
+      "n": 51000,
+      "maintenance_work_mem": "1GB",
+      "ok": true,
+      "peak_container_mem_mb": 387.8,
+      "msg": null
+    },
+    {
+      "n": 51000,
+      "maintenance_work_mem": "2GB",
+      "ok": true,
+      "peak_container_mem_mb": 398.2,
+      "msg": null
+    },
+    {
+      "n": 51000,
+      "maintenance_work_mem": "3GB",
+      "ok": true,
+      "peak_container_mem_mb": 402.2,
+      "msg": null
+    }
+  ],
+  "exp03_sequence_replication": {
+    "note": "실험 03과 같은 순서(같은 세션에서 memory_optimized 빌드->드롭->plain 빌드)를 51,000행에서 재현",
+    "memory_optimized_build": "OK",
+    "plain_build": "OK",
+    "crash_reproduced": false
+  }
+}

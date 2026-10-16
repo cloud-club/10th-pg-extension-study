@@ -1,0 +1,30 @@
+{
+  "environment": {
+    "postgres": "PostgreSQL 16.15 (Ubuntu 16.15-1.pgdg22.04+2) on aarch64-unknown-linux-gnu",
+    "vector_version": "0.8.6",
+    "vectorscale_version": "0.9.1",
+    "shared_buffers": "512MB",
+    "maintenance_work_mem": "1GB"
+  },
+  "n_vectors": 50000,
+  "dim": 128,
+  "search_list_size": 100,
+  "configs": [
+    {
+      "storage_layout": "memory_optimized",
+      "build_ms": 49828.72,
+      "index_mb": 23.453,
+      "recall_at_10": 1.0,
+      "buffers_per_query": 6697.5,
+      "median_ms_for_50_queries": 105.074,
+      "notice": "NOTICE:  Starting index build with num_neighbors=-1, search_list_size=100, max_alpha=1.2, storage_layout=SbqCompression."
+    },
+    {
+      "storage_layout": "plain",
+      "build_ms": null,
+      "index_mb": null,
+      "recall_at_10": null,
+      "note": "빌드 도중 서버 프로세스가 죽었다 (FATAL: terminating connection due to administrator command). README.md 참고."
+    }
+  ]
+}
