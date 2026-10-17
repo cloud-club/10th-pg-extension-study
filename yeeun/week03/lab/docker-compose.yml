@@ -1,0 +1,28 @@
+name: yeeun-week03-pgcron
+
+services:
+  postgres:
+    build: .
+    container_name: yeeun-week03-pgcron
+    environment:
+      POSTGRES_DB: study
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "15503:5432"
+    volumes:
+      - ./sql:/lab/sql:ro
+    command:
+      - postgres
+      - -c
+      - shared_preload_libraries=pg_cron
+      - -c
+      - cron.database_name=study
+      - -c
+      - cron.timezone=Asia/Seoul
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -p 5432 -U postgres -d study"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+      start_period: 30s
