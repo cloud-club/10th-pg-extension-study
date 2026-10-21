@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#f7f8fa">
+  <title>02. PostgreSQL과 MVCC — 같은 UPDATE, 다른 인덱스 비용</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body data-page="postgresql">
+  <header class="topbar">
+    <div class="brand-wrap"><button class="mobile-menu" type="button" aria-label="목차 열기" aria-expanded="false">☰</button><a class="brand" href="index.html"><span class="brand-mark">DB</span><span>STUDY NOTES</span></a></div>
+    <div class="top-meta"><span class="hide-mobile">PostgreSQL 18 · MySQL 8.4</span><span>02 / 04 · POSTGRESQL MVCC</span></div><div class="read-progress" aria-hidden="true"></div>
+  </header>
+  <div class="layout">
+    <aside class="sidebar" aria-label="학습 페이지 목차">
+      <p class="book-label">PostgreSQL Study · Indexes</p><p class="book-title">같은 UPDATE,<br>다른 인덱스 비용</p>
+      <nav class="toc">
+        <p class="nav-heading">페이지</p><a href="index.html">01 · 인덱스 조회 경로</a><a class="active" aria-current="page" href="postgresql.html">02 · PostgreSQL과 MVCC</a><a href="innodb.html">03 · InnoDB와 Undo</a><a href="optimizations.html">04 · 구조와 접근 최적화</a>
+        <p class="nav-heading">이 페이지 안에서</p><a class="sub" href="#update">UPDATE와 새 tuple</a><a class="sub" href="#snapshot">Snapshot과 xmin/xmax</a><a class="sub" href="#nonhot">non-HOT 후보와 O(N)</a><a class="sub" href="#hot">HOT chain 구조</a><a class="sub" href="#prune">Pruning과 redirect</a>
+      </nav>
+      <div class="side-note">핵심: 인덱스는 후보 위치를 찾고, heap tuple과 snapshot이 반환할 버전을 결정합니다.</div>
+    </aside>
+    <button class="mobile-overlay" type="button" aria-label="목차 닫기"></button>
+    <main class="main"><article class="article">
+      <div class="breadcrumbs"><a href="index.html">PostgreSQL Study</a><span>›</span><a href="index.html">Indexes</a><span>›</span><span>02 / 04</span></div>
+      <div class="eyebrow">CHAPTER 02 OF 04 · MVCC DIFFERENCE</div>
+      <h1>PostgreSQL은<br>TID에서 snapshot까지 확인한다</h1>
+      <p class="subtitle">새 tuple version, 보이지 않는 후보, 그리고 HOT chain</p>
+      <div class="page-meta"><span>PostgreSQL 18</span><span>Heap · TID · MVCC</span><span>UPDATE 동작</span></div>
+      <p class="lead">인덱스에서 TID를 얻었다고 조회가 끝난 것은 아니다. <strong>heap의 해당 tuple version이 현재 조회에서 보이는지</strong> 확인해야 한다.</p>
+
+      <section class="page-section" id="update"><p class="section-kicker">UPDATE</p><h2>UPDATE는 새 tuple version을 만들 수 있다</h2>
+        <p>PostgreSQL의 일반적인 UPDATE는 기존 tuple을 덮어쓰는 대신 heap에 새 tuple version을 만든다. 이 버전들은 같은 논리적 행의 이전·이후 모습이다. HOT이 아닌 경우 새 tuple version을 가리키는 인덱스 항목도 추가될 수 있다.<a class="ref" href="https://www.postgresql.org/docs/18/indexam.html" target="_blank" rel="noopener">[PG index access]</a></p>
+        <pre>같은 논리적 주문: order_id = 22
+
+이전 tuple version: status = 'paid'
+새 tuple version:   status = 'shipped'
+
+새 tuple version ≠ 새 주문 행</pre>
+      </section>
+
+      <section class="page-section" id="snapshot"><p class="section-kicker">VISIBILITY</p><h2>Snapshot과 xmin/xmax는 무엇을 알려줄까?</h2>
+        <p>Snapshot은 테이블 복사본이나 단일 시각 값이라기보다, <strong>이 조회에서 어떤 트랜잭션의 변경이 보이는지 판정하는 기준</strong>이다. 먼저 이름이 같은 두 종류의 필드를 구분하자. <strong>tuple의 <code>xmin</code>/<code>xmax</code></strong>는 tuple version을 만든 트랜잭션과 삭제·갱신을 시도한 트랜잭션을 가리킨다. 반면 <strong>Snapshot의 <code>xmin</code>/<code>xmax</code></strong>는 XID 범위의 경계이고, <code>xip[]</code>는 snapshot을 얻을 때 진행 중이던 트랜잭션 ID 목록이다. XID 숫자만으로 최신/과거를 정하는 것은 아니다.<a class="ref" href="https://www.postgresql.org/docs/18/ddl-system-columns.html" target="_blank" rel="noopener">[PG system columns]</a><a class="ref" href="https://github.com/postgres/postgres/blob/REL_18_STABLE/src/include/utils/snapshot.h" target="_blank" rel="noopener">[PG SnapshotData]</a></p>
+        <h3>Snapshot의 경계와 진행 중 목록</h3>
+        <p>원리를 보기 위한 단순화된 예시다. 실제 PostgreSQL은 XID wraparound를 고려한 비교와 subtransaction 등도 처리한다.</p>
+        <pre>Snapshot (설명용)
+xmin = 100
+xmax = 110
+xip  = [102, 105, 108]</pre>
+        <table class="compare snapshot-table" aria-label="Snapshot XID 범위별 의미"><thead><tr><th>tuple을 만든/무효화한 XID</th><th>이 snapshot에서의 해석</th></tr></thead><tbody>
+          <tr><td><code>XID &lt; snapshot.xmin</code></td><td>snapshot을 만들 때 이미 진행 중인 범위 밖으로 끝난 트랜잭션이다. 하지만 종료가 commit인지 abort인지는 별도로 확인해야 한다.</td></tr>
+          <tr><td><code>snapshot.xmin ≤ XID &lt; snapshot.xmax</code> 이고 <code>XID ∈ xip[]</code></td><td>snapshot 시점에 진행 중이었다. 그 트랜잭션의 변경은 이 snapshot에서 보이지 않으며, 이후 commit해도 같은 snapshot에서 소급해 보이지 않는다.</td></tr>
+          <tr><td>같은 중간 범위지만 <code>XID ∉ xip[]</code></td><td>snapshot 시점에는 진행 중이 아니었다. 그래도 commit/abort 상태를 확인해야 한다. commit된 변경만 보일 수 있고, abort된 변경은 보이지 않는다.</td></tr>
+          <tr><td><code>XID ≥ snapshot.xmax</code></td><td>snapshot 시점에 아직 할당되지 않았거나 그 이후에 할당된 XID다. 그 트랜잭션의 변경은 이 snapshot에서는 보이지 않는다.</td></tr>
+        </tbody></table>
+        <p>요약하면 <code>snapshot.xmin</code>은 오래된 XID 쪽 경계, <code>snapshot.xmax</code>는 그 snapshot이 볼 수 없는 미래 쪽 경계, <code>xip[]</code>는 그 사이에서 당시 진행 중이던 XID를 표시한다. <code>xip[]</code>에 없다는 사실만으로 “commit됐다”고 단정하지 말고, transaction status도 확인해야 한다.<a class="ref" href="https://github.com/postgres/postgres/blob/REL_18_STABLE/src/include/utils/snapshot.h" target="_blank" rel="noopener">[SnapshotData 정의]</a></p>
+        <h3>먼저 tuple의 xmin으로 생성이 보이는지 본다</h3>
+        <p>예를 들어 tuple version의 <code>xmin = 103</code>, <code>xmax = 0</code>이고 snapshot이 위 예시와 같다면, 103은 경계 사이에 있지만 <code>xip[]</code>에는 없다. 이는 snapshot 시점에 103이 진행 중이지 않았다는 뜻이다. 103이 commit된 것으로 확인되면 이 tuple version은 생성된 것으로 보일 수 있다. 반대로 <code>xmin = 105</code>라면 105가 <code>xip[]</code>에 있으므로 생성은 보이지 않는다. 105가 snapshot 직후 commit해도 이 snapshot의 판정은 바뀌지 않는다.</p>
+        <h3>tuple의 xmax는 삭제·갱신이 보이는지 알려준다</h3>
+        <p>이제 이전 tuple version이 <code>xmin = 90</code>, <code>xmax = 105</code>라고 하자. 90의 생성이 commit됐고 105가 snapshot의 <code>xip[]</code>에 있다면, snapshot은 105의 UPDATE/DELETE를 아직 보지 않는다. 따라서 이전 tuple은 여전히 보일 수 있다. <code>xmax = 0</code>은 보통 무효화 트랜잭션이 없는 상태지만, 실제 tuple의 <code>xmax</code>는 잠금 정보 등에도 쓰일 수 있어 숫자 하나만 보고 삭제 완료라고 판단하면 안 된다.</p>
+        <div class="flow snapshot-flow" aria-label="UPDATE한 두 tuple version의 snapshot visibility"><div class="flow-node"><b>Old tuple</b><small>status = paid<br>tuple xmin = 90 · xmax = 105</small></div><span class="flow-arrow" aria-hidden="true"><span class="flow-arrow-wide">→</span><span class="flow-arrow-narrow">↓</span></span><div class="flow-node"><b>New tuple</b><small>status = shipped<br>tuple xmin = 105 · xmax = 0</small></div></div>
+        <p>105가 진행 중인 snapshot에서는 old tuple의 <code>xmax=105</code>가 아직 효력이 없어 <code>paid</code>가 보이고, new tuple의 <code>xmin=105</code>도 아직 보이지 않는다. 105가 commit된 뒤 만들어진 <strong>새 snapshot</strong>에서는 old version이 무효화되고 new version이 보일 수 있다. 예를 들어 Read Committed에서는 다음 명령이 새 snapshot을 얻지만, Repeatable Read에서는 같은 트랜잭션 안의 후속 조회도 기존 snapshot을 유지한다.<a class="ref" href="https://www.postgresql.org/docs/18/transaction-iso.html" target="_blank" rel="noopener">[PG transaction isolation]</a><a class="ref" href="https://github.com/postgres/postgres/blob/REL_18_STABLE/src/backend/access/heap/heapam_visibility.c" target="_blank" rel="noopener">[HeapTupleSatisfiesMVCC]</a></p>
+        <div class="callout"><strong>한 줄 요약:</strong> tuple <code>xmin</code>은 “이 버전의 생성이 보이는가?”, tuple <code>xmax</code>는 “이 버전을 무효화한 변경이 보이는가?”를 묻는다. 둘을 Snapshot의 경계·<code>xip[]</code> 및 트랜잭션 상태와 대조해 최종 visibility를 결정한다.</div>
+        <p class="small">실제 판정에는 commit/abort 상태, 현재 트랜잭션과 command ID, subtransaction, hint bits 등이 관여한다. 이 예시는 MVCC 직관을 위한 모델이며, PostgreSQL 구현에서는 XID wraparound도 고려한다.<a class="ref" href="https://github.com/postgres/postgres/blob/REL_18_STABLE/src/backend/access/heap/heapam_visibility.c" target="_blank" rel="noopener">[구현 코드]</a></p>
+        <p>따라서 인덱스의 오래된 TID가 아직 남아 있어도 무조건 옛 데이터를 반환하지 않는다. TID가 가리키는 tuple을 읽고 가시성을 판정해, snapshot에 맞지 않는 버전은 건너뛴다. 이전 버전이 더는 어떤 snapshot에도 필요 없게 되면 VACUUM이 정리할 수 있다.<a class="ref" href="https://www.postgresql.org/docs/18/routine-vacuuming.html" target="_blank" rel="noopener">[PG vacuuming]</a></p>
+      </section>
+
+      <section class="page-section" id="nonhot"><p class="section-kicker">NON-HOT UPDATE</p><h2>매칭되는 후보 TID는 하나씩 확인하나?</h2>
+        <p>non-HOT UPDATE에서 새 인덱스 항목이 생기면 같은 검색 키로 여러 물리적 후보 TID가 나올 수 있다. 인덱스 스캔은 해당 키에 매칭된 항목들을 순회하고, 필요한 후보마다 heap tuple의 가시성을 확인한다. 보이지 않는 후보는 건너뛰고, 조건에 맞고 보이는 tuple을 결과로 낸다.</p>
+        <pre>예: WHERE order_id = 22
+
+B-tree에서 키 22의 후보를 찾음
+  후보 TID A → heap 확인 → snapshot에서 보이지 않음 → skip
+  후보 TID B → heap 확인 → snapshot에서 보임     → 반환</pre>
+        <div class="callout"><strong>탐색량을 단순화하면:</strong> B-tree에서 위치를 찾는 비용을 <code>O(log M)</code>, 이 검색에서 확인할 후보 TID가 <code>N</code>개일 때 후보 검사의 최악을 <code>O(N)</code>이라 볼 수 있다. <code>N</code>은 해당 키로 매칭된 물리적 후보 수이지 테이블 전체 행 수가 아니다. `LIMIT` 등으로 일찍 끝날 수 있고, 실제 시간에는 heap 페이지 접근과 캐시 적중 여부가 크게 작용한다.</div>
+        <p class="small">즉 “후보가 N개면 언제나 정확히 N번 디스크를 읽는다”는 뜻은 아니다. N은 논리적 후보 검사량의 상한 감각이고, 페이지 I/O 횟수나 실행 시간과 동일하지 않다.</p>
+      </section>
+
+      <section class="page-section" id="hot"><p class="section-kicker">HOT UPDATE</p><h2>HOT chain은 연결리스트와 얼마나 비슷할까?</h2>
+        <p>HOT은 인덱스가 참조하는 컬럼이 바뀌지 않고, 같은 heap 페이지 안에 새 버전을 둘 공간이 있을 때 가능하다. 새 tuple version은 생성하지만, 그 버전을 위한 새 인덱스 항목을 생략한다. 기존 인덱스가 root TID를 가리키고, 같은 페이지 안의 tuple version 연결을 따라가게 한다.<a class="ref" href="https://www.postgresql.org/docs/18/storage-hot.html" target="_blank" rel="noopener">[PG HOT]</a></p>
+        <h3>같은 페이지에 여유를 두는 table fillfactor</h3>
+        <p>HOT은 아래 두 조건을 <strong>모두</strong> 만족해야 한다.</p>
+        <ol class="steps">
+          <li><strong>인덱스가 참조하는 컬럼을 바꾸지 않는다.</strong> 기존 인덱스 항목이 계속 같은 검색 키를 나타내야 한다.</li>
+          <li><strong>새 tuple version이 같은 heap page 안에 들어갈 공간이 있다.</strong> 단지 테이블 어딘가에 빈 공간이 있는 것만으로는 부족하다.</li>
+        </ol>
+        <p>왜 같은 페이지여야 할까? 기존 인덱스 항목은 기존 tuple의 root TID를 가리킨다. 새 버전이 같은 페이지에 있으면 HOT chain을 통해 그 버전까지 따라갈 수 있어 새 인덱스 항목을 만들지 않아도 된다. 반대로 새 버전이 다른 페이지에 놓이면 기존 root TID에서 같은 페이지의 chain으로 도달할 수 없으므로 새 인덱스 항목이 필요하고, 그 UPDATE는 HOT이 아니다.<a class="ref" href="https://www.postgresql.org/docs/18/storage-hot.html" target="_blank" rel="noopener">[PG HOT 조건]</a></p>
+        <p>이 두 번째 조건 때문에 테이블의 <code>fillfactor</code>를 낮춰 페이지에 UPDATE용 여유를 남긴다. 기본값 <code>fillfactor = 100</code>은 페이지를 가능한 한 빽빽하게 채우고, <code>fillfactor = 80</code>은 새 행을 넣을 때 페이지를 대략 80%까지 채워 나머지를 같은 페이지의 UPDATE에 쓸 수 있게 한다. 따라서 새 tuple version이 같은 페이지에 들어갈 가능성이 높아져 HOT도 더 자주 가능해질 수 있다. 이 값은 HOT 성공률 80%를 뜻하지 않으며, 첫 번째 조건도 계속 만족해야 한다.<a class="ref" href="https://www.postgresql.org/docs/18/sql-createtable.html#RELOPTION-FILLFACTOR" target="_blank" rel="noopener">[PG table fillfactor]</a></p>
+        <pre>ALTER TABLE orders SET (fillfactor = 80);</pre>
+        <p class="small">100이더라도 페이지에 우연히 여유 공간이 있으면 HOT은 발생할 수 있고, 80으로 낮춰도 필요한 공간이 부족하거나 인덱스 컬럼을 바꾸면 HOT이 보장되지 않는다. fillfactor는 테이블 설정이다. 값을 바꿔도 이미 꽉 찬 기존 페이지에 공간이 즉시 생기지는 않으며, 기존 데이터를 새 기준에 맞추려면 테이블 rewrite가 필요할 수 있다. 낮은 fillfactor는 행 밀도를 줄여 테이블 크기를 늘릴 수 있다.<a class="ref" href="https://www.postgresql.org/docs/18/sql-altertable.html" target="_blank" rel="noopener">[PG ALTER TABLE]</a></p>
+        <h3><code>ctid</code>, line pointer, tuple flags가 연결을 표현한다</h3>
+        <figure class="hot-detail-figure">
+          <img src="hot-chain.svg" alt="B-tree 항목의 TID (42,3)가 heap block 42의 line pointer 3을 선택하고, 이 line pointer가 root tuple을 가리킨다. root tuple의 ctid는 (42,4)를 가리키며, 새 heap-only tuple은 HEAP_ONLY_TUPLE flag를 갖는다.">
+          <figcaption>설명용 개념도(축척 아님). 인덱스 컬럼 <code>account_id</code>는 그대로이고, 일반 컬럼 <code>note</code>만 바뀐 HOT UPDATE 예시다.</figcaption>
+        </figure>
+        <p>그림에서 TID <code>(42,3)</code>은 heap block 42와 그 페이지의 line pointer 3번을 뜻한다. line pointer는 tuple 데이터가 페이지 안 어디에 있는지 가리킨다. root tuple의 <code>ctid = (42,4)</code>는 다음 tuple version의 위치이고, 그 새 tuple은 <code>HEAP_ONLY_TUPLE</code> flag로 별도 인덱스 항목이 없음을 나타낸다. 이전 tuple의 <code>HEAP_HOT_UPDATED</code>와 새 tuple의 <code>HEAP_ONLY_TUPLE</code>는 둘 다 tuple header의 상태 flag이지 line pointer의 flag가 아니다. 최신 tuple의 <code>ctid</code>는 자기 TID를 가리킨다. 그래서 연결리스트와 비슷하게 따라갈 수 있지만, 별도 linked-list 객체가 있는 것은 아니다.<a class="ref" href="https://www.postgresql.org/docs/18/storage-page-layout.html" target="_blank" rel="noopener">[PG page layout]</a><a class="ref" href="https://www.postgresql.org/docs/18/ddl-system-columns.html" target="_blank" rel="noopener">[PG ctid]</a><a class="ref" href="https://github.com/postgres/postgres/blob/REL_18_STABLE/src/backend/access/heap/README.HOT" target="_blank" rel="noopener">[HOT implementation notes]</a></p>
+      </section>
+
+      <section class="page-section" id="prune"><p class="section-kicker">PAGE PRUNING</p><h2>중간 버전이 항상 남아 있는 것은 아니다</h2>
+        <p>어떤 실행 중인 트랜잭션도 더는 볼 필요가 없는 중간 HOT 버전은 페이지 pruning으로 정리될 수 있다. 인덱스가 계속 가리키는 root line pointer는 재사용하지 않고, 아직 보일 수 있는 가장 오래된 버전으로 향하는 redirect로 남길 수 있다. 그래서 매번 모든 과거 버전을 끝까지 훑는 것은 아니다. 아래 토글을 열면 line pointer와 tuple이 바뀌는 과정을 볼 수 있다.<a class="ref" href="https://www.postgresql.org/docs/18/storage-hot.html" target="_blank" rel="noopener">[PG HOT]</a><a class="ref" href="https://www.postgresql.org/docs/18/storage-page-layout.html" target="_blank" rel="noopener">[PG page layout]</a></p>
+        <details class="prune-toggle">
+          <summary>Pruning 과정을 단계별로 펼쳐 보기</summary>
+          <div class="prune-body">
+            <p>예시는 인덱스가 root의 <code>LP1</code>을 가리키고, 같은 heap page 안에 세 버전이 이어진 상황이다. <code>V1</code>과 <code>V2</code>는 각각 다음 버전을 <code>ctid</code>로 가리킨다.</p>
+            <p class="prune-legend">표기: <code>LP1 → V1</code>은 line pointer가 tuple 본문을 가리키고, <code>V1 --ctid→ LP2</code>는 tuple header가 다음 버전의 위치를 가리킨다는 뜻이다.</p>
+            <ol class="prune-steps">
+              <li><strong>HOT chain이 있고, 오래된 버전이 아직 필요할 수 있다.</strong>
+                <pre>Index → LP1 → V1
+V1 --ctid→ LP2 → V2
+V2 --ctid→ LP3 → V3</pre>
+                <p>아직 어떤 활성 snapshot이 V1 또는 V2를 볼 수 있다면 그 버전은 남겨둔다. Pruning은 페이지 안의 모든 과거 버전을 무조건 지우는 작업이 아니다.</p>
+              </li>
+              <li><strong>V1이 어떤 트랜잭션에도 더는 보이지 않으면, tuple 본문은 치우고 root LP1은 redirect로 보존한다.</strong>
+                <pre>Index → LP1 [REDIRECT] → LP2 → V2
+V2 --ctid→ LP3 → V3
+V1 tuple 본문 제거</pre>
+                <p>인덱스가 LP1을 계속 참조하므로 LP1 자체를 없애거나 다른 용도로 재사용할 수 없다. 대신 <code>LP_REDIRECT</code> 상태로 바꾸어, 아직 보일 수 있는 가장 오래된 버전의 line pointer인 LP2로 연결한다.</p>
+              </li>
+              <li><strong>나중에 V2도 더는 필요 없게 되면, 중간 버전을 제거하고 redirect 목적지를 갱신한다.</strong>
+                <pre>Index → LP1 [REDIRECT] → LP3 → V3
+LP2와 V2: 회수·재사용 가능</pre>
+                <p>V2는 인덱스가 직접 가리키지 않는 heap-only tuple이므로, 안전해진 뒤 tuple과 LP2를 함께 회수할 수 있다. LP1은 여전히 인덱스의 시작점으로 남고, 이제 LP3로 redirect한다.</p>
+              </li>
+            </ol>
+            <p class="small">이런 페이지 단위 정리는 일반 작업 중, 때로는 SELECT가 페이지를 읽을 때도 일어날 수 있다. VACUUM과 관련은 있지만 같은 작업은 아니다. HOT pruning은 해당 페이지의 dead tuple과 line pointer를 정리하고, VACUUM은 테이블 전반의 dead tuple 및 인덱스 정리 등 더 넓은 작업을 수행한다.<a class="ref" href="https://www.postgresql.org/docs/18/storage-hot.html" target="_blank" rel="noopener">[PG HOT pruning]</a><a class="ref" href="https://www.postgresql.org/docs/18/routine-vacuuming.html" target="_blank" rel="noopener">[PG routine vacuuming]</a></p>
+          </div>
+        </details>
+        <div class="callout warm"><strong>핵심 구분:</strong> non-HOT은 검색 키에 매칭된 인덱스 후보 TID를 확인한다. HOT은 인덱스가 가리키는 시작점에서 같은 페이지의 HOT chain을 따라갈 수 있다. 둘 다 최종 반환 여부는 snapshot 가시성으로 결정된다.</div>
+      </section>
+
+      <nav class="page-nav" aria-label="페이지 이동"><a href="index.html"><small>← 이전 페이지 · 01</small><strong>인덱스 조회 경로</strong></a><a class="next" href="innodb.html"><small>다음 페이지 · 03</small><strong>InnoDB와 Undo →</strong></a></nav>
+      <footer class="page-end"><span>02 / 04 · PostgreSQL과 MVCC</span><a href="index.html">목차로 돌아가기</a></footer>
+    </article></main>
+  </div>
+  <script src="nav.js"></script>
+</body>
+</html>

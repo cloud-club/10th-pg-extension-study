@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#f7f8fa">
+  <title>03. InnoDB와 Undo — 같은 UPDATE, 다른 인덱스 비용</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body data-page="innodb">
+  <header class="topbar">
+    <div class="brand-wrap"><button class="mobile-menu" type="button" aria-label="목차 열기" aria-expanded="false">☰</button><a class="brand" href="index.html"><span class="brand-mark">DB</span><span>STUDY NOTES</span></a></div>
+    <div class="top-meta"><span class="hide-mobile">PostgreSQL 18 · MySQL 8.4</span><span>03 / 04 · INNODB MVCC</span></div><div class="read-progress" aria-hidden="true"></div>
+  </header>
+  <div class="layout">
+    <aside class="sidebar" aria-label="학습 페이지 목차">
+      <p class="book-label">PostgreSQL Study · Indexes</p><p class="book-title">같은 UPDATE,<br>다른 인덱스 비용</p>
+      <nav class="toc">
+        <p class="nav-heading">페이지</p><a href="index.html">01 · 인덱스 조회 경로</a><a href="postgresql.html">02 · PostgreSQL과 MVCC</a><a class="active" aria-current="page" href="innodb.html">03 · InnoDB와 Undo</a><a href="optimizations.html">04 · 구조와 접근 최적화</a>
+        <p class="nav-heading">이 페이지 안에서</p><a class="sub" href="#clustered">Clustered record</a><a class="sub" href="#undo">Undo로 과거 버전 읽기</a><a class="sub" href="#secondary">보조 키 UPDATE</a><a class="sub" href="#purge">Purge 과정</a><a class="sub" href="#compare">두 엔진 비교</a>
+      </nav>
+      <div class="side-note">핵심: InnoDB는 clustered record와 Undo를 이용해 현재·과거 버전을 다룹니다.</div>
+    </aside>
+    <button class="mobile-overlay" type="button" aria-label="목차 닫기"></button>
+    <main class="main"><article class="article">
+      <div class="breadcrumbs"><a href="index.html">PostgreSQL Study</a><span>›</span><a href="index.html">Indexes</a><span>›</span><span>03 / 04</span></div>
+      <div class="eyebrow">CHAPTER 03 OF 04 · MVCC DIFFERENCE</div>
+      <h1>InnoDB는 현재 행과<br>Undo로 과거를 본다</h1>
+      <p class="subtitle">Clustered record와 secondary index가 UPDATE 때 바뀌는 방식</p>
+      <div class="page-meta"><span>MySQL 8.4</span><span>InnoDB</span><span>Clustered index · Undo</span></div>
+      <p class="lead">PostgreSQL이 heap의 여러 tuple version과 TID를 통해 접근한다면, InnoDB는 <strong>clustered index의 현재 레코드와 Undo 기록</strong>을 이용해 consistent read를 처리한다.</p>
+
+      <section class="page-section" id="clustered"><p class="section-kicker">CLUSTERED RECORD</p><h2>PK B-tree의 리프에 현재 행 레코드가 있다</h2>
+        <p>InnoDB의 primary key는 clustered index다. B-tree의 리프 페이지에는 PK뿐 아니라 그 행의 나머지 컬럼도 함께 저장된다. 따라서 PK로 검색하면 clustered PK B-tree를 내려가 리프의 clustered record를 찾는다. 보조 인덱스는 보조 키와 해당 행의 PK를 담는다.<a class="ref" href="https://dev.mysql.com/doc/refman/8.4/en/innodb-index-types.html" target="_blank" rel="noopener">[InnoDB index types]</a><a class="ref" href="https://dev.mysql.com/doc/refman/8.4/en/innodb-physical-structure.html" target="_blank" rel="noopener">[InnoDB physical structure]</a></p>
+        <div class="two-col" aria-label="InnoDB PK 및 보조 인덱스 조회 경로">
+          <div class="col-block"><h3>PK로 조회</h3><p><code>PK B-tree → 리프의 clustered record</code><br>리프에 행 데이터가 있어 바로 도달한다.</p></div>
+          <div class="col-block"><h3>보조 인덱스로 조회</h3><p><code>secondary B-tree → PK → clustered record</code><br>보조 인덱스에서 얻은 PK로 행 레코드를 찾는다.</p></div>
+        </div>
+        <p class="small">두 경로 모두 clustered record에 도달한다. 그 다음 현재 버전을 그대로 반환할지 Undo에서 과거 버전을 재구성할지는 조회의 Read View가 결정한다. 자세한 두 경우는 다음 절에서 이어서 본다.</p>
+      </section>
+
+      <section class="page-section" id="undo"><p class="section-kicker">UNDO · CONSISTENT READ</p><h2>Snapshot에 맞는 과거 버전이 필요하면 Undo를 이용한다</h2>
+        <p>UPDATE 뒤 clustered record는 현재 값을 반영하고, 이전 상태를 복원하는 데 필요한 정보는 Undo에 기록된다. 레코드의 <code>DB_TRX_ID</code>는 마지막으로 삽입·갱신한 트랜잭션을 나타내고, <code>DB_ROLL_PTR</code>는 이전 버전을 재구성할 Undo 기록을 가리킨다. consistent read는 Read View를 기준으로 현재 버전이 보이는지 판단한다.<a class="ref" href="https://dev.mysql.com/doc/refman/8.4/en/innodb-multi-versioning.html" target="_blank" rel="noopener">[InnoDB MVCC]</a></p>
+        <h3>PK 조회도 Read View에 따라 두 경우로 나뉜다</h3>
+        <p>PK B-tree를 따라가면 리프의 clustered record에 바로 도달한다. PK 조회에는 보조 인덱스에서 PK를 얻어 clustered index를 다시 찾는 단계가 없다. 다만 리프의 값은 현재 저장된 버전이므로, 그 버전을 지금 Read View에서 반환해도 되는지는 따로 확인한다.</p>
+        <div class="two-col">
+          <div class="col-block"><h3>현재 버전이 보이면 그대로 반환</h3><p>현재 clustered record의 변경이 Read View에서 보이는 경우다. 예를 들어 <code>status = 'shipped'</code>를 만든 트랜잭션의 변경이 이 Read View에서 보이면 현재 레코드를 반환한다.</p></div>
+          <div class="col-block"><h3>현재 버전이 안 보이면 Undo 사용</h3><p>현재 버전을 만든 트랜잭션이 아직 진행 중이거나 Read View보다 뒤의 변경이라면 그대로 반환하지 않는다. <code>DB_ROLL_PTR</code>를 따라 Undo 기록으로 이전 버전을 재구성하고, Read View에 보이는 버전을 찾는다. 보이는 버전이 없으면 행을 반환하지 않는다.</p></div>
+        </div>
+        <pre>clustered record: status='shipped'
+  DB_TRX_ID = 105
+       │ Read View에서 105가 안 보임
+       ▼
+  DB_ROLL_PTR → Undo 기록
+       │ 수정 전 상태를 재구성
+       ▼
+  이전 버전: status='paid'
+       │ 같은 Read View로 다시 판정
+       ├─ 보임 → 'paid' 반환
+       └─ 안 보임 → 더 오래된 Undo 확인</pre>
+        <h3>Undo로 이전 버전을 재구성하는 순서</h3>
+        <p>주문 9001의 상태가 <code>paid → shipped</code>로 바뀌었고, 현재 clustered record에는 <code>shipped</code>와 마지막 변경 트랜잭션 <code>DB_TRX_ID=105</code>가 있다고 하자. 조회의 Read View에서는 105의 변경이 아직 보이지 않는 상황이다.<a class="ref" href="https://dev.mysql.com/doc/refman/8.4/en/innodb-consistent-read.html" target="_blank" rel="noopener">[Consistent reads]</a></p>
+        <ol class="steps">
+          <li><strong>현재 버전을 검사한다.</strong> InnoDB는 clustered record의 <code>DB_TRX_ID</code>가 나타내는 변경이 Read View에서 보이는지 판정한다. 보이면 현재 값 <code>shipped</code>를 반환한다.</li>
+          <li><strong>Undo 기록으로 이동한다.</strong> 현재 버전이 보이지 않으면 해당 record의 <code>DB_ROLL_PTR</code>를 따라 Undo 기록을 찾는다. Undo에는 UPDATE 직전의 행 내용을 재구성하는 데 필요한 정보가 있다.<a class="ref" href="https://dev.mysql.com/doc/refman/8.4/en/innodb-multi-versioning.html" target="_blank" rel="noopener">[Undo와 roll pointer]</a></li>
+          <li><strong>이전 버전을 만든다.</strong> Undo 정보를 현재 상태에 적용해 이전 행 버전, 이 예시에서는 <code>status='paid'</code>를 재구성한다. 과거 값이 별도의 clustered record로 검색되는 것이 아니라, 현재 레코드와 연결된 Undo 이력으로 consistent read용 버전을 만든다.</li>
+          <li><strong>같은 Read View로 다시 확인한다.</strong> 재구성한 버전이 보이면 <code>paid</code>를 반환한다. 그 버전도 보이지 않으면 더 오래된 Undo 이력을 따라 같은 검사를 반복한다. 끝까지 보이는 버전이 없으면 이 Read View에서 행은 보이지 않는다.</li>
+        </ol>
+        <details class="undo-toggle">
+          <summary>UPDATE 때 Undo record가 만들어지는 과정 보기</summary>
+          <div class="undo-body">
+            <p><code>status='paid'</code>인 주문 9001을 트랜잭션 105가 <code>shipped</code>로 바꾸는 경우를 보자. InnoDB는 clustered record를 갱신하기 전에, 그 변경을 되돌리거나 이전 버전을 재구성하는 데 필요한 정보를 update undo record로 남긴다.</p>
+            <pre class="undo-flow">UPDATE 직전
+clustered record: id=9001, status='paid'
+          │
+          ├─ update undo record 생성
+          │    이전 status='paid'
+          │    이전 버전 재구성에 필요한 정보
+          │    → transaction의 rollback segment
+          ▼
+clustered record 갱신
+  status='shipped'
+  DB_TRX_ID=105
+  DB_ROLL_PTR ─────────────→ 위 Undo record</pre>
+            <ol class="steps">
+              <li><strong>변경 전 값을 바탕으로 Undo를 기록한다.</strong> 이 예시에서 바뀐 <code>status</code>의 이전 값은 <code>paid</code>다. Undo는 그 변경을 취소하거나 해당 과거 버전을 만들 수 있는 정보이지, 매번 행 전체를 그대로 복사한 별도 행이라고 보면 안 된다.</li>
+              <li><strong>Undo record를 트랜잭션의 update undo log에 둔다.</strong> Undo log record는 rollback segment에 저장된다. 이 update undo는 트랜잭션 rollback뿐 아니라 consistent read에서 과거 버전을 만드는 데도 쓰인다.</li>
+              <li><strong>현재 clustered record를 갱신하고 연결한다.</strong> 현재 값은 <code>shipped</code>가 되고, <code>DB_TRX_ID</code>는 마지막 변경 트랜잭션을 표시한다. <code>DB_ROLL_PTR</code>는 방금 만든 Undo record를 가리켜 이전 버전으로 거슬러 갈 길을 남긴다.</li>
+              <li><strong>나중에 필요한 읽기가 Undo를 적용한다.</strong> Read View가 트랜잭션 105의 변경을 볼 수 없다면 roll pointer를 따라가 Undo의 이전 값을 반영해 <code>paid</code> 버전을 재구성하고, 같은 Read View로 다시 판정한다.</li>
+            </ol>
+            <p class="small">도식은 논리 흐름이며 Undo record의 바이트 단위 형식을 그린 것은 아니다. 변경 전 값과 이전 버전 복원에 필요한 정보가 Undo에 남고, 실제 record 크기는 보통 해당 행 전체보다 작다. INSERT용 undo는 주로 rollback에 쓰이는 별도 유형이며, 여기서 설명한 UPDATE용 undo는 오래된 consistent read가 더 이상 필요로 하지 않을 때까지 유지될 수 있다.<a class="ref" href="https://dev.mysql.com/doc/refman/8.4/en/innodb-undo-logs.html" target="_blank" rel="noopener">[Undo logs]</a><a class="ref" href="https://dev.mysql.com/doc/refman/8.4/en/innodb-multi-versioning.html" target="_blank" rel="noopener">[InnoDB multi-versioning]</a></p>
+          </div>
+        </details>
+        <p class="small">보조 인덱스 조회는 <code>secondary B-tree → PK → clustered record</code>로 도달한 뒤 같은 Read View visibility 판정을 거친다. 달라지는 것은 앞의 보조 인덱스 탐색 단계이지, 현재 버전과 Undo 중 어느 것을 읽을지 결정하는 원리는 아니다.<a class="ref" href="https://dev.mysql.com/doc/refman/8.4/en/innodb-index-types.html" target="_blank" rel="noopener">[InnoDB index types]</a></p>
+      </section>
+
+      <section class="page-section" id="secondary"><p class="section-kicker">SECONDARY INDEX UPDATE</p><h2>보조 키 컬럼이 바뀌면 인덱스 항목을 바꾼다</h2>
+        <p>예를 들어 <code>status</code>에 보조 인덱스가 있고, 주문 9001의 상태가 <code>paid</code>에서 <code>shipped</code>로 바뀐다고 하자.</p>
+        <pre>변경 전:
+  status index → (paid, PK=9001)
+
+UPDATE status = 'shipped'
+
+변경 뒤:
+  (paid, PK=9001)      기존 항목에 삭제 표시
+  (shipped, PK=9001)   새 인덱스 항목</pre>
+        <p>여기서 새로 생기는 것은 새로운 논리적 주문이 아니라 검색에 쓰일 새 인덱스 항목이다. 기존 항목은 삭제 표시된 상태로 남고, Undo 기록도 오래된 Read View가 필요로 할 수 있어 즉시 버리지 않는다. 언제 안전하게 치울 수 있는지는 다음 절의 purge 흐름에서 본다.<a class="ref" href="https://dev.mysql.com/doc/refman/8.4/en/innodb-multi-versioning.html" target="_blank" rel="noopener">[InnoDB MVCC]</a></p>
+        <div class="callout warm"><strong>컬럼이 인덱스에 없다면?</strong> UPDATE한 컬럼이 어떤 인덱스 키에도 쓰이지 않고 PK도 그대로라면, 그 보조 인덱스 항목 자체를 바꿀 필요가 없을 수 있다.</div>
+      </section>
+
+      <section class="page-section" id="purge"><p class="section-kicker">PURGE · BACKGROUND CLEANUP</p><h2>더 이상 필요 없는 Undo와 인덱스 흔적을 정리한다</h2>
+        <p><strong>Purge는 UPDATE나 DELETE 직후 행을 지우는 동작이 아니다.</strong> InnoDB는 오래된 버전이 어떤 트랜잭션의 consistent read나 rollback에 더 이상 필요하지 않을 때까지 Undo 정보를 보존한다. 백그라운드 purge 작업은 커밋된 트랜잭션의 Undo 페이지를 history list에서 처리하고, 안전해진 Undo와 삭제 표시된 레코드를 정리한다.<a class="ref" href="https://dev.mysql.com/doc/refman/8.4/en/innodb-purge-configuration.html" target="_blank" rel="noopener">[Purge configuration]</a><a class="ref" href="https://dev.mysql.com/doc/refman/8.4/en/innodb-multi-versioning.html" target="_blank" rel="noopener">[InnoDB MVCC]</a></p>
+        <h3><code>paid → shipped</code> UPDATE 예시</h3>
+        <pre>T1: 이전 시점의 Read View가 열려 있음
+UPDATE paid → shipped
+  현재 clustered row: shipped
+  Undo: 이전 값 paid 재구성용
+  old index (paid,9001): delete-marked
+  new index (shipped,9001): 삽입
+  T1은 아직 paid 버전이 필요할 수 있음
+              ↓
+T1 종료; 필요한 Read View가 더는 없음
+  PURGE
+    → 오래된 Undo 정보 정리
+    → old (paid,9001) 항목 제거
+    → 현재 row와 새 인덱스 항목은 유지</pre>
+        <ol class="steps">
+          <li><strong>변경 흔적을 남긴다.</strong> UPDATE는 clustered record를 현재 값으로 갱신하고 과거 상태를 Undo로 복원할 수 있게 한다. 보조 키가 바뀌면 기존 secondary 항목에 삭제 표시를 하고 새 항목을 넣는다.</li>
+          <li><strong>커밋된 변경을 대기열에 둔다.</strong> consistent read에 필요한 UPDATE/DELETE Undo 페이지는 커밋 뒤 history list에 연결되고, 백그라운드 purge가 이를 주기적으로 처리한다.</li>
+          <li><strong>필요한 Read View가 남았는지 확인한다.</strong> 오래된 snapshot이 해당 Undo로 과거 버전을 만들어야 한다면 아직 정리하지 않는다. 그래서 긴 트랜잭션이나 오래 열린 consistent read가 있으면 purge가 뒤처질 수 있다.<a class="ref" href="https://dev.mysql.com/doc/refman/8.4/en/innodb-purge-configuration.html" target="_blank" rel="noopener">[History list length]</a></li>
+          <li><strong>안전해지면 물리 정리한다.</strong> 더 이상 필요하지 않은 Undo 기록을 버리고, 필요하다면 delete-marked secondary 항목을 제거한다. SQL <code>DELETE</code>의 경우에는 MVCC에 더 이상 필요하지 않을 때 clustered row와 관련 인덱스 레코드도 실제로 제거한다.<a class="ref" href="https://dev.mysql.com/doc/refman/8.4/en/innodb-purge-configuration.html" target="_blank" rel="noopener">[Purge 대상]</a></li>
+        </ol>
+        <div class="callout warm"><strong>읽기와 정리를 구분하기.</strong> 조회는 Read View에 맞는 과거 버전을 Undo로 재구성한다. Purge는 그 버전을 필요로 하는 읽기가 모두 끝난 뒤 Undo와 삭제 표시된 흔적을 치운다. 오래 열린 Read View가 있으면 <code>History list length</code>가 늘고 정리가 늦어질 수 있다.</div>
+      </section>
+
+      <section class="page-section" id="compare"><p class="section-kicker">SIDE BY SIDE</p><h2>MVCC가 인덱스 유지에 미치는 차이</h2>
+        <table class="compare"><thead><tr><th>질문</th><th>PostgreSQL</th><th>InnoDB</th></tr></thead><tbody>
+          <tr><td>행 버전</td><td>heap에 tuple version이 추가될 수 있음</td><td>clustered record의 현재 상태 + Undo 정보로 과거 버전 구성</td></tr>
+          <tr><td>보조 인덱스의 행 locator</td><td>TID → heap tuple</td><td>PK → clustered PK index</td></tr>
+          <tr><td>키 미변경 UPDATE</td><td>non-HOT이면 새 인덱스 항목이 필요할 수 있음. 조건에 맞는 HOT이면 생략 가능</td><td>현재 행 레코드 갱신. 보조 키가 그대로면 그 보조 항목은 보통 그대로</td></tr>
+          <tr><td>보조 키 변경</td><td>새 tuple version과 인덱스 항목이 연결될 수 있음</td><td>이전 secondary entry 표시 후 새 key·PK 항목 추가 가능</td></tr>
+          <tr><td>오래된 흔적 정리</td><td>VACUUM이 dead tuple 및 인덱스 항목을 정리</td><td>Undo purge 및 delete-mark된 secondary entry 정리</td></tr>
+        </tbody></table>
+        <p>이 차이는 작업부하에 따라 읽기·쓰기 비용과 저장 공간에 다르게 나타난다. 어느 한 엔진이 언제나 읽기 또는 쓰기에 유리하다고 단정하는 대신, 실제 쿼리와 UPDATE 패턴을 측정해야 한다.</p>
+      </section>
+
+      <nav class="page-nav" aria-label="페이지 이동"><a href="postgresql.html"><small>← 이전 페이지 · 02</small><strong>PostgreSQL과 MVCC</strong></a><a class="next" href="optimizations.html"><small>다음 페이지 · 04</small><strong>구조와 접근 최적화 →</strong></a></nav>
+      <footer class="page-end"><span>03 / 04 · InnoDB와 Undo</span><a href="index.html">목차로 돌아가기</a></footer>
+    </article></main>
+  </div>
+  <script src="nav.js"></script>
+</body>
+</html>

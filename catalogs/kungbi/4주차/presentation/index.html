@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#f7f8fa">
+  <title>01. 조회 경로 — 같은 UPDATE, 다른 인덱스 비용</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body data-page="lookup">
+  <header class="topbar">
+    <div class="brand-wrap"><button class="mobile-menu" type="button" aria-label="목차 열기" aria-expanded="false">☰</button><a class="brand" href="index.html"><span class="brand-mark">DB</span><span>STUDY NOTES</span></a></div>
+    <div class="top-meta"><span class="hide-mobile">PostgreSQL 18 · MySQL 8.4</span><span>01 / 04 · COMMON PATH</span></div><div class="read-progress" aria-hidden="true"></div>
+  </header>
+  <div class="layout">
+    <aside class="sidebar" aria-label="학습 페이지 목차">
+      <p class="book-label">PostgreSQL Study · Indexes</p><p class="book-title">같은 UPDATE,<br>다른 인덱스 비용</p>
+      <nav class="toc">
+        <p class="nav-heading">페이지</p>
+        <a class="active" aria-current="page" href="index.html">01 · 인덱스 조회 경로</a>
+        <a href="postgresql.html">02 · PostgreSQL과 MVCC</a>
+        <a href="innodb.html">03 · InnoDB와 Undo</a>
+        <a href="optimizations.html">04 · 구조와 접근 최적화</a>
+        <p class="nav-heading">이 페이지 안에서</p>
+        <a class="sub" href="#question">오늘의 질문</a>
+        <a class="sub" href="#terms">행 · 버전 · 인덱스 항목</a>
+        <a class="sub" href="#paths">PK와 보조 키 경로</a>
+        <a class="sub" href="#tid">TID는 위치 정보</a>
+      </nav>
+      <div class="side-note">4개 페이지를 차례로 읽으며 설명할 수 있는 발표용 학습 자료입니다.</div>
+    </aside>
+    <button class="mobile-overlay" type="button" aria-label="목차 닫기"></button>
+    <main class="main"><article class="article">
+      <div class="breadcrumbs"><a href="index.html">PostgreSQL Study</a><span>›</span><a href="index.html">Indexes</a><span>›</span><span>01 / 04</span></div>
+      <div class="eyebrow">CHAPTER 01 OF 04 · COMMON PATH</div>
+      <h1>인덱스는 행을<br>어떻게 찾을까?</h1>
+      <p class="subtitle">PostgreSQL의 heap/TID와 InnoDB의 clustered/secondary index</p>
+      <div class="page-meta"><span>PostgreSQL 18 · 일반 heap/B-tree</span><span>MySQL 8.4 · InnoDB</span><span>공통 조회 경로</span></div>
+      <p class="lead">MVCC에서는 과거 버전을 어디에 두는지 살펴봤다면, 이번에는 <strong>인덱스가 행을 무엇으로 찾아가며, 행이 바뀔 때 무엇을 고치는지</strong>를 본다.</p>
+
+      <section class="page-section" id="question">
+        <p class="section-kicker">ORIENTATION</p><h2>오늘의 질문</h2>
+        <p>비교의 중심은 “어느 DB가 무조건 빠른가?”가 아니다. 먼저 각 DB에서 검색 키가 실제 행까지 어떤 경로로 이어지는지 확인하고, 그 차이가 UPDATE와 버전 관리에 어떤 영향을 주는지 따라간다.</p>
+        <div class="learn"><p class="learn-title">이 자료의 전개</p><ul><li>공통 바탕: 인덱스에서 실제 행까지의 경로</li><li>MVCC 차이: PostgreSQL의 tuple version과 InnoDB의 Undo</li><li>별도 주제: B-tree 저장 방식과 행 접근 순서 최적화</li></ul></div>
+      </section>
+
+      <section class="page-section" id="terms">
+        <p class="section-kicker">SHARED VOCABULARY</p><h2>행 · 행 버전 · 인덱스 항목을 구분하자</h2>
+        <table class="compare"><thead><tr><th>개념</th><th>주문 예시</th><th>뜻</th></tr></thead><tbody>
+          <tr><td>논리적 행</td><td>주문 <code>id=9001</code></td><td>애플리케이션이 같은 주문이라고 보는 한 건</td></tr>
+          <tr><td>행 버전</td><td><code>paid</code>였던 모습, <code>shipped</code>인 모습</td><td>UPDATE 전후 MVCC가 다루는 저장 상태</td></tr>
+          <tr><td>인덱스 항목</td><td><code>customer_id=42 → 위치 정보</code></td><td>검색 키와 행을 찾아가는 정보의 연결</td></tr>
+        </tbody></table>
+        <p>주문 9001의 상태를 바꿔도 논리적인 주문이 새로 생기는 것은 아니다. 내부에 새 행 버전이 생길 수 있고, 구현에 따라 새 인덱스 항목이 필요할 수도 있다. “새 버전”과 “새 인덱스 항목”은 서로 다른 개념이다.</p>
+      </section>
+
+      <section class="page-section" id="paths">
+        <p class="section-kicker">ROW LOOKUP</p><h2>PK와 보조 키, 실제 행까지 가는 경로</h2>
+        <h3>PK 검색</h3>
+        <div class="flow" aria-label="PK 조회 경로 비교"><div class="flow-node"><b>PostgreSQL</b><small>PK B-tree → TID → heap tuple</small></div><span class="flow-arrow" aria-hidden="true">⇄</span><div class="flow-node"><b>InnoDB</b><small>clustered PK B-tree → 리프의 행 레코드</small></div></div>
+        <h3>보조 키 검색</h3>
+        <div class="flow" aria-label="보조 인덱스 경로 비교"><div class="flow-node"><b>PostgreSQL</b><small>보조 B-tree → TID → heap tuple</small></div><span class="flow-arrow" aria-hidden="true">⇄</span><div class="flow-node"><b>InnoDB</b><small>보조 B-tree → PK → clustered PK B-tree → 행</small></div></div>
+        <p>PostgreSQL은 인덱스와 heap이 분리되어 있다. InnoDB에서는 PK 인덱스가 clustered index이며, 리프에 행 레코드가 저장된다. InnoDB 보조 인덱스는 행을 찾는 데 사용할 PK를 저장한다.<a class="ref" href="https://www.postgresql.org/docs/18/indexam.html" target="_blank" rel="noopener">[PG index access]</a><a class="ref" href="https://dev.mysql.com/doc/refman/8.4/en/innodb-index-types.html" target="_blank" rel="noopener">[InnoDB index types]</a></p>
+      </section>
+
+      <section class="page-section" id="tid">
+        <p class="section-kicker">POSTGRESQL · TID</p><h2>TID는 또 다른 인덱스가 아니라 heap의 위치다</h2>
+        <pre>customer_id 인덱스
+  42 ─────→ TID (8, 3)
+                 │
+                 ▼
+             heap page 8
+               item 3: 주문 9001의 tuple version</pre>
+        <p><strong>TID</strong>(Tuple Identifier)는 heap 페이지 번호와 페이지 안 항목 번호로 된 위치 정보다. 따라서 PostgreSQL PK 조회는 <code>PK B-tree → TID → heap</code>이며, TID를 찾는 두 번째 인덱스를 다시 타지 않는다. <code>ctid</code>는 tuple version의 물리적 위치이므로 UPDATE 뒤 달라질 수 있고, 영구적인 주문 ID로 사용하면 안 된다.<a class="ref" href="https://www.postgresql.org/docs/18/ddl-system-columns.html" target="_blank" rel="noopener">[PG system columns]</a><a class="ref" href="https://www.postgresql.org/docs/18/storage-page-layout.html" target="_blank" rel="noopener">[PG page layout]</a></p>
+        <div class="callout warm"><strong>주의:</strong> 탐색 경로의 단계 수만으로 실제 디스크 I/O나 어느 DB가 빠른지를 결론낼 수 없다. 캐시, 키 길이, 데이터 분포, UPDATE 패턴과 실행 계획이 함께 작용한다.</div>
+      </section>
+
+      <nav class="page-nav" aria-label="페이지 이동"><span></span><a class="next" href="postgresql.html"><small>다음 페이지 · 02</small><strong>PostgreSQL과 MVCC →</strong></a></nav>
+      <footer class="page-end"><span>01 / 04 · 공통 조회 경로</span><span>PostgreSQL Study · Index Deep Dive</span></footer>
+    </article></main>
+  </div>
+  <script src="nav.js"></script>
+</body>
+</html>
