@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 500" role="img" aria-labelledby="title desc">
+  <title id="title">PostgreSQL HOT chain: TID, line pointer, ctid, tuple flags</title>
+  <desc id="desc">The index entry points to TID (42,3), selecting line pointer 3 on heap block 42. That line pointer points to the root tuple. Its ctid points to TID (42,4), the next tuple version. The root tuple has HEAP_HOT_UPDATED; the new heap-only tuple has HEAP_ONLY_TUPLE.</desc>
+  <defs>
+    <marker id="arrow-blue" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L8,4 L0,8 Z" fill="#2864b4" />
+    </marker>
+    <marker id="arrow-gray" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L8,4 L0,8 Z" fill="#697687" />
+    </marker>
+    <style>
+      text { font-family: Pretendard, -apple-system, BlinkMacSystemFont, "Noto Sans KR", sans-serif; fill: #202632; }
+      .mono { font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; }
+      .label { font-size: 10px; font-weight: 800; letter-spacing: .08em; fill: #596575; }
+      .body { font-size: 12px; }
+      .small { font-size: 10px; fill: #596575; }
+      .tuple-head { font-size: 10px; font-weight: 800; letter-spacing: .05em; fill: #194a8d; }
+      .flag { font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; font-size: 9px; font-weight: 700; }
+    </style>
+  </defs>
+
+  <rect x="8" y="10" width="344" height="56" rx="4" fill="#f7f9fb" stroke="#cfd8e3" />
+  <text x="20" y="30" class="label">B-TREE INDEX ENTRY</text>
+  <text x="20" y="52" class="body mono">account_id = 7  →  TID (42,3)</text>
+
+  <rect x="8" y="108" width="344" height="340" rx="4" fill="#ffffff" stroke="#b9c7d7" />
+  <rect x="8" y="108" width="344" height="34" rx="4" fill="#edf4fc" stroke="#b9c7d7" />
+  <path d="M8 138 H352" stroke="#b9c7d7" />
+  <text x="180" y="131" text-anchor="middle" class="label" fill="#194a8d">HEAP PAGE · BLOCK 42</text>
+  <text x="126" y="162" class="label">TUPLE DATA AREA</text>
+
+  <!-- The index TID selects line pointer 3 on block 42. -->
+  <path d="M275 66 V84 H65 V173" fill="none" stroke="#2864b4" stroke-width="1.8" marker-end="url(#arrow-blue)" />
+
+  <rect x="18" y="176" width="94" height="110" rx="3" fill="#f7f9fb" stroke="#cfd8e3" />
+  <text x="65" y="204" text-anchor="middle" class="body" font-weight="800">LP 3</text>
+  <text x="65" y="226" text-anchor="middle" class="small">offset 3</text>
+  <text x="65" y="248" text-anchor="middle" class="small mono">TID (42,3)</text>
+  <path d="M112 231 H124" fill="none" stroke="#697687" stroke-width="1.6" marker-end="url(#arrow-gray)" />
+
+  <rect x="128" y="176" width="216" height="110" rx="3" fill="#ffffff" stroke="#9fb4cd" />
+  <text x="140" y="193" class="tuple-head">ROOT TUPLE · OFFSET 3</text>
+  <text x="140" y="212" class="body mono">account_id = 7</text>
+  <text x="140" y="230" class="body mono">note = 'draft'</text>
+  <text x="140" y="248" class="body mono">ctid → (42,4)</text>
+  <rect x="138" y="256" width="196" height="20" rx="3" fill="#fbf4ed" stroke="#ead8c6" />
+  <text x="146" y="270" class="flag" fill="#7a4b27">HEAP_HOT_UPDATED</text>
+
+  <path d="M236 287 V317" fill="none" stroke="#2864b4" stroke-width="1.8" marker-end="url(#arrow-blue)" />
+  <text x="248" y="306" class="small">ctid</text>
+
+  <rect x="18" y="320" width="94" height="110" rx="3" fill="#f7f9fb" stroke="#cfd8e3" />
+  <text x="65" y="348" text-anchor="middle" class="body" font-weight="800">LP 4</text>
+  <text x="65" y="370" text-anchor="middle" class="small">offset 4</text>
+  <text x="65" y="392" text-anchor="middle" class="small mono">TID (42,4)</text>
+  <path d="M112 375 H124" fill="none" stroke="#697687" stroke-width="1.6" marker-end="url(#arrow-gray)" />
+
+  <rect x="128" y="320" width="216" height="110" rx="3" fill="#f8fbfe" stroke="#9fb4cd" />
+  <text x="140" y="337" class="tuple-head">HEAP-ONLY TUPLE · OFFSET 4</text>
+  <text x="140" y="356" class="body mono">account_id = 7</text>
+  <text x="140" y="374" class="body mono">note = 'sent'</text>
+  <text x="140" y="392" class="body mono">ctid = (42,4) · self</text>
+  <rect x="138" y="400" width="196" height="20" rx="3" fill="#edf4fc" stroke="#d3e2f4" />
+  <text x="146" y="414" class="flag" fill="#194a8d">HEAP_ONLY_TUPLE</text>
+
+  <text x="12" y="469" class="small">TID offset selects a line pointer; that pointer locates tuple data.</text>
+  <text x="12" y="487" class="small">HOT flags live in tuple headers, not in line pointers.</text>
+</svg>

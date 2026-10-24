@@ -30,3 +30,4 @@
 | --- | --- | --- | --- |
 | [신웅비 (@kungbi)](kungbi/) | 2주차 | PostgreSQL의 기원·확장 철학과 MySQL 기술 계보 | [조사 문서·PPT·PDF·발표 대본](kungbi/2주차/) |
 | [신웅비 (@kungbi)](kungbi/) | 3주차 | PostgreSQL과 InnoDB의 MVCC — VACUUM과 Undo/Purge | [조사 문서·HTML 발표자료·발표 대본](kungbi/3주차/) |
+| [신웅비 (@kungbi)](kungbi/) | 4주차 | 같은 UPDATE, 다른 인덱스 비용 — heap/TID와 clustered/secondary index | [조사 문서·발표 원고·HTML 위키](kungbi/4주차/) |

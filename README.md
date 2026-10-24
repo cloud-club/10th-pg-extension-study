@@ -89,7 +89,7 @@
 
 | 경로 | 내용 |
 | --- | --- |
-| [`catalogs/kungbi/`](catalogs/kungbi/) | **신웅비 (@kungbi) 주차별 자료.** 2주차 역사·설계 계보, 3주차 MVCC와 VACUUM·Undo/Purge 비교 |
+| [`catalogs/kungbi/`](catalogs/kungbi/) | **신웅비 (@kungbi) 주차별 자료.** 2주차 역사·설계 계보, 3주차 MVCC, [4주차 인덱스 조회 경로·UPDATE 비용](catalogs/kungbi/4주차/) |
 | [`catalogs/`](catalogs/) | **핵심 산출물.** 익스텐션 한 개 = 문서 한 장 |
 | [`issues/`](issues/) | 트러블슈팅 기록 - 한 명의 에러가 모두의 학습 자료 |
 
